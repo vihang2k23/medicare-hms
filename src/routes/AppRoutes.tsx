@@ -10,6 +10,7 @@ import ReceptionistQueue from '../pages/ReceptionistQueue'
 import NurseDashboard from '../pages/NurseDashboard'
 import NurseBeds from '../pages/NurseBeds'
 import AccessDenied from '../pages/AccessDenied'
+import PlaceholderPage from '../components/PlaceholderPage'
 
 export default function AppRoutes() {
   return (
@@ -18,12 +19,30 @@ export default function AppRoutes() {
       <Route path="/" element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
           <Route index element={<RedirectToDefault />} />
+          {/* Admin */}
           <Route path="admin" element={<AdminDashboard />} />
+          <Route path="admin/opd-queue" element={<PlaceholderPage title="OPD Queue" />} />
+          <Route path="admin/beds" element={<PlaceholderPage title="Bed Management" />} />
+          <Route path="admin/patients" element={<PlaceholderPage title="Patients" />} />
+          <Route path="admin/appointments" element={<PlaceholderPage title="Appointments" />} />
+          <Route path="admin/prescriptions" element={<PlaceholderPage title="Prescriptions" />} />
+          <Route path="admin/doctors" element={<PlaceholderPage title="Doctor Directory" />} />
+          <Route path="admin/reports" element={<PlaceholderPage title="Reports & Analytics" />} />
+          {/* Doctor */}
           <Route path="doctor" element={<DoctorDashboard />} />
+          <Route path="doctor/patients" element={<PlaceholderPage title="My Patients" />} />
+          <Route path="doctor/prescriptions" element={<PlaceholderPage title="Prescriptions" />} />
+          <Route path="doctor/schedule" element={<PlaceholderPage title="My Schedule" />} />
+          {/* Receptionist */}
           <Route path="receptionist" element={<ReceptionistDashboard />} />
           <Route path="receptionist/queue" element={<ReceptionistQueue />} />
+          <Route path="receptionist/registration" element={<PlaceholderPage title="Patient Registration" />} />
+          <Route path="receptionist/appointments" element={<PlaceholderPage title="Appointments" />} />
+          {/* Nurse */}
           <Route path="nurse" element={<NurseDashboard />} />
           <Route path="nurse/beds" element={<NurseBeds />} />
+          <Route path="nurse/vitals" element={<PlaceholderPage title="Vitals Entry" />} />
+          {/* Shared */}
           <Route path="access-denied" element={<AccessDenied />} />
         </Route>
       </Route>
