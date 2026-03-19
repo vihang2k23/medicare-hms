@@ -6,33 +6,33 @@ import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from '../app/store'
 import { toggleSidebar } from '../features/ui/uiSlice'
 
-const ACCENT_STYLES: Record<
+const ACCENT: Record<
   SidebarAccent,
-  { border: string; activeBg: string; activeBorder: string; hoverBg: string }
+  { activeBg: string; activeBorder: string; hoverBg: string; iconBg: string }
 > = {
   blue: {
-    border: 'border-l-blue-500',
-    activeBg: 'bg-blue-500/20 dark:bg-blue-500/20',
-    activeBorder: 'border-l-blue-400',
-    hoverBg: 'hover:bg-blue-500/10 dark:hover:bg-blue-500/10',
+    activeBg: 'bg-sky-50 dark:bg-sky-500/10',
+    activeBorder: 'border-sky-500 text-sky-600 dark:text-sky-400',
+    hoverBg: 'hover:bg-slate-100 dark:hover:bg-slate-800/80',
+    iconBg: 'bg-sky-100 dark:bg-sky-500/20 text-sky-600 dark:text-sky-400',
   },
   green: {
-    border: 'border-l-emerald-500',
-    activeBg: 'bg-emerald-500/20 dark:bg-emerald-500/20',
-    activeBorder: 'border-l-emerald-400',
-    hoverBg: 'hover:bg-emerald-500/10 dark:hover:bg-emerald-500/10',
+    activeBg: 'bg-emerald-50 dark:bg-emerald-500/10',
+    activeBorder: 'border-emerald-500 text-emerald-600 dark:text-emerald-400',
+    hoverBg: 'hover:bg-slate-100 dark:hover:bg-slate-800/80',
+    iconBg: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
   },
   purple: {
-    border: 'border-l-violet-500',
-    activeBg: 'bg-violet-500/20 dark:bg-violet-500/20',
-    activeBorder: 'border-l-violet-400',
-    hoverBg: 'hover:bg-violet-500/10 dark:hover:bg-violet-500/10',
+    activeBg: 'bg-violet-50 dark:bg-violet-500/10',
+    activeBorder: 'border-violet-500 text-violet-600 dark:text-violet-400',
+    hoverBg: 'hover:bg-slate-100 dark:hover:bg-slate-800/80',
+    iconBg: 'bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400',
   },
   orange: {
-    border: 'border-l-orange-500',
-    activeBg: 'bg-orange-500/20 dark:bg-orange-500/20',
-    activeBorder: 'border-l-orange-400',
-    hoverBg: 'hover:bg-orange-500/10 dark:hover:bg-orange-500/10',
+    activeBg: 'bg-orange-50 dark:bg-orange-500/10',
+    activeBorder: 'border-orange-500 text-orange-600 dark:text-orange-400',
+    hoverBg: 'hover:bg-slate-100 dark:hover:bg-slate-800/80',
+    iconBg: 'bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400',
   },
 }
 
@@ -46,43 +46,72 @@ export default function Sidebar() {
 
   const config = ROLE_CONFIG[user.role]
   const links = config.sidebarLinks
-  const accent = ACCENT_STYLES[config.accent]
+  const styles = ACCENT[config.accent]
 
   return (
     <aside
-      className={`${sidebarOpen ? 'w-64' : 'w-0'} min-h-screen bg-gray-800 dark:bg-gray-900 text-white overflow-hidden transition-all duration-200 flex-shrink-0 border-r border-gray-700 dark:border-gray-800 border-l-4 ${accent.border}`}
+      className={`${sidebarOpen ? 'w-64' : 'w-0'} min-h-screen overflow-hidden transition-[width] duration-200 ease-out flex-shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800`}
     >
-      <div className="w-64 min-h-screen p-4">
-        <div className="flex items-center justify-between mb-4">
-          <span className="font-semibold text-sm text-gray-300 dark:text-gray-400">Menu</span>
+      <div className="w-64 min-h-screen flex flex-col">
+        {/* Nav header - Vuexy style: logo area + collapse */}
+        <div className="flex items-center justify-between h-16 px-4 border-b border-slate-100 dark:border-slate-800 shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
+              M
+            </div>
+            <span className="font-semibold text-slate-800 dark:text-white truncate">Menu</span>
+          </div>
           <button
             type="button"
             onClick={() => dispatch(toggleSidebar())}
-            className="p-1 rounded hover:bg-gray-700 dark:hover:bg-gray-800"
+            className="p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors shrink-0"
             aria-label="Toggle sidebar"
           >
-            {sidebarOpen ? '←' : '→'}
+            <span className="text-sm">{sidebarOpen ? '◀' : '▶'}</span>
           </button>
         </div>
-        <nav className="flex flex-col gap-1">
-          {links.map(({ path, label }) => {
-            const isActive = location.pathname === path || location.pathname.startsWith(path + '/')
-            return (
-              <Link
-                key={path}
-                to={path}
-                className={`px-3 py-2 rounded border-l-2 border-transparent ${accent.hoverBg} ${
-                  isActive ? `${accent.activeBg} ${accent.activeBorder}` : 'border-l-transparent'
-                }`}
-              >
-                {label}
-              </Link>
-            )
-          })}
+
+        {/* Vertical menu */}
+        <nav className="flex-1 overflow-y-auto py-4 px-3">
+          <p className="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+            Navigation
+          </p>
+          <ul className="space-y-0.5">
+            {links.map(({ path, label }) => {
+              const isActive = location.pathname === path || location.pathname.startsWith(path + '/')
+              return (
+                <li key={path}>
+                  <Link
+                    to={path}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border-l-2 border-transparent transition-colors ${styles.hoverBg} ${
+                      isActive
+                        ? `${styles.activeBg} ${styles.activeBorder} border-l-2`
+                        : 'text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    <span
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-medium shrink-0 ${
+                        isActive ? styles.iconBg : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                      }`}
+                    >
+                      {label.charAt(0)}
+                    </span>
+                    <span className="font-medium text-sm truncate">{label}</span>
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+          <p className="px-3 mt-6 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+            Other
+          </p>
           <Link
             to="/access-denied"
-            className="px-3 py-2 rounded hover:bg-gray-700 dark:hover:bg-gray-800 text-gray-400 dark:text-gray-500 text-sm mt-2"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 text-sm font-medium transition-colors"
           >
+            <span className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-sm shrink-0">
+              !
+            </span>
             Access Denied
           </Link>
         </nav>

@@ -20,6 +20,13 @@ function toAuthUser(u: (typeof DEMO_USERS)[0]): AuthUser {
   return { id: u.id, role: u.role, name: u.name, avatar: u.avatar }
 }
 
+const ROLE_BADGE: Record<AuthUser['role'], string> = {
+  admin: 'bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300',
+  doctor: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300',
+  receptionist: 'bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300',
+  nurse: 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300',
+}
+
 export default function Navbar() {
   const { user, isAuthenticated } = useAuth()
   const dispatch = useDispatch()
@@ -28,10 +35,6 @@ export default function Navbar() {
   const sidebarOpen = useSelector((state: RootState) => state.ui.sidebarOpen)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-
-  const toggleTheme = () => {
-    dispatch(setTheme(theme === 'dark' ? 'light' : 'dark'))
-  }
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -42,69 +45,94 @@ export default function Navbar() {
   }, [])
 
   const handleSwitchAccount = (u: (typeof DEMO_USERS)[0]) => {
-    const path = getDefaultDashboard(u.role)
     dispatch(login(toAuthUser(u)))
     setDropdownOpen(false)
-    // Defer navigation so ProtectedRoute sees updated user (fixes doctor/nurse redirect to Access Denied)
-    setTimeout(() => navigate(path), 0)
+    setTimeout(() => navigate(getDefaultDashboard(u.role)), 0)
   }
 
   return (
-    <header className="h-14 bg-gray-900 dark:bg-gray-950 text-white flex items-center justify-between px-4 flex-shrink-0 border-b border-gray-800 dark:border-gray-900">
-      <div className="flex items-center gap-3">
+    <header className="h-16 flex-shrink-0 flex items-center justify-between px-4 lg:px-6 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] dark:shadow-none">
+      {/* Left: menu toggler + brand */}
+      <div className="flex items-center gap-4">
         {isAuthenticated && (
           <button
             type="button"
             onClick={() => dispatch(toggleSidebar())}
-            className="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+            className="p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors"
             aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
-            title={sidebarOpen ? 'Close menu' : 'Open menu'}
           >
-            {sidebarOpen ? '◀' : '☰'}
+            <span className="text-xl leading-none">{sidebarOpen ? '◀' : '☰'}</span>
           </button>
         )}
-        <span className="font-semibold">Medicare HMS</span>
+        <Link to="/" className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
+            M
+          </div>
+          <span className="font-semibold text-slate-800 dark:text-white text-lg tracking-tight hidden sm:inline">
+            MediCare
+          </span>
+          <span className="text-slate-500 dark:text-slate-400 text-sm font-medium hidden md:inline">HMS</span>
+        </Link>
       </div>
-      <div className="flex items-center gap-3">
+
+      {/* Right: actions + user */}
+      <div className="flex items-center gap-1">
         <button
           type="button"
-          onClick={toggleTheme}
-          className="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
-          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+          onClick={() => dispatch(setTheme(theme === 'dark' ? 'light' : 'dark'))}
+          className="p-2.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors"
+          aria-label={theme === 'dark' ? 'Light mode' : 'Dark mode'}
         >
-          {theme === 'dark' ? '☀️' : '🌙'}
+          <span className="text-lg">{theme === 'dark' ? '☀️' : '🌙'}</span>
         </button>
+
         {isAuthenticated ? (
           <>
             {user?.role === 'admin' && <NotificationBell />}
-            <div className="relative" ref={ref}>
+            <div className="relative ml-2" ref={ref}>
               <button
                 type="button"
                 onClick={() => setDropdownOpen((o) => !o)}
-                className="px-3 py-1.5 rounded bg-gray-700 hover:bg-gray-600 flex items-center gap-2"
+                className="flex items-center gap-3 pl-2 pr-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors min-w-0"
               >
-                <span>{user?.name}</span>
-                <span className="text-gray-400 text-sm">({user?.role})</span>
-                <span className="text-xs">▼</span>
+                <div className="w-9 h-9 rounded-full bg-sky-100 dark:bg-sky-900/50 flex items-center justify-center text-sm font-semibold text-sky-600 dark:text-sky-400 shrink-0">
+                  {user?.name?.charAt(0) ?? '?'}
+                </div>
+                <div className="hidden sm:block text-left min-w-0">
+                  <p className="text-sm font-medium text-slate-800 dark:text-white truncate">{user?.name}</p>
+                  <p className={`text-xs px-2 py-0.5 rounded-md capitalize font-medium ${ROLE_BADGE[user?.role ?? 'admin']}`}>
+                    {user?.role}
+                  </p>
+                </div>
+                <span className={`text-slate-400 shrink-0 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}>▼</span>
               </button>
+
               {dropdownOpen && (
-                <div className="absolute right-0 top-full mt-1 py-1 bg-gray-800 dark:bg-gray-900 rounded shadow-lg min-w-[180px] z-10 border border-gray-700 dark:border-gray-800">
-                  <div className="px-3 py-2 text-xs text-gray-400 border-b border-gray-700 dark:border-gray-800">
-                    Switch account
+                <div className="absolute right-0 top-full mt-2 w-64 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-slate-950/50 overflow-hidden z-50">
+                  <div className="p-4 border-b border-slate-100 dark:border-slate-800">
+                    <p className="text-sm font-medium text-slate-800 dark:text-white truncate">{user?.name}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 capitalize mt-0.5">{user?.role}</p>
                   </div>
-                  {DEMO_USERS.map((u) => (
-                    <button
-                      key={u.id}
-                      type="button"
-                      onClick={() => handleSwitchAccount(u)}
-                      className="w-full text-left px-3 py-2 hover:bg-gray-700 dark:hover:bg-gray-800 text-sm flex justify-between"
-                    >
-                      <span>{u.name}</span>
-                      <span className="text-gray-400">{u.role}</span>
-                    </button>
-                  ))}
-                  <div className="border-t border-gray-700 dark:border-gray-800 mt-1 pt-1">
+                  <p className="px-4 pt-3 pb-1 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Switch account</p>
+                  <div className="py-1 max-h-48 overflow-auto">
+                    {DEMO_USERS.map((u) => (
+                      <button
+                        key={u.id}
+                        type="button"
+                        onClick={() => handleSwitchAccount(u)}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-semibold text-slate-600 dark:text-slate-300 shrink-0">
+                          {u.name.charAt(0)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-slate-800 dark:text-white truncate">{u.name}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">{u.role}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="p-2 border-t border-slate-100 dark:border-slate-800">
                     <button
                       type="button"
                       onClick={() => {
@@ -112,7 +140,7 @@ export default function Navbar() {
                         navigate('/login')
                         setDropdownOpen(false)
                       }}
-                      className="w-full text-left px-3 py-2 hover:bg-gray-700 dark:hover:bg-gray-800 text-sm text-red-300"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
                     >
                       Logout
                     </button>
@@ -122,8 +150,11 @@ export default function Navbar() {
             </div>
           </>
         ) : (
-          <Link to="/login" className="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700">
-            Login
+          <Link
+            to="/login"
+            className="ml-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-sky-600 hover:bg-sky-500 text-white shadow-sm transition-colors"
+          >
+            Log in
           </Link>
         )}
       </div>
