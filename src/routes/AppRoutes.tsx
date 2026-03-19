@@ -1,30 +1,31 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-import type { RootState } from '../app/store'
+import ProtectedRoute from './ProtectedRoute'
 import MainLayout from '../layout/MainLayout'
 import Login from '../pages/Login'
-import Dashboard from '../pages/Dashboard'
+import RedirectToDefault from '../pages/RedirectToDefault'
+import AdminDashboard from '../pages/AdminDashboard'
+import DoctorDashboard from '../pages/DoctorDashboard'
+import ReceptionistDashboard from '../pages/ReceptionistDashboard'
+import ReceptionistQueue from '../pages/ReceptionistQueue'
+import NurseDashboard from '../pages/NurseDashboard'
+import NurseBeds from '../pages/NurseBeds'
 import AccessDenied from '../pages/AccessDenied'
-
-function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth)
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />
-}
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route
-        path="/"
-        element={
-          <PrivateRoute>
-            <MainLayout />
-          </PrivateRoute>
-        }
-      >
-        <Route index element={<Dashboard />} />
-        <Route path="access-denied" element={<AccessDenied />} />
+      <Route path="/" element={<ProtectedRoute />}>
+        <Route element={<MainLayout />}>
+          <Route index element={<RedirectToDefault />} />
+          <Route path="admin" element={<AdminDashboard />} />
+          <Route path="doctor" element={<DoctorDashboard />} />
+          <Route path="receptionist" element={<ReceptionistDashboard />} />
+          <Route path="receptionist/queue" element={<ReceptionistQueue />} />
+          <Route path="nurse" element={<NurseDashboard />} />
+          <Route path="nurse/beds" element={<NurseBeds />} />
+          <Route path="access-denied" element={<AccessDenied />} />
+        </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
