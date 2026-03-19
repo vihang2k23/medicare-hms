@@ -1,11 +1,15 @@
 import { BrowserRouter } from 'react-router-dom'
 import AppRoutes from './routes/AppRoutes'
+import ThemeSync from './components/ThemeSync'
 
 function App() {
   return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
+    <>
+      <ThemeSync />
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </>
   )
 }
 

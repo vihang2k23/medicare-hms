@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { logout, login } from '../features/auth/authSlice'
 import type { AuthUser } from '../features/auth/authSlice'
 import { getDefaultDashboard } from '../config/roles'
 import { useAuth } from '../hooks/useAuth'
 import NotificationBell from '../features/alerts/NotificationBell'
+import { setTheme } from '../features/ui/uiSlice'
+import type { RootState } from '../app/store'
 
 const DEMO_USERS: Array<{ role: AuthUser['role']; name: string; id: string; avatar: string }> = [
   { role: 'admin', name: 'Admin User', id: 'ADM001', avatar: '' },
@@ -22,8 +24,13 @@ export default function Navbar() {
   const { user, isAuthenticated } = useAuth()
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const theme = useSelector((state: RootState) => state.ui.theme)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+
+  const toggleTheme = () => {
+    dispatch(setTheme(theme === 'dark' ? 'light' : 'dark'))
+  }
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -42,9 +49,18 @@ export default function Navbar() {
   }
 
   return (
-    <header className="h-14 bg-gray-900 text-white flex items-center justify-between px-4 flex-shrink-0">
+    <header className="h-14 bg-gray-900 dark:bg-gray-950 text-white flex items-center justify-between px-4 flex-shrink-0 border-b border-gray-800 dark:border-gray-900">
       <span className="font-semibold">Medicare HMS</span>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
         {isAuthenticated ? (
           <>
             {user?.role === 'admin' && <NotificationBell />}
@@ -59,8 +75,8 @@ export default function Navbar() {
                 <span className="text-xs">▼</span>
               </button>
               {dropdownOpen && (
-                <div className="absolute right-0 top-full mt-1 py-1 bg-gray-800 rounded shadow-lg min-w-[180px] z-10">
-                  <div className="px-3 py-2 text-xs text-gray-400 border-b border-gray-700">
+                <div className="absolute right-0 top-full mt-1 py-1 bg-gray-800 dark:bg-gray-900 rounded shadow-lg min-w-[180px] z-10 border border-gray-700 dark:border-gray-800">
+                  <div className="px-3 py-2 text-xs text-gray-400 border-b border-gray-700 dark:border-gray-800">
                     Switch account
                   </div>
                   {DEMO_USERS.map((u) => (
@@ -68,13 +84,13 @@ export default function Navbar() {
                       key={u.id}
                       type="button"
                       onClick={() => handleSwitchAccount(u)}
-                      className="w-full text-left px-3 py-2 hover:bg-gray-700 text-sm flex justify-between"
+                      className="w-full text-left px-3 py-2 hover:bg-gray-700 dark:hover:bg-gray-800 text-sm flex justify-between"
                     >
                       <span>{u.name}</span>
                       <span className="text-gray-400">{u.role}</span>
                     </button>
                   ))}
-                  <div className="border-t border-gray-700 mt-1 pt-1">
+                  <div className="border-t border-gray-700 dark:border-gray-800 mt-1 pt-1">
                     <button
                       type="button"
                       onClick={() => {
@@ -82,7 +98,7 @@ export default function Navbar() {
                         navigate('/login')
                         setDropdownOpen(false)
                       }}
-                      className="w-full text-left px-3 py-2 hover:bg-gray-700 text-sm text-red-300"
+                      className="w-full text-left px-3 py-2 hover:bg-gray-700 dark:hover:bg-gray-800 text-sm text-red-300"
                     >
                       Logout
                     </button>
@@ -92,7 +108,7 @@ export default function Navbar() {
             </div>
           </>
         ) : (
-          <Link to="/login" className="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600">
+          <Link to="/login" className="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700">
             Login
           </Link>
         )}

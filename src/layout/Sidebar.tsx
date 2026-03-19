@@ -16,15 +16,15 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`${sidebarOpen ? 'w-64' : 'w-0'} min-h-screen bg-gray-800 text-white overflow-hidden transition-all duration-200 flex-shrink-0`}
+      className={`${sidebarOpen ? 'w-64' : 'w-0'} min-h-screen bg-gray-800 dark:bg-gray-900 text-white overflow-hidden transition-all duration-200 flex-shrink-0 border-r border-gray-700 dark:border-gray-800`}
     >
       <div className="w-64 min-h-screen p-4">
         <div className="flex items-center justify-between mb-4">
-          <span className="font-semibold text-sm text-gray-300">Menu</span>
+          <span className="font-semibold text-sm text-gray-300 dark:text-gray-400">Menu</span>
           <button
             type="button"
             onClick={() => dispatch(toggleSidebar())}
-            className="p-1 rounded hover:bg-gray-700"
+            className="p-1 rounded hover:bg-gray-700 dark:hover:bg-gray-800"
             aria-label="Toggle sidebar"
           >
             {sidebarOpen ? '←' : '→'}
@@ -35,14 +35,14 @@ export default function Sidebar() {
             <Link
               key={path}
               to={path}
-              className={`px-3 py-2 rounded hover:bg-gray-700 ${location.pathname === path ? 'bg-gray-700' : ''}`}
+              className={`px-3 py-2 rounded hover:bg-gray-700 dark:hover:bg-gray-800 ${location.pathname === path ? 'bg-gray-700 dark:bg-gray-800' : ''}`}
             >
               {label}
             </Link>
           ))}
           <Link
             to="/access-denied"
-            className="px-3 py-2 rounded hover:bg-gray-700 text-gray-400 text-sm"
+            className="px-3 py-2 rounded hover:bg-gray-700 dark:hover:bg-gray-800 text-gray-400 dark:text-gray-500 text-sm"
           >
             Access Denied
           </Link>
