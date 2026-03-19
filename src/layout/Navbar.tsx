@@ -6,14 +6,14 @@ import type { AuthUser } from '../features/auth/authSlice'
 import { getDefaultDashboard } from '../config/roles'
 import { useAuth } from '../hooks/useAuth'
 import NotificationBell from '../features/alerts/NotificationBell'
-import { setTheme } from '../features/ui/uiSlice'
+import { setTheme, toggleSidebar } from '../features/ui/uiSlice'
 import type { RootState } from '../app/store'
 
 const DEMO_USERS: Array<{ role: AuthUser['role']; name: string; id: string; avatar: string }> = [
   { role: 'admin', name: 'Admin User', id: 'ADM001', avatar: '' },
-  { role: 'doctor', name: 'Dr. John', id: 'DOC001', avatar: '' },
-  { role: 'receptionist', name: 'Riya', id: 'REC001', avatar: '' },
-  { role: 'nurse', name: 'Meena', id: 'NUR001', avatar: '' },
+  { role: 'doctor', name: 'Dr. Vihang', id: 'DOC001', avatar: '' },
+  { role: 'receptionist', name: 'Riya Patel', id: 'REC001', avatar: '' },
+  { role: 'nurse', name: 'Meena Patel', id: 'NUR001', avatar: '' },
 ]
 
 function toAuthUser(u: (typeof DEMO_USERS)[0]): AuthUser {
@@ -25,6 +25,7 @@ export default function Navbar() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const theme = useSelector((state: RootState) => state.ui.theme)
+  const sidebarOpen = useSelector((state: RootState) => state.ui.sidebarOpen)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -50,7 +51,20 @@ export default function Navbar() {
 
   return (
     <header className="h-14 bg-gray-900 dark:bg-gray-950 text-white flex items-center justify-between px-4 flex-shrink-0 border-b border-gray-800 dark:border-gray-900">
-      <span className="font-semibold">Medicare HMS</span>
+      <div className="flex items-center gap-3">
+        {isAuthenticated && (
+          <button
+            type="button"
+            onClick={() => dispatch(toggleSidebar())}
+            className="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+            aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+            title={sidebarOpen ? 'Close menu' : 'Open menu'}
+          >
+            {sidebarOpen ? '◀' : '☰'}
+          </button>
+        )}
+        <span className="font-semibold">Medicare HMS</span>
+      </div>
       <div className="flex items-center gap-3">
         <button
           type="button"
