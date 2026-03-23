@@ -1,0 +1,359 @@
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useNavigate } from 'react-router-dom'
+import {
+  patientRegistrationSchema,
+  step1Schema,
+  step2Schema,
+  step3Schema,
+  step4Schema,
+  STEP_FIELD_KEYS,
+  type PatientFormValues,
+} from './patientSchemas'
+import type { PatientRecord } from '../../types/patient'
+import { createPatient } from '../../api/patientsApi'
+import { generatePatientId } from './patientId'
+
+const defaultValues: PatientFormValues = {
+  fullName: '',
+  dob: '',
+  gender: 'male',
+  bloodGroup: '',
+  photo: null,
+  phone: '',
+  email: '',
+  address: '',
+  city: '',
+  state: '',
+  pin: '',
+  allergies: '',
+  chronicConditions: '',
+  pastSurgeries: '',
+  currentMedications: '',
+  emergencyName: '',
+  emergencyRelationship: '',
+  emergencyPhone: '',
+}
+
+const STEPS = ['Personal', 'Contact', 'Medical', 'Emergency', 'Review'] as const
+
+const stepSchemas = [step1Schema, step2Schema, step3Schema, step4Schema] as const
+
+function inputClass(error?: boolean) {
+  return `w-full px-3 py-2 rounded-lg border text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 ${
+    error ? 'border-red-500' : 'border-slate-200 dark:border-slate-600'
+  } focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent`
+}
+
+interface PatientRegistrationFormProps {
+  onSuccess?: () => void
+  /** Where to navigate after successful save */
+  redirectTo?: string
+}
+
+export default function PatientRegistrationForm({ onSuccess, redirectTo = '/admin/patients' }: PatientRegistrationFormProps) {
+  const navigate = useNavigate()
+  const [step, setStep] = useState(0)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  const form = useForm<PatientFormValues>({
+    resolver: zodResolver(patientRegistrationSchema),
+    defaultValues,
+    mode: 'onTouched',
+  })
+
+  const {
+    register,
+    handleSubmit,
+    trigger,
+    watch,
+    formState: { errors },
+    setValue,
+  } = form
+
+  const next = async () => {
+    setSubmitError(null)
+    const schema = stepSchemas[step]
+    const fields = STEP_FIELD_KEYS[step]
+    const slice = form.getValues()
+    const data = Object.fromEntries(fields.map((k) => [k, slice[k]])) as Record<string, unknown>
+    const parsed = schema.safeParse(data)
+    if (!parsed.success) {
+      await trigger(fields)
+      return
+    }
+    setStep((s) => s + 1)
+  }
+
+  const back = () => {
+    setSubmitError(null)
+    setStep((s) => Math.max(0, s - 1))
+  }
+
+  const onSubmit = async (values: PatientFormValues) => {
+    setSubmitting(true)
+    setSubmitError(null)
+    try {
+      const id = await generatePatientId()
+      const record: PatientRecord = {
+        id,
+        fullName: values.fullName,
+        dob: values.dob,
+        gender: values.gender,
+        bloodGroup: values.bloodGroup,
+        phone: values.phone,
+        email: values.email,
+        address: values.address,
+        city: values.city,
+        state: values.state,
+        pin: values.pin,
+        photo: values.photo ?? null,
+        allergies: values.allergies ?? '',
+        chronicConditions: values.chronicConditions ?? '',
+        pastSurgeries: values.pastSurgeries ?? '',
+        currentMedications: values.currentMedications ?? '',
+        emergencyName: values.emergencyName,
+        emergencyRelationship: values.emergencyRelationship,
+        emergencyPhone: values.emergencyPhone,
+        createdAt: Date.now(),
+        isActive: true,
+      }
+      await createPatient(record)
+      onSuccess?.()
+      navigate(redirectTo, { replace: false, state: { registeredId: id } })
+    } catch (e) {
+      setSubmitError(e instanceof Error ? e.message : 'Failed to save patient')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const photoPreview = watch('photo')
+
+  const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) {
+      setValue('photo', null)
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result
+      if (typeof result === 'string') setValue('photo', result, { shouldValidate: true })
+    }
+    reader.readAsDataURL(file)
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      {/* Progress */}
+      <div className="mb-8">
+        <div className="flex justify-between text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
+          {STEPS.map((label, i) => (
+            <span key={label} className={i <= step ? 'text-sky-600 dark:text-sky-400' : ''}>
+              {label}
+            </span>
+          ))}
+        </div>
+        <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+          <div
+            className="h-full bg-sky-600 transition-all duration-300"
+            style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
+          />
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {step === 0 && (
+          <div className="space-y-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Personal information</h2>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Full name</label>
+              <input {...register('fullName')} className={inputClass(!!errors.fullName)} />
+              {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Date of birth</label>
+              <input type="date" {...register('dob')} className={inputClass(!!errors.dob)} />
+              {errors.dob && <p className="text-red-500 text-sm mt-1">{errors.dob.message}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Gender</label>
+              <select {...register('gender')} className={inputClass(!!errors.gender)}>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+              {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender.message}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Blood group</label>
+              <select {...register('bloodGroup')} className={inputClass(!!errors.bloodGroup)}>
+                <option value="">Select</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </select>
+              {errors.bloodGroup && <p className="text-red-500 text-sm mt-1">{errors.bloodGroup.message}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Photo (optional)</label>
+              <input type="file" accept="image/*" onChange={handlePhoto} className="text-sm text-slate-600 dark:text-slate-300" />
+              {photoPreview && (
+                <img src={photoPreview} alt="" className="mt-2 h-24 w-24 object-cover rounded-lg border border-slate-200 dark:border-slate-600" />
+              )}
+            </div>
+          </div>
+        )}
+
+        {step === 1 && (
+          <div className="space-y-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Contact & address</h2>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Phone</label>
+              <input {...register('phone')} className={inputClass(!!errors.phone)} />
+              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Email</label>
+              <input type="email" {...register('email')} className={inputClass(!!errors.email)} />
+              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Address</label>
+              <textarea {...register('address')} rows={2} className={inputClass(!!errors.address)} />
+              {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">City</label>
+                <input {...register('city')} className={inputClass(!!errors.city)} />
+                {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city.message}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">State</label>
+                <input {...register('state')} className={inputClass(!!errors.state)} />
+                {errors.state && <p className="text-red-500 text-sm mt-1">{errors.state.message}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">PIN / ZIP</label>
+                <input {...register('pin')} className={inputClass(!!errors.pin)} />
+                {errors.pin && <p className="text-red-500 text-sm mt-1">{errors.pin.message}</p>}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Medical history</h2>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Known allergies</label>
+              <textarea {...register('allergies')} rows={2} className={inputClass()} placeholder="None if not applicable" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Chronic conditions</label>
+              <textarea {...register('chronicConditions')} rows={2} className={inputClass()} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Past surgeries</label>
+              <textarea {...register('pastSurgeries')} rows={2} className={inputClass()} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Current medications</label>
+              <textarea {...register('currentMedications')} rows={2} className={inputClass()} />
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Emergency contact</h2>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Full name</label>
+              <input {...register('emergencyName')} className={inputClass(!!errors.emergencyName)} />
+              {errors.emergencyName && <p className="text-red-500 text-sm mt-1">{errors.emergencyName.message}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Relationship</label>
+              <input {...register('emergencyRelationship')} className={inputClass(!!errors.emergencyRelationship)} />
+              {errors.emergencyRelationship && (
+                <p className="text-red-500 text-sm mt-1">{errors.emergencyRelationship.message}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Phone</label>
+              <input {...register('emergencyPhone')} className={inputClass(!!errors.emergencyPhone)} />
+              {errors.emergencyPhone && <p className="text-red-500 text-sm mt-1">{errors.emergencyPhone.message}</p>}
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 space-y-3 text-sm">
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Review & submit</h2>
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-600 dark:text-slate-300">
+              <dt className="font-medium text-slate-800 dark:text-white">Patient ID</dt>
+              <dd className="text-slate-500">Assigned on save</dd>
+              <dt className="font-medium text-slate-800 dark:text-white">Name</dt>
+              <dd>{watch('fullName')}</dd>
+              <dt className="font-medium text-slate-800 dark:text-white">DOB</dt>
+              <dd>{watch('dob')}</dd>
+              <dt className="font-medium text-slate-800 dark:text-white">Gender / Blood</dt>
+              <dd>
+                {watch('gender')} / {watch('bloodGroup')}
+              </dd>
+              <dt className="font-medium text-slate-800 dark:text-white">Phone / Email</dt>
+              <dd>
+                {watch('phone')} / {watch('email')}
+              </dd>
+              <dt className="font-medium text-slate-800 dark:text-white">Address</dt>
+              <dd className="sm:col-span-1">
+                {watch('address')}, {watch('city')}, {watch('state')} {watch('pin')}
+              </dd>
+              <dt className="font-medium text-slate-800 dark:text-white">Emergency</dt>
+              <dd>
+                {watch('emergencyName')} ({watch('emergencyRelationship')}) — {watch('emergencyPhone')}
+              </dd>
+            </dl>
+          </div>
+        )}
+
+        {submitError && <p className="text-red-600 dark:text-red-400 text-sm">{submitError}</p>}
+
+        <div className="flex flex-wrap gap-3 justify-between">
+          <button
+            type="button"
+            onClick={back}
+            disabled={step === 0}
+            className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 disabled:opacity-40"
+          >
+            Back
+          </button>
+          <div className="flex gap-3">
+            {step < 4 ? (
+              <button type="button" onClick={next} className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-medium">
+                Next
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium disabled:opacity-50"
+              >
+                {submitting ? 'Saving…' : 'Register patient'}
+              </button>
+            )}
+          </div>
+        </div>
+      </form>
+    </div>
+  )
+}

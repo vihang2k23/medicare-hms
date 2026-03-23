@@ -11,6 +11,8 @@ import NurseDashboard from '../pages/NurseDashboard'
 import NurseBeds from '../pages/NurseBeds'
 import AccessDenied from '../pages/AccessDenied'
 import PlaceholderPage from '../components/PlaceholderPage'
+import PatientListPage from '../pages/PatientListPage'
+import PatientRegistrationPage from '../pages/PatientRegistrationPage'
 
 export default function AppRoutes() {
   return (
@@ -23,7 +25,8 @@ export default function AppRoutes() {
           <Route path="admin" element={<AdminDashboard />} />
           <Route path="admin/opd-queue" element={<PlaceholderPage title="OPD Queue" />} />
           <Route path="admin/beds" element={<PlaceholderPage title="Bed Management" />} />
-          <Route path="admin/patients" element={<PlaceholderPage title="Patients" />} />
+          <Route path="admin/patients" element={<PatientListPage />} />
+          <Route path="admin/patients/new" element={<PatientRegistrationPage />} />
           <Route path="admin/appointments" element={<PlaceholderPage title="Appointments" />} />
           <Route path="admin/prescriptions" element={<PlaceholderPage title="Prescriptions" />} />
           <Route path="admin/doctors" element={<PlaceholderPage title="Doctor Directory" />} />
@@ -36,7 +39,7 @@ export default function AppRoutes() {
           {/* Receptionist */}
           <Route path="receptionist" element={<ReceptionistDashboard />} />
           <Route path="receptionist/queue" element={<ReceptionistQueue />} />
-          <Route path="receptionist/registration" element={<PlaceholderPage title="Patient Registration" />} />
+          <Route path="receptionist/registration" element={<PatientRegistrationPage />} />
           <Route path="receptionist/appointments" element={<PlaceholderPage title="Appointments" />} />
           {/* Nurse */}
           <Route path="nurse" element={<NurseDashboard />} />
