@@ -1,10 +1,5 @@
-import QueueBoard from '../features/queue/QueueBoard'
+import OPDQueuePage from './OPDQueuePage'
 
 export default function ReceptionistQueue() {
-  return (
-    <div>
-      <h1 className="text-2xl font-semibold text-gray-800 mb-4">Queue Board</h1>
-      <QueueBoard />
-    </div>
-  )
+  return <OPDQueuePage title="OPD queue" description="Issue tokens and manage the waiting line." />
 }

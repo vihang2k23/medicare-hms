@@ -21,6 +21,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
+import { Banknote, BedDouble, Ticket, Users } from 'lucide-react'
 
 export default function AdminDashboard() {
   const { user } = useAuth()
@@ -43,24 +44,28 @@ export default function AdminDashboard() {
           value={MOCK_PATIENTS_TODAY}
           subLabel="Total registrations"
           accent="blue"
+          icon={<Users className="h-5 w-5" aria-hidden />}
         />
         <StatCard
           label="Bed occupancy"
           value={`${Math.round((MOCK_BED_OCCUPANCY[1].value / 50) * 100)}%`}
           subLabel="18 of 50 beds occupied"
           accent="amber"
+          icon={<BedDouble className="h-5 w-5" aria-hidden />}
         />
         <StatCard
           label="OPD queue"
           value={currentToken ?? '—'}
           subLabel={`Waiting: ${opdWaiting} · Done: ${opdDone}`}
           accent="green"
+          icon={<Ticket className="h-5 w-5" aria-hidden />}
         />
         <StatCard
           label="Revenue (today)"
           value="₹22.1k"
           subLabel="Billing summary"
           accent="slate"
+          icon={<Banknote className="h-5 w-5" aria-hidden />}
         />
       </div>
 

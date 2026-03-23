@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
+import { ChevronDown, LogOut, Menu, Moon, PanelLeftClose, Sun } from 'lucide-react'
 import { logout, login } from '../features/auth/authSlice'
 import type { AuthUser } from '../features/auth/authSlice'
 import { getDefaultDashboard } from '../config/roles'
@@ -8,6 +9,7 @@ import { useAuth } from '../hooks/useAuth'
 import NotificationBell from '../features/alerts/NotificationBell'
 import { setTheme, toggleSidebar } from '../features/ui/uiSlice'
 import type { RootState } from '../app/store'
+import { notify } from '../lib/notify'
 
 const DEMO_USERS: Array<{ role: AuthUser['role']; name: string; id: string; avatar: string }> = [
   { role: 'admin', name: 'Admin User', id: 'ADM001', avatar: '' },
@@ -47,6 +49,7 @@ export default function Navbar() {
   const handleSwitchAccount = (u: (typeof DEMO_USERS)[0]) => {
     dispatch(login(toAuthUser(u)))
     setDropdownOpen(false)
+    notify.success(`Switched to ${u.name}`)
     setTimeout(() => navigate(getDefaultDashboard(u.role)), 0)
   }
 
@@ -61,12 +64,16 @@ export default function Navbar() {
             className="p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors"
             aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
           >
-            <span className="text-xl leading-none">{sidebarOpen ? '◀' : '☰'}</span>
+            {sidebarOpen ? (
+              <PanelLeftClose className="h-5 w-5" aria-hidden />
+            ) : (
+              <Menu className="h-5 w-5" aria-hidden />
+            )}
           </button>
         )}
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
-            M
+          <div className="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center text-white shrink-0">
+            <span className="font-bold text-sm">M</span>
           </div>
           <span className="font-semibold text-slate-800 dark:text-white text-lg tracking-tight hidden sm:inline">
             MediCare
@@ -83,7 +90,7 @@ export default function Navbar() {
           className="p-2.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors"
           aria-label={theme === 'dark' ? 'Light mode' : 'Dark mode'}
         >
-          <span className="text-lg">{theme === 'dark' ? '☀️' : '🌙'}</span>
+          {theme === 'dark' ? <Sun className="h-5 w-5" aria-hidden /> : <Moon className="h-5 w-5" aria-hidden />}
         </button>
 
         {isAuthenticated ? (
@@ -104,7 +111,10 @@ export default function Navbar() {
                     {user?.role}
                   </p>
                 </div>
-                <span className={`text-slate-400 shrink-0 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}>▼</span>
+                <ChevronDown
+                  className={`h-4 w-4 text-slate-400 shrink-0 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}
+                  aria-hidden
+                />
               </button>
 
               {dropdownOpen && (
@@ -137,11 +147,13 @@ export default function Navbar() {
                       type="button"
                       onClick={() => {
                         dispatch(logout())
-                        navigate('/login')
                         setDropdownOpen(false)
+                        notify.success('Signed out')
+                        navigate('/login')
                       }}
                       className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
                     >
+                      <LogOut className="h-4 w-4" aria-hidden />
                       Logout
                     </button>
                   </div>

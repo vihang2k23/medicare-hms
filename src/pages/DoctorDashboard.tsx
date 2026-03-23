@@ -6,6 +6,7 @@ import {
   MOCK_NEXT_PATIENT,
   MOCK_PRESCRIPTIONS_TODAY,
 } from '../data/dashboardMockData'
+import { Calendar, FileText } from 'lucide-react'
 
 export default function DoctorDashboard() {
   const { user } = useAuth()
@@ -23,12 +24,14 @@ export default function DoctorDashboard() {
           value={MOCK_PRESCRIPTIONS_TODAY}
           subLabel="Written so far"
           accent="blue"
+          icon={<FileText className="h-5 w-5" aria-hidden />}
         />
         <StatCard
           label="Appointments today"
           value={MOCK_TODAY_APPOINTMENTS.length}
           subLabel="Scheduled"
           accent="green"
+          icon={<Calendar className="h-5 w-5" aria-hidden />}
         />
       </div>
 

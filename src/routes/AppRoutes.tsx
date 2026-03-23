@@ -13,6 +13,9 @@ import AccessDenied from '../pages/AccessDenied'
 import PlaceholderPage from '../components/PlaceholderPage'
 import PatientListPage from '../pages/PatientListPage'
 import PatientRegistrationPage from '../pages/PatientRegistrationPage'
+import PatientProfilePage from '../pages/PatientProfilePage'
+import PatientEditPage from '../pages/PatientEditPage'
+import OPDQueuePage from '../pages/OPDQueuePage'
 
 export default function AppRoutes() {
   return (
@@ -23,10 +26,12 @@ export default function AppRoutes() {
           <Route index element={<RedirectToDefault />} />
           {/* Admin */}
           <Route path="admin" element={<AdminDashboard />} />
-          <Route path="admin/opd-queue" element={<PlaceholderPage title="OPD Queue" />} />
+          <Route path="admin/opd-queue" element={<OPDQueuePage title="OPD queue" description="Admin view — same live queue as reception." />} />
           <Route path="admin/beds" element={<PlaceholderPage title="Bed Management" />} />
           <Route path="admin/patients" element={<PatientListPage />} />
           <Route path="admin/patients/new" element={<PatientRegistrationPage />} />
+          <Route path="admin/patients/:patientId/edit" element={<PatientEditPage />} />
+          <Route path="admin/patients/:patientId" element={<PatientProfilePage />} />
           <Route path="admin/appointments" element={<PlaceholderPage title="Appointments" />} />
           <Route path="admin/prescriptions" element={<PlaceholderPage title="Prescriptions" />} />
           <Route path="admin/doctors" element={<PlaceholderPage title="Doctor Directory" />} />

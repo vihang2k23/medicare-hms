@@ -1,6 +1,8 @@
 import { Link, useLocation } from 'react-router-dom'
+import { PanelLeftClose, PanelRightClose, ShieldAlert } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { ROLE_CONFIG } from '../config/roles'
+import { getNavIcon } from '../config/navIcons'
 import type { SidebarAccent } from '../config/roles'
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from '../app/store'
@@ -67,7 +69,11 @@ export default function Sidebar() {
             className="p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors shrink-0"
             aria-label="Toggle sidebar"
           >
-            <span className="text-sm">{sidebarOpen ? '◀' : '▶'}</span>
+            {sidebarOpen ? (
+              <PanelLeftClose className="h-4 w-4" aria-hidden />
+            ) : (
+              <PanelRightClose className="h-4 w-4" aria-hidden />
+            )}
           </button>
         </div>
 
@@ -79,6 +85,7 @@ export default function Sidebar() {
           <ul className="space-y-0.5">
             {links.map(({ path, label }) => {
               const isActive = location.pathname === path || location.pathname.startsWith(path + '/')
+              const Icon = getNavIcon(path)
               return (
                 <li key={path}>
                   <Link
@@ -90,11 +97,11 @@ export default function Sidebar() {
                     }`}
                   >
                     <span
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-medium shrink-0 ${
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                         isActive ? styles.iconBg : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                       }`}
                     >
-                      {label.charAt(0)}
+                      <Icon className="h-4 w-4" aria-hidden />
                     </span>
                     <span className="font-medium text-sm truncate">{label}</span>
                   </Link>
@@ -109,8 +116,8 @@ export default function Sidebar() {
             to="/access-denied"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 text-sm font-medium transition-colors"
           >
-            <span className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-sm shrink-0">
-              !
+            <span className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+              <ShieldAlert className="h-4 w-4" aria-hidden />
             </span>
             Access Denied
           </Link>

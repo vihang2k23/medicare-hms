@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
@@ -9,10 +9,12 @@ import {
   step3Schema,
   step4Schema,
   STEP_FIELD_KEYS,
+  patientRecordToFormValues,
   type PatientFormValues,
 } from './patientSchemas'
 import type { PatientRecord } from '../../types/patient'
-import { createPatient } from '../../api/patientsApi'
+import { createPatient, updatePatient } from '../../api/patientsApi'
+import { notify } from '../../lib/notify'
 import { generatePatientId } from './patientId'
 
 const defaultValues: PatientFormValues = {
@@ -50,17 +52,24 @@ interface PatientRegistrationFormProps {
   onSuccess?: () => void
   /** Where to navigate after successful save */
   redirectTo?: string
+  /** When set, form PATCHes this record instead of creating a new one */
+  initialRecord?: PatientRecord | null
 }
 
-export default function PatientRegistrationForm({ onSuccess, redirectTo = '/admin/patients' }: PatientRegistrationFormProps) {
+export default function PatientRegistrationForm({
+  onSuccess,
+  redirectTo = '/admin/patients',
+  initialRecord = null,
+}: PatientRegistrationFormProps) {
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const isEdit = !!initialRecord
 
   const form = useForm<PatientFormValues>({
     resolver: zodResolver(patientRegistrationSchema),
-    defaultValues,
+    defaultValues: initialRecord ? patientRecordToFormValues(initialRecord) : defaultValues,
     mode: 'onTouched',
   })
 
@@ -69,9 +78,17 @@ export default function PatientRegistrationForm({ onSuccess, redirectTo = '/admi
     handleSubmit,
     trigger,
     watch,
+    reset,
     formState: { errors },
     setValue,
   } = form
+
+  useEffect(() => {
+    if (initialRecord) {
+      reset(patientRecordToFormValues(initialRecord))
+      setStep(0)
+    }
+  }, [initialRecord, reset])
 
   const next = async () => {
     setSubmitError(null)
@@ -96,6 +113,35 @@ export default function PatientRegistrationForm({ onSuccess, redirectTo = '/admi
     setSubmitting(true)
     setSubmitError(null)
     try {
+      if (initialRecord) {
+        const record: PatientRecord = {
+          ...initialRecord,
+          fullName: values.fullName,
+          dob: values.dob,
+          gender: values.gender,
+          bloodGroup: values.bloodGroup,
+          phone: values.phone,
+          email: values.email,
+          address: values.address,
+          city: values.city,
+          state: values.state,
+          pin: values.pin,
+          photo: values.photo ?? null,
+          allergies: values.allergies ?? '',
+          chronicConditions: values.chronicConditions ?? '',
+          pastSurgeries: values.pastSurgeries ?? '',
+          currentMedications: values.currentMedications ?? '',
+          emergencyName: values.emergencyName,
+          emergencyRelationship: values.emergencyRelationship,
+          emergencyPhone: values.emergencyPhone,
+        }
+        await updatePatient(initialRecord.id, record)
+        onSuccess?.()
+        notify.success('Patient record updated')
+        navigate(redirectTo, { replace: true })
+        return
+      }
+
       const id = await generatePatientId()
       const record: PatientRecord = {
         id,
@@ -122,9 +168,12 @@ export default function PatientRegistrationForm({ onSuccess, redirectTo = '/admi
       }
       await createPatient(record)
       onSuccess?.()
+      notify.success(`Patient registered · ${id}`)
       navigate(redirectTo, { replace: false, state: { registeredId: id } })
     } catch (e) {
-      setSubmitError(e instanceof Error ? e.message : 'Failed to save patient')
+      const msg = e instanceof Error ? e.message : 'Failed to save patient'
+      setSubmitError(msg)
+      notify.error(msg)
     } finally {
       setSubmitting(false)
     }
@@ -165,7 +214,13 @@ export default function PatientRegistrationForm({ onSuccess, redirectTo = '/admi
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={(e) => {
+          /* No native submit — avoids Enter key / accidental submit on Review; user must click Save */
+          e.preventDefault()
+        }}
+        className="space-y-6"
+      >
         {step === 0 && (
           <div className="space-y-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
             <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Personal information</h2>
@@ -299,9 +354,12 @@ export default function PatientRegistrationForm({ onSuccess, redirectTo = '/admi
         {step === 4 && (
           <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 space-y-3 text-sm">
             <h2 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Review & submit</h2>
+            <p className="text-slate-500 dark:text-slate-400 text-xs mb-4">
+              Nothing is saved until you click <strong className="text-slate-700 dark:text-slate-200">{isEdit ? 'Save changes' : 'Register patient'}</strong> below.
+            </p>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-600 dark:text-slate-300">
               <dt className="font-medium text-slate-800 dark:text-white">Patient ID</dt>
-              <dd className="text-slate-500">Assigned on save</dd>
+              <dd className="text-slate-500 font-mono text-xs">{isEdit ? initialRecord!.id : 'Assigned on save'}</dd>
               <dt className="font-medium text-slate-800 dark:text-white">Name</dt>
               <dd>{watch('fullName')}</dd>
               <dt className="font-medium text-slate-800 dark:text-white">DOB</dt>
@@ -344,11 +402,12 @@ export default function PatientRegistrationForm({ onSuccess, redirectTo = '/admi
               </button>
             ) : (
               <button
-                type="submit"
+                type="button"
                 disabled={submitting}
+                onClick={() => void handleSubmit(onSubmit)()}
                 className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium disabled:opacity-50"
               >
-                {submitting ? 'Saving…' : 'Register patient'}
+                {submitting ? 'Saving…' : isEdit ? 'Save changes' : 'Register patient'}
               </button>
             )}
           </div>

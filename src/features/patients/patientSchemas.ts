@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { PatientRecord } from '../../types/patient'
 
 export const step1Schema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
@@ -49,3 +50,26 @@ export const STEP_FIELD_KEYS: (keyof PatientFormValues)[][] = [
   ['allergies', 'chronicConditions', 'pastSurgeries', 'currentMedications'],
   ['emergencyName', 'emergencyRelationship', 'emergencyPhone'],
 ]
+
+export function patientRecordToFormValues(p: PatientRecord): PatientFormValues {
+  return {
+    fullName: p.fullName,
+    dob: p.dob,
+    gender: p.gender,
+    bloodGroup: p.bloodGroup,
+    photo: p.photo ?? null,
+    phone: p.phone,
+    email: p.email,
+    address: p.address,
+    city: p.city,
+    state: p.state,
+    pin: p.pin,
+    allergies: p.allergies ?? '',
+    chronicConditions: p.chronicConditions ?? '',
+    pastSurgeries: p.pastSurgeries ?? '',
+    currentMedications: p.currentMedications ?? '',
+    emergencyName: p.emergencyName,
+    emergencyRelationship: p.emergencyRelationship,
+    emergencyPhone: p.emergencyPhone,
+  }
+}

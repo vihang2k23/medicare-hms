@@ -3,13 +3,14 @@ import DashboardCard from '../components/ui/DashboardCard'
 import StatCard from '../components/ui/StatCard'
 import QueueBoard from '../features/queue/QueueBoard'
 import { Link } from 'react-router-dom'
+import { Calendar, Ticket, UserPlus } from 'lucide-react'
 import { MOCK_REGISTRATIONS_TODAY, MOCK_PENDING_APPOINTMENTS } from '../data/dashboardMockData'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../app/store'
 
 export default function ReceptionistDashboard() {
   const { user } = useAuth()
-  const { tokens, currentToken } = useSelector((state: RootState) => state.queue)
+  const { tokens, currentToken, servedToday } = useSelector((state: RootState) => state.queue)
 
   return (
     <div className="space-y-6">
@@ -24,18 +25,21 @@ export default function ReceptionistDashboard() {
           value={MOCK_REGISTRATIONS_TODAY}
           subLabel="New patients"
           accent="blue"
+          icon={<UserPlus className="h-5 w-5" aria-hidden />}
         />
         <StatCard
           label="Current OPD token"
           value={currentToken ?? '—'}
-          subLabel={`${tokens.filter((t) => t.status === 'waiting').length} waiting`}
+          subLabel={`${tokens.filter((t) => t.status === 'waiting').length} waiting · ${servedToday} served`}
           accent="amber"
+          icon={<Ticket className="h-5 w-5" aria-hidden />}
         />
         <StatCard
           label="Pending appointments"
           value={MOCK_PENDING_APPOINTMENTS}
           subLabel="For today"
           accent="green"
+          icon={<Calendar className="h-5 w-5" aria-hidden />}
         />
       </div>
 
@@ -47,15 +51,17 @@ export default function ReceptionistDashboard() {
         <DashboardCard title="Quick actions">
           <div className="flex flex-col gap-2">
             <Link
-              to="/receptionist"
+              to="/receptionist/queue"
               className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-sky-600 hover:bg-sky-700 dark:bg-sky-500 dark:hover:bg-sky-600 text-white text-sm font-medium transition-colors"
             >
+              <Ticket className="h-4 w-4" aria-hidden />
               Issue token
             </Link>
             <Link
               to="/receptionist/registration"
               className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-200 text-sm font-medium transition-colors"
             >
+              <UserPlus className="h-4 w-4" aria-hidden />
               Register new patient
             </Link>
             <Link
