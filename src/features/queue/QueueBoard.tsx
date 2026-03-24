@@ -17,7 +17,7 @@ function statusBadge(status: QueueTokenStatus) {
     skipped: 'Skipped',
   }
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${map[status]}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide ${map[status]} ring-1 ring-black/5 dark:ring-white/10`}>
       {label[status]}
     </span>
   )
@@ -32,9 +32,9 @@ export default function QueueBoard() {
   })
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg shadow dark:border dark:border-slate-700 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-        <h2 className="text-lg font-medium text-slate-800 dark:text-slate-100 flex items-center gap-2">
+    <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/50 backdrop-blur-sm p-5 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 tracking-tight">
           <ListOrdered className="h-5 w-5 text-sky-600 dark:text-sky-400 shrink-0" aria-hidden />
           OPD token queue
         </h2>
@@ -58,10 +58,10 @@ export default function QueueBoard() {
             return (
               <li
                 key={t.tokenNumber}
-                className={`grid grid-cols-[auto_1fr_auto] sm:grid-cols-[minmax(4rem,auto)_1fr_auto] gap-2 sm:gap-3 items-center p-3 rounded-lg text-sm border ${
+                className={`grid grid-cols-[auto_1fr_auto] sm:grid-cols-[minmax(4rem,auto)_1fr_auto] gap-2 sm:gap-3 items-center p-3.5 rounded-xl text-sm border transition-colors ${
                   isCurrent
-                    ? 'border-sky-300 dark:border-sky-600 bg-sky-50/80 dark:bg-sky-900/25'
-                    : 'border-slate-100 dark:border-slate-700/80 bg-slate-50/50 dark:bg-slate-700/30'
+                    ? 'border-sky-300/90 dark:border-sky-600/80 bg-sky-50/90 dark:bg-sky-950/40 ring-1 ring-sky-200/50 dark:ring-sky-500/20'
+                    : 'border-slate-100 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/40'
                 }`}
               >
                 <span className="font-mono font-semibold text-sky-700 dark:text-sky-300">{t.tokenNumber}</span>

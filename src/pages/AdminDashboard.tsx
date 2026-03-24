@@ -31,10 +31,13 @@ export default function AdminDashboard() {
   const opdDone = tokens.filter((t) => t.status === 'done').length
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-800 dark:text-slate-100">Admin Dashboard</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Welcome, {user?.name}.</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-600 dark:text-sky-400 mb-2">Overview</p>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Admin dashboard</h1>
+        <p className="text-slate-600 dark:text-slate-400 mt-2 text-sm">
+          Welcome back, <span className="font-semibold text-slate-800 dark:text-slate-200">{user?.name}</span>.
+        </p>
       </div>
 
       {/* Top row: stats */}

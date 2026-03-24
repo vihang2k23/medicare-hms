@@ -25,8 +25,8 @@ export default function QueueControls() {
   }
 
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 space-y-4">
-      <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Issue token</h3>
+    <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/50 backdrop-blur-sm p-5 space-y-5 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
+      <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.14em]">Issue token</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Patient name</label>
@@ -34,7 +34,7 @@ export default function QueueControls() {
             value={patientName}
             onChange={(e) => setPatientName(e.target.value)}
             placeholder="Walk-in or registered name"
-            className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white/90 dark:bg-slate-950/50 text-slate-800 dark:text-slate-100 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30"
           />
         </div>
         <div>
@@ -42,7 +42,7 @@ export default function QueueControls() {
           <select
             value={department}
             onChange={(e) => setDepartment(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white/90 dark:bg-slate-950/50 text-slate-800 dark:text-slate-100 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30"
           >
             {DEPARTMENTS.map((d) => (
               <option key={d} value={d}>
@@ -56,13 +56,13 @@ export default function QueueControls() {
         type="button"
         onClick={issue}
         disabled={!patientName.trim()}
-        className="w-full sm:w-auto px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white text-sm font-medium"
+        className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 disabled:opacity-50 text-white text-sm font-semibold shadow-lg shadow-sky-500/25 transition-all"
       >
         Generate token
       </button>
 
-      <div className="border-t border-slate-200 dark:border-slate-700 pt-4 space-y-2">
-        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Desk actions</h3>
+      <div className="border-t border-slate-200/80 dark:border-slate-700/80 pt-5 space-y-3">
+        <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.14em]">Desk actions</h3>
         <p className="text-xs text-slate-500 dark:text-slate-400">
           Active token: <span className="font-mono text-slate-700 dark:text-slate-200">{currentToken ?? 'None'}</span>
         </p>
@@ -75,7 +75,7 @@ export default function QueueControls() {
               if (cur) notify.success(`Now serving ${cur}`)
               else notify.success('Queue updated — no active token right now')
             }}
-            className="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium"
+            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-sm font-semibold shadow-md shadow-emerald-500/20 transition-all"
           >
             Call next
           </button>
@@ -87,7 +87,7 @@ export default function QueueControls() {
               notify.success('Visit marked complete')
             }}
             disabled={!currentToken}
-            className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm font-medium disabled:opacity-40"
+            className="px-4 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-800/80 disabled:opacity-40 transition-colors"
           >
             Complete current
           </button>
@@ -99,7 +99,7 @@ export default function QueueControls() {
               notify.success('Token skipped — next patient called if available')
             }}
             disabled={!currentToken}
-            className="px-3 py-2 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-sm font-medium disabled:opacity-40"
+            className="px-4 py-2.5 rounded-xl border border-amber-200/90 dark:border-amber-800/80 text-amber-900 dark:text-amber-200 text-sm font-semibold hover:bg-amber-50/80 dark:hover:bg-amber-950/30 disabled:opacity-40 transition-colors"
           >
             Skip &amp; next
           </button>
@@ -111,7 +111,7 @@ export default function QueueControls() {
                 notify.success('Queue cleared')
               }
             }}
-            className="px-3 py-2 rounded-lg text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20"
+            className="px-4 py-2.5 rounded-xl text-red-600 dark:text-red-400 text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
           >
             Reset queue
           </button>

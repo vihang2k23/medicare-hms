@@ -45,20 +45,23 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-100 dark:bg-slate-900">
+    <div className="min-h-screen flex flex-col app-surface-gradient">
       <Navbar />
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-2xl">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-10">
+        <div className="w-full max-w-3xl page-enter">
+          <div className="text-center mb-10">
+            <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-sky-600 dark:text-sky-400 mb-3">
+              Secure access
+            </p>
+            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
               Sign in to MediCare HMS
             </h1>
-            <p className="mt-2 text-slate-500 dark:text-slate-400 text-sm">
-              Select your role to continue
+            <p className="mt-3 text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-md mx-auto leading-relaxed">
+              Choose your role to open the workspace. Demo environment — no password required.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             {demoUsers.map((user) => {
               const RoleIcon = roleIcons[user.role]
               return (
@@ -66,21 +69,19 @@ export default function Login() {
                   key={user.role}
                   type="button"
                   onClick={() => handleLogin(user)}
-                  className="group bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6 text-left shadow-sm dark:shadow-none hover:shadow-md dark:hover:bg-slate-700/80 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+                  className="group text-left rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/75 dark:bg-slate-900/50 backdrop-blur-md p-6 shadow-sm shadow-slate-200/40 dark:shadow-none ring-1 ring-slate-200/50 dark:ring-slate-700/50 transition-all duration-300 hover:shadow-xl hover:shadow-sky-500/10 hover:ring-sky-200/60 dark:hover:ring-sky-500/30 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-sky-50 dark:bg-sky-900/40 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0 group-hover:bg-sky-100 dark:group-hover:bg-sky-900/60 transition-colors">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500/10 to-sky-600/5 dark:from-sky-500/20 dark:to-sky-600/10 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0 ring-1 ring-sky-200/50 dark:ring-sky-500/20 group-hover:from-sky-500/15 group-hover:to-sky-600/10 transition-colors">
                       <RoleIcon className="h-6 w-6" aria-hidden />
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="font-semibold text-slate-800 dark:text-slate-100 text-base">
+                    <div className="min-w-0 flex-1 pt-0.5">
+                      <div className="font-bold text-slate-900 dark:text-white text-base tracking-tight">
                         {roleLabels[user.role]}
                       </div>
-                      <div className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
-                        {user.name}
-                      </div>
-                      <div className="mt-3 text-sky-600 dark:text-sky-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                        Sign in
+                      <div className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-medium">{user.name}</div>
+                      <div className="mt-4 text-sky-600 dark:text-sky-400 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5">
+                        Continue
                         <ArrowRight className="h-4 w-4" aria-hidden />
                       </div>
                     </div>
@@ -90,8 +91,8 @@ export default function Login() {
             })}
           </div>
 
-          <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-6">
-            Demo accounts · No password required
+          <p className="text-center text-xs font-medium text-slate-400 dark:text-slate-500 mt-10">
+            Hospital Management System · Demo accounts
           </p>
         </div>
       </div>

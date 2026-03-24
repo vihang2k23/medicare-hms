@@ -13,10 +13,13 @@ export default function ReceptionistDashboard() {
   const { tokens, currentToken, servedToday } = useSelector((state: RootState) => state.queue)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-800 dark:text-slate-100">Receptionist Dashboard</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Welcome, {user?.name}.</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-400 mb-2">Front desk</p>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Receptionist dashboard</h1>
+        <p className="text-slate-600 dark:text-slate-400 mt-2 text-sm">
+          Hello, <span className="font-semibold text-slate-800 dark:text-slate-200">{user?.name}</span>.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

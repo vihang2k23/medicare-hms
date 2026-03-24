@@ -15,10 +15,13 @@ export default function NurseDashboard() {
   const occupiedBeds = Object.values(wardSummary).reduce((acc, w) => acc + w.occupied, 0)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-800 dark:text-slate-100">Nurse Dashboard</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Welcome, {user?.name}.</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-orange-600 dark:text-orange-400 mb-2">Ward</p>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Nurse dashboard</h1>
+        <p className="text-slate-600 dark:text-slate-400 mt-2 text-sm">
+          Welcome, <span className="font-semibold text-slate-800 dark:text-slate-200">{user?.name}</span>.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

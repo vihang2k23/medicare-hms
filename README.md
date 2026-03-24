@@ -1,3 +1,25 @@
+# MediCare HMS
+
+## JSON Server (patient API)
+
+Patient registration/list uses **[JSON Server](https://github.com/typicode/json-server)** against `server/db.json`.
+
+1. Start the mock API (port **3001**):
+
+   ```bash
+   npm run server
+   ```
+
+2. In another terminal, start the Vite app:
+
+   ```bash
+   npm run dev
+   ```
+
+Optional: set `VITE_JSON_SERVER_URL` in `.env` if the API is not at `http://localhost:3001`.
+
+---
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

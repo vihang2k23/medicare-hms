@@ -3,14 +3,46 @@
 /* Class-based dark mode: add .dark on html to enable dark: variants */
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
 #root {
   min-height: 100vh;
+}
+
+/* Subtle page chrome — used behind main app content */
+.app-surface-gradient {
+  background-color: #f4f7fb;
+  background-image: radial-gradient(ellipse 120% 80% at 100% -20%, rgb(14 165 233 / 0.12), transparent 50%),
+    radial-gradient(ellipse 90% 60% at 0% 100%, rgb(139 92 246 / 0.08), transparent 45%);
+}
+
+.dark .app-surface-gradient {
+  background-color: rgb(2 6 23);
+  background-image: radial-gradient(ellipse 100% 70% at 100% 0%, rgb(14 165 233 / 0.14), transparent 55%),
+    radial-gradient(ellipse 80% 50% at 0% 100%, rgb(99 102 241 / 0.1), transparent 50%);
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+}
+
+::selection {
+  background-color: rgb(14 165 233 / 0.22);
+}
+
+.dark ::selection {
+  background-color: rgb(14 165 233 / 0.35);
 }
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -21,10 +53,14 @@
 @keyframes scaleIn {
   from {
     opacity: 0;
-    transform: scale(0.95);
+    transform: scale(0.96);
   }
   to {
     opacity: 1;
     transform: scale(1);
   }
+}
+
+.page-enter {
+  animation: fadeInUp 0.45s cubic-bezier(0.21, 1, 0.32, 1) forwards;
 }

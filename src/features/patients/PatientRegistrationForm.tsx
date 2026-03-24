@@ -43,9 +43,9 @@ const STEPS = ['Personal', 'Contact', 'Medical', 'Emergency', 'Review'] as const
 const stepSchemas = [step1Schema, step2Schema, step3Schema, step4Schema] as const
 
 function inputClass(error?: boolean) {
-  return `w-full px-3 py-2 rounded-lg border text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 ${
-    error ? 'border-red-500' : 'border-slate-200 dark:border-slate-600'
-  } focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent`
+  return `w-full px-3.5 py-2.5 rounded-xl border text-slate-800 dark:text-slate-100 bg-white/90 dark:bg-slate-900/40 shadow-sm ${
+    error ? 'border-red-500 ring-2 ring-red-500/20' : 'border-slate-200/90 dark:border-slate-600/80'
+  } focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500/50 transition-shadow`
 }
 
 interface PatientRegistrationFormProps {
@@ -206,9 +206,9 @@ export default function PatientRegistrationForm({
             </span>
           ))}
         </div>
-        <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+        <div className="h-2.5 rounded-full bg-slate-200/80 dark:bg-slate-800 overflow-hidden ring-1 ring-slate-200/50 dark:ring-slate-700/50">
           <div
-            className="h-full bg-sky-600 transition-all duration-300"
+            className="h-full rounded-full bg-gradient-to-r from-sky-500 to-sky-600 shadow-sm shadow-sky-500/30 transition-all duration-500 ease-out"
             style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
           />
         </div>
@@ -222,7 +222,7 @@ export default function PatientRegistrationForm({
         className="space-y-6"
       >
         {step === 0 && (
-          <div className="space-y-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+          <div className="space-y-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/45 backdrop-blur-sm p-6 sm:p-7 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
             <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Personal information</h2>
             <div>
               <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Full name</label>
@@ -269,7 +269,7 @@ export default function PatientRegistrationForm({
         )}
 
         {step === 1 && (
-          <div className="space-y-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+          <div className="space-y-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/45 backdrop-blur-sm p-6 sm:p-7 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
             <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Contact & address</h2>
             <div>
               <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Phone</label>
@@ -307,7 +307,7 @@ export default function PatientRegistrationForm({
         )}
 
         {step === 2 && (
-          <div className="space-y-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+          <div className="space-y-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/45 backdrop-blur-sm p-6 sm:p-7 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
             <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Medical history</h2>
             <div>
               <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Known allergies</label>
@@ -329,7 +329,7 @@ export default function PatientRegistrationForm({
         )}
 
         {step === 3 && (
-          <div className="space-y-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+          <div className="space-y-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/45 backdrop-blur-sm p-6 sm:p-7 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
             <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Emergency contact</h2>
             <div>
               <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Full name</label>
@@ -352,7 +352,7 @@ export default function PatientRegistrationForm({
         )}
 
         {step === 4 && (
-          <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 space-y-3 text-sm">
+          <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/45 backdrop-blur-sm p-6 sm:p-7 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40 space-y-3 text-sm">
             <h2 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Review & submit</h2>
             <p className="text-slate-500 dark:text-slate-400 text-xs mb-4">
               Nothing is saved until you click <strong className="text-slate-700 dark:text-slate-200">{isEdit ? 'Save changes' : 'Register patient'}</strong> below.
@@ -391,13 +391,17 @@ export default function PatientRegistrationForm({
             type="button"
             onClick={back}
             disabled={step === 0}
-            className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 disabled:opacity-40"
+            className="px-5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-semibold text-sm hover:bg-slate-50 dark:hover:bg-slate-800/80 disabled:opacity-40 transition-colors"
           >
             Back
           </button>
           <div className="flex gap-3">
             {step < 4 ? (
-              <button type="button" onClick={next} className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-medium">
+              <button
+                type="button"
+                onClick={next}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 text-white font-semibold text-sm shadow-lg shadow-sky-500/25 transition-all"
+              >
                 Next
               </button>
             ) : (
@@ -405,7 +409,7 @@ export default function PatientRegistrationForm({
                 type="button"
                 disabled={submitting}
                 onClick={() => void handleSubmit(onSubmit)()}
-                className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold text-sm shadow-lg shadow-emerald-500/25 disabled:opacity-50 transition-all"
               >
                 {submitting ? 'Saving…' : isEdit ? 'Save changes' : 'Register patient'}
               </button>

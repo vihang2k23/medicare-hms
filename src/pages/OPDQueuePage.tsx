@@ -11,10 +11,11 @@ export default function OPDQueuePage({
   description = 'Issue tokens, call patients, and track status for the current session.',
 }: OPDQueuePageProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-800 dark:text-slate-100">{title}</h1>
-        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{description}</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-600 dark:text-sky-400 mb-2">Operations</p>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{title}</h1>
+        <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-2xl leading-relaxed">{description}</p>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
         <div className="xl:col-span-2">
