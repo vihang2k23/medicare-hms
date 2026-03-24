@@ -68,7 +68,7 @@ export default function ReceptionistDashboard() {
               Register new patient
             </Link>
             <Link
-              to="/receptionist"
+              to="/receptionist/appointments"
               className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-200 text-sm font-medium transition-colors"
             >
               Book appointment

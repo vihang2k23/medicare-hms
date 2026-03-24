@@ -3,24 +3,15 @@
  * Replace with API/JSON Server later.
  */
 
+import { OPD_DEPARTMENTS } from '../config/departments'
+import { WARDS, wardRoomLabel } from '../config/wards'
+
+const [wardGeneral, wardIcu] = WARDS
+
 export const MOCK_PATIENTS_TODAY = 42
 export const MOCK_REGISTRATIONS_TODAY = 18
 export const MOCK_PRESCRIPTIONS_TODAY = 12
 export const MOCK_SERVED_TODAY = 28
-
-/** Bed occupancy: [available, occupied, reserved, maintenance] */
-export const MOCK_BED_OCCUPANCY = [
-  { name: 'Available', value: 24, color: '#22c55e' },
-  { name: 'Occupied', value: 18, color: '#ef4444' },
-  { name: 'Reserved', value: 5, color: '#f59e0b' },
-  { name: 'Maintenance', value: 3, color: '#64748b' },
-]
-
-export const MOCK_OPD_BY_STATUS = [
-  { name: 'Waiting', value: 8, color: '#3b82f6' },
-  { name: 'In Progress', value: 1, color: '#f59e0b' },
-  { name: 'Done', value: 28, color: '#22c55e' },
-]
 
 /** Revenue / billing summary (last 7 days) */
 export const MOCK_REVENUE_DATA = [
@@ -33,9 +24,9 @@ export const MOCK_REVENUE_DATA = [
   { day: 'Sun', amount: 7600 },
 ]
 
-/** Top departments by patient load */
-export const MOCK_TOP_DEPARTMENTS = [
-  { name: 'General Medicine', patients: 85 },
+/** Top departments by patient load (names match `OPD_DEPARTMENTS` / queue counters). */
+export const MOCK_TOP_DEPARTMENTS: { name: (typeof OPD_DEPARTMENTS)[number]; patients: number }[] = [
+  { name: 'General OPD', patients: 85 },
   { name: 'Pediatrics', patients: 62 },
   { name: 'Orthopedics', patients: 48 },
   { name: 'Cardiology', patients: 41 },
@@ -44,11 +35,11 @@ export const MOCK_TOP_DEPARTMENTS = [
 
 /** Doctor availability (for admin widget) */
 export const MOCK_DOCTOR_AVAILABILITY = [
-  { id: 'D1', name: 'Dr. Sharma', dept: 'General', status: 'available' },
+  { id: 'D1', name: 'Dr. Sharma', dept: 'General OPD', status: 'available' },
   { id: 'D2', name: 'Dr. Patel', dept: 'Pediatrics', status: 'busy' },
-  { id: 'D3', name: 'Dr. Kumar', dept: 'Ortho', status: 'available' },
+  { id: 'D3', name: 'Dr. Kumar', dept: 'Orthopedics', status: 'available' },
   { id: 'D4', name: 'Dr. Nair', dept: 'Cardiology', status: 'busy' },
-  { id: 'D5', name: 'Dr. Reddy', dept: 'General', status: 'available' },
+  { id: 'D5', name: 'Dr. Reddy', dept: 'General OPD', status: 'available' },
 ]
 
 /** Today's appointments (doctor dashboard) */
@@ -67,13 +58,13 @@ export const MOCK_PENDING_APPOINTMENTS = 14
 
 /** Pending vitals (nurse) */
 export const MOCK_PENDING_VITALS = [
-  { id: 'V1', patientName: 'Raj Mehta', room: 'W1-02' },
-  { id: 'V2', patientName: 'Priya Shah', room: 'W1-05' },
+  { id: 'V1', patientName: 'Raj Mehta', room: wardRoomLabel(wardGeneral.id, '2') },
+  { id: 'V2', patientName: 'Priya Shah', room: wardRoomLabel(wardGeneral.id, '3') },
 ]
 
 /** Recent bed status changes (nurse) */
 export const MOCK_RECENT_BED_CHANGES = [
-  { time: '10:45', ward: 'General', bed: '3', action: 'Freed' },
-  { time: '10:30', ward: 'ICU', bed: '1', action: 'Occupied' },
-  { time: '10:15', ward: 'General', bed: '7', action: 'Reserved' },
+  { time: '10:45', ward: wardGeneral.name, bed: '3', action: 'Freed' },
+  { time: '10:30', ward: wardIcu.name, bed: '1', action: 'Occupied' },
+  { time: '10:15', ward: wardGeneral.name, bed: '4', action: 'Reserved' },
 ]

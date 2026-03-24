@@ -1,54 +1,376 @@
-import { useSelector } from 'react-redux'
-import type { RootState } from '../../app/store'
+import { useMemo, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  Activity,
+  BedDouble,
+  DoorOpen,
+  Stethoscope,
+  UserPlus,
+  Wrench,
+  X,
+} from 'lucide-react'
+import type { AppDispatch, RootState } from '../../app/store'
+import { notify } from '../../lib/notify'
+import type { Bed, BedStatus } from './bedSlice'
+import { assignPatientToBed, dischargePatientFromBed, updateBedStatus } from './bedSlice'
 
-export default function BedGrid() {
+const STATUS_STYLES: Record<
+  BedStatus,
+  { cell: string; dot: string; label: string }
+> = {
+  available: {
+    cell:
+      'bg-emerald-500/15 text-emerald-900 dark:text-emerald-100 ring-emerald-500/25 hover:ring-emerald-400/50',
+    dot: 'bg-emerald-500',
+    label: 'Available',
+  },
+  occupied: {
+    cell: 'bg-rose-500/15 text-rose-900 dark:text-rose-100 ring-rose-500/25 hover:ring-rose-400/50',
+    dot: 'bg-rose-500',
+    label: 'Occupied',
+  },
+  reserved: {
+    cell:
+      'bg-amber-500/15 text-amber-950 dark:text-amber-100 ring-amber-500/25 hover:ring-amber-400/50',
+    dot: 'bg-amber-500',
+    label: 'Reserved',
+  },
+  maintenance: {
+    cell:
+      'bg-slate-500/20 text-slate-800 dark:text-slate-100 ring-slate-400/30 hover:ring-slate-400/45',
+    dot: 'bg-slate-500',
+    label: 'Maintenance',
+  },
+}
+
+const STATUS_OPTIONS: { value: BedStatus; label: string }[] = [
+  { value: 'available', label: 'Available' },
+  { value: 'occupied', label: 'Occupied' },
+  { value: 'reserved', label: 'Reserved' },
+  { value: 'maintenance', label: 'Maintenance' },
+]
+
+function groupByWard(beds: Bed[]): { wardId: string; wardName: string; list: Bed[] }[] {
+  const map = new Map<string, { wardName: string; list: Bed[] }>()
+  for (const b of beds) {
+    const g = map.get(b.wardId) ?? { wardName: b.wardName, list: [] }
+    g.list.push(b)
+    g.wardName = b.wardName
+    map.set(b.wardId, g)
+  }
+  return [...map.entries()]
+    .map(([wardId, v]) => ({
+      wardId,
+      wardName: v.wardName,
+      list: v.list.sort((a, b) => a.bedNumber.localeCompare(b.bedNumber, undefined, { numeric: true })),
+    }))
+    .sort((a, b) => a.wardName.localeCompare(b.wardName))
+}
+
+export interface BedGridProps {
+  /** When false, only the per-ward grids and detail panel are shown (e.g. dashboard). */
+  showWardSummary?: boolean
+}
+
+export default function BedGrid({ showWardSummary = true }: BedGridProps) {
+  const dispatch = useDispatch<AppDispatch>()
   const { beds, wardSummary } = useSelector((state: RootState) => state.beds)
+  const [activeBedId, setActiveBedId] = useState<string | null>(null)
+  const [assignName, setAssignName] = useState('')
+  const [assignId, setAssignId] = useState('')
+
+  const activeBed = activeBedId ? beds.find((b) => b.id === activeBedId) ?? null : null
+  const byWard = useMemo(() => groupByWard(beds), [beds])
+
+  const openBed = (bed: Bed) => {
+    setActiveBedId(bed.id)
+    setAssignName('')
+    setAssignId('')
+  }
+
+  const closePanel = () => {
+    setActiveBedId(null)
+    setAssignName('')
+    setAssignId('')
+  }
+
+  const applyStatus = (bed: Bed, status: BedStatus) => {
+    if (bed.status === status) return
+    dispatch(updateBedStatus({ bedId: bed.id, status }))
+    notify.success(`Bed ${bed.wardName} · ${bed.bedNumber} → ${STATUS_OPTIONS.find((o) => o.value === status)?.label}`)
+  }
+
+  const assign = () => {
+    if (!activeBed) return
+    const name = assignName.trim()
+    if (!name) {
+      notify.error('Enter a patient name to assign')
+      return
+    }
+    dispatch(
+      assignPatientToBed({
+        bedId: activeBed.id,
+        occupantName: name,
+        patientId: assignId.trim() || undefined,
+      }),
+    )
+    notify.success(`Assigned to bed ${activeBed.bedNumber}`)
+    closePanel()
+  }
+
+  const discharge = () => {
+    if (!activeBed) return
+    dispatch(dischargePatientFromBed({ bedId: activeBed.id }))
+    notify.success(`Discharged from bed ${activeBed.bedNumber}`)
+    closePanel()
+  }
 
   return (
-    <div className="space-y-4">
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow dark:border dark:border-slate-700 p-4">
-        <h2 className="text-lg font-medium text-slate-800 dark:text-slate-100 mb-3">Ward summary</h2>
-        {Object.keys(wardSummary).length === 0 ? (
-          <p className="text-slate-500 dark:text-slate-400 text-sm">No ward data.</p>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {Object.entries(wardSummary).map(([wardId, counts]) => (
-              <div key={wardId} className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded">
-                <div className="font-medium text-slate-800 dark:text-slate-100">{wardId}</div>
-                <div className="text-sm text-slate-600 dark:text-slate-400">
-                  Avail: {counts.available} | Occupied: {counts.occupied} | Reserved: {counts.reserved}
+    <div className="space-y-6">
+      {showWardSummary && (
+        <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/50 backdrop-blur-sm p-5 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 tracking-tight">
+              <Activity className="h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0" aria-hidden />
+              Ward summary
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md leading-relaxed">
+              Live counts by ward — use the grid below to change status, admit, or discharge.
+            </p>
+          </div>
+          {Object.keys(wardSummary).length === 0 ? (
+            <p className="text-slate-500 dark:text-slate-400 text-sm">No ward data.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              {Object.entries(wardSummary).map(([wardId, c]) => {
+                const wardName = beds.find((b) => b.wardId === wardId)?.wardName ?? wardId
+                const total = c.available + c.occupied + c.reserved + c.maintenance
+                const occPct = total === 0 ? 0 : Math.round((c.occupied / total) * 100)
+                return (
+                  <div
+                    key={wardId}
+                    className="rounded-xl border border-slate-200/70 dark:border-slate-600/80 bg-gradient-to-br from-white/90 to-slate-50/80 dark:from-slate-950/40 dark:to-slate-900/30 p-4 ring-1 ring-slate-200/50 dark:ring-slate-700/50"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                          {wardId}
+                        </p>
+                        <p className="text-lg font-bold text-slate-900 dark:text-slate-100">{wardName}</p>
+                      </div>
+                      <span className="text-xs font-semibold tabular-nums text-teal-700 dark:text-teal-300 bg-teal-500/10 px-2 py-1 rounded-lg">
+                        {occPct}% occ.
+                      </span>
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                      <div className="flex items-center gap-2 rounded-lg bg-emerald-500/10 px-2.5 py-2 text-emerald-900 dark:text-emerald-100">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+                        <span className="font-medium">Free</span>
+                        <span className="ml-auto font-bold tabular-nums">{c.available}</span>
+                      </div>
+                      <div className="flex items-center gap-2 rounded-lg bg-rose-500/10 px-2.5 py-2 text-rose-900 dark:text-rose-100">
+                        <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0" />
+                        <span className="font-medium">Occupied</span>
+                        <span className="ml-auto font-bold tabular-nums">{c.occupied}</span>
+                      </div>
+                      <div className="flex items-center gap-2 rounded-lg bg-amber-500/10 px-2.5 py-2 text-amber-950 dark:text-amber-100">
+                        <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+                        <span className="font-medium">Reserved</span>
+                        <span className="ml-auto font-bold tabular-nums">{c.reserved}</span>
+                      </div>
+                      <div className="flex items-center gap-2 rounded-lg bg-slate-500/15 px-2.5 py-2 text-slate-800 dark:text-slate-100">
+                        <span className="h-2 w-2 rounded-full bg-slate-500 shrink-0" />
+                        <span className="font-medium">Maint.</span>
+                        <span className="ml-auto font-bold tabular-nums">{c.maintenance}</span>
+                      </div>
+                    </div>
+                    <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400">
+                      Total beds: <strong className="text-slate-700 dark:text-slate-200">{total}</strong>
+                    </p>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="flex flex-wrap gap-4 text-xs text-slate-600 dark:text-slate-400">
+        {(Object.keys(STATUS_STYLES) as BedStatus[]).map((s) => (
+          <span key={s} className="inline-flex items-center gap-1.5">
+            <span className={`h-2.5 w-2.5 rounded-full ${STATUS_STYLES[s].dot}`} />
+            {STATUS_STYLES[s].label}
+          </span>
+        ))}
+      </div>
+
+      <div className="space-y-6">
+        {byWard.map(({ wardId, wardName, list }) => (
+          <div
+            key={wardId}
+            className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/50 backdrop-blur-sm p-5 shadow-sm ring-1 ring-slate-200/40 dark:ring-slate-700/40"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <BedDouble className="h-4 w-4 text-teal-600 dark:text-teal-400" aria-hidden />
+                {wardName}
+                <span className="text-slate-400 dark:text-slate-500 font-mono text-xs font-normal">{wardId}</span>
+              </h3>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2.5">
+              {list.map((bed) => {
+                const st = STATUS_STYLES[bed.status]
+                const subtitle =
+                  bed.status === 'occupied'
+                    ? bed.occupantName ?? bed.patientId ?? 'Occupied'
+                    : bed.status === 'reserved'
+                      ? 'Reserved'
+                      : bed.status === 'maintenance'
+                        ? 'Out of service'
+                        : 'Tap to manage'
+                return (
+                  <button
+                    key={bed.id}
+                    type="button"
+                    onClick={() => openBed(bed)}
+                    className={`relative flex flex-col items-start rounded-xl px-3 py-3 text-left text-sm font-semibold ring-1 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/50 ${st.cell}`}
+                  >
+                    <span className="flex items-center gap-1.5 w-full min-w-0">
+                      <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${st.dot}`} />
+                      <span className="truncate">Bed {bed.bedNumber}</span>
+                    </span>
+                    <span className="mt-1 text-[11px] font-normal opacity-85 line-clamp-2 leading-snug">
+                      {subtitle}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {activeBed && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center sm:items-center p-4 bg-slate-950/50 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="bed-panel-title"
+          onClick={closePanel}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl shadow-slate-900/20 ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80 bg-gradient-to-r from-teal-500/10 to-transparent">
+              <div>
+                <p id="bed-panel-title" className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                  {activeBed.wardName} · Bed {activeBed.bedNumber}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  {STATUS_STYLES[activeBed.status].label}
+                  {activeBed.occupantName && (
+                    <>
+                      {' · '}
+                      <span className="text-slate-700 dark:text-slate-200">{activeBed.occupantName}</span>
+                    </>
+                  )}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closePanel}
+                className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-5">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+                  Bed status
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {STATUS_OPTIONS.map(({ value, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => applyStatus(activeBed, value)}
+                      className={`px-3 py-2.5 rounded-xl text-xs font-semibold ring-1 transition-all ${
+                        activeBed.status === value
+                          ? 'bg-teal-600 text-white ring-teal-600 shadow-md shadow-teal-500/20'
+                          : 'bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 ring-slate-200/80 dark:ring-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
               </div>
-            ))}
+
+              {(activeBed.status === 'available' || activeBed.status === 'reserved') && (
+                <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-slate-50/80 dark:bg-slate-800/40 p-4 space-y-3">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                    <UserPlus className="h-3.5 w-3.5" aria-hidden />
+                    Admit / assign
+                  </p>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                      Patient name
+                    </label>
+                    <input
+                      value={assignName}
+                      onChange={(e) => setAssignName(e.target.value)}
+                      placeholder="Full name"
+                      className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white/90 dark:bg-slate-950/50 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                      Patient ID (optional)
+                    </label>
+                    <input
+                      value={assignId}
+                      onChange={(e) => setAssignId(e.target.value)}
+                      placeholder="Registry ID"
+                      className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white/90 dark:bg-slate-950/50 text-sm font-mono"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={assign}
+                    disabled={!assignName.trim()}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 disabled:opacity-45 text-white text-sm font-semibold shadow-lg shadow-teal-500/20"
+                  >
+                    <Stethoscope className="h-4 w-4" aria-hidden />
+                    Assign to bed
+                  </button>
+                </div>
+              )}
+
+              {activeBed.status === 'occupied' && (
+                <button
+                  type="button"
+                  onClick={discharge}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-rose-200 dark:border-rose-900/60 text-rose-800 dark:text-rose-200 text-sm font-semibold hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                >
+                  <DoorOpen className="h-4 w-4" aria-hidden />
+                  Discharge &amp; free bed
+                </button>
+              )}
+
+              {activeBed.status === 'maintenance' && (
+                <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                  <Wrench className="h-4 w-4 shrink-0" aria-hidden />
+                  Mark available when the bed is ready for patients again.
+                </p>
+              )}
+            </div>
           </div>
-        )}
-      </div>
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow dark:border dark:border-slate-700 p-4">
-        <h2 className="text-lg font-medium text-slate-800 dark:text-slate-100 mb-3">Bed grid</h2>
-        {beds.length === 0 ? (
-          <p className="text-slate-500 dark:text-slate-400 text-sm">No beds.</p>
-        ) : (
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
-            {beds.map((bed) => (
-              <div
-                key={bed.id}
-                className={`p-2 rounded text-center text-sm font-medium ${
-                  bed.status === 'available'
-                    ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200'
-                    : bed.status === 'occupied'
-                      ? 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200'
-                      : bed.status === 'reserved'
-                        ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200'
-                        : 'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200'
-                }`}
-                title={`${bed.wardName} - ${bed.bedNumber}`}
-              >
-                {bed.bedNumber}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

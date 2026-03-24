@@ -16,6 +16,7 @@ import PatientRegistrationPage from '../pages/PatientRegistrationPage'
 import PatientProfilePage from '../pages/PatientProfilePage'
 import PatientEditPage from '../pages/PatientEditPage'
 import OPDQueuePage from '../pages/OPDQueuePage'
+import AdminBedsPage from '../pages/AdminBedsPage'
 
 export default function AppRoutes() {
   return (
@@ -27,7 +28,7 @@ export default function AppRoutes() {
           {/* Admin */}
           <Route path="admin" element={<AdminDashboard />} />
           <Route path="admin/opd-queue" element={<OPDQueuePage title="OPD queue" description="Admin view — same live queue as reception." />} />
-          <Route path="admin/beds" element={<PlaceholderPage title="Bed Management" />} />
+          <Route path="admin/beds" element={<AdminBedsPage />} />
           <Route path="admin/patients" element={<PatientListPage />} />
           <Route path="admin/patients/new" element={<PatientRegistrationPage />} />
           <Route path="admin/patients/:patientId/edit" element={<PatientEditPage />} />

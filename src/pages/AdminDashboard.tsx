@@ -1,9 +1,9 @@
+import { useMemo } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import DashboardCard from '../components/ui/DashboardCard'
 import StatCard from '../components/ui/StatCard'
 import {
   MOCK_PATIENTS_TODAY,
-  MOCK_BED_OCCUPANCY,
   MOCK_REVENUE_DATA,
   MOCK_TOP_DEPARTMENTS,
   MOCK_DOCTOR_AVAILABILITY,
@@ -23,12 +23,35 @@ import {
 } from 'recharts'
 import { Banknote, BedDouble, Ticket, Users } from 'lucide-react'
 
+const BED_PIE_COLORS = {
+  available: '#22c55e',
+  occupied: '#ef4444',
+  reserved: '#f59e0b',
+  maintenance: '#64748b',
+} as const
+
 export default function AdminDashboard() {
   const { user } = useAuth()
   const { tokens, currentToken } = useSelector((state: RootState) => state.queue)
+  const beds = useSelector((state: RootState) => state.beds.beds)
   const alerts = useSelector((state: RootState) => state.alerts.alerts).slice(0, 5)
   const opdWaiting = tokens.filter((t) => t.status === 'waiting').length
   const opdDone = tokens.filter((t) => t.status === 'done').length
+
+  const bedPieData = useMemo(() => {
+    const c = { available: 0, occupied: 0, reserved: 0, maintenance: 0 }
+    for (const b of beds) c[b.status]++
+    return [
+      { name: 'Available', value: c.available, color: BED_PIE_COLORS.available },
+      { name: 'Occupied', value: c.occupied, color: BED_PIE_COLORS.occupied },
+      { name: 'Reserved', value: c.reserved, color: BED_PIE_COLORS.reserved },
+      { name: 'Maintenance', value: c.maintenance, color: BED_PIE_COLORS.maintenance },
+    ]
+  }, [beds])
+
+  const totalBeds = beds.length
+  const occupiedBedCount = beds.filter((b) => b.status === 'occupied').length
+  const bedOccupancyPct = totalBeds > 0 ? Math.round((occupiedBedCount / totalBeds) * 100) : 0
 
   return (
     <div className="space-y-8">
@@ -51,8 +74,8 @@ export default function AdminDashboard() {
         />
         <StatCard
           label="Bed occupancy"
-          value={`${Math.round((MOCK_BED_OCCUPANCY[1].value / 50) * 100)}%`}
-          subLabel="18 of 50 beds occupied"
+          value={`${bedOccupancyPct}%`}
+          subLabel={`${occupiedBedCount} of ${totalBeds} beds occupied`}
           accent="amber"
           icon={<BedDouble className="h-5 w-5" aria-hidden />}
         />
@@ -79,7 +102,7 @@ export default function AdminDashboard() {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={MOCK_BED_OCCUPANCY}
+                  data={bedPieData}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
@@ -89,7 +112,7 @@ export default function AdminDashboard() {
                   nameKey="name"
                   label={({ name, percent }) => `${name} ${percent != null ? (percent * 100).toFixed(0) : 0}%`}
                 >
-                  {MOCK_BED_OCCUPANCY.map((entry) => (
+                  {bedPieData.map((entry) => (
                     <Cell key={entry.name} fill={entry.color} />
                   ))}
                 </Pie>

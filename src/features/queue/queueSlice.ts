@@ -97,7 +97,27 @@ const queueSlice = createSlice({
       action: PayloadAction<{ tokenNumber: string; status: QueueTokenStatus }>,
     ) {
       const t = state.tokens.find((x) => x.tokenNumber === action.payload.tokenNumber)
-      if (t) t.status = action.payload.status
+      if (!t) return
+      const prev = t.status
+      const next = action.payload.status
+      if (prev === next) return
+      t.status = next
+      if (prev === 'in-progress' && next === 'done') state.servedToday += 1
+      if (state.currentToken === action.payload.tokenNumber && next !== 'in-progress') {
+        state.currentToken = null
+      }
+    },
+    markTokenInProgress(state, action: PayloadAction<string>) {
+      const tokenNumber = action.payload
+      const active = state.tokens.find((x) => x.status === 'in-progress')
+      if (active && active.tokenNumber !== tokenNumber) {
+        active.status = 'waiting'
+      }
+      const t = state.tokens.find((x) => x.tokenNumber === tokenNumber)
+      if (!t) return
+      if (t.status === 'done') return
+      t.status = 'in-progress'
+      state.currentToken = tokenNumber
     },
     addToken(state, action: PayloadAction<QueueToken>) {
       state.tokens.push(action.payload)
@@ -119,6 +139,7 @@ export const {
   completeCurrent,
   skipCurrent,
   updateTokenStatus,
+  markTokenInProgress,
   addToken,
   resetQueue,
 } = queueSlice.actions

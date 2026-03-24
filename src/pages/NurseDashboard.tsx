@@ -1,5 +1,6 @@
 import { useAuth } from '../hooks/useAuth'
 import DashboardCard from '../components/ui/DashboardCard'
+import { wardDisplayName } from '../config/wards'
 import { BedGrid } from '../features/beds'
 import { MOCK_PENDING_VITALS, MOCK_RECENT_BED_CHANGES } from '../data/dashboardMockData'
 import { useSelector } from 'react-redux'
@@ -36,11 +37,17 @@ export default function NurseDashboard() {
             {Object.entries(wardSummary).map(([wardId, counts]) => (
               <div
                 key={wardId}
-                className="p-2 rounded-lg bg-slate-50 dark:bg-slate-700/50 text-sm"
+                className="p-2 rounded-lg bg-slate-50 dark:bg-slate-700/50 text-xs leading-relaxed text-slate-600 dark:text-slate-300"
               >
-                <span className="font-medium text-slate-800 dark:text-slate-100">{wardId}</span>
-                <span className="text-slate-500 dark:text-slate-400 ml-1">
-                  · {counts.occupied} occupied
+                <span className="font-semibold text-slate-800 dark:text-slate-100">
+                  {wardDisplayName(wardId)}
+                  <span className="font-mono text-slate-500 dark:text-slate-400 font-normal text-[11px] ml-1">
+                    {wardId}
+                  </span>
+                </span>
+                <span className="block mt-0.5 text-slate-500 dark:text-slate-400">
+                  Occ {counts.occupied} · Free {counts.available} · Rsv {counts.reserved}
+                  {counts.maintenance > 0 ? ` · Maint ${counts.maintenance}` : ''}
                 </span>
               </div>
             ))}
@@ -68,7 +75,7 @@ export default function NurseDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-3">Ward bed status grid</h2>
-          <BedGrid />
+          <BedGrid showWardSummary={false} />
         </div>
         <DashboardCard title="Recent bed status changes">
           <ul className="space-y-2">

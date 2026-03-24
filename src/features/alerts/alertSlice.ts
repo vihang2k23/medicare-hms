@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import { WARDS } from '../../config/wards'
 
 const MAX_ALERTS = 20
 
@@ -18,7 +19,12 @@ export interface AlertState {
 const initialState: AlertState = {
   alerts: [
     { id: 'a1', message: 'System check completed', level: 'info', timestamp: Date.now() - 3600000 },
-    { id: 'a2', message: 'High bed occupancy in Ward W1', level: 'warning', timestamp: Date.now() - 1800000 },
+    {
+      id: 'a2',
+      message: `High bed occupancy in ${WARDS[0].name} (${WARDS[0].id})`,
+      level: 'warning',
+      timestamp: Date.now() - 1800000,
+    },
   ],
 }
 

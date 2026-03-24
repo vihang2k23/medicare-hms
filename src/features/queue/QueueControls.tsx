@@ -1,16 +1,30 @@
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { Timer } from 'lucide-react'
 import { store, type AppDispatch, type RootState } from '../../app/store'
 import { notify } from '../../lib/notify'
-import { callNext, completeCurrent, issueToken, resetQueue, skipCurrent } from './queueSlice'
+import { OPD_DEPARTMENTS } from '../../config/departments'
+import { callNext, completeCurrent, issueToken, resetQueue, setSimulationStatus, skipCurrent } from './queueSlice'
 
-const DEPARTMENTS = ['General OPD', 'Cardiology', 'Orthopedics', 'Pediatrics', 'Other'] as const
+const SIM_INTERVALS = [
+  { label: '4 seconds', ms: 4000 },
+  { label: '8 seconds', ms: 8000 },
+  { label: '15 seconds', ms: 15000 },
+] as const
 
-export default function QueueControls() {
+export interface QueueControlsProps {
+  simulationIntervalMs?: number
+  onSimulationIntervalChange?: (ms: number) => void
+}
+
+export default function QueueControls({
+  simulationIntervalMs = 8000,
+  onSimulationIntervalChange,
+}: QueueControlsProps) {
   const dispatch = useDispatch<AppDispatch>()
-  const { currentToken } = useSelector((state: RootState) => state.queue)
+  const { currentToken, simulationRunning } = useSelector((state: RootState) => state.queue)
   const [patientName, setPatientName] = useState('')
-  const [department, setDepartment] = useState<string>(DEPARTMENTS[0])
+  const [department, setDepartment] = useState<string>(OPD_DEPARTMENTS[0])
 
   const issue = () => {
     const name = patientName.trim()
@@ -44,7 +58,7 @@ export default function QueueControls() {
             onChange={(e) => setDepartment(e.target.value)}
             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white/90 dark:bg-slate-950/50 text-slate-800 dark:text-slate-100 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30"
           >
-            {DEPARTMENTS.map((d) => (
+            {OPD_DEPARTMENTS.map((d) => (
               <option key={d} value={d}>
                 {d}
               </option>
@@ -108,12 +122,53 @@ export default function QueueControls() {
             onClick={() => {
               if (window.confirm('Clear all tokens in this session?')) {
                 dispatch(resetQueue())
+                dispatch(setSimulationStatus(false))
                 notify.success('Queue cleared')
               }
             }}
             className="px-4 py-2.5 rounded-xl text-red-600 dark:text-red-400 text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
           >
             Reset queue
+          </button>
+        </div>
+      </div>
+
+      <div className="border-t border-slate-200/80 dark:border-slate-700/80 pt-5 space-y-3">
+        <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.14em] flex items-center gap-2">
+          <Timer className="h-3.5 w-3.5 text-violet-500" aria-hidden />
+          Auto-advance (simulation)
+        </h3>
+        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          Fires &ldquo;Call next&rdquo; on a timer so you can demo throughput. Turn off when running a real desk.
+        </p>
+        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 items-stretch sm:items-center">
+          <label className="text-xs font-medium text-slate-600 dark:text-slate-400 shrink-0">Interval</label>
+          <select
+            value={simulationIntervalMs}
+            onChange={(e) => onSimulationIntervalChange?.(Number(e.target.value))}
+            disabled={!onSimulationIntervalChange}
+            className="sm:flex-1 min-w-[10rem] px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white/90 dark:bg-slate-950/50 text-slate-800 dark:text-slate-100 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/30 disabled:opacity-50"
+          >
+            {SIM_INTERVALS.map((opt) => (
+              <option key={opt.ms} value={opt.ms}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={() => {
+              const next = !simulationRunning
+              dispatch(setSimulationStatus(next))
+              notify.success(next ? 'Auto-advance started' : 'Auto-advance stopped')
+            }}
+            className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              simulationRunning
+                ? 'bg-violet-600 text-white shadow-md shadow-violet-500/25 hover:bg-violet-500'
+                : 'border border-violet-200/90 dark:border-violet-800/80 text-violet-800 dark:text-violet-200 hover:bg-violet-50 dark:hover:bg-violet-950/40'
+            }`}
+          >
+            {simulationRunning ? 'Stop simulation' : 'Start simulation'}
           </button>
         </div>
       </div>
