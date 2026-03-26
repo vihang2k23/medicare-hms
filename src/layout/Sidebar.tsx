@@ -6,7 +6,7 @@ import { getNavIcon } from '../config/navIcons'
 import type { SidebarAccent } from '../config/roles'
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from '../app/store'
-import { toggleSidebar } from '../features/ui/uiSlice'
+import { setSidebarOpen, toggleSidebar } from '../features/ui/uiSlice'
 
 const ACCENT: Record<
   SidebarAccent,
@@ -50,11 +50,26 @@ export default function Sidebar() {
   const links = config.sidebarLinks
   const styles = ACCENT[config.accent]
 
+  const closeOnMobileNav = () => {
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches) {
+      dispatch(setSidebarOpen(false))
+    }
+  }
+
   return (
     <aside
-      className={`${sidebarOpen ? 'w-64' : 'w-0'} min-h-screen overflow-hidden transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] flex-shrink-0 bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl border-r border-slate-200/70 dark:border-slate-800/80`}
+      className={[
+        'flex-shrink-0 bg-white/85 dark:bg-slate-950/85 backdrop-blur-xl border-slate-200/70 dark:border-slate-800/80 border-r',
+        'fixed z-[45] shadow-2xl shadow-slate-900/15 dark:shadow-black/50 lg:shadow-none lg:relative lg:z-auto',
+        'top-16 lg:top-auto left-0',
+        'h-[calc(100dvh-4rem)] lg:h-auto lg:min-h-[calc(100dvh-4rem)]',
+        'w-[min(18rem,calc(100vw-1.25rem))] sm:w-64 max-w-[85vw]',
+        'transition-[transform,width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden',
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+        sidebarOpen ? 'lg:w-64' : 'lg:w-0 lg:border-r-0 lg:pointer-events-none',
+      ].join(' ')}
     >
-      <div className="w-64 min-h-screen flex flex-col">
+      <div className="w-full min-w-[16rem] sm:w-64 min-h-full flex flex-col">
         <div className="flex items-center justify-between h-16 px-4 border-b border-slate-200/60 dark:border-slate-800/80 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-md shadow-sky-500/20">
@@ -89,7 +104,8 @@ export default function Sidebar() {
                 <li key={path}>
                   <Link
                     to={path}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                    onClick={closeOnMobileNav}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 touch-manipulation ${
                       isActive
                         ? `${styles.activeBg} ${styles.activeBorder} shadow-sm ring-1 ring-slate-200/60 dark:ring-slate-600/40 font-semibold`
                         : `text-slate-600 dark:text-slate-400 ${styles.hoverBg} hover:text-slate-900 dark:hover:text-slate-100`
@@ -113,7 +129,8 @@ export default function Sidebar() {
           </p>
           <Link
             to="/access-denied"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100/90 dark:hover:bg-slate-800/80 text-sm font-medium transition-all duration-200"
+            onClick={closeOnMobileNav}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100/90 dark:hover:bg-slate-800/80 text-sm font-medium transition-all duration-200 touch-manipulation"
           >
             <span className="w-9 h-9 rounded-xl bg-slate-100/90 dark:bg-slate-800/80 flex items-center justify-center shrink-0">
               <ShieldAlert className="h-[18px] w-[18px]" aria-hidden />

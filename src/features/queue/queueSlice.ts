@@ -79,18 +79,24 @@ const queueSlice = createSlice({
       }
       state.currentToken = null
     },
+    /** Send current patient to the back of the line as waiting, then call the next waiting token (if any other waiting exists). */
     skipCurrent(state) {
       if (!state.currentToken) return
-      const t = state.tokens.find((x) => x.tokenNumber === state.currentToken)
-      if (t && t.status === 'in-progress') {
-        t.status = 'skipped'
-      }
+      const idx = state.tokens.findIndex((x) => x.tokenNumber === state.currentToken)
+      if (idx === -1) return
+      const t = state.tokens[idx]
+      if (t.status !== 'in-progress') return
+      const skippedId = t.tokenNumber
+      t.status = 'waiting'
+      state.tokens.splice(idx, 1)
+      state.tokens.push(t)
       state.currentToken = null
-      const waiting = state.tokens.find((w) => w.status === 'waiting')
-      if (waiting) {
-        waiting.status = 'in-progress'
-        state.currentToken = waiting.tokenNumber
-      }
+      const waitingTokens = state.tokens.filter((w) => w.status === 'waiting')
+      const firstWait = state.tokens.find((w) => w.status === 'waiting')
+      if (!firstWait) return
+      if (waitingTokens.length === 1 && firstWait.tokenNumber === skippedId) return
+      firstWait.status = 'in-progress'
+      state.currentToken = firstWait.tokenNumber
     },
     updateTokenStatus(
       state,

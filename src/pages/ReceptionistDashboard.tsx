@@ -16,7 +16,7 @@ export default function ReceptionistDashboard() {
     <div className="space-y-8">
       <div>
         <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-400 mb-2">Front desk</p>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Receptionist dashboard</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Receptionist dashboard</h1>
         <p className="text-slate-600 dark:text-slate-400 mt-2 text-sm">
           Hello, <span className="font-semibold text-slate-800 dark:text-slate-200">{user?.name}</span>.
         </p>

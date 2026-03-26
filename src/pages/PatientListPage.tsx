@@ -85,7 +85,7 @@ export default function PatientListPage() {
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-600 dark:text-sky-400 mb-2">Registry</p>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Patients</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Patients</h1>
           <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-xl leading-relaxed">
             Search, filter, and manage active patient records synced with JSON Server.
           </p>
@@ -167,17 +167,17 @@ export default function PatientListPage() {
           <p className="p-6 text-slate-500 dark:text-slate-400">No patients match your filters.</p>
         ) : (
           <>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
+            <div className="overflow-x-auto overscroll-x-contain touch-pan-x -mx-1 px-1">
+              <table className="w-full min-w-[640px] text-sm text-left">
                 <thead className="bg-slate-50/90 dark:bg-slate-900/70 text-slate-600 dark:text-slate-400 border-b border-slate-200/80 dark:border-slate-700/80">
                   <tr>
-                    <th className="px-5 py-3.5 text-[11px] font-bold uppercase tracking-wider">Patient ID</th>
-                    <th className="px-5 py-3.5 text-[11px] font-bold uppercase tracking-wider">Name</th>
-                    <th className="px-5 py-3.5 text-[11px] font-bold uppercase tracking-wider">Phone</th>
-                    <th className="px-5 py-3.5 text-[11px] font-bold uppercase tracking-wider">Gender</th>
-                    <th className="px-5 py-3.5 text-[11px] font-bold uppercase tracking-wider">Blood</th>
-                    <th className="px-5 py-3.5 text-[11px] font-bold uppercase tracking-wider">City</th>
-                    <th className="px-5 py-3.5 text-[11px] font-bold uppercase tracking-wider text-right">Actions</th>
+                    <th className="px-3 sm:px-5 py-3 sm:py-3.5 text-[11px] font-bold uppercase tracking-wider">Patient ID</th>
+                    <th className="px-3 sm:px-5 py-3 sm:py-3.5 text-[11px] font-bold uppercase tracking-wider">Name</th>
+                    <th className="px-3 sm:px-5 py-3 sm:py-3.5 text-[11px] font-bold uppercase tracking-wider">Phone</th>
+                    <th className="px-3 sm:px-5 py-3 sm:py-3.5 text-[11px] font-bold uppercase tracking-wider">Gender</th>
+                    <th className="px-3 sm:px-5 py-3 sm:py-3.5 text-[11px] font-bold uppercase tracking-wider">Blood</th>
+                    <th className="px-3 sm:px-5 py-3 sm:py-3.5 text-[11px] font-bold uppercase tracking-wider">City</th>
+                    <th className="px-3 sm:px-5 py-3 sm:py-3.5 text-[11px] font-bold uppercase tracking-wider text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -186,13 +186,17 @@ export default function PatientListPage() {
                       key={p.id}
                       className="border-b border-slate-100/90 dark:border-slate-800/80 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
                     >
-                      <td className="px-5 py-3.5 font-mono text-xs font-medium text-sky-600 dark:text-sky-400">{p.id}</td>
-                      <td className="px-5 py-3.5 font-medium text-slate-900 dark:text-slate-100">{p.fullName}</td>
-                      <td className="px-5 py-3.5 text-slate-600 dark:text-slate-300">{p.phone}</td>
-                      <td className="px-5 py-3.5 text-slate-600 dark:text-slate-300 capitalize">{p.gender}</td>
-                      <td className="px-5 py-3.5 text-slate-600 dark:text-slate-300">{p.bloodGroup}</td>
-                      <td className="px-5 py-3.5 text-slate-600 dark:text-slate-300">{p.city}</td>
-                      <td className="px-5 py-3.5 text-right whitespace-nowrap space-x-3">
+                      <td className="px-3 sm:px-5 py-3 sm:py-3.5 font-mono text-xs font-medium text-sky-600 dark:text-sky-400">
+                        {p.id}
+                      </td>
+                      <td className="px-3 sm:px-5 py-3 sm:py-3.5 font-medium text-slate-900 dark:text-slate-100 max-w-[10rem] sm:max-w-none truncate sm:whitespace-normal">
+                        {p.fullName}
+                      </td>
+                      <td className="px-3 sm:px-5 py-3 sm:py-3.5 text-slate-600 dark:text-slate-300 whitespace-nowrap">{p.phone}</td>
+                      <td className="px-3 sm:px-5 py-3 sm:py-3.5 text-slate-600 dark:text-slate-300 capitalize">{p.gender}</td>
+                      <td className="px-3 sm:px-5 py-3 sm:py-3.5 text-slate-600 dark:text-slate-300">{p.bloodGroup}</td>
+                      <td className="px-3 sm:px-5 py-3 sm:py-3.5 text-slate-600 dark:text-slate-300">{p.city}</td>
+                      <td className="px-3 sm:px-5 py-3 sm:py-3.5 text-right whitespace-nowrap space-x-2 sm:space-x-3">
                         <Link
                           to={`/admin/patients/${encodeURIComponent(p.id)}`}
                           className="text-sky-600 dark:text-sky-400 hover:underline font-medium"
@@ -219,7 +223,7 @@ export default function PatientListPage() {
               </table>
             </div>
             {totalPages > 1 && (
-              <div className="flex items-center justify-between gap-4 px-5 py-4 border-t border-slate-200/80 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-900/50">
+              <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 px-4 sm:px-5 py-4 border-t border-slate-200/80 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-900/50">
                 <button
                   type="button"
                   disabled={safePage <= 1}

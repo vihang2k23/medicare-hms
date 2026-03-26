@@ -20,6 +20,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  Legend,
 } from 'recharts'
 import { Banknote, BedDouble, Ticket, Users } from 'lucide-react'
 
@@ -57,7 +58,7 @@ export default function AdminDashboard() {
     <div className="space-y-8">
       <div>
         <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-600 dark:text-sky-400 mb-2">Overview</p>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Admin dashboard</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Admin dashboard</h1>
         <p className="text-slate-600 dark:text-slate-400 mt-2 text-sm">
           Welcome back, <span className="font-semibold text-slate-800 dark:text-slate-200">{user?.name}</span>.
         </p>
@@ -105,18 +106,23 @@ export default function AdminDashboard() {
                   data={bedPieData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
+                  innerRadius="42%"
+                  outerRadius="72%"
                   paddingAngle={2}
                   dataKey="value"
                   nameKey="name"
-                  label={({ name, percent }) => `${name} ${percent != null ? (percent * 100).toFixed(0) : 0}%`}
+                  label={false}
                 >
                   {bedPieData.map((entry) => (
                     <Cell key={entry.name} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(value: unknown) => [`${Number(value)} beds`, 'Count']} />
+                <Legend
+                  verticalAlign="bottom"
+                  height={28}
+                  formatter={(value) => <span className="text-xs text-slate-600 dark:text-slate-300">{value}</span>}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -143,10 +149,17 @@ export default function AdminDashboard() {
               <BarChart
                 data={MOCK_TOP_DEPARTMENTS}
                 layout="vertical"
-                margin={{ top: 0, right: 16, left: 0, bottom: 0 }}
+                margin={{ top: 0, right: 8, left: 4, bottom: 0 }}
               >
-                <XAxis type="number" tick={{ fontSize: 12 }} stroke="#64748b" />
-                <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 11 }} stroke="#64748b" />
+                <XAxis type="number" tick={{ fontSize: 11 }} stroke="#64748b" />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  width={88}
+                  tick={{ fontSize: 10 }}
+                  stroke="#64748b"
+                  tickFormatter={(v: string) => (v.length > 14 ? `${v.slice(0, 12)}…` : v)}
+                />
                 <Tooltip />
                 <Bar dataKey="patients" fill="#10b981" radius={[0, 4, 4, 0]} name="Patients" />
               </BarChart>
@@ -159,14 +172,16 @@ export default function AdminDashboard() {
             {MOCK_DOCTOR_AVAILABILITY.map((doc) => (
               <div
                 key={doc.id}
-                className="flex items-center justify-between py-2 px-3 rounded-lg bg-slate-50 dark:bg-slate-700/50"
+                className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between py-2.5 px-3 rounded-lg bg-slate-50 dark:bg-slate-700/50"
               >
-                <div>
+                <div className="min-w-0">
                   <span className="font-medium text-slate-800 dark:text-slate-100">{doc.name}</span>
-                  <span className="text-slate-500 dark:text-slate-400 text-sm ml-2">({doc.dept})</span>
+                  <span className="text-slate-500 dark:text-slate-400 text-sm sm:ml-2 block sm:inline">
+                    ({doc.dept})
+                  </span>
                 </div>
                 <span
-                  className={`text-xs font-medium px-2 py-1 rounded ${
+                  className={`self-start sm:self-auto text-xs font-medium px-2 py-1 rounded shrink-0 ${
                     doc.status === 'available'
                       ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
                       : 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300'

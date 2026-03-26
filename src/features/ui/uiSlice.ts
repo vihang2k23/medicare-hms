@@ -9,8 +9,13 @@ export interface UiState {
   activeFilters: Record<string, unknown>
 }
 
+function initialSidebarOpen(): boolean {
+  if (typeof window === 'undefined') return true
+  return window.matchMedia('(min-width: 1024px)').matches
+}
+
 const initialState: UiState = {
-  sidebarOpen: true,
+  sidebarOpen: initialSidebarOpen(),
   theme: 'light',
   activeFilters: {},
 }

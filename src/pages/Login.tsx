@@ -45,9 +45,9 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col app-surface-gradient">
+    <div className="min-h-dvh flex flex-col app-surface-gradient">
       <Navbar />
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-10">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-10 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
         <div className="w-full max-w-3xl page-enter">
           <div className="text-center mb-10">
             <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-sky-600 dark:text-sky-400 mb-3">

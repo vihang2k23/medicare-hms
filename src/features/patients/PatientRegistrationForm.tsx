@@ -199,9 +199,12 @@ export default function PatientRegistrationForm({
     <div className="max-w-2xl mx-auto">
       {/* Progress */}
       <div className="mb-8">
-        <div className="flex justify-between text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
+        <div className="flex gap-3 sm:gap-0 sm:justify-between text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 overflow-x-auto pb-1 -mx-1 px-1 scroll-pl-1">
           {STEPS.map((label, i) => (
-            <span key={label} className={i <= step ? 'text-sky-600 dark:text-sky-400' : ''}>
+            <span
+              key={label}
+              className={`shrink-0 whitespace-nowrap ${i <= step ? 'text-sky-600 dark:text-sky-400' : ''}`}
+            >
               {label}
             </span>
           ))}

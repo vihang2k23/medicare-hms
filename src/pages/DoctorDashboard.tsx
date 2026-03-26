@@ -15,7 +15,7 @@ export default function DoctorDashboard() {
     <div className="space-y-8">
       <div>
         <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 mb-2">Clinical</p>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Doctor dashboard</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Doctor dashboard</h1>
         <p className="text-slate-600 dark:text-slate-400 mt-2 text-sm">
           <span className="font-semibold text-slate-800 dark:text-slate-200">{user?.name}</span> — today at a glance.
         </p>

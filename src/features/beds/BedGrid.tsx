@@ -259,10 +259,10 @@ export default function BedGrid({ showWardSummary = true }: BedGridProps) {
           onClick={closePanel}
         >
           <div
-            className="w-full max-w-md rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl shadow-slate-900/20 ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden"
+            className="w-full max-w-md max-h-[min(90dvh,36rem)] flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl shadow-slate-900/20 ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80 bg-gradient-to-r from-teal-500/10 to-transparent">
+            <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80 bg-gradient-to-r from-teal-500/10 to-transparent">
               <div>
                 <p id="bed-panel-title" className="text-lg font-bold text-slate-900 dark:text-slate-100">
                   {activeBed.wardName} · Bed {activeBed.bedNumber}
@@ -287,7 +287,7 @@ export default function BedGrid({ showWardSummary = true }: BedGridProps) {
               </button>
             </div>
 
-            <div className="p-5 space-y-5">
+            <div className="p-5 space-y-5 overflow-y-auto overscroll-contain min-h-0">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
                   Bed status

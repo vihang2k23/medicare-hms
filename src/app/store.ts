@@ -5,6 +5,8 @@ import type { AuthUser } from '../features/auth/authSlice'
 import queueReducer from '../features/queue/queueSlice'
 import bedReducer from '../features/beds/bedSlice'
 import alertReducer from '../features/alerts/alertSlice'
+import appointmentsReducer, { DEFAULT_SCHEDULE_DOCTORS } from '../features/appointments/appointmentsSlice'
+import { APPOINTMENTS_STORAGE_KEY, loadPersistedAppointments } from '../features/appointments/appointmentsStorage'
 import uiReducer from '../features/ui/uiSlice'
 import { THEME_STORAGE_KEY } from '../features/ui/themeConstants'
 import type { Theme } from '../features/ui/uiSlice'
@@ -45,6 +47,20 @@ function loadThemeFromStorage(): Theme {
 
 const themePreload = loadThemeFromStorage()
 
+const appointmentsPersistMiddleware: Middleware = (storeApi) => (next) => (action: unknown) => {
+  const result = next(action)
+  const t = (action as { type?: string }).type
+  if (typeof t === 'string' && t.startsWith('appointments/')) {
+    try {
+      const list = storeApi.getState().appointments.appointments
+      localStorage.setItem(APPOINTMENTS_STORAGE_KEY, JSON.stringify(list))
+    } catch {
+      /* ignore */
+    }
+  }
+  return result
+}
+
 const authSyncMiddleware: Middleware = () => (next) => (action: unknown) => {
   const result = next(action)
   const a = action as { type: string; payload?: AuthUser | Theme }
@@ -66,6 +82,7 @@ export const store = configureStore({
     queue: queueReducer,
     beds: bedReducer,
     alerts: alertReducer,
+    appointments: appointmentsReducer,
     ui: uiReducer,
   },
   preloadedState: {
@@ -78,8 +95,13 @@ export const store = configureStore({
       theme: themePreload,
       activeFilters: {},
     },
+    appointments: {
+      appointments: loadPersistedAppointments(),
+      doctors: DEFAULT_SCHEDULE_DOCTORS,
+    },
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(authSyncMiddleware),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(authSyncMiddleware, appointmentsPersistMiddleware),
 })
 
 export type RootState = ReturnType<typeof store.getState>

@@ -81,7 +81,7 @@ export default function PatientProfilePage() {
         </Link>
       </div>
 
-      <div className="border-b border-slate-200 dark:border-slate-700 flex gap-1">
+      <div className="border-b border-slate-200 dark:border-slate-700 flex gap-1 overflow-x-auto overflow-y-hidden -mx-1 px-1">
         {(
           [
             ['overview', 'Overview'],
@@ -93,7 +93,7 @@ export default function PatientProfilePage() {
             key={id}
             type="button"
             onClick={() => setTab(id)}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 -mb-px transition-colors ${
+            className={`shrink-0 px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 -mb-px transition-colors ${
               tab === id
                 ? 'border-sky-600 text-sky-600 dark:text-sky-400 dark:border-sky-400'
                 : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
@@ -104,7 +104,7 @@ export default function PatientProfilePage() {
         ))}
       </div>
 
-      <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 sm:p-6">
         {tab === 'overview' && (
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
             <div>

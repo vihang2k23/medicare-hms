@@ -1,0 +1,308 @@
+import { useEffect, useMemo, useState } from 'react'
+import { format, parse } from 'date-fns'
+import { X } from 'lucide-react'
+import type { PatientRecord } from '../../types/patient'
+import { fetchPatients } from '../../api/patientsApi'
+import { notify } from '../../lib/notify'
+import type { Appointment, ScheduleDoctor } from './types'
+import { generateDaySlots } from './slotUtils'
+
+interface BookModalProps {
+  open: boolean
+  onClose: () => void
+  doctor: ScheduleDoctor
+  date: string
+  slotStart: string
+  slotEnd: string
+  onConfirm: (patient: PatientRecord, reason: string, notes: string) => void
+}
+
+export function BookAppointmentModal({
+  open,
+  onClose,
+  doctor,
+  date,
+  slotStart,
+  slotEnd,
+  onConfirm,
+}: BookModalProps) {
+  const [patients, setPatients] = useState<PatientRecord[]>([])
+  const [patientId, setPatientId] = useState('')
+  const [reason, setReason] = useState('')
+  const [notes, setNotes] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!open) return
+    setPatientId('')
+    setReason('')
+    setNotes('')
+    let cancelled = false
+    setLoading(true)
+    fetchPatients()
+      .then((list) => {
+        if (!cancelled) setPatients(list)
+      })
+      .catch(() => {
+        notify.error('Could not load patients — start JSON Server or add patients first.')
+        if (!cancelled) setPatients([])
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [open])
+
+  if (!open) return null
+
+  const selected = patients.find((p) => p.id === patientId)
+
+  const submit = () => {
+    if (!selected) {
+      notify.error('Select a patient')
+      return
+    }
+    onConfirm(selected, reason.trim(), notes.trim())
+    onClose()
+  }
+
+  const dayLabel = format(parse(date, 'yyyy-MM-dd', new Date()), 'EEEE d MMM yyyy')
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="book-apt-title"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md max-h-[min(90dvh,40rem)] flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80">
+          <div>
+            <h2 id="book-apt-title" className="text-lg font-bold text-slate-900 dark:text-slate-100">
+              Book appointment
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              {doctor.name} · {dayLabel}
+            </p>
+            <p className="text-sm font-mono text-sky-700 dark:text-sky-300 mt-1">
+              {slotStart} – {slotEnd}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="p-5 space-y-4 overflow-y-auto overscroll-contain min-h-0">
+          <div>
+            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Patient</label>
+            <select
+              value={patientId}
+              onChange={(e) => setPatientId(e.target.value)}
+              disabled={loading}
+              className="w-full max-w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+            >
+              <option value="">{loading ? 'Loading…' : 'Select patient'}</option>
+              {patients.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.fullName} ({p.id})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Reason</label>
+            <input
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="e.g. Follow-up, new complaint"
+              className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Notes</label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={2}
+              className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm resize-none"
+            />
+          </div>
+          <div className="flex gap-2 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-slate-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={submit}
+              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-sky-700 text-white text-sm font-semibold shadow-md shadow-sky-500/20"
+            >
+              Confirm booking
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+interface ManageModalProps {
+  open: boolean
+  onClose: () => void
+  appointment: Appointment | null
+  doctor: ScheduleDoctor
+  onReschedule: (date: string, slotStart: string, slotEnd: string) => void
+  onCancel: () => void
+}
+
+export function ManageAppointmentModal({
+  open,
+  onClose,
+  appointment,
+  doctor,
+  onReschedule,
+  onCancel,
+}: ManageModalProps) {
+  const [newDate, setNewDate] = useState('')
+  const [newSlot, setNewSlot] = useState('')
+
+  useEffect(() => {
+    if (appointment) {
+      setNewDate(appointment.date)
+      setNewSlot(`${appointment.slotStart}|${appointment.slotEnd}`)
+    }
+  }, [appointment])
+
+  const slotOptions = useMemo(() => {
+    if (!newDate) return []
+    const day = parse(newDate, 'yyyy-MM-dd', new Date())
+    return generateDaySlots(day, doctor).map((s) => ({
+      value: `${s.startStr}|${s.endStr}`,
+      label: `${s.startStr} – ${s.endStr}`,
+    }))
+  }, [newDate, doctor])
+
+  if (!open || !appointment) return null
+
+  const applyReschedule = () => {
+    const [start, end] = newSlot.split('|')
+    if (!start || !end) {
+      notify.error('Choose a time slot')
+      return
+    }
+    onReschedule(newDate, start, end)
+    onClose()
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="manage-apt-title"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md max-h-[min(90dvh,40rem)] flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80">
+          <div>
+            <h2 id="manage-apt-title" className="text-lg font-bold text-slate-900 dark:text-slate-100">
+              Appointment
+            </h2>
+            <p className="text-sm font-medium text-slate-800 dark:text-slate-200 mt-1">{appointment.patientName}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {format(parse(appointment.date, 'yyyy-MM-dd', new Date()), 'EEE d MMM yyyy')} ·{' '}
+              <span className="font-mono">
+                {appointment.slotStart} – {appointment.slotEnd}
+              </span>
+            </p>
+            <p className="text-xs text-violet-600 dark:text-violet-400 mt-1 uppercase tracking-wide">{appointment.status}</p>
+            {appointment.reason ? (
+              <p className="text-xs text-slate-600 dark:text-slate-300 mt-2">
+                <span className="font-semibold">Reason:</span> {appointment.reason}
+              </p>
+            ) : null}
+            {appointment.notes ? (
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <span className="font-semibold">Notes:</span> {appointment.notes}
+              </p>
+            ) : null}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="p-5 space-y-4 overflow-y-auto overscroll-contain min-h-0">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Reschedule</p>
+          <div>
+            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">New date</label>
+            <input
+              type="date"
+              value={newDate}
+              onChange={(e) => {
+                setNewDate(e.target.value)
+                setNewSlot('')
+              }}
+              className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">New slot</label>
+            <select
+              value={newSlot}
+              onChange={(e) => setNewSlot(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+            >
+              <option value="">Select slot</option>
+              {slotOptions.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            type="button"
+            onClick={applyReschedule}
+            disabled={appointment.status === 'cancelled'}
+            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-violet-700 disabled:opacity-40 text-white text-sm font-semibold"
+          >
+            Save new time
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onCancel()
+              onClose()
+            }}
+            disabled={appointment.status === 'cancelled'}
+            className="w-full py-2.5 rounded-xl border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300 text-sm font-semibold"
+          >
+            Cancel appointment
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}

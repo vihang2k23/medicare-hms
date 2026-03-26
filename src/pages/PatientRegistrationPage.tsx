@@ -10,7 +10,7 @@ export default function PatientRegistrationPage() {
     <div className="space-y-8">
       <div>
         <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-600 dark:text-sky-400 mb-2">Intake</p>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Patient registration</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Patient registration</h1>
         <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-xl leading-relaxed">
           Guided multi-step intake. Records persist through the JSON Server REST API.
         </p>

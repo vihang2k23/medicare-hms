@@ -12,7 +12,7 @@ export default function AccessDenied() {
       <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 mb-6 ring-1 ring-red-200/60 dark:ring-red-500/20 shadow-sm">
         <ShieldX className="h-10 w-10" aria-hidden />
       </div>
-      <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">Access denied</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">Access denied</h1>
       <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-sm text-sm leading-relaxed">
         Your role does not include permission for this area. Return to your dashboard to continue working.
       </p>

@@ -18,13 +18,15 @@ const accentStyles = {
 
 export default function StatCard({ label, value, subLabel, icon, accent = 'slate' }: StatCardProps) {
   return (
-    <div className="group rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/50 backdrop-blur-sm p-5 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40 transition-all duration-300 hover:shadow-md hover:shadow-slate-200/50 dark:hover:ring-slate-600/50">
+    <div className="group rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/50 backdrop-blur-sm p-4 sm:p-5 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40 transition-all duration-300 hover:shadow-md hover:shadow-slate-200/50 dark:hover:ring-slate-600/50">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.12em]">
             {label}
           </p>
-          <p className="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white tabular-nums">{value}</p>
+          <p className="mt-2 text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white tabular-nums break-words">
+            {value}
+          </p>
           {subLabel && <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">{subLabel}</p>}
         </div>
         {icon && (

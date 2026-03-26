@@ -19,7 +19,7 @@ export default function NurseDashboard() {
     <div className="space-y-8">
       <div>
         <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-orange-600 dark:text-orange-400 mb-2">Ward</p>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Nurse dashboard</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Nurse dashboard</h1>
         <p className="text-slate-600 dark:text-slate-400 mt-2 text-sm">
           Welcome, <span className="font-semibold text-slate-800 dark:text-slate-200">{user?.name}</span>.
         </p>
@@ -28,7 +28,7 @@ export default function NurseDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <DashboardCard title="Ward bed status summary">
           <div className="flex items-center gap-4">
-            <div className="text-3xl font-bold text-slate-800 dark:text-slate-100">{occupiedBeds}</div>
+            <div className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100 tabular-nums">{occupiedBeds}</div>
             <div className="text-slate-500 dark:text-slate-400 text-sm">
               of {totalBeds} beds occupied
             </div>

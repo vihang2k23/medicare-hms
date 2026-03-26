@@ -16,6 +16,7 @@ This file is the **single place** for architecture, routes, and **end-to-end wor
 | [Week 3 — Patients (API)](#week-3--patient-management-part-1) | JSON Server, registration |
 | [Week 4 — Profile + queue](#week-4--patient-management-part-2--queue-start) | Edit, OPD start |
 | [Week 5 — Queue + beds](#week-5--queue-completion--bed-management) | Full OPD + bed flows + Mermaid |
+| [Week 6 — Appointments](#week-6--appointment-scheduling) | Calendar, slots, book, conflict, reschedule |
 | [Patient CRUD flow (consolidated)](#patient-crud-flow-consolidated) | List → register → view → edit |
 | [Receptionist quick actions](#receptionist-quick-actions-routes) | Links from dashboard |
 | [Placeholder routes](#placeholder-routes-not-yet-implemented) | Sidebar items without full UI |
@@ -65,14 +66,14 @@ Happens when the dev server’s **pre-bundle cache** (`node_modules/.vite`) is o
 | `/nurse` | NurseDashboard | nurse |
 | `/nurse/beds` | NurseBeds | nurse |
 | `/access-denied` | AccessDenied | any authenticated |
-| `/admin/appointments` | PlaceholderPage | admin |
+| `/admin/appointments` | AppointmentsPage (`admin`) | admin |
 | `/admin/prescriptions` | PlaceholderPage | admin |
 | `/admin/doctors` | PlaceholderPage | admin |
 | `/admin/reports` | PlaceholderPage | admin |
 | `/doctor/patients` | PlaceholderPage | doctor |
 | `/doctor/prescriptions` | PlaceholderPage | doctor |
-| `/doctor/schedule` | PlaceholderPage | doctor |
-| `/receptionist/appointments` | PlaceholderPage | receptionist |
+| `/doctor/schedule` | AppointmentsPage (`doctor`) | doctor |
+| `/receptionist/appointments` | AppointmentsPage (`receptionist`) | receptionist |
 | `/nurse/vitals` | PlaceholderPage | nurse |
 | `*` | Navigate to `/` | — |
 
@@ -111,6 +112,7 @@ Config: `config/roles.ts`.
 | auth | user, isAuthenticated; synced with localStorage | ProtectedRoute, Login, Navbar, Sidebar, useAuth |
 | queue | OPD tokens (`waiting` / `in-progress` / `done` / `skipped`), optional `department`, `currentToken`, `servedToday`, `simulationRunning`; actions: `issueToken`, `callNext`, `completeCurrent`, `skipCurrent`, `updateTokenStatus`, `markTokenInProgress`, `resetQueue`, `setSimulationStatus` | OPDQueuePage (`QueueAnalytics`, `useQueueAutoAdvance`), QueueBoard, QueueControls, ReceptionistDashboard |
 | beds | `Bed` (`status`, optional `patientId` / `occupantName`), `wardSummary`; actions: `setBeds`, `updateBedStatus`, `assignPatientToBed`, `dischargePatientFromBed` | AdminBedsPage, NurseBeds, NurseDashboard, BedGrid |
+| appointments | `doctors` (seeded schedules), `appointments[]`; actions: `bookAppointment`, `rescheduleAppointment`, `cancelAppointment`, `updateAppointmentStatus`; persisted to `localStorage` | AppointmentsPage (admin / receptionist / doctor schedule) |
 | alerts | last 20 alerts | AdminDashboard, NotificationBell |
 | ui | sidebarOpen, theme, activeFilters | Sidebar |
 
@@ -196,13 +198,13 @@ Config: `config/roles.ts`.
 1. **Issue token** — Receptionist/Admin enters name + department → `issueToken` → new `Tnnn` in `waiting`.
 2. **Call next** — `callNext`: any `in-progress` → `done` (+`servedToday`); first `waiting` → `in-progress`; `currentToken` updated.
 3. **Complete current** — `completeCurrent`: active token → `done`, clear `currentToken`.
-4. **Skip & next** — `skipCurrent`: active → `skipped`; next `waiting` promoted if any.
+4. **Skip & re-queue** — `skipCurrent`: active token → `waiting`, moved to **end** of the token list; the **first** `waiting` in line is promoted unless they are the **only** waiting token (then the desk stays empty until **Call next**).
 5. **Row status** — `QueueBoard` select: non–in-progress changes use `updateTokenStatus` (keeps `servedToday` / `currentToken` consistent); choosing **In progress** uses `markTokenInProgress` (previous in-progress → `waiting`).
 6. **Reset** — `resetQueue` clears tokens, `currentToken`, `servedToday`; UI also stops simulation.
 
 ### OPD queue — auto-advance (simulation)
 
-1. User sets interval (4s / 8s / 15s) and clicks **Start simulation** → `setSimulationStatus(true)`.
+1. User sets interval (default **30s**, or 15s / 8s / 4s) and clicks **Start simulation** → `setSimulationStatus(true)`.
 2. `useQueueAutoAdvance` in `OPDQueuePage` runs `setInterval` → repeated `callNext` while `simulationRunning`.
 3. **Stop simulation** or **Reset queue** ends the interval behavior.
 
@@ -229,7 +231,8 @@ stateDiagram-v2
   [*] --> waiting: issueToken
   waiting --> InProgress: callNext / markTokenInProgress
   InProgress --> done: completeCurrent / callNext / updateTokenStatus
-  InProgress --> skipped: skipCurrent / updateTokenStatus
+  InProgress --> waiting: skipCurrent, re-queue at end
+  InProgress --> skipped: updateTokenStatus
   skipped --> waiting: updateTokenStatus
   skipped --> InProgress: markTokenInProgress
   waiting --> done: updateTokenStatus
@@ -274,6 +277,50 @@ flowchart LR
 
 ---
 
+## Week 6 — Appointment scheduling
+
+### Doctor schedules (seeded)
+- **`DEFAULT_SCHEDULE_DOCTORS`** in `appointmentsSlice.ts` — per-doctor `workingDays` (date-fns ISO: Mon=1…Sun=7), `startTime` / `endTime`, `slotDurationMinutes` (15/20/30), optional lunch break.
+
+### Dynamic slots
+- **`generateDaySlots(day, doctor)`** in `slotUtils.ts` — returns slot start/end as `Date` + `HH:mm` strings; skips lunch overlap; non-working days → no slots.
+
+### Custom calendar UI (PRD: date-fns only, no calendar library)
+- **`WeeklyTimeGridCalendar`** (primary) — **7 columns (Mon–Sun) × time rows (Y-axis)**. Row labels are the union of slot start times that occur anywhere in the week for the selected doctor (`weekSlotStartLabels`). Each cell: empty bookable slot (click or **HTML5 drag-and-drop** target), or one or more appointment cards **side-by-side** if multiple share a slot.
+- **Status colors** — `appointmentStatusStyles.ts`: scheduled (sky), confirmed (emerald), in-progress (amber), completed (slate), no-show (orange), cancelled (red/strike — normally hidden from grid).
+- **Drag-and-drop reschedule** — Draggable cards (not completed/cancelled/no-show); drop on dashed **Book / drop here** cell → `findSchedulingConflict` + `rescheduleAppointment`. Same rules as the modal.
+- **`WeeklyCalendarGrid`** — optional column-only layout (still in repo); the appointments page uses the **time grid** only.
+- **Week navigation** — prev / next week, **Today** (Monday-based week via `startOfWeekMonday`).
+- **Print week** — toolbar button runs `window.print()`; `.print-only-banner` shows doctor + week on print; `.no-print-appt` hides chrome hints; table font scaled in `index.css` `@media print`.
+
+### Booking flow
+- **`BookAppointmentModal`** — patient dropdown (`fetchPatients` / JSON Server), reason, notes → `bookAppointment`.
+- **Conflict detection** — `findSchedulingConflict` (same `doctorId`, same `date`, overlapping `slotStart`/`slotEnd`; ignores `cancelled` / `no-show`) before book and before reschedule.
+
+### Rescheduling
+- **`ManageAppointmentModal`** — new date + slot list from `generateDaySlots` for that doctor; `rescheduleAppointment` updates time; **Cancel appointment** → `cancelAppointment` (`status: cancelled`).
+
+### Routes
+- `/admin/appointments`, `/receptionist/appointments` — doctor selector + full grid.
+- `/doctor/schedule` — grid locked to demo map `DOC001` → doctor `D1`.
+
+### Dependencies
+- **`date-fns`** — week math, slot iteration, parsing `yyyy-MM-dd`.
+
+### Key files
+
+| Area | Files |
+|------|--------|
+| Slice + conflict | `src/features/appointments/appointmentsSlice.ts` |
+| Slots + week helpers | `src/features/appointments/slotUtils.ts` |
+| Types | `src/features/appointments/types.ts` |
+| Persistence key | `src/features/appointments/appointmentsStorage.ts` |
+| UI | `WeeklyTimeGridCalendar.tsx`, `WeeklyCalendarGrid.tsx`, `AppointmentDialogs.tsx`, `appointmentStatusStyles.ts` |
+| Page | `src/pages/AppointmentsPage.tsx` |
+| Store | `app/store.ts` (reducer + persist middleware) |
+
+---
+
 ## Patient CRUD flow (consolidated)
 
 1. **List** — Admin opens `/admin/patients` → `PatientListPage` → `fetchPatients()` / search / filters / pagination.
@@ -292,13 +339,13 @@ From **Receptionist dashboard**, quick links target:
 |--------|--------|
 | Issue token | `/receptionist/queue` |
 | Register new patient | `/receptionist/registration` |
-| Book appointment | `/receptionist/appointments` (placeholder until scheduling module exists) |
+| Book appointment | `/receptionist/appointments` |
 
 ---
 
 ## Placeholder routes (not yet implemented)
 
-Sidebar may show **Appointments**, **Prescriptions**, **Doctor directory**, **Reports**, **Doctor schedule**, **Vitals**, etc. Those URLs render **`PlaceholderPage`** until the module is built. See [Route Tree](#route-tree) for paths.
+Sidebar items such as **Prescriptions**, **Doctor directory**, **Reports**, **Vitals** (and doctor **My Patients**) still use **`PlaceholderPage`**. **Appointments** and **My schedule** are implemented — see [Week 6](#week-6--appointment-scheduling).
 
 ---
 
@@ -312,4 +359,5 @@ Sidebar may show **Appointments**, **Prescriptions**, **Doctor directory**, **Re
 | Beds & ward summary | Redux only | No |
 | Alerts | Redux only | No |
 | Patients | JSON Server (`server/db.json`) | Yes (file on disk) |
+| Appointments | Redux + `localStorage` (`medicare_hms_appointments_v1`) | Yes |
 | Dashboard charts (non-bed) | `dashboardMockData.ts` | N/A (static) |

@@ -55,14 +55,14 @@ export default function Navbar() {
   }
 
   return (
-    <header className="h-16 flex-shrink-0 flex items-center justify-between px-4 lg:px-8 bg-white/75 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/80 shadow-[0_1px_0_0_rgb(15_23_42_/_0.04)] dark:shadow-none z-20">
+    <header className="sticky top-0 z-50 h-16 flex-shrink-0 flex items-center justify-between px-3 sm:px-4 lg:px-8 bg-white/75 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/80 shadow-[0_1px_0_0_rgb(15_23_42_/_0.04)] dark:shadow-none supports-[padding:max(0px)]:pt-[env(safe-area-inset-top,0px)]">
       {/* Left: menu toggler + brand */}
       <div className="flex items-center gap-4">
         {isAuthenticated && (
           <button
             type="button"
             onClick={() => dispatch(toggleSidebar())}
-            className="p-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100/90 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200"
+            className="p-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100/90 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 touch-manipulation"
             aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
           >
             {sidebarOpen ? (
@@ -90,7 +90,7 @@ export default function Navbar() {
         <button
           type="button"
           onClick={() => dispatch(setTheme(theme === 'dark' ? 'light' : 'dark'))}
-          className="p-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100/90 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200"
+          className="p-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100/90 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 touch-manipulation"
           aria-label={theme === 'dark' ? 'Light mode' : 'Dark mode'}
         >
           {theme === 'dark' ? <Sun className="h-5 w-5" aria-hidden /> : <Moon className="h-5 w-5" aria-hidden />}

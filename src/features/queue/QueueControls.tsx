@@ -7,9 +7,10 @@ import { OPD_DEPARTMENTS } from '../../config/departments'
 import { callNext, completeCurrent, issueToken, resetQueue, setSimulationStatus, skipCurrent } from './queueSlice'
 
 const SIM_INTERVALS = [
-  { label: '4 seconds', ms: 4000 },
-  { label: '8 seconds', ms: 8000 },
+  { label: '30 seconds (recommended)', ms: 30000 },
   { label: '15 seconds', ms: 15000 },
+  { label: '8 seconds', ms: 8000 },
+  { label: '4 seconds', ms: 4000 },
 ] as const
 
 export interface QueueControlsProps {
@@ -18,7 +19,7 @@ export interface QueueControlsProps {
 }
 
 export default function QueueControls({
-  simulationIntervalMs = 8000,
+  simulationIntervalMs = 30000,
   onSimulationIntervalChange,
 }: QueueControlsProps) {
   const dispatch = useDispatch<AppDispatch>()
@@ -110,12 +111,12 @@ export default function QueueControls({
             onClick={() => {
               if (!currentToken) return
               dispatch(skipCurrent())
-              notify.success('Token skipped — next patient called if available')
+              notify.success('Current patient sent to back of queue — next called if available')
             }}
             disabled={!currentToken}
             className="px-4 py-2.5 rounded-xl border border-amber-200/90 dark:border-amber-800/80 text-amber-900 dark:text-amber-200 text-sm font-semibold hover:bg-amber-50/80 dark:hover:bg-amber-950/30 disabled:opacity-40 transition-colors"
           >
-            Skip &amp; next
+            Skip &amp; re-queue
           </button>
           <button
             type="button"
