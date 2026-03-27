@@ -1,15 +1,23 @@
+import { useMemo } from 'react'
+import { useSelector } from 'react-redux'
 import { useAuth } from '../hooks/useAuth'
+import type { RootState } from '../app/store'
 import DashboardCard from '../components/ui/DashboardCard'
 import StatCard from '../components/ui/StatCard'
-import {
-  MOCK_TODAY_APPOINTMENTS,
-  MOCK_NEXT_PATIENT,
-  MOCK_PRESCRIPTIONS_TODAY,
-} from '../data/dashboardMockData'
+import { MOCK_TODAY_APPOINTMENTS, MOCK_NEXT_PATIENT } from '../data/dashboardMockData'
 import { Calendar, FileText } from 'lucide-react'
 
 export default function DoctorDashboard() {
   const { user } = useAuth()
+  const prescriptions = useSelector((s: RootState) => s.prescriptions.prescriptions)
+
+  const prescriptionsToday = useMemo(() => {
+    if (!user?.id) return 0
+    const start = new Date()
+    start.setHours(0, 0, 0, 0)
+    const t0 = start.getTime()
+    return prescriptions.filter((p) => p.doctorId === user.id && p.createdAt >= t0).length
+  }, [prescriptions, user?.id])
 
   return (
     <div className="space-y-8">
@@ -24,8 +32,8 @@ export default function DoctorDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <StatCard
           label="Prescriptions today"
-          value={MOCK_PRESCRIPTIONS_TODAY}
-          subLabel="Written so far"
+          value={prescriptionsToday}
+          subLabel="Written so far (this demo user)"
           accent="blue"
           icon={<FileText className="h-5 w-5" aria-hidden />}
         />

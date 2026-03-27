@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { FileText } from 'lucide-react'
 import type { PatientRecord } from '../types/patient'
 import { fetchPatientById } from '../api/patientsApi'
 
@@ -73,12 +74,21 @@ export default function PatientProfilePage() {
             </span>
           )}
         </div>
-        <Link
-          to={`/admin/patients/${encodeURIComponent(patient.id)}/edit`}
-          className="inline-flex justify-center px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-sm font-medium self-start"
-        >
-          Edit
-        </Link>
+        <div className="flex flex-wrap gap-2 self-start">
+          <Link
+            to={`/admin/prescriptions?patient=${encodeURIComponent(patient.id)}`}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-sm font-medium hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+          >
+            <FileText className="h-4 w-4" aria-hidden />
+            Prescription
+          </Link>
+          <Link
+            to={`/admin/patients/${encodeURIComponent(patient.id)}/edit`}
+            className="inline-flex justify-center px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-sm font-medium"
+          >
+            Edit
+          </Link>
+        </div>
       </div>
 
       <div className="border-b border-slate-200 dark:border-slate-700 flex gap-1 overflow-x-auto overflow-y-hidden -mx-1 px-1">
