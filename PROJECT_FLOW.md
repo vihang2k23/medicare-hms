@@ -321,6 +321,42 @@ flowchart LR
 
 ---
 
+## Week 7 — Prescriptions static catalog
+
+### Prescription model
+- **`Prescription`** — `patientId` / `patientName`, prescriber `doctorId` / `doctorName` (logged-in user), optional `diagnosis` / `notes`, `medicines[]`, `status` (`active` | `completed` | `cancelled`), `createdAt`.
+- **`PrescriptionMedicineLine`** — `drugName`, `dosage`, `frequency`, optional `duration` / `instructions`, optional `openfdaBrand` / `openfdaGeneric` from catalog selection, optional **`recallAlerts[]`** (snapshot of demo recall rows).
+
+### Static catalog (`src/data/drugCatalogData.ts` + `src/lib/drugCatalog.ts`)
+- **`STATIC_DRUG_CATALOG`** — curated demo rows: brands, generics, routes, labeler, class, strengths, forms, indications, notes (contraindications, ADR, storage where useful). Search is **local substring / multi-token** match over those fields (no network).
+- **`STATIC_DRUG_RECALLS`** — fictional **demo** recall records keyed to catalog `id`s (e.g. metformin, ibuprofen, amoxicillin). **`searchDrugLabels` → `OpenFdaLabelHit`** (same UI shape as before). **`fetchRecallAlertsForDrugIds`** / **`fetchRecallAlertsForTerms`** return slices of that static list (Ongoing/Pending sorted first).
+
+### UI flow
+- **`MedicineLineEditor`** — debounced **local** search, pick row → fills name + brand/generic arrays → auto **demo recall** check by catalog id; manual **Check demo recalls**; amber panel when matches exist.
+- **`PrescriptionForm`** — patient dropdown (`fetchPatients` / JSON Server), diagnosis/notes, multiple medicine lines (`newMedicineLine`), save → **`addPrescription`**.
+- **`PrescriptionsPage`** — tabs **New prescription** / **History**; **admin** sees all Rx; **doctor** sees only `doctorId === user.id`; filter box; expand row for lines + status actions (complete / cancel / delete).
+- **Patient profile** — **Prescription** quick link → `/admin/prescriptions?patient=<id>` (opens **New** tab with patient pre-selected when list loads).
+
+### Routes
+- `/admin/prescriptions` — `PrescriptionsPage variant="admin"`.
+- `/doctor/prescriptions` — `PrescriptionsPage variant="doctor"`.
+
+### Persistence
+- Redux **`prescriptions`** slice + **`medicare_hms_prescriptions_v1`** in `localStorage` (middleware mirrors appointments pattern).
+
+### Key files
+
+| Area | Files |
+|------|--------|
+| Types | `src/features/prescriptions/types.ts` |
+| Slice + storage | `prescriptionsSlice.ts`, `prescriptionsStorage.ts` |
+| Drug data + search | `src/data/drugCatalogData.ts`, `src/lib/drugCatalog.ts` |
+| UI | `MedicineLineEditor.tsx`, `PrescriptionForm.tsx` |
+| Page | `src/pages/PrescriptionsPage.tsx` |
+| Store | `app/store.ts` |
+
+---
+
 ## Patient CRUD flow (consolidated)
 
 1. **List** — Admin opens `/admin/patients` → `PatientListPage` → `fetchPatients()` / search / filters / pagination.
@@ -345,7 +381,7 @@ From **Receptionist dashboard**, quick links target:
 
 ## Placeholder routes (not yet implemented)
 
-Sidebar items such as **Prescriptions**, **Doctor directory**, **Reports**, **Vitals** (and doctor **My Patients**) still use **`PlaceholderPage`**. **Appointments** and **My schedule** are implemented — see [Week 6](#week-6--appointment-scheduling).
+Sidebar items such as **Doctor directory**, **Reports**, **Vitals** (and doctor **My Patients**) still use **`PlaceholderPage`**. **Appointments**, **My schedule**, and **Prescriptions** (Week 6–7) are implemented — see [Week 6](#week-6--appointment-scheduling) and [Week 7](#week-7--prescriptions-static-catalog).
 
 ---
 
@@ -360,4 +396,6 @@ Sidebar items such as **Prescriptions**, **Doctor directory**, **Reports**, **Vi
 | Alerts | Redux only | No |
 | Patients | JSON Server (`server/db.json`) | Yes (file on disk) |
 | Appointments | Redux + `localStorage` (`medicare_hms_appointments_v1`) | Yes |
+| Prescriptions | Redux + `localStorage` (`medicare_hms_prescriptions_v1`) | Yes |
+| Drug catalog & demo recalls | `drugCatalogData.ts` (in-repo static) | N/A |
 | Dashboard charts (non-bed) | `dashboardMockData.ts` | N/A (static) |

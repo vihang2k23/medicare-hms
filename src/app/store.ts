@@ -7,6 +7,8 @@ import bedReducer from '../features/beds/bedSlice'
 import alertReducer from '../features/alerts/alertSlice'
 import appointmentsReducer, { DEFAULT_SCHEDULE_DOCTORS } from '../features/appointments/appointmentsSlice'
 import { APPOINTMENTS_STORAGE_KEY, loadPersistedAppointments } from '../features/appointments/appointmentsStorage'
+import prescriptionsReducer from '../features/prescriptions/prescriptionsSlice'
+import { PRESCRIPTIONS_STORAGE_KEY, loadPersistedPrescriptions } from '../features/prescriptions/prescriptionsStorage'
 import uiReducer from '../features/ui/uiSlice'
 import { THEME_STORAGE_KEY } from '../features/ui/themeConstants'
 import type { Theme } from '../features/ui/uiSlice'
@@ -61,6 +63,20 @@ const appointmentsPersistMiddleware: Middleware = (storeApi) => (next) => (actio
   return result
 }
 
+const prescriptionsPersistMiddleware: Middleware = (storeApi) => (next) => (action: unknown) => {
+  const result = next(action)
+  const t = (action as { type?: string }).type
+  if (typeof t === 'string' && t.startsWith('prescriptions/')) {
+    try {
+      const list = storeApi.getState().prescriptions.prescriptions
+      localStorage.setItem(PRESCRIPTIONS_STORAGE_KEY, JSON.stringify(list))
+    } catch {
+      /* ignore */
+    }
+  }
+  return result
+}
+
 const authSyncMiddleware: Middleware = () => (next) => (action: unknown) => {
   const result = next(action)
   const a = action as { type: string; payload?: AuthUser | Theme }
@@ -83,6 +99,7 @@ export const store = configureStore({
     beds: bedReducer,
     alerts: alertReducer,
     appointments: appointmentsReducer,
+    prescriptions: prescriptionsReducer,
     ui: uiReducer,
   },
   preloadedState: {
@@ -99,9 +116,12 @@ export const store = configureStore({
       appointments: loadPersistedAppointments(),
       doctors: DEFAULT_SCHEDULE_DOCTORS,
     },
+    prescriptions: {
+      prescriptions: loadPersistedPrescriptions(),
+    },
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(authSyncMiddleware, appointmentsPersistMiddleware),
+    getDefaultMiddleware().concat(authSyncMiddleware, appointmentsPersistMiddleware, prescriptionsPersistMiddleware),
 })
 
 export type RootState = ReturnType<typeof store.getState>
