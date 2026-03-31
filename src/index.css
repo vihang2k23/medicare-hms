@@ -73,13 +73,40 @@
 .print-only-banner {
   display: none;
 }
+.report-format {
+  display: block;
+}
 
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #0f172a !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+
   .print-only-banner {
     display: block !important;
   }
   .no-print-appt {
     display: none !important;
+  }
+  .no-print-report {
+    display: none !important;
+  }
+  .report-format {
+    display: block !important;
   }
   .weekly-schedule-print-root {
     break-inside: avoid;
@@ -88,5 +115,76 @@
   }
   .weekly-schedule-print-root table {
     font-size: 8.5pt;
+  }
+
+  /* Admin reports — hide shell when printing from this route only */
+  html.report-print-route header,
+  html.report-print-route aside {
+    display: none !important;
+  }
+  html.report-print-route .app-surface-gradient {
+    background: #fff !important;
+    background-image: none !important;
+  }
+  html.report-print-route main {
+    padding: 0.75rem !important;
+    max-width: none !important;
+  }
+  html.report-print-route .page-enter {
+    animation: none !important;
+  }
+  html.report-print-route .mx-auto.max-w-\[1680px\] {
+    max-width: none !important;
+  }
+  .reports-print-root {
+    break-inside: avoid;
+    color: #0f172a !important;
+    background: #fff !important;
+  }
+  .reports-print-root > * {
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+  .reports-print-root .grid {
+    gap: 10px !important;
+  }
+  .reports-print-root .rounded-2xl {
+    border: 1px solid #cbd5e1 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+  .reports-print-root .bg-gradient-to-r,
+  .reports-print-root .bg-slate-50\/80,
+  .reports-print-root .dark\:bg-slate-900\/60 {
+    background: #fff !important;
+  }
+  .reports-print-root .text-white,
+  .reports-print-root .dark\:text-white,
+  .reports-print-root .dark\:text-slate-100,
+  .reports-print-root .dark\:text-slate-200,
+  .reports-print-root .dark\:text-slate-300,
+  .reports-print-root .dark\:text-slate-400,
+  .reports-print-root .dark\:text-slate-500 {
+    color: #0f172a !important;
+  }
+  .reports-print-root .h-72 {
+    height: 220px !important;
+  }
+  .reports-print-root .h-80 {
+    height: 240px !important;
+  }
+  .reports-print-root .recharts-legend-wrapper {
+    font-size: 10px !important;
+  }
+  .reports-print-root .recharts-surface {
+    overflow: visible;
+  }
+  .reports-print-root .recharts-wrapper text {
+    fill: #334155 !important;
+  }
+  .reports-print-root .recharts-cartesian-grid-horizontal line,
+  .reports-print-root .recharts-cartesian-grid-vertical line {
+    stroke: #cbd5e1 !important;
   }
 }
