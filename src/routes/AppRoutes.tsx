@@ -19,6 +19,8 @@ import OPDQueuePage from '../pages/OPDQueuePage'
 import AdminBedsPage from '../pages/AdminBedsPage'
 import AppointmentsPage from '../pages/AppointmentsPage'
 import PrescriptionsPage from '../pages/PrescriptionsPage'
+import DoctorDirectoryPage from '../pages/DoctorDirectoryPage'
+import ReportsPage from '../pages/ReportsPage'
 
 export default function AppRoutes() {
   return (
@@ -35,10 +37,10 @@ export default function AppRoutes() {
           <Route path="admin/patients/new" element={<PatientRegistrationPage />} />
           <Route path="admin/patients/:patientId/edit" element={<PatientEditPage />} />
           <Route path="admin/patients/:patientId" element={<PatientProfilePage />} />
-          <Route path="admin/appointments" element={<PlaceholderPage title="Appointments" />} />
+          <Route path="admin/appointments" element={<AppointmentsPage variant="admin" />} />
           <Route path="admin/prescriptions" element={<PrescriptionsPage variant="admin" />} />
-          <Route path="admin/doctors" element={<PlaceholderPage title="Doctor Directory" />} />
-          <Route path="admin/reports" element={<PlaceholderPage title="Reports & Analytics" />} />
+          <Route path="admin/doctors" element={<DoctorDirectoryPage />} />
+          <Route path="admin/reports" element={<ReportsPage />} />
           {/* Doctor */}
           <Route path="doctor" element={<DoctorDashboard />} />
           <Route path="doctor/patients" element={<PlaceholderPage title="My Patients" />} />

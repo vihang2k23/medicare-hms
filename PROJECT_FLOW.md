@@ -379,9 +379,27 @@ From **Receptionist dashboard**, quick links target:
 
 ---
 
+## Week 8 — Doctor directory (NPI) + reports
+
+### NPPES NPI Registry (live API)
+- **`src/lib/npiRegistryApi.ts`** — `searchNpiRegistry` → CMS `GET /api/?version=2.1` with `first_name`, `last_name`, `taxonomy_description`, `city`, `state`, `limit`, `skip`, `enumeration_type` (defaults to **NPI-1** individuals).
+- **Dev proxy** — `vite.config.ts` maps `/npiregistry` → `https://npiregistry.cms.hhs.gov` to avoid CORS during `npm run dev`. Production build calls the CMS URL directly.
+- **UI** — `DoctorDirectoryPage`: search form + specialty dropdown (`npiTaxonomies.ts`) + US states (`usStates.ts`), result cards (name, NPI, taxonomy, address, phone), **Full profile** modal (taxonomies, addresses, endpoints, other names), **Add to HMS** import.
+
+### Internal doctors (`internalDoctors` in JSON Server)
+- **`server/db.json`** — `internalDoctors` array; **`src/api/internalDoctorsApi.ts`** — CRUD.
+- **`InternalDoctorRecord`** (`types/internalDoctor.ts`) — schedule fields + NPI snapshot + `rawResult` for profile replay.
+- **Redux** — `setImportedScheduleDoctors`, `addImportedScheduleDoctor`, `removeImportedScheduleDoctor` in `appointmentsSlice`; seeded demo doctors tagged `source: 'seed'`, imports `source: 'npi'`. **`ImportedDoctorsSync`** in `App.tsx` hydrates imports on load.
+- Imported rows map to **`ScheduleDoctor`** and appear in **appointments** doctor dropdowns.
+
+### Reports
+- **`ReportsPage`** (`/admin/reports`) — stat cards (patients from JSON Server, NPI import count, beds, queue, appointments, prescriptions) + Recharts bar snapshot.
+
+---
+
 ## Placeholder routes (not yet implemented)
 
-Sidebar items such as **Doctor directory**, **Reports**, **Vitals** (and doctor **My Patients**) still use **`PlaceholderPage`**. **Appointments**, **My schedule**, and **Prescriptions** (Week 6–7) are implemented — see [Week 6](#week-6--appointment-scheduling) and [Week 7](#week-7--prescriptions-static-catalog).
+Sidebar items such as **Vitals** (and doctor **My Patients**) still use **`PlaceholderPage`**. **Doctor directory**, **Reports**, **Appointments** (admin), **My schedule**, and **Prescriptions** are implemented.
 
 ---
 
@@ -395,6 +413,8 @@ Sidebar items such as **Doctor directory**, **Reports**, **Vitals** (and doctor 
 | Beds & ward summary | Redux only | No |
 | Alerts | Redux only | No |
 | Patients | JSON Server (`server/db.json`) | Yes (file on disk) |
+| Internal doctors (NPI imports) | JSON Server `internalDoctors` in `db.json` | Yes (file on disk) |
+| NPI Registry search | CMS `npiregistry.cms.hhs.gov` API v2.1 | Live (network) |
 | Appointments | Redux + `localStorage` (`medicare_hms_appointments_v1`) | Yes |
 | Prescriptions | Redux + `localStorage` (`medicare_hms_prescriptions_v1`) | Yes |
 | Drug catalog & demo recalls | `drugCatalogData.ts` (in-repo static) | N/A |

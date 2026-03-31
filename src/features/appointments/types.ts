@@ -9,6 +9,17 @@ export interface ScheduleDoctor {
   slotDurationMinutes: 15 | 20 | 30
   lunchBreakStart?: string
   lunchBreakEnd?: string
+  /** Seeded demo doctors vs NPI imports */
+  source?: 'seed' | 'npi'
+  npi?: string
+  credential?: string
+  phone?: string
+  practiceAddressLine1?: string
+  practiceCity?: string
+  practiceState?: string
+  practicePostalCode?: string
+  primaryTaxonomyCode?: string
+  primaryTaxonomyDesc?: string
 }
 
 export type AppointmentStatus =

@@ -8,4 +8,15 @@ export default defineConfig({
   optimizeDeps: {
     include: ['lucide-react', 'react-hot-toast'],
   },
+  server: {
+    proxy: {
+      // Browser CORS workaround for local dev — production calls CMS URL directly.
+      '/npiregistry': {
+        target: 'https://npiregistry.cms.hhs.gov',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/npiregistry/, ''),
+      },
+    },
+  },
 })

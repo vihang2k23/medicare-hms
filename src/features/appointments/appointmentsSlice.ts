@@ -84,7 +84,7 @@ export interface AppointmentsState {
 
 const initialState: AppointmentsState = {
   appointments: [],
-  doctors: DEFAULT_SCHEDULE_DOCTORS,
+  doctors: DEFAULT_SCHEDULE_DOCTORS.map((d) => ({ ...d, source: 'seed' as const })),
 }
 
 const appointmentsSlice = createSlice({
@@ -122,6 +122,22 @@ const appointmentsSlice = createSlice({
       const a = state.appointments.find((x) => x.id === action.payload)
       if (a) a.status = 'cancelled'
     },
+    /** Replace NPI-imported rows; keeps seeded defaults from initial merge pattern. */
+    setImportedScheduleDoctors(state, action: PayloadAction<ScheduleDoctor[]>) {
+      const seeds = state.doctors.filter((d) => d.source === 'seed' || (!d.source && !d.npi))
+      const seen = new Set(seeds.map((d) => d.id))
+      const imports = action.payload.filter((d) => !seen.has(d.id))
+      state.doctors = [...seeds, ...imports]
+    },
+    addImportedScheduleDoctor(state, action: PayloadAction<ScheduleDoctor>) {
+      const d = action.payload
+      if (state.doctors.some((x) => x.id === d.id)) return
+      state.doctors.push(d)
+    },
+    removeImportedScheduleDoctor(state, action: PayloadAction<string>) {
+      const id = action.payload
+      state.doctors = state.doctors.filter((d) => !(d.id === id && d.source === 'npi'))
+    },
   },
 })
 
@@ -131,6 +147,9 @@ export const {
   rescheduleAppointment,
   updateAppointmentStatus,
   cancelAppointment,
+  setImportedScheduleDoctors,
+  addImportedScheduleDoctor,
+  removeImportedScheduleDoctor,
 } = appointmentsSlice.actions
 
 export default appointmentsSlice.reducer

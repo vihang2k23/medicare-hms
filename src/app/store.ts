@@ -114,7 +114,7 @@ export const store = configureStore({
     },
     appointments: {
       appointments: loadPersistedAppointments(),
-      doctors: DEFAULT_SCHEDULE_DOCTORS,
+      doctors: DEFAULT_SCHEDULE_DOCTORS.map((d) => ({ ...d, source: 'seed' as const })),
     },
     prescriptions: {
       prescriptions: loadPersistedPrescriptions(),
