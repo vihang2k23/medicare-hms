@@ -7,6 +7,11 @@ import bedReducer from '../features/beds/bedSlice'
 import alertReducer from '../features/alerts/alertSlice'
 import appointmentsReducer, { DEFAULT_SCHEDULE_DOCTORS } from '../features/appointments/appointmentsSlice'
 import { APPOINTMENTS_STORAGE_KEY, loadPersistedAppointments } from '../features/appointments/appointmentsStorage'
+import {
+  buildDemoReportsAppointments,
+  buildDemoReportsPrescriptions,
+  buildDemoReportsQueueState,
+} from '../features/reports/demoReportsSeed'
 import prescriptionsReducer from '../features/prescriptions/prescriptionsSlice'
 import { PRESCRIPTIONS_STORAGE_KEY, loadPersistedPrescriptions } from '../features/prescriptions/prescriptionsStorage'
 import uiReducer from '../features/ui/uiSlice'
@@ -48,6 +53,14 @@ function loadThemeFromStorage(): Theme {
 }
 
 const themePreload = loadThemeFromStorage()
+
+const persistedAppointments = loadPersistedAppointments()
+const initialAppointments =
+  persistedAppointments.length > 0 ? persistedAppointments : buildDemoReportsAppointments()
+
+const persistedPrescriptions = loadPersistedPrescriptions()
+const initialPrescriptions =
+  persistedPrescriptions.length > 0 ? persistedPrescriptions : buildDemoReportsPrescriptions()
 
 const appointmentsPersistMiddleware: Middleware = (storeApi) => (next) => (action: unknown) => {
   const result = next(action)
@@ -113,12 +126,13 @@ export const store = configureStore({
       activeFilters: {},
     },
     appointments: {
-      appointments: loadPersistedAppointments(),
+      appointments: initialAppointments,
       doctors: DEFAULT_SCHEDULE_DOCTORS.map((d) => ({ ...d, source: 'seed' as const })),
     },
     prescriptions: {
-      prescriptions: loadPersistedPrescriptions(),
+      prescriptions: initialPrescriptions,
     },
+    queue: buildDemoReportsQueueState(),
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(authSyncMiddleware, appointmentsPersistMiddleware, prescriptionsPersistMiddleware),

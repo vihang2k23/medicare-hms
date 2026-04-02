@@ -17,6 +17,12 @@ export default defineConfig({
         secure: true,
         rewrite: (path) => path.replace(/^\/npiregistry/, ''),
       },
+      '/openfda': {
+        target: 'https://api.fda.gov',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/openfda/, ''),
+      },
     },
   },
 })

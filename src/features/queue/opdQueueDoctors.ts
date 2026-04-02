@@ -1,4 +1,4 @@
-import {  } from '../appointments/appointmentsSlice'
+import { DEFAULT_SCHEDULE_DOCTORS } from '../appointments/appointmentsSlice'
 
 /** Pick a schedule doctor for the selected OPD department (first match, else first seed doctor). */
 export function pickDoctorForDepartment(department: string): { doctorId: string; doctorName: string } {

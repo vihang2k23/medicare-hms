@@ -1,10 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
+  CartesianGrid,
   Cell,
   Legend,
+  Line,
+  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -16,6 +21,16 @@ import type { RootState } from '../app/store'
 import DashboardCard from '../components/ui/DashboardCard'
 import StatCard from '../components/ui/StatCard'
 import { formatOpdTokenLabel } from '../features/queue/queueSlice'
+import { OPD_DEPARTMENTS } from '../config/departments'
+import DrugRecallSummaryCard from '../features/reports/DrugRecallSummaryCard'
+import {
+  buildAppointmentOutcomeCounts,
+  buildDepartmentPatientDistribution,
+  buildDoctorWorkloadThisMonth,
+  buildPatientsPerDayFromAppointments,
+  buildSimulatedBedOccupancySeries,
+  buildSimulatedRevenueByDepartment,
+} from '../features/reports/reportsAnalyticsData'
 import { fetchAllPatients } from '../api/patientsApi'
 import { downloadCsv } from '../lib/csvExport'
 import { BedDouble, Calendar, Download, FileText, ListOrdered, Printer, Stethoscope, Users } from 'lucide-react'
@@ -42,6 +57,17 @@ const APPT_STATUS_COLORS: Record<string, string> = {
   cancelled: '#ef4444',
   'no-show': '#a855f7',
 }
+
+const DEPT_PIE_COLORS = [
+  '#0ea5e9',
+  '#8b5cf6',
+  '#22c55e',
+  '#f59e0b',
+  '#ef4444',
+  '#14b8a6',
+  '#ec4899',
+  '#64748b',
+]
 
 function formatReportTimestamp() {
   return new Date().toLocaleString(undefined, {
@@ -143,6 +169,39 @@ export default function ReportsPage() {
     return Array.from(map.values()).sort((a, b) => a.ward.localeCompare(b.ward))
   }, [beds])
 
+  const opdTrendFromAppointments = useMemo(
+    () => buildPatientsPerDayFromAppointments(appointments),
+    [appointments],
+  )
+
+  const bedOccupancySimulated = useMemo(() => buildSimulatedBedOccupancySeries(beds, 30), [beds])
+
+  const departmentPatientPie = useMemo(
+    () => buildDepartmentPatientDistribution(appointments),
+    [appointments],
+  )
+
+  const appointmentOutcomes = useMemo(() => buildAppointmentOutcomeCounts(appointments), [appointments])
+
+  const outcomeStackRow = useMemo(
+    () => [
+      {
+        name: 'Completed / cancelled / no-show',
+        completed: appointmentOutcomes.completed,
+        cancelled: appointmentOutcomes.cancelled,
+        noShow: appointmentOutcomes.noShow,
+      },
+    ],
+    [appointmentOutcomes],
+  )
+
+  const doctorWorkloadMonth = useMemo(() => buildDoctorWorkloadThisMonth(appointments), [appointments])
+
+  const revenueByDepartment = useMemo(
+    () => buildSimulatedRevenueByDepartment(OPD_DEPARTMENTS),
+    [],
+  )
+
   const buildCsvRows = useCallback((): string[][] => {
     const ts = formatReportTimestamp()
     const rows: string[][] = [
@@ -201,19 +260,48 @@ export default function ReportsPage() {
         String(p.medicines.length),
         String(p.createdAt),
       ]),
+      [],
+      ['OPD trend (30d) — unique patients / visits from appointment dates'],
+      ['Day label', 'Date', 'Unique patients', 'Visits'],
+      ...opdTrendFromAppointments.map((r) => [r.day, r.dayKey, String(r.patients), String(r.visits)]),
+      [],
+      ['Simulated bed occupancy % (30d demo series)', 'Day', 'Occupancy %'],
+      ...bedOccupancySimulated.map((r) => [r.day, String(r.occupancy)]),
+      [],
+      ['Patients by department (unique w/ booking)', 'Department', 'Patients'],
+      ...departmentPatientPie.map((d) => [d.name, String(d.value)]),
+      [],
+      ['Appointment outcomes', 'Completed', 'Cancelled', 'No-show'],
+      [
+        String(appointmentOutcomes.completed),
+        String(appointmentOutcomes.cancelled),
+        String(appointmentOutcomes.noShow),
+      ],
+      [],
+      ['Doctor workload (this month)', 'Doctor', 'Appointments'],
+      ...doctorWorkloadMonth.map((d) => [d.name, String(d.count)]),
+      [],
+      ['Simulated revenue (₹ thousands, demo)', 'Department', 'Revenue'],
+      ...revenueByDepartment.map((d) => [d.name, String(d.revenue)]),
     ]
     return rows
   }, [
     appointments,
+    appointmentOutcomes,
     beds,
+    bedOccupancySimulated,
+    departmentPatientPie,
+    doctorWorkloadMonth,
     doctors.length,
     importedDoctors,
     occupiedBeds,
-    patientTotal,
-    prescriptions,
     opdCurrentToken,
     opdQueue,
     opdServedToday,
+    opdTrendFromAppointments,
+    patientTotal,
+    prescriptions,
+    revenueByDepartment,
   ])
 
   const handleExportCsv = () => {
@@ -244,10 +332,6 @@ export default function ReportsPage() {
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
             Reports &amp; analytics
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-2xl leading-relaxed">
-            OPD queue, beds, appointments, and prescriptions from live session state; patient count from JSON Server when
-            available. Export CSV or print this view.
-          </p>
         </div>
         <div className="no-print-report flex flex-wrap gap-2 shrink-0">
           <button
@@ -269,125 +353,25 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      <section className="report-format rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white/90 dark:bg-slate-900/50 p-4 sm:p-5 space-y-5 ring-1 ring-slate-200/40 dark:ring-slate-700/40">
-        <header className="border-b border-slate-200 dark:border-slate-700 pb-3">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">MediCare HMS - Daily Operations Report</h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Standardized format for admin sharing, print, and audit records</p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-slate-600 dark:text-slate-300 mt-3">
-            <p><span className="font-semibold">Generated:</span> {formatReportTimestamp()}</p>
-            <p><span className="font-semibold">Department:</span> Hospital Operations</p>
-            <p><span className="font-semibold">Prepared by:</span> MediCare HMS System</p>
-          </div>
-        </header>
-
-        <div>
-          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">1) Summary Metrics</h3>
-          <table className="w-full border-collapse text-sm">
-            <tbody>
-              <tr>
-                <th className="w-[60%] text-left border border-slate-300 dark:border-slate-600 px-2 py-1.5">Patients (registry)</th>
-                <td className="border border-slate-300 dark:border-slate-600 px-2 py-1.5">{patientTotal ?? '—'}</td>
-              </tr>
-              <tr>
-                <th className="text-left border border-slate-300 dark:border-slate-600 px-2 py-1.5">Imported NPI doctors</th>
-                <td className="border border-slate-300 dark:border-slate-600 px-2 py-1.5">{importedDoctors}</td>
-              </tr>
-              <tr>
-                <th className="text-left border border-slate-300 dark:border-slate-600 px-2 py-1.5">Beds occupied</th>
-                <td className="border border-slate-300 dark:border-slate-600 px-2 py-1.5">{occupiedBeds} / {beds.length}</td>
-              </tr>
-              <tr>
-                <th className="text-left border border-slate-300 dark:border-slate-600 px-2 py-1.5">OPD tokens</th>
-                <td className="border border-slate-300 dark:border-slate-600 px-2 py-1.5">{opdQueue.length}</td>
-              </tr>
-              <tr>
-                <th className="text-left border border-slate-300 dark:border-slate-600 px-2 py-1.5">Appointments</th>
-                <td className="border border-slate-300 dark:border-slate-600 px-2 py-1.5">{appointments.length}</td>
-              </tr>
-              <tr>
-                <th className="text-left border border-slate-300 dark:border-slate-600 px-2 py-1.5">Prescriptions</th>
-                <td className="border border-slate-300 dark:border-slate-600 px-2 py-1.5">{prescriptions.length}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div>
-          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">2) OPD Status Breakdown</h3>
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr>
-                <th className="text-left border border-slate-300 dark:border-slate-600 px-2 py-1.5">Status</th>
-                <th className="text-right border border-slate-300 dark:border-slate-600 px-2 py-1.5">Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              {opdStatusPie.length === 0 ? (
-                <tr>
-                  <td className="border border-slate-300 dark:border-slate-600 px-2 py-1.5" colSpan={2}>No OPD tokens in session</td>
-                </tr>
-              ) : (
-                opdStatusPie.map((r) => (
-                  <tr key={r.name}>
-                    <td className="border border-slate-300 dark:border-slate-600 px-2 py-1.5">{r.name}</td>
-                    <td className="border border-slate-300 dark:border-slate-600 px-2 py-1.5 text-right">{r.value}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div>
-          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">3) Beds by Ward</h3>
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr>
-                <th className="text-left border border-slate-300 dark:border-slate-600 px-2 py-1.5">Ward</th>
-                <th className="text-right border border-slate-300 dark:border-slate-600 px-2 py-1.5">Available</th>
-                <th className="text-right border border-slate-300 dark:border-slate-600 px-2 py-1.5">Occupied</th>
-                <th className="text-right border border-slate-300 dark:border-slate-600 px-2 py-1.5">Reserved</th>
-                <th className="text-right border border-slate-300 dark:border-slate-600 px-2 py-1.5">Maintenance</th>
-              </tr>
-            </thead>
-            <tbody>
-              {wardStackData.map((r) => (
-                <tr key={r.ward}>
-                  <td className="border border-slate-300 dark:border-slate-600 px-2 py-1.5">{r.ward}</td>
-                  <td className="border border-slate-300 dark:border-slate-600 px-2 py-1.5 text-right">{r.Available}</td>
-                  <td className="border border-slate-300 dark:border-slate-600 px-2 py-1.5 text-right">{r.Occupied}</td>
-                  <td className="border border-slate-300 dark:border-slate-600 px-2 py-1.5 text-right">{r.Reserved}</td>
-                  <td className="border border-slate-300 dark:border-slate-600 px-2 py-1.5 text-right">{r.Maintenance}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <footer className="pt-2 border-t border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400">
-          This report is system-generated for operational monitoring and administrative review.
-        </footer>
-      </section>
-
       <div className="no-print-report grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
           label="Patients (registry)"
           value={patientTotal ?? '—'}
-          subLabel={patientTotal == null ? 'Start JSON Server for count' : 'All records in db.json'}
+          subLabel={patientTotal == null ? '—' : 'Registry'}
           accent="blue"
           icon={<Users className="h-5 w-5" aria-hidden />}
         />
         <StatCard
           label="Imported NPI doctors"
           value={importedDoctors}
-          subLabel="In appointments schedule + internal directory"
+          subLabel="Schedule"
           accent="green"
           icon={<Stethoscope className="h-5 w-5" aria-hidden />}
         />
         <StatCard
           label="Beds occupied"
           value={`${occupiedBeds} / ${beds.length}`}
-          subLabel="Current Redux bed grid"
+          subLabel="Wards"
           accent="amber"
           icon={<BedDouble className="h-5 w-5" aria-hidden />}
         />
@@ -401,17 +385,179 @@ export default function ReportsPage() {
         <StatCard
           label="Appointments"
           value={appointments.length}
-          subLabel="Persisted in this browser"
+          subLabel="Bookings"
           accent="blue"
           icon={<Calendar className="h-5 w-5" aria-hidden />}
         />
         <StatCard
           label="Prescriptions"
           value={prescriptions.length}
-          subLabel="Persisted in this browser"
+          subLabel="Rx"
           accent="green"
           icon={<FileText className="h-5 w-5" aria-hidden />}
         />
+      </div>
+
+      <div className="no-print-report space-y-6">
+        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-violet-600 dark:text-violet-400">
+          Scheduling &amp; clinical analytics
+        </p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <DashboardCard title="OPD trend — unique patients per day (30d, from appointments)">
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={opdTrendFromAppointments} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
+                  <XAxis dataKey="day" tick={{ fontSize: 9 }} stroke="#64748b" interval={4} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#64748b" />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="patients"
+                    stroke="#0ea5e9"
+                    strokeWidth={2}
+                    name="Unique patients"
+                    dot={false}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="visits"
+                    stroke="#94a3b8"
+                    strokeWidth={1.5}
+                    strokeDasharray="5 5"
+                    name="Visits"
+                    dot={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </DashboardCard>
+
+          <DashboardCard title="Bed occupancy over time (simulated %, 30d)">
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={bedOccupancySimulated} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="occFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
+                  <XAxis dataKey="day" tick={{ fontSize: 9 }} stroke="#64748b" interval={4} />
+                  <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} stroke="#64748b" unit="%" />
+                  <Tooltip formatter={(v: unknown) => [`${v}%`, 'Occupancy']} />
+                  <Area
+                    type="monotone"
+                    dataKey="occupancy"
+                    stroke="#7c3aed"
+                    fill="url(#occFill)"
+                    strokeWidth={2}
+                    name="Occupancy %"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </DashboardCard>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <DashboardCard title="Department-wise patient distribution (unique patients with bookings)">
+            <div className="h-72">
+              {departmentPatientPie.length === 0 ? (
+                pieFallback
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={departmentPatientPie}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius="42%"
+                      outerRadius="68%"
+                      paddingAngle={2}
+                      dataKey="value"
+                      nameKey="name"
+                      label={({ name, percent }) => `${name ?? ''} ${((percent ?? 0) * 100).toFixed(0)}%`}
+                    >
+                      {departmentPatientPie.map((_, i) => (
+                        <Cell key={i} fill={DEPT_PIE_COLORS[i % DEPT_PIE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value: unknown) => [`${Number(value)} patients`, 'With booking']} />
+                    <Legend
+                      verticalAlign="bottom"
+                      height={36}
+                      formatter={(v) => <span className="text-xs text-slate-600 dark:text-slate-300">{v}</span>}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </DashboardCard>
+
+          <DashboardCard title="Appointment status — completed vs cancelled vs no-show (stacked)">
+            <div className="h-72">
+              {appointmentOutcomes.completed + appointmentOutcomes.cancelled + appointmentOutcomes.noShow === 0 ? (
+                pieFallback
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={outcomeStackRow} margin={{ top: 8, right: 16, left: 0, bottom: 32 }}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
+                    <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="#64748b" />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#64748b" />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="completed" stackId="o" fill={APPT_STATUS_COLORS.completed} name="Completed" />
+                    <Bar dataKey="cancelled" stackId="o" fill={APPT_STATUS_COLORS.cancelled} name="Cancelled" />
+                    <Bar dataKey="noShow" stackId="o" fill={APPT_STATUS_COLORS['no-show']} name="No-show" />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </DashboardCard>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <DashboardCard title="Doctor workload — appointments this month">
+            <div className="h-72">
+              {doctorWorkloadMonth.length === 0 ? (
+                pieFallback
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={doctorWorkloadMonth}
+                    layout="vertical"
+                    margin={{ top: 8, right: 16, left: 8, bottom: 8 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
+                    <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} stroke="#64748b" />
+                    <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 10 }} stroke="#64748b" />
+                    <Tooltip formatter={(v: unknown) => [`${Number(v)} appts`, 'Count']} />
+                    <Bar dataKey="count" fill="#0ea5e9" radius={[0, 4, 4, 0]} name="Appointments" />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </DashboardCard>
+
+          <DashboardCard title="Revenue summary (simulated ₹ thousands by department)">
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={revenueByDepartment} margin={{ top: 8, right: 8, left: 0, bottom: 40 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
+                  <XAxis dataKey="name" tick={{ fontSize: 9 }} stroke="#64748b" angle={-20} textAnchor="end" height={56} />
+                  <YAxis tick={{ fontSize: 11 }} stroke="#64748b" label={{ value: '₹k', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip formatter={(v: unknown) => [`₹${Number(v)}k`, 'Simulated']} />
+                  <Bar dataKey="revenue" fill="#22c55e" radius={[4, 4, 0, 0]} name="Revenue (₹k)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </DashboardCard>
+        </div>
+
+        <DrugRecallSummaryCard />
       </div>
 
       <div className="no-print-report grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -542,11 +688,6 @@ export default function ReportsPage() {
         </div>
       </DashboardCard>
       </div>
-
-      <p className="no-print-report text-[11px] text-slate-400 dark:text-slate-500 max-w-3xl leading-relaxed">
-        CSV includes summary metrics plus row-level OPD tokens, beds, appointments, and prescriptions. Print uses your browser
-        dialog; charts are tuned for light output on paper when using dark mode in the app.
-      </p>
     </div>
   )
 }
