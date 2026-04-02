@@ -10,6 +10,7 @@ import {
 } from '../data/dashboardMockData'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../app/store'
+import { formatOpdTokenLabel } from '../features/queue/queueSlice'
 import {
   PieChart,
   Pie,
@@ -33,11 +34,12 @@ const BED_PIE_COLORS = {
 
 export default function AdminDashboard() {
   const { user } = useAuth()
-  const { tokens, currentToken } = useSelector((state: RootState) => state.queue)
+  const opdQueue = useSelector((state: RootState) => state.queue.queue)
+  const opdCurrentToken = useSelector((state: RootState) => state.queue.currentToken)
   const beds = useSelector((state: RootState) => state.beds.beds)
   const alerts = useSelector((state: RootState) => state.alerts.alerts).slice(0, 5)
-  const opdWaiting = tokens.filter((t) => t.status === 'waiting').length
-  const opdDone = tokens.filter((t) => t.status === 'done').length
+  const opdWaiting = opdQueue.filter((t) => t.status === 'waiting').length
+  const opdDone = opdQueue.filter((t) => t.status === 'done').length
 
   const bedPieData = useMemo(() => {
     const c = { available: 0, occupied: 0, reserved: 0, maintenance: 0 }
@@ -82,7 +84,7 @@ export default function AdminDashboard() {
         />
         <StatCard
           label="OPD queue"
-          value={currentToken ?? '—'}
+          value={opdCurrentToken != null ? formatOpdTokenLabel(opdCurrentToken) : '—'}
           subLabel={`Waiting: ${opdWaiting} · Done: ${opdDone}`}
           accent="green"
           icon={<Ticket className="h-5 w-5" aria-hidden />}

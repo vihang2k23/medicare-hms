@@ -15,6 +15,7 @@ import {
 import type { RootState } from '../app/store'
 import DashboardCard from '../components/ui/DashboardCard'
 import StatCard from '../components/ui/StatCard'
+import { formatOpdTokenLabel } from '../features/queue/queueSlice'
 import { fetchAllPatients } from '../api/patientsApi'
 import { downloadCsv } from '../lib/csvExport'
 import { BedDouble, Calendar, Download, FileText, ListOrdered, Printer, Stethoscope, Users } from 'lucide-react'
@@ -50,7 +51,9 @@ function formatReportTimestamp() {
 }
 
 export default function ReportsPage() {
-  const queue = useSelector((s: RootState) => s.queue)
+  const opdQueue = useSelector((s: RootState) => s.queue.queue)
+  const opdCurrentToken = useSelector((s: RootState) => s.queue.currentToken)
+  const opdServedToday = useSelector((s: RootState) => s.queue.servedToday)
   const beds = useSelector((s: RootState) => s.beds.beds)
   const appointments = useSelector((s: RootState) => s.appointments.appointments)
   const doctors = useSelector((s: RootState) => s.appointments.doctors)
@@ -73,18 +76,18 @@ export default function ReportsPage() {
 
   const volumeBarData = useMemo(
     () => [
-      { name: 'OPD tokens', value: queue.tokens.length },
+      { name: 'OPD tokens', value: opdQueue.length },
       { name: 'Beds (total)', value: beds.length },
       { name: 'Appointments', value: appointments.length },
       { name: 'Prescriptions', value: prescriptions.length },
       { name: 'Schedule doctors', value: doctors.length },
     ],
-    [queue.tokens.length, beds.length, appointments.length, prescriptions.length, doctors.length],
+    [opdQueue.length, beds.length, appointments.length, prescriptions.length, doctors.length],
   )
 
   const opdStatusPie = useMemo(() => {
     const c = { waiting: 0, 'in-progress': 0, done: 0, skipped: 0 }
-    for (const t of queue.tokens) {
+    for (const t of opdQueue) {
       c[t.status]++
     }
     return [
@@ -93,7 +96,7 @@ export default function ReportsPage() {
       { name: 'Done', value: c.done, color: OPD_STATUS_COLORS.Done },
       { name: 'Skipped', value: c.skipped, color: OPD_STATUS_COLORS.Skipped },
     ].filter((d) => d.value > 0)
-  }, [queue.tokens])
+  }, [opdQueue])
 
   const bedStatusPie = useMemo(() => {
     const c = { available: 0, occupied: 0, reserved: 0, maintenance: 0 }
@@ -150,19 +153,22 @@ export default function ReportsPage() {
       ['Patients (registry)', patientTotal == null ? '' : String(patientTotal)],
       ['Imported NPI doctors', String(importedDoctors)],
       ['Beds occupied', `${occupiedBeds} / ${beds.length}`],
-      ['OPD tokens (session)', String(queue.tokens.length)],
-      ['OPD now serving', queue.currentToken ?? ''],
-      ['OPD served today (counter)', String(queue.servedToday)],
+      ['OPD tokens (session)', String(opdQueue.length)],
+      ['OPD now serving', opdCurrentToken != null ? formatOpdTokenLabel(opdCurrentToken) : ''],
+      ['OPD served today (counter)', String(opdServedToday)],
       ['Appointments', String(appointments.length)],
       ['Prescriptions', String(prescriptions.length)],
       ['Schedule doctors', String(doctors.length)],
       [],
-      ['OPD token', 'Patient', 'Status', 'Department'],
-      ...queue.tokens.map((t) => [
-        t.tokenNumber,
+      ['Token id', 'Patient', 'Status', 'Department', 'Doctor id', 'Doctor name', 'Issued at (epoch ms)'],
+      ...opdQueue.map((t) => [
+        String(t.tokenId),
         t.patientName,
         t.status,
-        t.department ?? '',
+        t.department,
+        t.doctorId,
+        t.doctorName,
+        String(t.issuedAt),
       ]),
       [],
       ['Bed id', 'Ward', 'Bed #', 'Status', 'Occupant / patient id'],
@@ -205,9 +211,9 @@ export default function ReportsPage() {
     occupiedBeds,
     patientTotal,
     prescriptions,
-    queue.currentToken,
-    queue.servedToday,
-    queue.tokens,
+    opdCurrentToken,
+    opdQueue,
+    opdServedToday,
   ])
 
   const handleExportCsv = () => {
@@ -292,7 +298,7 @@ export default function ReportsPage() {
               </tr>
               <tr>
                 <th className="text-left border border-slate-300 dark:border-slate-600 px-2 py-1.5">OPD tokens</th>
-                <td className="border border-slate-300 dark:border-slate-600 px-2 py-1.5">{queue.tokens.length}</td>
+                <td className="border border-slate-300 dark:border-slate-600 px-2 py-1.5">{opdQueue.length}</td>
               </tr>
               <tr>
                 <th className="text-left border border-slate-300 dark:border-slate-600 px-2 py-1.5">Appointments</th>
@@ -387,8 +393,8 @@ export default function ReportsPage() {
         />
         <StatCard
           label="OPD tokens (session)"
-          value={queue.tokens.length}
-          subLabel={`Now serving: ${queue.currentToken ?? '—'}`}
+          value={opdQueue.length}
+          subLabel={`Now serving: ${opdCurrentToken != null ? formatOpdTokenLabel(opdCurrentToken) : '—'}`}
           accent="slate"
           icon={<ListOrdered className="h-5 w-5" aria-hidden />}
         />

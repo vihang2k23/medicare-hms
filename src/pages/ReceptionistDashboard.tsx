@@ -7,10 +7,13 @@ import { Calendar, Ticket, UserPlus } from 'lucide-react'
 import { MOCK_REGISTRATIONS_TODAY, MOCK_PENDING_APPOINTMENTS } from '../data/dashboardMockData'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../app/store'
+import { formatOpdTokenLabel } from '../features/queue/queueSlice'
 
 export default function ReceptionistDashboard() {
   const { user } = useAuth()
-  const { tokens, currentToken, servedToday } = useSelector((state: RootState) => state.queue)
+  const opdQueue = useSelector((s: RootState) => s.queue.queue)
+  const currentToken = useSelector((s: RootState) => s.queue.currentToken)
+  const servedToday = useSelector((s: RootState) => s.queue.servedToday)
 
   return (
     <div className="space-y-8">
@@ -32,8 +35,8 @@ export default function ReceptionistDashboard() {
         />
         <StatCard
           label="Current OPD token"
-          value={currentToken ?? '—'}
-          subLabel={`${tokens.filter((t) => t.status === 'waiting').length} waiting · ${servedToday} served`}
+          value={currentToken != null ? formatOpdTokenLabel(currentToken) : '—'}
+          subLabel={`${opdQueue.filter((t) => t.status === 'waiting').length} waiting · ${servedToday} served`}
           accent="amber"
           icon={<Ticket className="h-5 w-5" aria-hidden />}
         />

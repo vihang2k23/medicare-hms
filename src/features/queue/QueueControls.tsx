@@ -4,7 +4,15 @@ import { Timer } from 'lucide-react'
 import { store, type AppDispatch, type RootState } from '../../app/store'
 import { notify } from '../../lib/notify'
 import { OPD_DEPARTMENTS } from '../../config/departments'
-import { callNext, completeCurrent, issueToken, resetQueue, setSimulationStatus, skipCurrent } from './queueSlice'
+import {
+  callNext,
+  completeCurrent,
+  formatOpdTokenLabel,
+  issueToken,
+  resetQueue,
+  setSimulationRunning,
+  skipCurrent,
+} from './queueSlice'
 
 const SIM_INTERVALS = [
   { label: '30 seconds (recommended)', ms: 30000 },
@@ -23,7 +31,8 @@ export default function QueueControls({
   onSimulationIntervalChange,
 }: QueueControlsProps) {
   const dispatch = useDispatch<AppDispatch>()
-  const { currentToken, simulationRunning } = useSelector((state: RootState) => state.queue)
+  const currentToken = useSelector((s: RootState) => s.queue.currentToken)
+  const simulationRunning = useSelector((s: RootState) => s.queue.simulationRunning)
   const [patientName, setPatientName] = useState('')
   const [department, setDepartment] = useState<string>(OPD_DEPARTMENTS[0])
 
@@ -32,10 +41,10 @@ export default function QueueControls({
     if (!name) return
     dispatch(issueToken({ patientName: name, department: department || undefined }))
     setPatientName('')
-    const tokens = store.getState().queue.tokens
-    const last = tokens[tokens.length - 1]
+    const q = store.getState().queue.queue
+    const last = q[q.length - 1]
     if (last) {
-      notify.success(`Token ${last.tokenNumber} issued for ${last.patientName}`)
+      notify.success(`${formatOpdTokenLabel(last.tokenId)} issued for ${last.patientName} (${last.department})`)
     }
   }
 
@@ -53,7 +62,7 @@ export default function QueueControls({
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Counter / department</label>
+          <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Department</label>
           <select
             value={department}
             onChange={(e) => setDepartment(e.target.value)}
@@ -67,6 +76,9 @@ export default function QueueControls({
           </select>
         </div>
       </div>
+      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+        Doctor is assigned automatically from the schedule for the selected department.
+      </p>
       <button
         type="button"
         onClick={issue}
@@ -79,7 +91,10 @@ export default function QueueControls({
       <div className="border-t border-slate-200/80 dark:border-slate-700/80 pt-5 space-y-3">
         <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.14em]">Desk actions</h3>
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          Active token: <span className="font-mono text-slate-700 dark:text-slate-200">{currentToken ?? 'None'}</span>
+          Active token:{' '}
+          <span className="font-mono text-slate-700 dark:text-slate-200">
+            {currentToken != null ? formatOpdTokenLabel(currentToken) : 'None'}
+          </span>
         </p>
         <div className="flex flex-wrap gap-2">
           <button
@@ -87,7 +102,7 @@ export default function QueueControls({
             onClick={() => {
               dispatch(callNext())
               const cur = store.getState().queue.currentToken
-              if (cur) notify.success(`Now serving ${cur}`)
+              if (cur != null) notify.success(`Now serving ${formatOpdTokenLabel(cur)}`)
               else notify.success('Queue updated — no active token right now')
             }}
             className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-sm font-semibold shadow-md shadow-emerald-500/20 transition-all"
@@ -97,11 +112,11 @@ export default function QueueControls({
           <button
             type="button"
             onClick={() => {
-              if (!currentToken) return
+              if (currentToken == null) return
               dispatch(completeCurrent())
               notify.success('Visit marked complete')
             }}
-            disabled={!currentToken}
+            disabled={currentToken == null}
             className="px-4 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-800/80 disabled:opacity-40 transition-colors"
           >
             Complete current
@@ -109,11 +124,11 @@ export default function QueueControls({
           <button
             type="button"
             onClick={() => {
-              if (!currentToken) return
+              if (currentToken == null) return
               dispatch(skipCurrent())
               notify.success('Current patient sent to back of queue — next called if available')
             }}
-            disabled={!currentToken}
+            disabled={currentToken == null}
             className="px-4 py-2.5 rounded-xl border border-amber-200/90 dark:border-amber-800/80 text-amber-900 dark:text-amber-200 text-sm font-semibold hover:bg-amber-50/80 dark:hover:bg-amber-950/30 disabled:opacity-40 transition-colors"
           >
             Skip &amp; re-queue
@@ -123,7 +138,6 @@ export default function QueueControls({
             onClick={() => {
               if (window.confirm('Clear all tokens in this session?')) {
                 dispatch(resetQueue())
-                dispatch(setSimulationStatus(false))
                 notify.success('Queue cleared')
               }
             }}
@@ -140,7 +154,7 @@ export default function QueueControls({
           Auto-advance (simulation)
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-          Fires &ldquo;Call next&rdquo; on a timer so you can demo throughput. Turn off when running a real desk.
+          Fires &ldquo;Call next&rdquo; every {simulationIntervalMs / 1000}s while running. Turn off for a real desk.
         </p>
         <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 items-stretch sm:items-center">
           <label className="text-xs font-medium text-slate-600 dark:text-slate-400 shrink-0">Interval</label>
@@ -160,8 +174,8 @@ export default function QueueControls({
             type="button"
             onClick={() => {
               const next = !simulationRunning
-              dispatch(setSimulationStatus(next))
-              notify.success(next ? 'Auto-advance started' : 'Auto-advance stopped')
+              dispatch(setSimulationRunning(next))
+              notify.success(next ? 'Start simulation — auto-advance on' : 'Simulation stopped')
             }}
             className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
               simulationRunning

@@ -1,24 +1,49 @@
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { Activity, CheckCircle2, CircleDashed, SkipForward, Users } from 'lucide-react'
+import { Activity, CheckCircle2, CircleDashed, Clock, SkipForward, Timer, Users } from 'lucide-react'
 import type { RootState } from '../../app/store'
+import { formatOpdTokenLabel } from './queueSlice'
 
 export default function QueueAnalytics() {
-  const { tokens, servedToday, currentToken } = useSelector((s: RootState) => s.queue)
+  const queue = useSelector((s: RootState) => s.queue.queue)
+  const servedToday = useSelector((s: RootState) => s.queue.servedToday)
+  const currentToken = useSelector((s: RootState) => s.queue.currentToken)
 
-  const stats = useMemo(() => {
+  const { stats, avgWaitMinSim, longestWaitMinSim } = useMemo(() => {
     let waiting = 0
     let inProgress = 0
     let done = 0
     let skipped = 0
-    for (const t of tokens) {
-      if (t.status === 'waiting') waiting += 1
-      else if (t.status === 'in-progress') inProgress += 1
-      else if (t.status === 'done') done += 1
+    const now = Date.now()
+    let longestMs = 0
+    let waitSumMs = 0
+    let waitCount = 0
+    for (const t of queue) {
+      if (t.status === 'waiting') {
+        waiting += 1
+        const w = now - t.issuedAt
+        longestMs = Math.max(longestMs, w)
+        waitSumMs += w
+        waitCount += 1
+      } else if (t.status === 'in-progress') {
+        inProgress += 1
+        const w = now - t.issuedAt
+        longestMs = Math.max(longestMs, w)
+        waitSumMs += w
+        waitCount += 1
+      } else if (t.status === 'done') done += 1
       else skipped += 1
     }
-    return { waiting, inProgress, done, skipped, total: tokens.length }
-  }, [tokens])
+    const avgWaitMinSim =
+      waitCount === 0 ? null : Math.max(1, Math.round(waitSumMs / waitCount / 60000) + Math.round(Math.random() * 3))
+    const longestWaitMinSim =
+      longestMs === 0 ? null : Math.max(1, Math.round(longestMs / 60000) + Math.round(Math.random() * 2))
+    return {
+      stats: { waiting, inProgress, done, skipped, total: queue.length },
+      avgWaitMinSim,
+      longestWaitMinSim,
+    }
+  }, [queue])
 
   const cards = [
     {
@@ -57,10 +82,12 @@ export default function QueueAnalytics() {
           Queue analytics
         </h2>
         <div className="text-xs text-slate-500 dark:text-slate-400">
-          <span className="font-mono text-slate-700 dark:text-slate-200">{currentToken ?? '—'}</span>
+          <span className="font-mono text-slate-700 dark:text-slate-200">
+            {currentToken != null ? formatOpdTokenLabel(currentToken) : '—'}
+          </span>
           <span className="mx-1.5 opacity-50">·</span>
           <span>
-            Served (session): <strong className="text-slate-800 dark:text-slate-200">{servedToday}</strong>
+            Served today: <strong className="text-slate-800 dark:text-slate-200">{servedToday}</strong>
           </span>
         </div>
       </div>
@@ -76,6 +103,31 @@ export default function QueueAnalytics() {
             <p className="mt-1 text-2xl font-bold tabular-nums">{value}</p>
           </div>
         ))}
+      </div>
+
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="flex items-start gap-3 rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-slate-50/80 dark:bg-slate-800/40 p-3">
+          <Clock className="h-5 w-5 text-violet-500 shrink-0 mt-0.5" aria-hidden />
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Avg wait (simulated)
+            </p>
+            <p className="text-lg font-bold text-slate-900 dark:text-slate-100 tabular-nums">
+              {avgWaitMinSim == null ? '—' : `${avgWaitMinSim} min`}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-start gap-3 rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-slate-50/80 dark:bg-slate-800/40 p-3">
+          <Timer className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" aria-hidden />
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Longest wait (simulated)
+            </p>
+            <p className="text-lg font-bold text-slate-900 dark:text-slate-100 tabular-nums">
+              {longestWaitMinSim == null ? '—' : `${longestWaitMinSim} min`}
+            </p>
+          </div>
+        </div>
       </div>
 
       <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">

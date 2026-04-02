@@ -11,7 +11,7 @@ This file is the **single place** for architecture, routes, and **end-to-end wor
 | [Departments vs wards](#departments-vs-inpatient-wards) | Why “top 5 departments” ≠ “3 wards” |
 | [Auth & roles](#auth--roles) | Login, roles, `ProtectedRoute` |
 | [Login / switch account](#login-flow) | Demo users |
-| [Stores](#stores-redux) | Redux slices |
+| [Stores](#stores-redux-rtk) | Redux Toolkit slices (including OPD queue) |
 | [Week 2 — Dashboards](#week-2--dashboard-ui-foundation) | Widgets per role |
 | [Week 3 — Patients (API)](#week-3--patient-management-part-1) | JSON Server, registration |
 | [Week 4 — Profile + queue](#week-4--patient-management-part-2--queue-start) | Edit, OPD start |
@@ -20,7 +20,7 @@ This file is the **single place** for architecture, routes, and **end-to-end wor
 | [Patient CRUD flow (consolidated)](#patient-crud-flow-consolidated) | List → register → view → edit |
 | [Receptionist quick actions](#receptionist-quick-actions-routes) | Links from dashboard |
 | [Placeholder routes](#placeholder-routes-not-yet-implemented) | Sidebar items without full UI |
-| [Data sources summary](#data-sources-summary) | Live Redux vs JSON Server vs mocks |
+| [Data sources summary](#data-sources-summary) | Redux vs JSON Server vs mocks |
 
 ---
 
@@ -67,11 +67,11 @@ Happens when the dev server’s **pre-bundle cache** (`node_modules/.vite`) is o
 | `/nurse/beds` | NurseBeds | nurse |
 | `/access-denied` | AccessDenied | any authenticated |
 | `/admin/appointments` | AppointmentsPage (`admin`) | admin |
-| `/admin/prescriptions` | PlaceholderPage | admin |
-| `/admin/doctors` | PlaceholderPage | admin |
-| `/admin/reports` | PlaceholderPage | admin |
+| `/admin/prescriptions` | PrescriptionsPage (`admin`) | admin |
+| `/admin/doctors` | DoctorDirectoryPage | admin |
+| `/admin/reports` | ReportsPage | admin |
 | `/doctor/patients` | PlaceholderPage | doctor |
-| `/doctor/prescriptions` | PlaceholderPage | doctor |
+| `/doctor/prescriptions` | PrescriptionsPage (`doctor`) | doctor |
 | `/doctor/schedule` | AppointmentsPage (`doctor`) | doctor |
 | `/receptionist/appointments` | AppointmentsPage (`receptionist`) | receptionist |
 | `/nurse/vitals` | PlaceholderPage | nurse |
@@ -106,15 +106,33 @@ Config: `config/roles.ts`.
 - **MainLayout:** Navbar + Sidebar + `<Outlet />`.
 - **Sidebar:** Links from `SIDEBAR_LINKS[user.role]`; toggle from `ui.sidebarOpen`.
 
-## Stores (Redux)
-| Store | Purpose | Used in |
+## Stores: Redux (RTK)
+
+### Redux (`app/store.ts`)
+| Slice | Purpose | Used in |
 |-------|--------|--------|
 | auth | user, isAuthenticated; synced with localStorage | ProtectedRoute, Login, Navbar, Sidebar, useAuth |
-| queue | OPD tokens (`waiting` / `in-progress` / `done` / `skipped`), optional `department`, `currentToken`, `servedToday`, `simulationRunning`; actions: `issueToken`, `callNext`, `completeCurrent`, `skipCurrent`, `updateTokenStatus`, `markTokenInProgress`, `resetQueue`, `setSimulationStatus` | OPDQueuePage (`QueueAnalytics`, `useQueueAutoAdvance`), QueueBoard, QueueControls, ReceptionistDashboard |
+| queue | OPD tokens: `queue[]`, `currentToken`, `simulationRunning`, `servedToday`, `nextTokenId`; actions: `issueToken`, `callNext`, `completeCurrent`, `skipCurrent`, `resetQueue`, `setSimulationRunning`, `updateTokenStatus`, `markTokenInProgress`; **`formatOpdTokenLabel`** for display | `OPDQueuePage`, `QueueBoard`, `QueueControls`, `QueueAnalytics`, `QueuePublicBoard`, `useQueueAutoAdvance`; **AdminDashboard**, **ReceptionistDashboard**, **ReportsPage** |
 | beds | `Bed` (`status`, optional `patientId` / `occupantName`), `wardSummary`; actions: `setBeds`, `updateBedStatus`, `assignPatientToBed`, `dischargePatientFromBed` | AdminBedsPage, NurseBeds, NurseDashboard, BedGrid |
-| appointments | `doctors` (seeded schedules), `appointments[]`; actions: `bookAppointment`, `rescheduleAppointment`, `cancelAppointment`, `updateAppointmentStatus`; persisted to `localStorage` | AppointmentsPage (admin / receptionist / doctor schedule) |
+| appointments | `doctors` (seeded schedules), `appointments[]`; actions: `bookAppointment`, `rescheduleAppointment`, `cancelAppointment`, `updateAppointmentStatus`; persisted to `localStorage` | AppointmentsPage (admin / receptionist / doctor schedule); **doctor pick for OPD** via `DEFAULT_SCHEDULE_DOCTORS` |
 | alerts | last 20 alerts | AdminDashboard, NotificationBell |
 | ui | sidebarOpen, theme, activeFilters | Sidebar |
+| prescriptions | Rx list; persisted to `localStorage` | PrescriptionsPage |
+
+### OPD queue (`queueSlice.ts`)
+
+| Field / action | Description |
+|----------------|-------------|
+| `queue[]` | `{ tokenId, patientName, department, doctorId, doctorName, issuedAt, status }` — `status`: `waiting` \| `in-progress` \| `done` \| `skipped` |
+| `currentToken` | `number \| null` — active **`tokenId`** (display: `formatOpdTokenLabel` → e.g. `#001`) |
+| `simulationRunning` | When true, **`useQueueAutoAdvance`** runs `setInterval` → `dispatch(callNext)` |
+| `servedToday` | Increments when tokens become `done` (call next, complete, or status update) |
+| `issueToken` | Auto-increments `tokenId`, sets `issuedAt`, assigns **doctor** from department via `opdQueueDoctors.ts` → `DEFAULT_SCHEDULE_DOCTORS` |
+| `callNext` / `completeCurrent` / `skipCurrent` / `resetQueue` | Desk flows (same semantics as before; IDs are numeric) |
+| `updateTokenStatus` / `markTokenInProgress` | Row controls on `QueueBoard` |
+| `setSimulationRunning` | **Start simulation** / **Stop simulation** |
+
+**UI:** `OPDQueuePage` — `QueuePublicBoard`, `QueueAnalytics`, `QueueControls`, `QueueBoard`; `useQueueAutoAdvance(intervalMs)` on the page. **Consumers outside the queue module:** `AdminDashboard`, `ReceptionistDashboard`, `ReportsPage` (`useSelector` + `formatOpdTokenLabel` from `queueSlice`).
 
 ## Hook
 - **useAuth()** → `{ user, isAuthenticated, role, logout }` from auth store.
@@ -135,7 +153,7 @@ Config: `config/roles.ts`.
 - **Bed occupancy donut + “Bed occupancy” stat card** — **live** from Redux `beds.beds` (counts by status; % occupied = occupied / total beds). Same data as **Bed management** / nurse grid.
 - **Revenue (bar)** — mock `MOCK_REVENUE_DATA` in `dashboardMockData.ts`.
 - **Top 5 departments (horizontal bar)** — mock `MOCK_TOP_DEPARTMENTS` (**clinical departments**, not ward bed counts — see [Departments vs inpatient wards](#departments-vs-inpatient-wards)).
-- Other admin stat cards: mix of mock (`MOCK_PATIENTS_TODAY`, revenue headline) and **live** queue (`currentToken`, waiting/done counts) and **live** alerts (last 5).
+- Other admin stat cards: mix of mock (`MOCK_PATIENTS_TODAY`, revenue headline) and **live** OPD queue from **Zustand** (`currentToken` as `#nnn`, waiting/done counts) and **live** alerts (last 5).
 
 ### Role dashboards (widgets)
 
@@ -147,7 +165,8 @@ Config: `config/roles.ts`.
 | **Nurse** | Ward bed summary + occupancy; Pending vitals list; Ward bed grid (BedGrid); Recent bed status changes feed. |
 
 ### Data
-- **Live (Redux):** queue (tokens, `currentToken`, `servedToday`), beds (`beds`, `wardSummary`), alerts.
+- **Live (Zustand):** OPD queue (`queue`, `currentToken`, `servedToday`, `simulationRunning`).
+- **Live (Redux):** beds (`beds`, `wardSummary`), alerts, prescriptions, appointments.
 - **Live (JSON Server):** patient list / register / profile / edit — when `npm run server` is running (`patientsApi.ts`).
 - **Static mocks:** `dashboardMockData.ts` — registrations count, pending appointments, revenue series, top departments, doctor availability, doctor appointments, vitals list, recent bed *feed* (narrative), etc.
 
@@ -184,10 +203,12 @@ Config: `config/roles.ts`.
 - **Edit:** `PatientEditPage` at `/admin/patients/:patientId/edit` — reuses `PatientRegistrationForm` with `initialRecord` + `updatePatient` (PATCH).
 - **Mapper:** `patientRecordToFormValues()` in `patientSchemas.ts` for edit defaults.
 
-### OPD queue (RTK)
-- **Slice:** `src/features/queue/queueSlice.ts` — sequential token IDs `T001`, `T002`, … via `nextTokenNumber()`; `issueToken`, `callNext`, `completeCurrent`, `skipCurrent`, `resetQueue`.
-- **UI:** `QueueControls` (issue + desk actions), `QueueBoard` (sorted list + status badges), composed in `OPDQueuePage`.
-- **Routes:** `/receptionist/queue` and `/admin/opd-queue` share `OPDQueuePage` (same Redux queue state).
+### OPD queue (Redux — Module 2)
+- **Slice:** `src/features/queue/queueSlice.ts` — numeric **`tokenId`** (display `#001`, …); **`currentToken`** = active `tokenId` or `null`.
+- **Types:** `opdQueueTypes.ts` — token shape + status union.
+- **Doctor assignment:** `opdQueueDoctors.ts` — `pickDoctorForDepartment()` uses **`DEFAULT_SCHEDULE_DOCTORS`** from `appointmentsSlice` (first match on `department`, else General OPD / first seed).
+- **UI:** `QueuePublicBoard` (public-style: now serving, next 5 waiting, department breakdown), `QueueAnalytics` (counts + **simulated** avg / longest wait + `servedToday`), `QueueControls` (issue name + department, **Call next**, **Complete**, **Skip & re-queue**, **Reset**, **Start / Stop simulation**, interval selector), `QueueBoard` (full list + status badges + row dropdown). **`useQueueAutoAdvance`** — `setInterval` → `dispatch(callNext)` while `simulationRunning` (default **30s**).
+- **Routes:** `/receptionist/queue` and `/admin/opd-queue` share **`OPDQueuePage`** (same Redux `queue` slice).
 
 ---
 
@@ -195,8 +216,8 @@ Config: `config/roles.ts`.
 
 ### OPD queue — desk flow (manual)
 
-1. **Issue token** — Receptionist/Admin enters name + department → `issueToken` → new `Tnnn` in `waiting`.
-2. **Call next** — `callNext`: any `in-progress` → `done` (+`servedToday`); first `waiting` → `in-progress`; `currentToken` updated.
+1. **Issue token** — Receptionist/Admin enters name + department → `issueToken` → new row in `waiting` with next **`tokenId`**, **`issuedAt`**, and assigned **`doctorId` / `doctorName`**.
+2. **Call next** — `callNext`: any `in-progress` → `done` (+`servedToday`); first `waiting` → `in-progress`; **`currentToken`** set to that token’s **`tokenId`**.
 3. **Complete current** — `completeCurrent`: active token → `done`, clear `currentToken`.
 4. **Skip & re-queue** — `skipCurrent`: active token → `waiting`, moved to **end** of the token list; the **first** `waiting` in line is promoted unless they are the **only** waiting token (then the desk stays empty until **Call next**).
 5. **Row status** — `QueueBoard` select: non–in-progress changes use `updateTokenStatus` (keeps `servedToday` / `currentToken` consistent); choosing **In progress** uses `markTokenInProgress` (previous in-progress → `waiting`).
@@ -204,13 +225,13 @@ Config: `config/roles.ts`.
 
 ### OPD queue — auto-advance (simulation)
 
-1. User sets interval (default **30s**, or 15s / 8s / 4s) and clicks **Start simulation** → `setSimulationStatus(true)`.
-2. `useQueueAutoAdvance` in `OPDQueuePage` runs `setInterval` → repeated `callNext` while `simulationRunning`.
+1. User sets interval (default **30s**, or 15s / 8s / 4s) and clicks **Start simulation** → `setSimulationRunning(true)`.
+2. `useQueueAutoAdvance` in `OPDQueuePage` runs `setInterval` → repeated `dispatch(callNext)` while **`simulationRunning`**.
 3. **Stop simulation** or **Reset queue** ends the interval behavior.
 
 ### OPD queue — analytics
 
-- **`QueueAnalytics`** derives counts (waiting, in-progress, done, skipped), session token total, completion rate, and shows `servedToday` + `currentToken`.
+- **`QueueAnalytics`** — counts (waiting, in-progress, done, skipped), session token total, completion rate, **`servedToday`**, formatted **`currentToken`**, plus **simulated** average wait and longest wait (derived from `issuedAt` + small random jitter for demo).
 
 ### Bed & ward flow
 
@@ -267,8 +288,8 @@ flowchart LR
 
 | Area | Files |
 |------|--------|
-| Queue slice + hooks | `src/features/queue/queueSlice.ts`, `useQueueAutoAdvance.ts` |
-| Queue UI | `QueueControls.tsx`, `QueueBoard.tsx`, `QueueAnalytics.tsx` |
+| OPD queue (Redux) | `queueSlice.ts`, `opdQueueTypes.ts`, `opdQueueDoctors.ts`, `useQueueAutoAdvance.ts` |
+| Queue UI | `QueuePublicBoard.tsx`, `QueueControls.tsx`, `QueueBoard.tsx`, `QueueAnalytics.tsx` |
 | Queue page | `src/pages/OPDQueuePage.tsx`, `ReceptionistQueue.tsx` |
 | Beds slice | `src/features/beds/bedSlice.ts` |
 | Beds UI | `src/features/beds/BedGrid.tsx` |
@@ -382,9 +403,9 @@ From **Receptionist dashboard**, quick links target:
 ## Week 8 — Doctor directory (NPI) + reports
 
 ### NPPES NPI Registry (live API)
-- **`src/lib/npiRegistryApi.ts`** — `searchNpiRegistry` → CMS `GET /api/?version=2.1` with `first_name`, `last_name`, `taxonomy_description`, `city`, `state`, `limit`, `skip`, `enumeration_type` (defaults to **NPI-1** individuals).
+- **`src/lib/npiRegistryApi.ts`** — `searchNpiRegistry` → CMS `GET /api/?version=2.1` with NPI-style filters (`number`, `enumeration_type`, `taxonomy_description`, names, `organization_name`, AO vs provider `name_purpose`, `city`, `state`, `country_code`, `postal_code`, `address_purpose`, `use_first_name_alias`, `limit`, `skip`).
 - **Dev proxy** — `vite.config.ts` maps `/npiregistry` → `https://npiregistry.cms.hhs.gov` to avoid CORS during `npm run dev`. Production build calls the CMS URL directly.
-- **UI** — `DoctorDirectoryPage`: search form + specialty dropdown (`npiTaxonomies.ts`) + US states (`usStates.ts`), result cards (name, NPI, taxonomy, address, phone), **Full profile** modal (taxonomies, addresses, endpoints, other names), **Add to HMS** import.
+- **UI** — `DoctorDirectoryPage`: registry-aligned search (departments / taxonomy datalist, country + region lists via `country-state-city`), results, **Full profile** modal (portal to `document.body`), **Add to HMS** → JSON Server `internalDoctors`.
 
 ### Internal doctors (`internalDoctors` in JSON Server)
 - **`server/db.json`** — `internalDoctors` array; **`src/api/internalDoctorsApi.ts`** — CRUD.
@@ -393,13 +414,13 @@ From **Receptionist dashboard**, quick links target:
 - Imported rows map to **`ScheduleDoctor`** and appear in **appointments** doctor dropdowns.
 
 ### Reports
-- **`ReportsPage`** (`/admin/reports`) — stat cards (patients from JSON Server, NPI import count, beds, queue, appointments, prescriptions) + Recharts bar snapshot.
+- **`ReportsPage`** (`/admin/reports`) — stat cards (patients from JSON Server, NPI import count, beds, **OPD queue from Redux `queue` slice**, appointments, prescriptions); Recharts (OPD / beds / volume / appointments / ward stack); **standard report format** block; **Export CSV** (`lib/csvExport.ts`); **Print** with `html.report-print-route` + `@media print` in `index.css`.
 
 ---
 
 ## Placeholder routes (not yet implemented)
 
-Sidebar items such as **Vitals** (and doctor **My Patients**) still use **`PlaceholderPage`**. **Doctor directory**, **Reports**, **Appointments** (admin), **My schedule**, and **Prescriptions** are implemented.
+Sidebar items such as **Vitals** (and doctor **My Patients**) still use **`PlaceholderPage`**. **Doctor directory**, **Reports**, **Appointments** (admin/receptionist), **Doctor schedule**, and **Prescriptions** are implemented.
 
 ---
 
@@ -409,7 +430,7 @@ Sidebar items such as **Vitals** (and doctor **My Patients**) still use **`Place
 |------|----------------|---------------------------|
 | Auth user | Redux + `localStorage` | Yes (session) |
 | Theme | Redux + `localStorage` | Yes |
-| OPD queue | Redux only | No |
+| OPD queue | Redux `queue` slice (in-memory) | No |
 | Beds & ward summary | Redux only | No |
 | Alerts | Redux only | No |
 | Patients | JSON Server (`server/db.json`) | Yes (file on disk) |

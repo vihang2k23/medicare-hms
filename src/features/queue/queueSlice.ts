@@ -1,154 +1,164 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import { OPD_DEPARTMENTS } from '../../config/departments'
+import { pickDoctorForDepartment } from './opdQueueDoctors'
+import type { OpdQueueToken, OpdTokenStatus } from './opdQueueTypes'
 
-export type QueueTokenStatus = 'waiting' | 'in-progress' | 'done' | 'skipped'
-
-export interface QueueToken {
-  tokenNumber: string
-  patientName: string
-  status: QueueTokenStatus
-  department?: string
-}
+export type { OpdQueueToken, OpdTokenStatus } from './opdQueueTypes'
 
 export interface QueueState {
-  tokens: QueueToken[]
-  currentToken: string | null
+  queue: OpdQueueToken[]
+  currentToken: number | null
   simulationRunning: boolean
   servedToday: number
-}
-
-function nextTokenNumber(tokens: QueueToken[]): string {
-  let max = 0
-  for (const t of tokens) {
-    const m = /^T(\d+)$/i.exec(t.tokenNumber.trim())
-    if (m) max = Math.max(max, parseInt(m[1], 10))
-  }
-  return `T${String(max + 1).padStart(3, '0')}`
+  nextTokenId: number
 }
 
 const initialState: QueueState = {
-  tokens: [],
+  queue: [],
   currentToken: null,
   simulationRunning: false,
   servedToday: 0,
+  nextTokenId: 1,
 }
 
 const queueSlice = createSlice({
   name: 'queue',
   initialState,
   reducers: {
-    setTokens(state, action: PayloadAction<QueueToken[]>) {
-      state.tokens = action.payload
-    },
-    setCurrentToken(state, action: PayloadAction<string | null>) {
-      state.currentToken = action.payload
-    },
-    setSimulationStatus(state, action: PayloadAction<boolean>) {
-      state.simulationRunning = action.payload
-    },
     issueToken(state, action: PayloadAction<{ patientName: string; department?: string }>) {
       const name = action.payload.patientName.trim()
       if (!name) return
-      const tokenNumber = nextTokenNumber(state.tokens)
-      state.tokens.push({
-        tokenNumber,
+      const deptRaw = action.payload.department?.trim()
+      const dept =
+        deptRaw && OPD_DEPARTMENTS.includes(deptRaw as (typeof OPD_DEPARTMENTS)[number])
+          ? deptRaw
+          : OPD_DEPARTMENTS[0]
+      const { doctorId, doctorName } = pickDoctorForDepartment(dept)
+      const tokenId = state.nextTokenId
+      state.queue.push({
+        tokenId,
         patientName: name,
+        department: dept,
+        doctorId,
+        doctorName,
+        issuedAt: Date.now(),
         status: 'waiting',
-        department: action.payload.department?.trim() || undefined,
       })
+      state.nextTokenId = tokenId + 1
     },
     callNext(state) {
-      const inProg = state.tokens.find((t) => t.status === 'in-progress')
-      if (inProg) {
-        inProg.status = 'done'
-        state.servedToday += 1
+      const tokens = [...state.queue]
+      const inProgIdx = tokens.findIndex((t) => t.status === 'in-progress')
+      if (inProgIdx !== -1) {
+        tokens[inProgIdx] = { ...tokens[inProgIdx], status: 'done' }
       }
-      const waiting = state.tokens.find((t) => t.status === 'waiting')
-      if (waiting) {
-        waiting.status = 'in-progress'
-        state.currentToken = waiting.tokenNumber
-      } else {
-        state.currentToken = null
+      const waitIdx = tokens.findIndex((t) => t.status === 'waiting')
+      let currentToken: number | null = null
+      if (waitIdx !== -1) {
+        tokens[waitIdx] = { ...tokens[waitIdx], status: 'in-progress' }
+        currentToken = tokens[waitIdx].tokenId
       }
+      const servedDelta = inProgIdx !== -1 ? 1 : 0
+      state.queue = tokens
+      state.currentToken = currentToken
+      state.servedToday += servedDelta
     },
     completeCurrent(state) {
-      if (!state.currentToken) return
-      const t = state.tokens.find((x) => x.tokenNumber === state.currentToken)
-      if (t && t.status === 'in-progress') {
-        t.status = 'done'
-        state.servedToday += 1
-      }
+      if (state.currentToken == null) return
+      let inc = 0
+      state.queue = state.queue.map((t) => {
+        if (t.tokenId !== state.currentToken) return t
+        if (t.status !== 'in-progress') return t
+        inc = 1
+        return { ...t, status: 'done' as const }
+      })
       state.currentToken = null
+      state.servedToday += inc
     },
-    /** Send current patient to the back of the line as waiting, then call the next waiting token (if any other waiting exists). */
     skipCurrent(state) {
-      if (!state.currentToken) return
-      const idx = state.tokens.findIndex((x) => x.tokenNumber === state.currentToken)
+      if (state.currentToken == null) return
+      const idx = state.queue.findIndex((x) => x.tokenId === state.currentToken)
       if (idx === -1) return
-      const t = state.tokens[idx]
-      if (t.status !== 'in-progress') return
-      const skippedId = t.tokenNumber
-      t.status = 'waiting'
-      state.tokens.splice(idx, 1)
-      state.tokens.push(t)
-      state.currentToken = null
-      const waitingTokens = state.tokens.filter((w) => w.status === 'waiting')
-      const firstWait = state.tokens.find((w) => w.status === 'waiting')
-      if (!firstWait) return
-      if (waitingTokens.length === 1 && firstWait.tokenNumber === skippedId) return
-      firstWait.status = 'in-progress'
-      state.currentToken = firstWait.tokenNumber
-    },
-    updateTokenStatus(
-      state,
-      action: PayloadAction<{ tokenNumber: string; status: QueueTokenStatus }>,
-    ) {
-      const t = state.tokens.find((x) => x.tokenNumber === action.payload.tokenNumber)
-      if (!t) return
-      const prev = t.status
-      const next = action.payload.status
-      if (prev === next) return
-      t.status = next
-      if (prev === 'in-progress' && next === 'done') state.servedToday += 1
-      if (state.currentToken === action.payload.tokenNumber && next !== 'in-progress') {
+      const cur = state.queue[idx]
+      if (cur.status !== 'in-progress') return
+      const skippedId = cur.tokenId
+      const without = state.queue.filter((_, i) => i !== idx)
+      const requeued: OpdQueueToken = { ...cur, status: 'waiting' }
+      const tokens = [...without, requeued]
+      const waitings = tokens.filter((t) => t.status === 'waiting')
+      if (waitings.length === 0) {
+        state.queue = tokens
         state.currentToken = null
+        return
       }
-    },
-    markTokenInProgress(state, action: PayloadAction<string>) {
-      const tokenNumber = action.payload
-      const active = state.tokens.find((x) => x.status === 'in-progress')
-      if (active && active.tokenNumber !== tokenNumber) {
-        active.status = 'waiting'
+      if (waitings.length === 1 && waitings[0].tokenId === skippedId) {
+        state.queue = tokens
+        state.currentToken = null
+        return
       }
-      const t = state.tokens.find((x) => x.tokenNumber === tokenNumber)
-      if (!t) return
-      if (t.status === 'done') return
-      t.status = 'in-progress'
-      state.currentToken = tokenNumber
-    },
-    addToken(state, action: PayloadAction<QueueToken>) {
-      state.tokens.push(action.payload)
+      const firstWaitIdx = tokens.findIndex((t) => t.status === 'waiting')
+      const nextTok = tokens[firstWaitIdx]
+      state.queue = tokens.map((t, i) =>
+        i === firstWaitIdx ? { ...t, status: 'in-progress' as const } : t,
+      )
+      state.currentToken = nextTok.tokenId
     },
     resetQueue(state) {
-      state.tokens = []
+      state.queue = []
       state.currentToken = null
       state.servedToday = 0
+      state.simulationRunning = false
+      state.nextTokenId = 1
+    },
+    setSimulationRunning(state, action: PayloadAction<boolean>) {
+      state.simulationRunning = action.payload
+    },
+    updateTokenStatus(state, action: PayloadAction<{ tokenId: number; status: OpdTokenStatus }>) {
+      const { tokenId, status } = action.payload
+      let servedDelta = 0
+      state.queue = state.queue.map((t) => {
+        if (t.tokenId !== tokenId) return t
+        const prev = t.status
+        if (prev === status) return t
+        if (prev === 'in-progress' && status === 'done') servedDelta += 1
+        return { ...t, status }
+      })
+      if (state.currentToken === tokenId && status !== 'in-progress') {
+        state.currentToken = null
+      }
+      state.servedToday += servedDelta
+    },
+    markTokenInProgress(state, action: PayloadAction<number>) {
+      const tokenId = action.payload
+      state.queue = state.queue.map((t) => {
+        if (t.status === 'in-progress' && t.tokenId !== tokenId) {
+          return { ...t, status: 'waiting' as const }
+        }
+        if (t.tokenId === tokenId) {
+          if (t.status === 'done') return t
+          return { ...t, status: 'in-progress' as const }
+        }
+        return t
+      })
+      state.currentToken = tokenId
     },
   },
 })
 
 export const {
-  setTokens,
-  setCurrentToken,
-  setSimulationStatus,
   issueToken,
   callNext,
   completeCurrent,
   skipCurrent,
+  resetQueue,
+  setSimulationRunning,
   updateTokenStatus,
   markTokenInProgress,
-  addToken,
-  resetQueue,
 } = queueSlice.actions
 
-export { nextTokenNumber }
 export default queueSlice.reducer
+
+/** Display label for numeric token id (e.g. `#001`). */
+export function formatOpdTokenLabel(tokenId: number) {
+  return `#${String(tokenId).padStart(3, '0')}`
+}

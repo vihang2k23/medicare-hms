@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import QueueBoard from '../features/queue/QueueBoard'
+import QueuePublicBoard from '../features/queue/QueuePublicBoard'
 import QueueAnalytics from '../features/queue/QueueAnalytics'
 import QueueControls from '../features/queue/QueueControls'
 import { useQueueAutoAdvance } from '../features/queue/useQueueAutoAdvance'
@@ -23,6 +24,8 @@ export default function OPDQueuePage({
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{title}</h1>
         <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-2xl leading-relaxed">{description}</p>
       </div>
+
+      <QueuePublicBoard />
 
       <QueueAnalytics />
 

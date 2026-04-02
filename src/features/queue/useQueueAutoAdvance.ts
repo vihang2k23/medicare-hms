@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import type { AppDispatch, RootState } from '../../app/store'
 import { callNext } from './queueSlice'
 
-/** Dispatches Call next on an interval while simulation is enabled (demo / load testing). */
+/** Dispatches call next on an interval while simulation is enabled. */
 export function useQueueAutoAdvance(intervalMs: number) {
   const dispatch = useDispatch<AppDispatch>()
   const running = useSelector((s: RootState) => s.queue.simulationRunning)
