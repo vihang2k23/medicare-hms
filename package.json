@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "server": "node server/jsonServer.mjs",
-    "server:plain": "json-server --watch server/db.json --port 3001"
+    "server:plain": "json-server --watch server/db.json --port 3001",
+    "seed": "node server/seedData.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

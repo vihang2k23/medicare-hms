@@ -1,19 +1,66 @@
+import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import DashboardCard from '../components/ui/DashboardCard'
 import { wardDisplayName } from '../config/wards'
 import { BedGrid } from '../features/beds'
-import { MOCK_PENDING_VITALS, MOCK_RECENT_BED_CHANGES } from '../data/dashboardMockData'
+import { MOCK_RECENT_BED_CHANGES } from '../data/dashboardMockData'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../app/store'
+import { fetchPatients } from '../api/patientsApi'
+import { fetchAllVitals } from '../api/vitalsApi'
+import type { PatientRecord } from '../types/patient'
+import type { VitalRecord } from '../types/vitals'
+
+const VITALS_STALE_MS = 24 * 60 * 60 * 1000
 
 export default function NurseDashboard() {
   const { user } = useAuth()
+  const [pendingVitals, setPendingVitals] = useState<{ patient: PatientRecord; reason: string }[]>([])
   const { wardSummary } = useSelector((state: RootState) => state.beds)
   const totalBeds = Object.values(wardSummary).reduce(
     (acc, w) => acc + w.available + w.occupied + w.reserved + w.maintenance,
     0
   )
   const occupiedBeds = Object.values(wardSummary).reduce((acc, w) => acc + w.occupied, 0)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const [patients, vitals] = await Promise.all([fetchPatients(), fetchAllVitals()])
+        if (cancelled) return
+        const byPatient: Record<string, VitalRecord[]> = {}
+        for (const v of vitals) {
+          if (!byPatient[v.patientId]) byPatient[v.patientId] = []
+          byPatient[v.patientId]!.push(v)
+        }
+        for (const k of Object.keys(byPatient)) {
+          byPatient[k]!.sort((a, b) => b.recordedAt - a.recordedAt)
+        }
+        const now = Date.now()
+        const list: { patient: PatientRecord; reason: string }[] = []
+        for (const p of patients) {
+          const last = byPatient[p.id]?.[0]
+          if (!last) list.push({ patient: p, reason: 'No vitals on file' })
+          else if (now - last.recordedAt > VITALS_STALE_MS) {
+            list.push({ patient: p, reason: 'No reading in 24h' })
+          }
+        }
+        setPendingVitals(list.slice(0, 8))
+      } catch {
+        if (!cancelled) setPendingVitals([])
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const pendingSummary = useMemo(() => {
+    if (pendingVitals.length === 0) return 'All active patients have a vital within 24h (or none registered).'
+    return `${pendingVitals.length} patient(s) may need vitals.`
+  }, [pendingVitals.length])
 
   return (
     <div className="space-y-8">
@@ -54,17 +101,27 @@ export default function NurseDashboard() {
           </div>
         </DashboardCard>
         <DashboardCard title="Pending vitals records">
-          {MOCK_PENDING_VITALS.length === 0 ? (
-            <p className="text-slate-500 dark:text-slate-400 text-sm">None pending.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">{pendingSummary}</p>
+          {pendingVitals.length === 0 ? (
+            <p className="text-slate-500 dark:text-slate-400 text-sm">None flagged.</p>
           ) : (
             <ul className="space-y-2">
-              {MOCK_PENDING_VITALS.map((v) => (
+              {pendingVitals.map(({ patient, reason }) => (
                 <li
-                  key={v.id}
-                  className="flex items-center justify-between py-2 px-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800"
+                  key={patient.id}
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-2 px-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800"
                 >
-                  <span className="font-medium text-slate-800 dark:text-slate-100">{v.patientName}</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">{v.room}</span>
+                  <div>
+                    <span className="font-medium text-slate-800 dark:text-slate-100">{patient.fullName}</span>
+                    <span className="block text-[11px] font-mono text-sky-600 dark:text-sky-400">{patient.id}</span>
+                    <span className="text-xs text-amber-800 dark:text-amber-200">{reason}</span>
+                  </div>
+                  <Link
+                    to="/nurse/vitals"
+                    className="text-xs font-semibold text-orange-700 dark:text-orange-300 hover:underline shrink-0"
+                  >
+                    Record vitals →
+                  </Link>
                 </li>
               ))}
             </ul>

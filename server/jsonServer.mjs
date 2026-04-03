@@ -2,6 +2,7 @@
  * JSON Server + GET /api/npi → CMS NPPES (maps `country` → `country_code`, adds `name_purpose` for names).
  * Run: npm run server
  */
+import { readFileSync, writeFileSync } from 'node:fs'
 import dns from 'node:dns'
 import https from 'node:https'
 import path from 'node:path'
@@ -13,6 +14,29 @@ dns.setDefaultResultOrder('ipv4first')
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const dbPath = path.join(__dirname, 'db.json')
 const NPPES_BASE = 'https://npiregistry.cms.hhs.gov/api'
+
+/** json-server returns 404 for routes whose root key is missing — ensure collections exist. */
+function ensureDbCollections() {
+  let db
+  try {
+    db = JSON.parse(readFileSync(dbPath, 'utf8'))
+  } catch (e) {
+    console.error('[json-server] Could not read db.json:', dbPath, e)
+    throw e
+  }
+  const requiredArrays = ['patients', 'internalDoctors', 'vitals']
+  let changed = false
+  for (const key of requiredArrays) {
+    if (!Array.isArray(db[key])) {
+      db[key] = []
+      changed = true
+    }
+  }
+  if (changed) {
+    writeFileSync(dbPath, JSON.stringify(db))
+    console.warn('[json-server] Updated db.json: added missing array key(s) among', requiredArrays.join(', '))
+  }
+}
 
 /** Fresh TCP+TLS per request avoids occasional reset/hang-up on reused CMS connections. */
 const nppesAgent = new https.Agent({ keepAlive: false })
@@ -285,6 +309,7 @@ server.get(['/api/npi', '/api/npi/'], async (req, res) => {
   }
 })
 
+ensureDbCollections()
 const router = jsonServer.router(dbPath)
 server.use(router)
 

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './ProtectedRoute'
 import MainLayout from '../layout/MainLayout'
@@ -9,6 +10,7 @@ import ReceptionistDashboard from '../pages/ReceptionistDashboard'
 import ReceptionistQueue from '../pages/ReceptionistQueue'
 import NurseDashboard from '../pages/NurseDashboard'
 import NurseBeds from '../pages/NurseBeds'
+const VitalsEntryPage = lazy(() => import('../pages/VitalsEntryPage'))
 import AccessDenied from '../pages/AccessDenied'
 import PlaceholderPage from '../components/PlaceholderPage'
 import PatientListPage from '../pages/PatientListPage'
@@ -54,7 +56,14 @@ export default function AppRoutes() {
           {/* Nurse */}
           <Route path="nurse" element={<NurseDashboard />} />
           <Route path="nurse/beds" element={<NurseBeds />} />
-          <Route path="nurse/vitals" element={<PlaceholderPage title="Vitals Entry" />} />
+          <Route
+            path="nurse/vitals"
+            element={
+              <Suspense fallback={<div className="p-6 text-slate-500 dark:text-slate-400">Loading vitals…</div>}>
+                <VitalsEntryPage />
+              </Suspense>
+            }
+          />
           {/* Shared */}
           <Route path="access-denied" element={<AccessDenied />} />
         </Route>

@@ -1,16 +1,48 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { FileText } from 'lucide-react'
+import { format } from 'date-fns'
 import type { PatientRecord } from '../types/patient'
+import type { VitalRecord } from '../types/vitals'
 import { fetchPatientById } from '../api/patientsApi'
+import { fetchVitalsByPatientId } from '../api/vitalsApi'
+import VitalsHistoryList from '../components/vitals/VitalsHistoryList'
+import VitalsTrendCharts from '../components/vitals/VitalsTrendCharts'
+import { downloadCsv } from '../lib/csvExport'
 
-type Tab = 'overview' | 'medical' | 'emergency'
+type Tab = 'overview' | 'medical' | 'emergency' | 'vitals'
+
+function isTab(v: string | null): v is Tab {
+  return v === 'overview' || v === 'medical' || v === 'emergency' || v === 'vitals'
+}
+
+function vitalsToCsvRows(rows: VitalRecord[]): string[][] {
+  const header = ['Recorded at (ISO)', 'Systolic', 'Diastolic', 'Pulse', 'Temp °C', 'SpO₂ %', 'Recorded by', 'Notes']
+  const sorted = [...rows].sort((a, b) => b.recordedAt - a.recordedAt)
+  const body = sorted.map((v) => [
+    new Date(v.recordedAt).toISOString(),
+    v.systolic != null ? String(v.systolic) : '',
+    v.diastolic != null ? String(v.diastolic) : '',
+    v.pulse != null ? String(v.pulse) : '',
+    v.tempC != null ? String(v.tempC) : '',
+    v.spo2 != null ? String(v.spo2) : '',
+    v.recordedBy ?? '',
+    v.notes ?? '',
+  ])
+  return [header, ...body]
+}
 
 export default function PatientProfilePage() {
   const { patientId } = useParams<{ patientId: string }>()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [patient, setPatient] = useState<PatientRecord | null | undefined>(undefined)
-  const [tab, setTab] = useState<Tab>('overview')
+  const [tab, setTab] = useState<Tab>(() => {
+    if (typeof window === 'undefined') return 'overview'
+    const t = new URLSearchParams(window.location.search).get('tab')
+    return isTab(t) ? t : 'overview'
+  })
   const [error, setError] = useState<string | null>(null)
+  const [vitals, setVitals] = useState<VitalRecord[] | null>(null)
 
   useEffect(() => {
     if (!patientId) {
@@ -35,6 +67,40 @@ export default function PatientProfilePage() {
       cancelled = true
     }
   }, [patientId])
+
+  useEffect(() => {
+    if (!patientId || tab !== 'vitals') return
+    let cancelled = false
+    setVitals(null)
+    void (async () => {
+      try {
+        const rows = await fetchVitalsByPatientId(patientId)
+        if (!cancelled) setVitals(rows)
+      } catch {
+        if (!cancelled) setVitals([])
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [patientId, tab])
+
+  useEffect(() => {
+    const t = searchParams.get('tab')
+    if (isTab(t)) setTab(t)
+  }, [searchParams])
+
+  const setTabInUrl = (id: Tab) => {
+    setTab(id)
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        next.set('tab', id)
+        return next
+      },
+      { replace: true },
+    )
+  }
 
   if (patient === undefined) {
     return (
@@ -97,12 +163,13 @@ export default function PatientProfilePage() {
             ['overview', 'Overview'],
             ['medical', 'Medical'],
             ['emergency', 'Emergency'],
+            ['vitals', 'Vitals'],
           ] as const
         ).map(([id, label]) => (
           <button
             key={id}
             type="button"
-            onClick={() => setTab(id)}
+            onClick={() => setTabInUrl(id)}
             className={`shrink-0 px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 -mb-px transition-colors ${
               tab === id
                 ? 'border-sky-600 text-sky-600 dark:text-sky-400 dark:border-sky-400'
@@ -190,6 +257,42 @@ export default function PatientProfilePage() {
               <dd className="text-slate-800 dark:text-slate-100 font-medium">{patient.emergencyPhone}</dd>
             </div>
           </dl>
+        )}
+
+        {tab === 'vitals' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-xl border border-slate-200/90 dark:border-slate-700/90 bg-slate-50/60 dark:bg-slate-800/30 px-4 py-3">
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Nurse-recorded vitals (BP, pulse, temperature, SpO₂). Add readings from{' '}
+                <strong className="font-semibold text-slate-700 dark:text-slate-200">Vitals entry</strong> (nurse menu).
+              </p>
+              {vitals != null && vitals.length > 0 && patientId && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    downloadCsv(
+                      `vitals-${patientId}-${format(Date.now(), 'yyyy-MM-dd-HHmm')}.csv`,
+                      vitalsToCsvRows(vitals),
+                    )
+                  }
+                  className="shrink-0 inline-flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  Export CSV
+                </button>
+              )}
+            </div>
+            {vitals === null ? (
+              <p className="text-sm text-slate-500 dark:text-slate-400">Loading vitals…</p>
+            ) : (
+              <>
+                <VitalsTrendCharts rows={vitals} />
+                <div>
+                  <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-2">History</h3>
+                  <VitalsHistoryList rows={vitals} />
+                </div>
+              </>
+            )}
+          </div>
         )}
       </div>
     </div>
