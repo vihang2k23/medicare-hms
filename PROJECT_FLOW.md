@@ -180,7 +180,7 @@ Config: `config/roles.ts`.
 
 ### JSON Server (REST API)
 - **Data file:** `server/db.json` — `{ "patients": [] }` (JSON Server watches this file).
-- **Run API:** `npm run server` → `http://localhost:3001` (default `GET/POST /patients`).
+- **Run API:** `npm run server` → `server/jsonServer.mjs` on `http://localhost:3001` — REST resources from `db.json` (e.g. `/patients`) plus **`GET /api/npi`** (proxies to CMS NPPES; maps `country` → `country_code`, sets `name_purpose=Provider` when `first_name` / `last_name` are used). Plain json-server only: `npm run server:plain`.
 - **Client:** `src/config/api.ts` — `getJsonServerBaseUrl()` (env `VITE_JSON_SERVER_URL` or `http://localhost:3001`).
 - **API helpers:** `src/api/patientsApi.ts` — `fetchPatients()`, `fetchAllPatients()`, `fetchPatientById()`, `createPatient()`, `updatePatient()` (PATCH), `softDeletePatient()` (`isActive: false`).
 - **Types:** `src/types/patient.ts` — `PatientRecord` (same fields as before; stored as JSON).
@@ -403,8 +403,7 @@ From **Receptionist dashboard**, quick links target:
 ## Week 8 — Doctor directory (NPI) + reports
 
 ### NPPES NPI Registry (live API)
-- **`src/lib/npiRegistryApi.ts`** — `searchNpiRegistry` → CMS `GET /api/?version=2.1` with NPI-style filters (`number`, `enumeration_type`, `taxonomy_description`, names, `organization_name`, AO vs provider `name_purpose`, `city`, `state`, `country_code`, `postal_code`, `address_purpose`, `use_first_name_alias`, `limit`, `skip`).
-- **Dev proxy** — `vite.config.ts` maps `/npiregistry` → `https://npiregistry.cms.hhs.gov` to avoid CORS during `npm run dev`. Production build calls the CMS URL directly.
+- **`src/lib/npiRegistryApi.ts`** — `searchNpiRegistry` builds NPPES-style query params. **Localhost** → JSON Server **`GET /api/npi`** (`http://localhost:3001/api/npi` by default, `VITE_JSON_SERVER_URL` overrides base); **`server/jsonServer.mjs`** proxies to CMS. **Other hosts** → direct `https://npiregistry.cms.hhs.gov/api` unless **`VITE_NPI_API_URL`** is set. Optional Vite proxy `/npiregistry` remains in `vite.config.ts` for manual/curl use.
 - **UI** — `DoctorDirectoryPage`: registry-aligned search (departments / taxonomy datalist, country + region lists via `country-state-city`), results, **Full profile** modal (portal to `document.body`), **Add to HMS** → JSON Server `internalDoctors`.
 
 ### Internal doctors (`internalDoctors` in JSON Server)
@@ -414,7 +413,7 @@ From **Receptionist dashboard**, quick links target:
 - Imported rows map to **`ScheduleDoctor`** and appear in **appointments** doctor dropdowns.
 
 ### Reports
-- **`ReportsPage`** (`/admin/reports`) — stat cards (patients from JSON Server, NPI import count, beds, **OPD queue from Redux `queue` slice**, appointments, prescriptions); Recharts (OPD / beds / volume / appointments / ward stack); **standard report format** block; **Export CSV** (`lib/csvExport.ts`); **Print** with `html.report-print-route` + `@media print` in `index.css`.
+- **`ReportsPage`** (`/admin/reports`) — stat cards and Recharts (trends, occupancy, department mix, outcomes, workload, revenue, recalls, OPD queue, beds, volume); **Export CSV** (`lib/csvExport.ts`); **Print** with `html.report-print-route` + `@media print` in `index.css`. Optional demo dataset: `demoReportsSeed.ts` + `store.ts` preloadedState.
 
 ---
 
@@ -435,7 +434,7 @@ Sidebar items such as **Vitals** (and doctor **My Patients**) still use **`Place
 | Alerts | Redux only | No |
 | Patients | JSON Server (`server/db.json`) | Yes (file on disk) |
 | Internal doctors (NPI imports) | JSON Server `internalDoctors` in `db.json` | Yes (file on disk) |
-| NPI Registry search | CMS `npiregistry.cms.hhs.gov` API v2.1 | Live (network) |
+| NPI Registry search | Localhost: JSON Server `/api/npi` → CMS; else CMS or `VITE_NPI_API_URL` | Live (network) |
 | Appointments | Redux + `localStorage` (`medicare_hms_appointments_v1`) | Yes |
 | Prescriptions | Redux + `localStorage` (`medicare_hms_prescriptions_v1`) | Yes |
 | Drug catalog & demo recalls | `drugCatalogData.ts` (in-repo static) | N/A |

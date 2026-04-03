@@ -2,7 +2,7 @@
 
 **Stack choices for this project:**  
 - **State:** RTK (Redux Toolkit) instead of Zustand  
-- **Persistent data:** JSON Server (REST API) instead of Dexie.js (IndexedDB)  
+- **Persistent data:** JSON Server (REST API) only — no IndexedDB / client-side DB layer  
 - Rest of stack as per doc: React 18+, React Router v6, Tailwind, Recharts, React Hook Form, Zod, date-fns, Lucide, React Hot Toast, OpenFDA, NPPES NPI API.
 
 ---
@@ -137,4 +137,4 @@ Dark mode, notification center (last 20 alerts), vitals chart in profile, drag r
 
 ---
 
-*This file is the in-mind reference for building the project part by part: RTK for state and simulation, JSON Server for all persistent data instead of Dexie.js.*
+*This file is the in-mind reference for building the project part by part: RTK for state and simulation, JSON Server for all persistent data (no client-side DB libraries).*

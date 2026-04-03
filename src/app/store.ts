@@ -15,6 +15,7 @@ import {
 import prescriptionsReducer from '../features/prescriptions/prescriptionsSlice'
 import { PRESCRIPTIONS_STORAGE_KEY, loadPersistedPrescriptions } from '../features/prescriptions/prescriptionsStorage'
 import uiReducer from '../features/ui/uiSlice'
+import doctorReducer from '../features/doctors/doctorSlice'
 import { THEME_STORAGE_KEY } from '../features/ui/themeConstants'
 import type { Theme } from '../features/ui/uiSlice'
 
@@ -114,6 +115,7 @@ export const store = configureStore({
     appointments: appointmentsReducer,
     prescriptions: prescriptionsReducer,
     ui: uiReducer,
+    doctor: doctorReducer,
   },
   preloadedState: {
     auth: {

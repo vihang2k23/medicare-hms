@@ -33,13 +33,16 @@ export default function QueueControls({
   const dispatch = useDispatch<AppDispatch>()
   const currentToken = useSelector((s: RootState) => s.queue.currentToken)
   const simulationRunning = useSelector((s: RootState) => s.queue.simulationRunning)
+  const scheduleDoctors = useSelector((s: RootState) => s.appointments.doctors)
   const [patientName, setPatientName] = useState('')
   const [department, setDepartment] = useState<string>(OPD_DEPARTMENTS[0])
 
   const issue = () => {
     const name = patientName.trim()
     if (!name) return
-    dispatch(issueToken({ patientName: name, department: department || undefined }))
+    dispatch(
+      issueToken({ patientName: name, department: department || undefined, scheduleDoctors }),
+    )
     setPatientName('')
     const q = store.getState().queue.queue
     const last = q[q.length - 1]
@@ -77,7 +80,8 @@ export default function QueueControls({
         </div>
       </div>
       <p className="text-[11px] text-slate-500 dark:text-slate-400">
-        Doctor is assigned automatically from the schedule for the selected department.
+        Doctor is assigned from the appointment schedule for this department (includes doctors imported from the NPI
+        directory when their department matches).
       </p>
       <button
         type="button"

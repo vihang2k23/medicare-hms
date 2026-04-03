@@ -2,9 +2,11 @@
  * CMS NPPES NPI Registry Read API v2.1 (public, no API key).
  * https://npiregistry.cms.hhs.gov/api-page
  *
- * In dev, Vite proxies `/npiregistry` → `npiregistry.cms.hhs.gov` to avoid CORS issues.
+ * **Local `npm run dev`:** tries, in order, Vite **`/npiregistry/api`**, then **direct CMS**, then **JSON Server
+ * `/api/npi`** when the previous call returns 502/503/504/500 or a network failure. Override order with
+ * **`VITE_NPI_API_URL`** (that URL is tried first, then CMS, then JSON Server when on localhost).
  */
-
+import { getJsonServerBaseUrl } from '../config/api'
 export interface NpiSearchParams {
   /** 10-digit NPI or partial (API accepts per CMS rules). */
   npiNumber?: string
@@ -23,8 +25,6 @@ export interface NpiSearchParams {
   countryCode?: string
   postalCode?: string
   addressPurpose?: '' | 'LOCATION' | 'MAILING' | 'PRIMARY' | 'SECONDARY'
-  /** When true, sets `use_first_name_alias=False` (stricter first-name match). */
-  exactFirstNameMatch?: boolean
   limit?: number
   skip?: number
 }
@@ -45,9 +45,17 @@ export interface NpiProviderCard {
   raw: NpiRawResult
 }
 
+export interface NpiSearchApiError {
+  description?: string
+  field?: string
+  number?: string
+}
+
 export interface NpiSearchResponse {
-  result_count: number
+  result_count?: number
   results?: NpiRawResult[]
+  /** CMS often returns HTTP 200 with this payload when criteria are invalid. */
+  Errors?: NpiSearchApiError[]
 }
 
 export interface NpiRawResult {
@@ -102,9 +110,60 @@ export interface NpiRawResult {
   }>
 }
 
-function getNpiApiRoot(): string {
-  if (import.meta.env.DEV) return '/npiregistry/api'
-  return 'https://npiregistry.cms.hhs.gov/api'
+const CMS_NPI_API_BASE = 'https://npiregistry.cms.hhs.gov/api'
+
+const TRANSIENT_HTTP_STATUSES = new Set([500, 502, 503, 504])
+
+function uniqueBaseUrls(bases: string[]): string[] {
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const b of bases) {
+    const n = b.replace(/\/$/, '')
+    if (!n || seen.has(n)) continue
+    seen.add(n)
+    out.push(n)
+  }
+  return out
+}
+
+/**
+ * Endpoints to try in order. On gateway/network failure, {@link searchNpiRegistry} advances to the next.
+ */
+function buildNpiBaseCandidates(): string[] {
+  const custom = (import.meta.env.VITE_NPI_API_URL as string | undefined)?.trim()
+  const jsonNpiProxy = `${getJsonServerBaseUrl().replace(/\/$/, '')}/api/npi`
+
+  if (custom) {
+    return uniqueBaseUrls([custom, CMS_NPI_API_BASE, jsonNpiProxy])
+  }
+
+  if (typeof window !== 'undefined') {
+    const h = window.location.hostname
+    const local = h === 'localhost' || h === '127.0.0.1' || h === '[::1]'
+    if (local && import.meta.env.DEV) {
+      return uniqueBaseUrls(['/npiregistry/api', CMS_NPI_API_BASE, jsonNpiProxy])
+    }
+    if (local) {
+      return uniqueBaseUrls([CMS_NPI_API_BASE, jsonNpiProxy])
+    }
+  }
+
+  return [CMS_NPI_API_BASE]
+}
+
+function isTransientFetchError(e: unknown): boolean {
+  if (!(e instanceof Error)) return true
+  if (e.name === 'TypeError' || e.name === 'AbortError') return true
+  const m = e.message.toLowerCase()
+  return (
+    m.includes('fetch') ||
+    m.includes('network') ||
+    m.includes('failed to load') ||
+    m.includes('load failed') ||
+    m.includes('aborted') ||
+    m.includes('eai_again') ||
+    m.includes('getaddrinfo')
+  )
 }
 
 function pickPracticeAddress(addrs: NpiRawResult['addresses']) {
@@ -275,21 +334,71 @@ export function searchNpiRegistry(params: NpiSearchParams): Promise<{
   if (params.countryCode?.trim()) q.set('country_code', params.countryCode.trim().toUpperCase())
   if (params.addressPurpose) q.set('address_purpose', params.addressPurpose)
 
-  q.set('use_first_name_alias', params.exactFirstNameMatch ? 'False' : 'True')
+  return fetchNpiSearchWithFallbacks(q.toString())
+}
 
-  const url = `${getNpiApiRoot()}/?${q.toString()}`
-  return fetch(url).then(async (res) => {
-    if (!res.ok) {
-      throw new Error(`NPI Registry request failed (${res.status})`)
+async function fetchNpiSearchWithFallbacks(queryString: string): Promise<{
+  resultCount: number
+  providers: NpiProviderCard[]
+}> {
+  const bases = buildNpiBaseCandidates()
+  let lastNote = ''
+
+  for (let i = 0; i < bases.length; i++) {
+    const base = bases[i]!
+    const url = `${base}/?${queryString}`
+    try {
+      const res = await fetch(url, {
+        credentials: 'omit',
+        headers: { Accept: 'application/json' },
+        mode: 'cors',
+      })
+      const text = await res.text()
+
+      if (TRANSIENT_HTTP_STATUSES.has(res.status)) {
+        lastNote = `${base} → HTTP ${res.status}`
+        continue
+      }
+
+      let json: NpiSearchResponse
+      try {
+        json = JSON.parse(text) as NpiSearchResponse
+      } catch {
+        throw new Error(
+          res.ok
+            ? 'NPI Registry returned a non-JSON response'
+            : `NPI Registry request failed (${res.status})`,
+        )
+      }
+
+      if (!res.ok) {
+        const fromApi = json.Errors?.map((e) => e.description).filter(Boolean).join(' — ')
+        throw new Error(fromApi || `NPI Registry request failed (${res.status})`)
+      }
+
+      if (json.Errors?.length) {
+        const msg = json.Errors.map((e) => e.description ?? e.number ?? 'Error').filter(Boolean).join(' — ')
+        throw new Error(msg || 'NPI Registry rejected this search')
+      }
+
+      const rows = json.results ?? []
+      const providers = rows.map(normalizeNpiResult).filter((x): x is NpiProviderCard => x != null)
+
+      return {
+        resultCount: typeof json.result_count === 'number' ? json.result_count : providers.length,
+        providers,
+      }
+    } catch (e) {
+      const transient = isTransientFetchError(e)
+      if (transient && i < bases.length - 1) {
+        lastNote = e instanceof Error ? e.message : String(e)
+        continue
+      }
+      throw e instanceof Error ? e : new Error(String(e))
     }
+  }
 
-    const json = (await res.json()) as NpiSearchResponse
-    const rows = json.results ?? []
-    const providers = rows.map(normalizeNpiResult).filter((x): x is NpiProviderCard => x != null)
-
-    return {
-      resultCount: typeof json.result_count === 'number' ? json.result_count : providers.length,
-      providers,
-    }
-  })
+  throw new Error(
+    `NPI Registry unreachable after ${bases.length} endpoint attempt(s). Last: ${lastNote || 'HTTP gateway errors'}`,
+  )
 }

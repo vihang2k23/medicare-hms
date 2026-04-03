@@ -19,23 +19,17 @@ const DEMO_RECALL_BY_CLASS = [
 export default function DrugRecallSummaryCard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [totalInApi, setTotalInApi] = useState<number | null>(null)
   const [rows, setRows] = useState<{ name: string; count: number }[]>([])
-  const [usingDemoRecall, setUsingDemoRecall] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
-    setUsingDemoRecall(false)
-    const { byClass, totalHits, error: apiError } = await fetchRecallCountsByDrugClass({ limit: 200 })
+    const { byClass, error: apiError } = await fetchRecallCountsByDrugClass({ limit: 200 })
     if (apiError || byClass.length === 0) {
       setRows(DEMO_RECALL_BY_CLASS)
-      setTotalInApi(null)
-      setUsingDemoRecall(true)
       if (apiError) setError(apiError)
     } else {
       setRows(byClass.slice(0, 12))
-      setTotalInApi(totalHits)
     }
     setLoading(false)
   }, [])
@@ -57,21 +51,11 @@ export default function DrugRecallSummaryCard() {
           Refresh
         </button>
       </div>
-      {usingDemoRecall && (
-        <div className="flex items-start gap-2 rounded-xl border border-sky-200/90 dark:border-sky-800/50 bg-sky-50/90 dark:bg-sky-950/30 px-3 py-2 text-xs text-sky-900 dark:text-sky-200 mb-3">
+      {error && (
+        <div className="flex items-start gap-2 rounded-xl border border-amber-200/90 dark:border-amber-800/60 bg-amber-50/90 dark:bg-amber-950/30 px-3 py-2 text-xs text-amber-900 dark:text-amber-200 mb-3">
           <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" aria-hidden />
-          <span>
-            {error
-              ? `OpenFDA could not be loaded (${error}). Showing illustrative counts by drug class for the chart.`
-              : 'OpenFDA returned no grouped rows in this sample. Showing illustrative counts by drug class.'}
-          </span>
+          <span>{error}</span>
         </div>
-      )}
-      {totalInApi != null && !usingDemoRecall && (
-        <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-2">
-          Dataset reports <strong className="text-slate-700 dark:text-slate-200">{totalInApi.toLocaleString()}</strong>{' '}
-          open enforcement records; chart uses the latest page sample (up to 200 rows).
-        </p>
       )}
       <div className="h-80">
         {loading && rows.length === 0 ? (

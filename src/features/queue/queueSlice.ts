@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import { OPD_DEPARTMENTS } from '../../config/departments'
+import type { ScheduleDoctor } from '../appointments/types'
 import { pickDoctorForDepartment } from './opdQueueDoctors'
 import type { OpdQueueToken, OpdTokenStatus } from './opdQueueTypes'
 
@@ -25,7 +26,10 @@ const queueSlice = createSlice({
   name: 'queue',
   initialState,
   reducers: {
-    issueToken(state, action: PayloadAction<{ patientName: string; department?: string }>) {
+    issueToken(
+      state,
+      action: PayloadAction<{ patientName: string; department?: string; scheduleDoctors?: ScheduleDoctor[] }>,
+    ) {
       const name = action.payload.patientName.trim()
       if (!name) return
       const deptRaw = action.payload.department?.trim()
@@ -33,7 +37,7 @@ const queueSlice = createSlice({
         deptRaw && OPD_DEPARTMENTS.includes(deptRaw as (typeof OPD_DEPARTMENTS)[number])
           ? deptRaw
           : OPD_DEPARTMENTS[0]
-      const { doctorId, doctorName } = pickDoctorForDepartment(dept)
+      const { doctorId, doctorName } = pickDoctorForDepartment(dept, action.payload.scheduleDoctors)
       const tokenId = state.nextTokenId
       state.queue.push({
         tokenId,

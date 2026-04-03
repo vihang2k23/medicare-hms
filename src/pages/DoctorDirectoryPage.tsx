@@ -5,7 +5,6 @@ import {
   Building2,
   ChevronLeft,
   ChevronRight,
-  Info,
   Loader2,
   MapPin,
   Phone,
@@ -38,6 +37,11 @@ import { notify } from '../lib/notify'
 
 const PAGE_SIZE = 12
 const MAX_SKIP = 1000
+
+const NPI_TAXONOMY_PRESET_VALUES: ReadonlySet<string> = new Set(
+  NPI_TAXONOMY_FILTERS.map((f) => f.value as string),
+)
+const TAXONOMY_SELECT_CUSTOM = '__custom__'
 
 function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => void }) {
   const b = raw.basic ?? {}
@@ -186,7 +190,7 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
           {(raw.endpoints?.length ?? 0) > 0 && (
             <section>
               <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
-                Endpoints / affiliations
+                Affiliated organizations &amp; endpoints
               </h3>
               <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
                 {raw.endpoints!.map((e, i) => (
@@ -242,7 +246,6 @@ export default function DoctorDirectoryPage() {
   const [countryCode, setCountryCode] = useState('')
   const [postalCode, setPostalCode] = useState('')
   const [addressPurpose, setAddressPurpose] = useState<NpiSearchParams['addressPurpose']>('')
-  const [exactFirstNameMatch, setExactFirstNameMatch] = useState(false)
   const [loading, setLoading] = useState(false)
   const [providers, setProviders] = useState<NpiProviderCard[]>([])
   const [totalCount, setTotalCount] = useState(0)
@@ -288,7 +291,6 @@ export default function DoctorDirectoryPage() {
     setCountryCode('')
     setPostalCode('')
     setAddressPurpose('')
-    setExactFirstNameMatch(false)
     setProviders([])
     setTotalCount(0)
     setPage(0)
@@ -312,7 +314,6 @@ export default function DoctorDirectoryPage() {
         countryCode: countryCode || undefined,
         postalCode: postalCode || undefined,
         addressPurpose: addressPurpose || undefined,
-        exactFirstNameMatch,
         limit: PAGE_SIZE,
         skip,
       })
@@ -366,18 +367,29 @@ export default function DoctorDirectoryPage() {
     page * PAGE_SIZE < MAX_SKIP &&
     (page + 1) * PAGE_SIZE < totalCount
 
+  const taxonomySelectValue = useMemo(() => {
+    if (!taxonomyDescription.trim()) return ''
+    if (NPI_TAXONOMY_PRESET_VALUES.has(taxonomyDescription)) return taxonomyDescription
+    return TAXONOMY_SELECT_CUSTOM
+  }, [taxonomyDescription])
+
   return (
     <div className="space-y-8">
       <div>
         <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-600 dark:text-sky-400 mb-2">
-          External data
+          Module 7 · NPPES live API
         </p>
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Doctor directory</h1>
         <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-2xl leading-relaxed">
-          Search the{' '}
-          <strong className="font-medium text-slate-700 dark:text-slate-200">CMS NPPES NPI Registry</strong> (live public
-          API, no key). Import providers into <code className="text-xs font-mono">db.json</code> via JSON Server so they
-          appear in <strong className="font-medium text-slate-700 dark:text-slate-200">appointments</strong> scheduling.
+          Search real US providers via the federal{' '}
+          <strong className="font-medium text-slate-700 dark:text-slate-200">CMS NPPES NPI Registry</strong> (
+          <code className="text-xs font-mono">npiregistry.cms.hhs.gov/api/?version=2.1</code>
+          ) — no authentication or API key. Use the specialty dropdown or name, city, and state filters; paginate with
+          CMS <code className="text-xs font-mono">limit</code>/<code className="text-xs font-mono">skip</code>.{' '}
+          <strong className="font-medium text-slate-700 dark:text-slate-200">Add to HMS</strong> saves imports to JSON
+          Server (<code className="text-xs font-mono">internalDoctors</code> in <code className="text-xs font-mono">db.json</code>
+          ), which feeds <strong className="font-medium text-slate-700 dark:text-slate-200">appointments</strong> and the{' '}
+          <strong className="font-medium text-slate-700 dark:text-slate-200">OPD queue</strong> by department.
         </p>
       </div>
 
@@ -392,7 +404,7 @@ export default function DoctorDirectoryPage() {
           }`}
         >
           <Stethoscope className="h-4 w-4" />
-          NPI search
+          Doctor search
         </button>
         <button
           type="button"
@@ -450,20 +462,34 @@ export default function DoctorDirectoryPage() {
               </div>
               <div className="sm:col-span-2 lg:col-span-1">
                 <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
-                  Taxonomy description
+                  Specialty (taxonomy)
                 </label>
-                <input
-                  value={taxonomyDescription}
-                  onChange={(e) => setTaxonomyDescription(e.target.value)}
-                  placeholder="e.g. Cardiology"
-                  list="npi-taxonomy-suggestions"
+                <select
+                  value={taxonomySelectValue}
+                  onChange={(e) => {
+                    const v = e.target.value
+                    if (v === '') setTaxonomyDescription('')
+                    else if (v === TAXONOMY_SELECT_CUSTOM) setTaxonomyDescription('')
+                    else setTaxonomyDescription(v)
+                  }}
                   className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
-                />
-                <datalist id="npi-taxonomy-suggestions">
+                >
+                  <option value="">Any specialty</option>
                   {NPI_TAXONOMY_FILTERS.map((o) => (
-                    <option key={o.value} value={o.value} />
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
                   ))}
-                </datalist>
+                  <option value={TAXONOMY_SELECT_CUSTOM}>Other (type below)</option>
+                </select>
+                {taxonomySelectValue === TAXONOMY_SELECT_CUSTOM ? (
+                  <input
+                    value={taxonomyDescription}
+                    onChange={(e) => setTaxonomyDescription(e.target.value)}
+                    placeholder="Custom taxonomy description (CMS text match)"
+                    className="w-full mt-2 px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+                  />
+                ) : null}
               </div>
             </div>
 
@@ -621,24 +647,6 @@ export default function DoctorDirectoryPage() {
               </div>
             </div>
 
-            <label className="flex items-start gap-2 cursor-pointer group max-w-xl">
-              <input
-                type="checkbox"
-                checked={exactFirstNameMatch}
-                onChange={(e) => setExactFirstNameMatch(e.target.checked)}
-                className="mt-1 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
-              />
-              <span className="text-sm text-slate-700 dark:text-slate-200 flex items-start gap-1.5">
-                <span>Exact first-name match only</span>
-                <span className="text-sky-600 dark:text-sky-400 shrink-0" title="Maps to CMS use_first_name_alias=False; unchecked allows similar names (e.g. Rob for Robert).">
-                  <Info className="h-4 w-4 mt-0.5" aria-hidden />
-                </span>
-              </span>
-            </label>
-            <p className="text-sm text-sky-700 dark:text-sky-300/90 -mt-2 max-w-3xl leading-relaxed">
-              By default the registry returns similar and close matches for names. Check the box above if you only want
-              exact first-name matches (per CMS <code className="text-xs font-mono">use_first_name_alias</code>).
-            </p>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-3xl leading-relaxed">
               <strong className="font-medium text-slate-600 dark:text-slate-300">Note:</strong> The NPI Registry limits
               searches to the first 2100 results. If you cannot find the NPI you need, refine your criteria.
@@ -772,7 +780,7 @@ export default function DoctorDirectoryPage() {
             </div>
           ) : internalList.length === 0 ? (
             <p className="text-slate-500 dark:text-slate-400 text-sm p-8 text-center">
-              No imported doctors yet. Use <strong>NPI search</strong> and <strong>Add to HMS</strong>.
+              No imported doctors yet. Use <strong>Doctor search</strong> and <strong>Add to HMS</strong>.
             </p>
           ) : (
             <div className="overflow-x-auto">
@@ -830,8 +838,8 @@ export default function DoctorDirectoryPage() {
       <p className="text-[11px] text-slate-400 dark:text-slate-500 max-w-3xl leading-relaxed">
         <Building2 className="inline h-3.5 w-3.5 mr-1 align-text-bottom opacity-70" aria-hidden />
         Issuance of an NPI does not verify licensure or credentials. Data is retrieved from the U.S. CMS NPPES Read API
-        (v2.1). Development uses a Vite proxy; production build calls the CMS endpoint directly (requires browser CORS
-        allowance).
+        (v2.1). Local dev uses the Vite <code className="font-mono">/npiregistry</code> proxy; production calls CMS
+        directly. Internal doctors are stored only via JSON Server (<code className="font-mono">internalDoctors</code>).
       </p>
     </div>
   )
