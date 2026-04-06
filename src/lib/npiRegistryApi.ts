@@ -1,10 +1,9 @@
 /**
- * CMS NPPES NPI Registry Read API v2.1 (public, no API key).
- * https://npiregistry.cms.hhs.gov/api-page
+ * NPI Registry (CMS NPPES v2.1) via **JSON Server proxy** only from the browser:
+ * `{JSON_SERVER}/api/npi/?version=2.1&…` (default JSON Server: `http://localhost:3001`).
+ * The proxy forwards to CMS (`npm run server` → `server/jsonServer.mjs`).
  *
- * **Local `npm run dev`:** tries, in order, Vite **`/npiregistry/api`**, then **direct CMS**, then **JSON Server
- * `/api/npi`** when the previous call returns 502/503/504/500 or a network failure. Override order with
- * **`VITE_NPI_API_URL`** (that URL is tried first, then CMS, then JSON Server when on localhost).
+ * Override base with **`VITE_NPI_API_URL`** (optional); **`VITE_JSON_SERVER_URL`** sets the server origin.
  */
 import { getJsonServerBaseUrl } from '../config/api'
 export interface NpiSearchParams {
@@ -110,8 +109,6 @@ export interface NpiRawResult {
   }>
 }
 
-const CMS_NPI_API_BASE = 'https://npiregistry.cms.hhs.gov/api'
-
 const TRANSIENT_HTTP_STATUSES = new Set([500, 502, 503, 504])
 
 function uniqueBaseUrls(bases: string[]): string[] {
@@ -134,21 +131,10 @@ function buildNpiBaseCandidates(): string[] {
   const jsonNpiProxy = `${getJsonServerBaseUrl().replace(/\/$/, '')}/api/npi`
 
   if (custom) {
-    return uniqueBaseUrls([custom, CMS_NPI_API_BASE, jsonNpiProxy])
+    return uniqueBaseUrls([custom, jsonNpiProxy])
   }
 
-  if (typeof window !== 'undefined') {
-    const h = window.location.hostname
-    const local = h === 'localhost' || h === '127.0.0.1' || h === '[::1]'
-    if (local && import.meta.env.DEV) {
-      return uniqueBaseUrls(['/npiregistry/api', CMS_NPI_API_BASE, jsonNpiProxy])
-    }
-    if (local) {
-      return uniqueBaseUrls([CMS_NPI_API_BASE, jsonNpiProxy])
-    }
-  }
-
-  return [CMS_NPI_API_BASE]
+  return uniqueBaseUrls([jsonNpiProxy])
 }
 
 function isTransientFetchError(e: unknown): boolean {
@@ -242,6 +228,7 @@ export function npiCardToInternalRecord(card: NpiProviderCard): import('../types
     npi: card.npi,
     name,
     department: dept,
+    source: 'npi' as const,
     ...sched,
     credential: card.credential,
     phone: card.phone,

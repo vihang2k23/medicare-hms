@@ -38,7 +38,7 @@ function hasAnyTrimmedField(args: SearchDoctorsArgs): boolean {
 
 /**
  * NPI Registry search (same behavior as Doctor directory “NPI search”), using
- * {@link searchNpiRegistry} (Vite dev: `/npiregistry/api`; see `vite.config.ts` and `npiRegistryApi.ts`).
+ * {@link searchNpiRegistry} (JSON Server `GET /api/npi`; see `npiRegistryApi.ts`).
  */
 export const searchDoctors = createAsyncThunk(
   'doctor/searchDoctors',

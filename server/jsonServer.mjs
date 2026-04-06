@@ -302,7 +302,7 @@ server.get(['/api/npi', '/api/npi/'], async (req, res) => {
     const detail = cause && cause !== msg ? `${msg} (${cause})` : msg
     const dnsLike = /EAI_AGAIN|ENOTFOUND|getaddrinfo|ENETUNREACH|EHOSTUNREACH/i.test(detail)
     const hint = dnsLike
-      ? 'DNS could not resolve npiregistry.cms.hhs.gov (often VPN, captive portal, or flaky resolver). Try: disable VPN, change DNS (e.g. 1.1.1.1), wait and retry. Use the app via `npm run dev` so the browser/Vite path can reach CMS without this Node proxy.'
+      ? 'DNS could not resolve npiregistry.cms.hhs.gov (often VPN, captive portal, or flaky resolver). Try: disable VPN, change DNS (e.g. 1.1.1.1), wait and retry. Ensure `npm run server` can reach the internet; the app should call this proxy (`/api/npi`), not CMS directly from the browser.'
       : undefined
     console.error('[api/npi] upstream fetch failed:', detail)
     res.status(502).json({ error: 'NPPES proxy failed', detail, ...(hint ? { hint } : {}) })

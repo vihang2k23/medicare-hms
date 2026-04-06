@@ -376,20 +376,9 @@ export default function DoctorDirectoryPage() {
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-600 dark:text-sky-400 mb-2">
-          Module 7 · NPPES live API
-        </p>
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Doctor directory</h1>
         <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-2xl leading-relaxed">
-          Search real US providers via the federal{' '}
-          <strong className="font-medium text-slate-700 dark:text-slate-200">CMS NPPES NPI Registry</strong> (
-          <code className="text-xs font-mono">npiregistry.cms.hhs.gov/api/?version=2.1</code>
-          ) — no authentication or API key. Use the specialty dropdown or name, city, and state filters; paginate with
-          CMS <code className="text-xs font-mono">limit</code>/<code className="text-xs font-mono">skip</code>.{' '}
-          <strong className="font-medium text-slate-700 dark:text-slate-200">Add to HMS</strong> saves imports to JSON
-          Server (<code className="text-xs font-mono">internalDoctors</code> in <code className="text-xs font-mono">db.json</code>
-          ), which feeds <strong className="font-medium text-slate-700 dark:text-slate-200">appointments</strong> and the{' '}
-          <strong className="font-medium text-slate-700 dark:text-slate-200">OPD queue</strong> by department.
+          Search providers, filter by specialty or location, and add them for appointments and the OPD queue.
         </p>
       </div>
 
@@ -837,9 +826,7 @@ export default function DoctorDirectoryPage() {
 
       <p className="text-[11px] text-slate-400 dark:text-slate-500 max-w-3xl leading-relaxed">
         <Building2 className="inline h-3.5 w-3.5 mr-1 align-text-bottom opacity-70" aria-hidden />
-        Issuance of an NPI does not verify licensure or credentials. Data is retrieved from the U.S. CMS NPPES Read API
-        (v2.1). Local dev uses the Vite <code className="font-mono">/npiregistry</code> proxy; production calls CMS
-        directly. Internal doctors are stored only via JSON Server (<code className="font-mono">internalDoctors</code>).
+        Issuance of an NPI does not verify licensure or credentials.
       </p>
     </div>
   )

@@ -2,7 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_JSON_SERVER_URL?: string
-  /** Optional override for NPPES API base (e.g. `/npiregistry/api` behind nginx). */
+  /** Optional override for NPPES proxy base (default: `{VITE_JSON_SERVER_URL}/api/npi`). */
   readonly VITE_NPI_API_URL?: string
 }
 
