@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Plus } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
+import type { RootState } from '../../app/store'
 import { fetchPatients } from '../../api/patientsApi'
 import type { PatientRecord } from '../../types/patient'
 import { notify } from '../../lib/notify'
@@ -22,9 +23,12 @@ interface PrescriptionFormProps {
 export default function PrescriptionForm({ variant, initialPatientId, onSaved }: PrescriptionFormProps) {
   const { user } = useAuth()
   const dispatch = useDispatch<AppDispatch>()
+  const doctors = useSelector((s: RootState) => s.appointments.doctors)
   const [patients, setPatients] = useState<PatientRecord[]>([])
   const [loadingPatients, setLoadingPatients] = useState(true)
   const [patientId, setPatientId] = useState('')
+  /** Admin enters Rx on behalf of this schedule doctor (not the admin account). */
+  const [prescriberDoctorId, setPrescriberDoctorId] = useState('')
   const [diagnosis, setDiagnosis] = useState('')
   const [notes, setNotes] = useState('')
   const [medicines, setMedicines] = useState<PrescriptionMedicineLine[]>(() => [newMedicineLine()])
@@ -53,6 +57,14 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
     }
   }, [initialPatientId, patients])
 
+  useEffect(() => {
+    if (variant !== 'admin') return
+    setPrescriberDoctorId((prev) => {
+      if (prev && doctors.some((d) => d.id === prev)) return prev
+      return doctors[0]?.id ?? ''
+    })
+  }, [variant, doctors])
+
   const updateLine = (id: string, next: PrescriptionMedicineLine) => {
     setMedicines((prev) => prev.map((m) => (m.id === id ? next : m)))
   }
@@ -70,11 +82,22 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
       notify.error('Select a patient.')
       return
     }
+    if (variant === 'admin') {
+      if (!prescriberDoctorId || !doctors.some((d) => d.id === prescriberDoctorId)) {
+        notify.error('Select the prescribing physician.')
+        return
+      }
+    }
     const lines = medicines.filter((m) => m.drugName.trim() && m.dosage.trim() && m.frequency.trim())
     if (lines.length === 0) {
       notify.error('Add at least one medicine with drug name, dosage, and frequency.')
       return
     }
+
+    const prescriber =
+      variant === 'admin'
+        ? doctors.find((d) => d.id === prescriberDoctorId)!
+        : { id: user.id, name: user.name }
 
     setSubmitting(true)
     try {
@@ -82,8 +105,8 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
         addPrescription({
           patientId: patient.id,
           patientName: patient.fullName,
-          doctorId: user.id,
-          doctorName: user.name,
+          doctorId: prescriber.id,
+          doctorName: prescriber.name,
           diagnosis: diagnosis.trim() || undefined,
           notes: notes.trim() || undefined,
           medicines: lines,
@@ -100,23 +123,54 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
     }
   }
 
-  const roleLabel = variant === 'admin' ? 'Administrator' : 'Doctor'
-
   return (
     <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/45 backdrop-blur-sm p-5 sm:p-6 shadow-sm ring-1 ring-slate-200/40 dark:ring-slate-700/40 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
         <div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">New prescription</h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Prescriber: <span className="font-medium text-slate-700 dark:text-slate-200">{user?.name}</span> ({roleLabel}). Drug
-            names and details come from the bundled <strong className="font-medium text-slate-600 dark:text-slate-300">static catalog</strong> in{' '}
-            <code className="text-[11px] font-mono text-sky-600 dark:text-sky-400">drugCatalogData.ts</code>; recall flags are{' '}
-            <strong className="font-medium text-slate-600 dark:text-slate-300">demo scenarios</strong> only (no live API).
-          </p>
+          {variant === 'admin' ? (
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+              Signed in as <span className="font-medium text-slate-700 dark:text-slate-200">{user?.name}</span> (administrator).
+              The prescription is attributed to the <strong className="font-medium text-slate-600 dark:text-slate-300">prescribing physician</strong> you
+              select below — not to your admin account. Drug names come from the bundled{' '}
+              <strong className="font-medium text-slate-600 dark:text-slate-300">static catalog</strong>; recall flags are demo only.
+            </p>
+          ) : (
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+              Prescriber on file: <span className="font-medium text-slate-700 dark:text-slate-200">{user?.name}</span> (your account). Drug names come
+              from the bundled <strong className="font-medium text-slate-600 dark:text-slate-300">static catalog</strong>; recall flags are demo only.
+            </p>
+          )}
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
+        {variant === 'admin' && (
+          <div>
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+              Prescribing physician
+            </label>
+            <select
+              value={prescriberDoctorId}
+              onChange={(e) => setPrescriberDoctorId(e.target.value)}
+              disabled={doctors.length === 0}
+              className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+            >
+              {doctors.length === 0 ? (
+                <option value="">No doctors in schedule</option>
+              ) : (
+                doctors.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name} — {d.department}
+                  </option>
+                ))
+              )}
+            </select>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5">
+              This name appears on the prescription, history, and printable PDF.
+            </p>
+          </div>
+        )}
         <div>
           <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
             Patient

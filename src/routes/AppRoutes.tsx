@@ -11,6 +11,7 @@ import ReceptionistQueue from '../pages/ReceptionistQueue'
 import NurseDashboard from '../pages/NurseDashboard'
 import NurseBeds from '../pages/NurseBeds'
 const VitalsEntryPage = lazy(() => import('../pages/VitalsEntryPage'))
+const VitalsPatientDetailPage = lazy(() => import('../pages/VitalsPatientDetailPage'))
 import AccessDenied from '../pages/AccessDenied'
 import PlaceholderPage from '../components/PlaceholderPage'
 import PatientListPage from '../pages/PatientListPage'
@@ -65,6 +66,14 @@ export default function AppRoutes() {
           {/* Nurse */}
           <Route path="nurse" element={<NurseDashboard />} />
           <Route path="nurse/beds" element={<NurseBeds />} />
+          <Route
+            path="nurse/vitals/patient/:patientId"
+            element={
+              <Suspense fallback={<div className="p-6 text-slate-500 dark:text-slate-400">Loading vitals…</div>}>
+                <VitalsPatientDetailPage />
+              </Suspense>
+            }
+          />
           <Route
             path="nurse/vitals"
             element={

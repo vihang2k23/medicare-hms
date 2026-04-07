@@ -288,7 +288,7 @@ export default function PatientProfilePage() {
                 <VitalsTrendCharts rows={vitals} />
                 <div>
                   <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-2">History</h3>
-                  <VitalsHistoryList rows={vitals} />
+                  <VitalsHistoryList rows={vitals} listKey={patientId ?? ''} />
                 </div>
               </>
             )}

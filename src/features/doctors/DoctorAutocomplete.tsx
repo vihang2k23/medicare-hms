@@ -95,8 +95,10 @@ export default function DoctorAutocomplete({
   }, [clearTrigger, dispatch])
 
   useEffect(() => {
-    const onDown = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setShowSuggestions(false)
+    const onDown = (e: Event) => {
+      const t = e.target
+      if (!(t instanceof Node)) return
+      if (searchRef.current && !searchRef.current.contains(t)) setShowSuggestions(false)
     }
     document.addEventListener('mousedown', onDown)
     return () => document.removeEventListener('mousedown', onDown)
