@@ -25,7 +25,7 @@ export default function MainLayout() {
         {sidebarOpen && (
           <button
             type="button"
-            className="lg:hidden fixed inset-0 top-16 z-40 bg-slate-950/50 backdrop-blur-[2px] motion-safe:transition-opacity"
+            className="no-print-appt lg:hidden fixed inset-0 top-16 z-40 bg-slate-950/50 backdrop-blur-[2px] motion-safe:transition-opacity"
             aria-label="Close navigation menu"
             onClick={() => dispatch(setSidebarOpen(false))}
           />

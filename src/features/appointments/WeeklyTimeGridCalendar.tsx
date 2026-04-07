@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import { GripVertical } from 'lucide-react'
+import MediCareLogo from '../../components/brand/MediCareLogo'
 import type { Appointment, AppointmentStatus, ScheduleDoctor } from './types'
 import { appointmentStatusClasses } from './appointmentStatusStyles'
 import { eachDayOfWeek, findSlotByStart, weekSlotStartLabels } from './slotUtils'
@@ -62,16 +63,30 @@ export default function WeeklyTimeGridCalendar({
   const onDragEnd = useCallback(() => setDragOverKey(null), [])
 
   return (
-    <div className="weekly-schedule-print-root rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/90 dark:bg-slate-900/50 overflow-hidden ring-1 ring-slate-200/40 dark:ring-slate-700/40 shadow-sm">
-      <div className="print-only-banner px-4 py-3 border-b border-slate-300 text-slate-900">
-        <p className="text-lg font-bold">MediCare HMS — Weekly schedule</p>
-        <p className="text-sm">
-          {doctor.name} · {doctor.department} · Week of {format(weekStart, 'd MMM yyyy')}
-        </p>
+    <div className="appt-print-light weekly-schedule-print-root rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/90 dark:bg-slate-900/50 overflow-hidden ring-1 ring-slate-200/40 dark:ring-slate-700/40 shadow-sm">
+      <div className="print-only-banner appt-print-header px-5 py-4 border-b-2 border-slate-400 text-slate-900">
+        <div className="flex items-start gap-4">
+          <div className="appt-print-logo-wrap shrink-0 rounded-xl border-2 border-sky-600/30 bg-white p-1">
+            <MediCareLogo size="lg" title={false} />
+          </div>
+          <div className="min-w-0 flex-1 space-y-1">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-sky-700">MediCare HMS</p>
+            <p className="text-xl font-bold text-slate-900 leading-tight">Weekly schedule</p>
+            <p className="text-sm text-slate-700 leading-snug">
+              <span className="font-semibold text-slate-900">{doctor.name}</span>
+              <span className="text-slate-500"> · </span>
+              <span>{doctor.department}</span>
+            </p>
+            <p className="text-xs text-slate-600">Week of {format(weekStart, 'EEEE, d MMMM yyyy')}</p>
+            <p className="appt-print-legend text-[10px] text-slate-600 pt-2 border-t border-slate-300 mt-3 leading-relaxed">
+              Legend: Scheduled · Confirmed · In progress · Completed · Cancelled · No-show (shaded blocks below).
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="overflow-x-auto overscroll-x-contain touch-pan-x -mx-1 px-1 sm:mx-0 sm:px-0">
-        <table className="w-full min-w-[720px] sm:min-w-[920px] border-collapse text-sm">
+      <div className="appt-weekly-scroll overflow-x-auto overscroll-x-contain touch-pan-x -mx-1 px-1 sm:mx-0 sm:px-0">
+        <table className="appt-weekly-table w-full min-w-[720px] sm:min-w-[920px] border-collapse text-sm">
           <thead>
             <tr>
               <th
@@ -148,12 +163,12 @@ export default function WeeklyTimeGridCalendar({
                             if (!id) return
                             onDropReschedule(id, dateStr, slot.startStr, slot.endStr)
                           }}
-                          className="w-full min-h-[3rem] rounded-lg border border-dashed border-emerald-400/50 dark:border-emerald-600/40 bg-emerald-500/5 hover:bg-emerald-500/15 dark:hover:bg-emerald-500/10 text-[11px] text-emerald-800 dark:text-emerald-200 font-medium transition-colors flex flex-col items-center justify-center gap-0.5"
+                          className="appt-empty-slot-btn w-full min-h-[3rem] rounded-lg border border-dashed border-emerald-400/50 dark:border-emerald-600/40 bg-emerald-500/5 hover:bg-emerald-500/15 dark:hover:bg-emerald-500/10 text-[11px] text-emerald-800 dark:text-emerald-200 font-medium transition-colors flex flex-col items-center justify-center gap-0.5"
                         >
-                          <span className="font-mono opacity-80">
+                          <span className="font-mono opacity-80 appt-empty-slot-time">
                             {slot.startStr}–{slot.endStr}
                           </span>
-                          <span>Book / drop here</span>
+                          <span className="appt-empty-slot-hint">Book / drop here</span>
                         </button>
                       </td>
                     )
@@ -193,13 +208,14 @@ export default function WeeklyTimeGridCalendar({
                                   onOpenAppointment(apt)
                                 }
                               }}
-                              className={`relative flex-1 min-w-[5.5rem] max-w-full rounded-lg border px-2 py-1.5 text-left text-xs font-medium ring-1 cursor-pointer select-none transition-shadow hover:shadow-md ${appointmentStatusClasses(apt.status)} ${
+                              data-apt-status={apt.status}
+                              className={`appt-booking-card relative flex-1 min-w-[5.5rem] max-w-full rounded-lg border px-2 py-1.5 text-left text-xs font-medium ring-1 cursor-pointer select-none transition-shadow hover:shadow-md ${appointmentStatusClasses(apt.status)} ${
                                 drag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'
                               }`}
                             >
                               {drag && (
                                 <span
-                                  className="absolute top-1 right-1 text-slate-400 dark:text-slate-500 pointer-events-none"
+                                  className="no-print-appt absolute top-1 right-1 text-slate-400 dark:text-slate-500 pointer-events-none"
                                   title="Drag to reschedule"
                                 >
                                   <GripVertical className="h-3.5 w-3.5" aria-hidden />

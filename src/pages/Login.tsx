@@ -6,6 +6,7 @@ import type { AuthUser } from '../features/auth/authSlice'
 import { getDefaultDashboard } from '../config/roles'
 import Navbar from '../layout/Navbar'
 import { notify } from '../lib/notify'
+import MediCareLogo, { MediCareWordmark } from '../components/brand/MediCareLogo'
 
 const demoUsers: Array<{ role: AuthUser['role']; name: string; id: string; avatar: string }> = [
   { role: 'admin', name: 'Admin User', id: 'ADM001', avatar: '' },
@@ -47,20 +48,39 @@ export default function Login() {
   return (
     <div className="min-h-dvh flex flex-col app-surface-gradient">
       <Navbar />
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-10 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
-        <div className="w-full max-w-3xl page-enter">
-          <div className="text-center mb-10">
+      <div className="relative flex-1 flex items-center justify-center p-4 sm:p-6 md:p-10 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+          <div className="absolute -top-20 right-[10%] h-64 w-64 rounded-full bg-sky-400/25 blur-3xl dark:bg-sky-500/20" />
+          <div className="absolute bottom-0 left-[-10%] h-80 w-80 rounded-full bg-violet-400/20 blur-3xl dark:bg-violet-600/15" />
+          <div className="absolute top-1/2 left-1/2 h-[min(90vw,36rem)] w-[min(90vw,36rem)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-sky-200/50 dark:border-sky-500/15" />
+        </div>
+
+        <div className="relative w-full max-w-3xl page-enter">
+          <div className="flex flex-col items-center text-center mb-10 sm:mb-12">
+            <div className="mb-6 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5">
+              <div className="relative shrink-0">
+                <div className="absolute inset-0 rounded-2xl bg-sky-400/30 blur-xl scale-110 dark:bg-sky-500/25" aria-hidden />
+                <div className="relative rounded-2xl p-1 shadow-xl shadow-sky-500/20 ring-1 ring-white/50 dark:ring-slate-600/40 bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm">
+                  <MediCareLogo size="xl" title="MediCare HMS" />
+                </div>
+              </div>
+              <MediCareWordmark
+                className="items-center text-center sm:items-start sm:text-left"
+                subtitle="Hospital Management System"
+              />
+            </div>
             <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-sky-600 dark:text-sky-400 mb-3">
               Secure access
             </p>
             <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
-              Sign in to MediCare HMS
+              Sign in to your workspace
             </h1>
             <p className="mt-3 text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-md mx-auto leading-relaxed">
-              Choose your role to open the workspace. Demo environment — no password required.
+              Choose your role to continue. Demo environment — no password required.
             </p>
           </div>
 
+          <div className="rounded-[1.75rem] border border-slate-200/70 dark:border-slate-700/70 bg-white/50 dark:bg-slate-900/45 backdrop-blur-xl p-5 sm:p-8 shadow-xl shadow-slate-300/25 dark:shadow-black/40 ring-1 ring-white/70 dark:ring-slate-600/25">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             {demoUsers.map((user) => {
               const RoleIcon = roleIcons[user.role]
@@ -90,9 +110,15 @@ export default function Login() {
               )
             })}
           </div>
+          </div>
 
-          <p className="text-center text-xs font-medium text-slate-400 dark:text-slate-500 mt-10">
-            Hospital Management System · Demo accounts
+          <p className="text-center text-xs font-medium text-slate-500 dark:text-slate-400 mt-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-1 w-1 rounded-full bg-sky-500" aria-hidden />
+              MediCare HMS
+            </span>
+            <span className="text-slate-300 dark:text-slate-600">·</span>
+            <span>Demo accounts</span>
           </p>
         </div>
       </div>

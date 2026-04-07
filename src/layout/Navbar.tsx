@@ -10,6 +10,7 @@ import NotificationBell from '../features/alerts/NotificationBell'
 import { setTheme, toggleSidebar } from '../features/ui/uiSlice'
 import type { RootState } from '../app/store'
 import { notify } from '../lib/notify'
+import MediCareLogo, { MediCareWordmark } from '../components/brand/MediCareLogo'
 
 const DEMO_USERS: Array<{ role: AuthUser['role']; name: string; id: string; avatar: string }> = [
   { role: 'admin', name: 'Admin User', id: 'ADM001', avatar: '' },
@@ -55,7 +56,7 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 h-16 flex-shrink-0 flex items-center justify-between px-3 sm:px-4 lg:px-8 bg-white/75 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/80 shadow-[0_1px_0_0_rgb(15_23_42_/_0.04)] dark:shadow-none supports-[padding:max(0px)]:pt-[env(safe-area-inset-top,0px)]">
+    <header className="sticky top-0 z-50 h-16 flex-shrink-0 flex items-center justify-between px-3 sm:px-4 lg:px-8 bg-white/80 dark:bg-slate-950/85 backdrop-blur-xl border-b border-slate-200/70 dark:border-slate-800/80 shadow-[0_1px_0_0_rgb(15_23_42_/_0.06)] dark:shadow-[0_1px_0_0_rgb(0_0_0_/_0.35)] supports-[padding:max(0px)]:pt-[env(safe-area-inset-top,0px)]">
       {/* Left: menu toggler + brand */}
       <div className="flex items-center gap-4">
         {isAuthenticated && (
@@ -72,16 +73,14 @@ export default function Navbar() {
             )}
           </button>
         )}
-        <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white shrink-0 shadow-md shadow-sky-500/30 ring-1 ring-white/25 group-hover:shadow-lg group-hover:shadow-sky-500/35 transition-shadow duration-300">
-            <span className="font-bold text-sm tracking-tight">M</span>
-          </div>
-          <div className="hidden sm:flex flex-col leading-tight">
-            <span className="font-semibold text-slate-900 dark:text-white text-base tracking-tight">MediCare</span>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-600/90 dark:text-sky-400/90 hidden md:block">
-              Hospital MS
-            </span>
-          </div>
+        <Link
+          to="/"
+          className="flex items-center gap-3 group rounded-2xl py-1.5 pl-1 pr-2 -ml-1 hover:bg-slate-100/90 dark:hover:bg-slate-800/60 transition-colors duration-200"
+        >
+          <span className="relative shrink-0 rounded-[11px] shadow-md shadow-sky-500/30 ring-1 ring-white/40 dark:ring-slate-600/50 group-hover:shadow-lg group-hover:shadow-sky-500/40 transition-shadow duration-300">
+            <MediCareLogo size="md" title={false} />
+          </span>
+          <MediCareWordmark className="hidden sm:flex" size="compact" subtitle="Hospital Management" />
         </Link>
       </div>
 
@@ -132,7 +131,7 @@ export default function Navbar() {
 
               {dropdownOpen && (
                 <div
-                  className="absolute right-0 top-full mt-2 w-[min(calc(100vw-2rem),18rem)] rounded-2xl border border-slate-200/90 bg-white/98 p-1 shadow-2xl shadow-slate-300/35 ring-1 ring-slate-200/60 backdrop-blur-xl dark:border-slate-700/90 dark:bg-slate-900/98 dark:shadow-black/40 dark:ring-slate-700/60 z-50"
+                  className="no-print-appt absolute right-0 top-full mt-2 w-[min(calc(100vw-2rem),18rem)] rounded-2xl border border-slate-200/90 bg-white/98 p-1 shadow-2xl shadow-slate-300/35 ring-1 ring-slate-200/60 backdrop-blur-xl dark:border-slate-700/90 dark:bg-slate-900/98 dark:shadow-slate-950/30 dark:ring-slate-700/60 z-50"
                   role="menu"
                 >
                   <div className="flex items-center gap-3 rounded-xl bg-slate-50/90 px-3 py-3 dark:bg-slate-800/50">

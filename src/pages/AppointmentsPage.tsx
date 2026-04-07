@@ -42,6 +42,12 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
     if (lockedDoctorId) setDoctorId(lockedDoctorId)
   }, [lockedDoctorId])
 
+  /** Enables @media print rules that hide nav/sidebar (same pattern as Reports). */
+  useEffect(() => {
+    document.documentElement.classList.add('appointments-print-route')
+    return () => document.documentElement.classList.remove('appointments-print-route')
+  }, [])
+
   const doctor = doctors.find((d) => d.id === doctorId)
   const weekApts = useMemo(
     () => appointments.filter((a) => a.doctorId === doctorId && isDateInWeek(a.date, weekStart)),
@@ -147,6 +153,7 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
     [appointments, doctor, dispatch],
   )
 
+  /** Main-tab print so “Save as PDF” does not show about:blank in headers/footers (browser uses this page URL). */
   const printSchedule = () => {
     window.print()
   }
@@ -159,7 +166,7 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
 
   return (
     <div className="space-y-8">
-      <div>
+      <div className="no-print-appt">
         <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-400 mb-2">
           Scheduling
         </p>
@@ -210,6 +217,7 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
           <button
             type="button"
             onClick={printSchedule}
+            title="Tip: in the print dialog, turn off Headers and footers to hide the page URL on PDFs."
             className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80"
           >
             <Printer className="h-4 w-4" aria-hidden />

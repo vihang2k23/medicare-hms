@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   patientRegistrationSchema,
   step1Schema,
@@ -52,13 +52,21 @@ interface PatientRegistrationFormProps {
   onSuccess?: () => void
   /** Where to navigate after successful save */
   redirectTo?: string
+  /** Step 0: left footer becomes a link here instead of a disabled “Back” */
+  exitTo?: string
+  exitLabel?: string
   /** When set, form PATCHes this record instead of creating a new one */
   initialRecord?: PatientRecord | null
 }
 
+const exitLinkClass =
+  'inline-flex items-center justify-center px-5 py-2.5 rounded-xl border-2 border-slate-300/90 dark:border-slate-500 bg-white/90 dark:bg-slate-800/90 text-slate-800 dark:text-slate-100 font-semibold text-sm shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-colors'
+
 export default function PatientRegistrationForm({
   onSuccess,
   redirectTo = '/admin/patients',
+  exitTo,
+  exitLabel = '← Back',
   initialRecord = null,
 }: PatientRegistrationFormProps) {
   const navigate = useNavigate()
@@ -390,14 +398,20 @@ export default function PatientRegistrationForm({
         {submitError && <p className="text-red-600 dark:text-red-400 text-sm">{submitError}</p>}
 
         <div className="flex flex-wrap gap-3 justify-between">
-          <button
-            type="button"
-            onClick={back}
-            disabled={step === 0}
-            className="px-5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-semibold text-sm hover:bg-slate-50 dark:hover:bg-slate-800/80 disabled:opacity-40 transition-colors"
-          >
-            Back
-          </button>
+          {step === 0 && exitTo ? (
+            <Link to={exitTo} className={exitLinkClass}>
+              {exitLabel}
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={back}
+              disabled={step === 0}
+              className="px-5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-semibold text-sm hover:bg-slate-50 dark:hover:bg-slate-800/80 disabled:opacity-40 transition-colors"
+            >
+              Back
+            </button>
+          )}
           <div className="flex gap-3">
             {step < 4 ? (
               <button

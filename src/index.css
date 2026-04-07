@@ -96,6 +96,48 @@
     transition: none !important;
   }
 
+  /*
+   * Toasts portal to document.body (outside #root). dark:shadow-black/40 prints as a black slab.
+   */
+  .no-print-toast {
+    display: none !important;
+  }
+
+  /*
+   * Print / Save as PDF: strip shadows on ALL nodes under body (includes portals).
+   * Ring + shadow = box-shadow; backdrop-blur often rasterizes as a dark block in Chrome PDF.
+   */
+  html.appointments-print-route,
+  html.report-print-route,
+  html.prescription-print-route {
+    color-scheme: light !important;
+  }
+  html.appointments-print-route body *,
+  html.report-print-route body *,
+  html.prescription-print-route body *,
+  html.appointments-print-route body *::before,
+  html.report-print-route body *::before,
+  html.prescription-print-route body *::before,
+  html.appointments-print-route body *::after,
+  html.report-print-route body *::after,
+  html.prescription-print-route body *::after {
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    text-shadow: none !important;
+  }
+  html.appointments-print-route body *,
+  html.report-print-route body *,
+  html.prescription-print-route body * {
+    --tw-shadow: 0 0 #0000 !important;
+    --tw-shadow-colored: 0 0 #0000 !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+    --tw-ring-offset-shadow: 0 0 #0000 !important;
+  }
+
   .print-only-banner {
     display: block !important;
   }
@@ -105,36 +147,241 @@
   .no-print-report {
     display: none !important;
   }
+  .no-print-rx {
+    display: none !important;
+  }
   .report-format {
     display: block !important;
   }
   .weekly-schedule-print-root {
-    break-inside: avoid;
+    break-inside: auto;
+    page-break-inside: auto;
     box-shadow: none !important;
-    border: 1px solid #cbd5e1 !important;
+    border: 1px solid #64748b !important;
+    background: #fff !important;
+    background-color: #fff !important;
+    border-radius: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+  html.appointments-print-route.dark .weekly-schedule-print-root,
+  html.appointments-print-route.dark .appt-print-light {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #0f172a !important;
   }
   .weekly-schedule-print-root table {
-    font-size: 8.5pt;
+    font-size: 8pt;
   }
 
-  /* Admin reports — hide shell when printing from this route only */
-  html.report-print-route header,
-  html.report-print-route aside {
-    display: none !important;
-  }
-  html.report-print-route .app-surface-gradient {
+  /* Appointments — kill dark theme + full-viewport stretch (grey slab in PDF) */
+  html.appointments-print-route #root {
+    overflow: visible !important;
+    max-width: none !important;
+    min-height: 0 !important;
     background: #fff !important;
     background-image: none !important;
   }
-  html.report-print-route main {
+  html.appointments-print-route main {
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    background: #fff !important;
+    background-image: none !important;
+  }
+  html.appointments-print-route .page-enter {
+    background: #fff !important;
+    min-height: 0 !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  /* Every node in the schedule card: paper-white base (beats .dark … utilities) */
+  html.appointments-print-route .appt-print-light,
+  html.appointments-print-route .appt-print-light .appt-weekly-scroll,
+  html.appointments-print-route .appt-print-light .appt-weekly-table,
+  html.appointments-print-route .appt-print-light thead,
+  html.appointments-print-route .appt-print-light tbody,
+  html.appointments-print-route .appt-print-light tr {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #0f172a !important;
+  }
+  html.appointments-print-route .appt-print-header .appt-print-logo-wrap {
+    box-shadow: none !important;
+    border-color: #0284c7 !important;
+    background: #fff !important;
+  }
+  html.appointments-print-route .weekly-schedule-print-root .appt-weekly-scroll {
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+  }
+  html.appointments-print-route .weekly-schedule-print-root .appt-print-header {
+    background: #e2e8f0 !important;
+    border-bottom: 2px solid #475569 !important;
+    padding: 10px 12px !important;
+  }
+  html.appointments-print-route .weekly-schedule-print-root .appt-print-header p {
+    color: #0f172a !important;
+  }
+  html.appointments-print-route .weekly-schedule-print-root .appt-print-legend {
+    color: #334155 !important;
+    margin-top: 6px !important;
+  }
+  html.appointments-print-route .weekly-schedule-print-root .appt-weekly-table {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+    font-size: 7pt !important;
+  }
+  html.appointments-print-route .weekly-schedule-print-root .appt-weekly-table th,
+  html.appointments-print-route .weekly-schedule-print-root .appt-weekly-table td {
+    position: static !important;
+    left: auto !important;
+    z-index: auto !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border: 1px solid #94a3b8 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    vertical-align: top !important;
+    padding: 3px 4px !important;
+    min-height: 0 !important;
+    color: #0f172a !important;
+  }
+  html.appointments-print-route .weekly-schedule-print-root .appt-weekly-table th span,
+  html.appointments-print-route .weekly-schedule-print-root .appt-weekly-table td span {
+    color: inherit !important;
+  }
+  html.appointments-print-route .weekly-schedule-print-root .appt-weekly-table thead th,
+  html.appointments-print-route .weekly-schedule-print-root .appt-weekly-table tbody th[scope='row'] {
+    color: #0f172a !important;
+  }
+  html.appointments-print-route .weekly-schedule-print-root .appt-weekly-table thead th {
+    background: #cbd5e1 !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+  }
+  html.appointments-print-route .weekly-schedule-print-root .appt-weekly-table tbody th[scope='row'] {
+    background: #f1f5f9 !important;
+    width: 7% !important;
+    font-size: 7pt !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+  }
+  html.appointments-print-route .weekly-schedule-print-root .appt-weekly-table tbody tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  /* Empty / non-working cells */
+  html.appointments-print-route .weekly-schedule-print-root .appt-weekly-table td:empty {
+    background: #f8fafc !important;
+  }
+  /* Empty bookable slot — no “Book / drop” on paper */
+  html.appointments-print-route .weekly-schedule-print-root .appt-empty-slot-btn {
+    min-height: 2rem !important;
+    border: none !important;
+    background: #f8fafc !important;
+    border-radius: 2px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 2px !important;
+    box-shadow: none !important;
+  }
+  html.appointments-print-route .weekly-schedule-print-root .appt-empty-slot-hint {
+    display: none !important;
+  }
+  html.appointments-print-route .weekly-schedule-print-root .appt-empty-slot-time {
+    font-size: 6.5pt !important;
+    color: #64748b !important;
+    opacity: 1 !important;
+  }
+  /* Booking chips — light ink-friendly tints (ignore dark: screen classes) */
+  html.appointments-print-route .weekly-schedule-print-root .appt-booking-card {
+    box-shadow: none !important;
+    border-radius: 4px !important;
+    padding: 4px 5px !important;
+    min-width: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    page-break-inside: avoid;
+    border-width: 1px !important;
+  }
+  html.appointments-print-route .appt-booking-card[data-apt-status='scheduled'] {
+    background-color: #e0f2fe !important;
+    color: #0c4a6e !important;
+    border-color: #38bdf8 !important;
+  }
+  html.appointments-print-route .appt-booking-card[data-apt-status='confirmed'] {
+    background-color: #d1fae5 !important;
+    color: #064e3b !important;
+    border-color: #34d399 !important;
+  }
+  html.appointments-print-route .appt-booking-card[data-apt-status='in-progress'] {
+    background-color: #fef3c7 !important;
+    color: #78350f !important;
+    border-color: #fbbf24 !important;
+  }
+  html.appointments-print-route .appt-booking-card[data-apt-status='completed'] {
+    background-color: #f1f5f9 !important;
+    color: #1e293b !important;
+    border-color: #94a3b8 !important;
+  }
+  html.appointments-print-route .appt-booking-card[data-apt-status='cancelled'] {
+    background-color: #fee2e2 !important;
+    color: #7f1d1d !important;
+    border-color: #f87171 !important;
+  }
+  html.appointments-print-route .appt-booking-card[data-apt-status='no-show'] {
+    background-color: #ffedd5 !important;
+    color: #7c2d12 !important;
+    border-color: #fb923c !important;
+  }
+
+  /* Hide app chrome when printing (reports + appointments + prescription sheet — class on <html>) */
+  html.report-print-route header,
+  html.report-print-route aside,
+  html.appointments-print-route header,
+  html.appointments-print-route aside,
+  html.prescription-print-route header,
+  html.prescription-print-route aside {
+    display: none !important;
+  }
+  html.report-print-route .app-surface-gradient,
+  html.appointments-print-route .app-surface-gradient,
+  html.prescription-print-route .app-surface-gradient {
+    background: #fff !important;
+    background-image: none !important;
+  }
+  html.report-print-route main,
+  html.appointments-print-route main,
+  html.prescription-print-route main {
     padding: 0.75rem !important;
     max-width: none !important;
   }
-  html.report-print-route .page-enter {
+  html.report-print-route .page-enter,
+  html.appointments-print-route .page-enter,
+  html.prescription-print-route .page-enter {
     animation: none !important;
   }
-  html.report-print-route .mx-auto.max-w-\[1680px\] {
+  html.report-print-route .mx-auto.max-w-\[1680px\],
+  html.appointments-print-route .mx-auto.max-w-\[1680px\],
+  html.prescription-print-route .mx-auto.max-w-\[1680px\] {
     max-width: none !important;
+  }
+  html.appointments-print-route .app-surface-gradient > div.flex,
+  html.prescription-print-route .app-surface-gradient > div.flex {
+    overflow: visible !important;
+    min-height: auto !important;
+    height: auto !important;
+    background: #fff !important;
+    background-image: none !important;
   }
   .reports-print-root {
     break-inside: avoid;
@@ -186,5 +433,34 @@
   .reports-print-root .recharts-cartesian-grid-horizontal line,
   .reports-print-root .recharts-cartesian-grid-vertical line {
     stroke: #cbd5e1 !important;
+  }
+
+  /* Prescription printable sheet */
+  html.prescription-print-route #root {
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+  .prescription-print-root.rx-print-sheet {
+    color: #0f172a !important;
+    background: #fff !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .prescription-print-root .rx-print-header {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .prescription-print-root .rx-medicine-table {
+    font-size: 9pt !important;
+  }
+  .prescription-print-root .rx-medicine-table th,
+  .prescription-print-root .rx-medicine-table td {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .prescription-print-root .rx-signature-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }

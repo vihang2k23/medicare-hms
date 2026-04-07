@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { ChevronDown, ChevronUp, FileText, History } from 'lucide-react'
+import { ChevronDown, ChevronUp, FileText, History, Printer } from 'lucide-react'
 import type { AppDispatch, RootState } from '../app/store'
 import { useAuth } from '../hooks/useAuth'
 import { removePrescription, updatePrescriptionStatus } from '../features/prescriptions/prescriptionsSlice'
@@ -29,6 +29,7 @@ function PrescriptionHistoryRow({
   canManage,
   onStatus,
   onDelete,
+  printBasePath,
 }: {
   rx: Prescription
   expanded: boolean
@@ -36,19 +37,19 @@ function PrescriptionHistoryRow({
   canManage: boolean
   onStatus: (id: string, s: PrescriptionStatus) => void
   onDelete: (id: string) => void
+  /** e.g. `/admin/prescriptions` — links to printable layout */
+  printBasePath: string
 }) {
   const recallCount = rx.medicines.reduce((n, m) => n + (m.recallAlerts?.length ?? 0), 0)
 
   return (
     <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/40 overflow-hidden">
-    
-    
+      <div className="flex flex-col sm:flex-row sm:items-stretch">
       <button
         type="button"
         onClick={onToggle}
-        className="w-full flex items-start gap-3 p-4 text-left hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
+        className="flex-1 flex items-start gap-3 p-4 text-left hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors min-w-0"
       >
-        
         <div className="mt-0.5 text-sky-600 dark:text-sky-400 shrink-0">
           {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </div>
@@ -82,6 +83,18 @@ function PrescriptionHistoryRow({
           )}
         </div>
       </button>
+      <div className="flex sm:flex-col border-t sm:border-t-0 sm:border-l border-slate-100 dark:border-slate-800 shrink-0">
+        <Link
+          to={`${printBasePath}/${rx.id}/print`}
+          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-3 sm:py-4 text-sm font-semibold text-sky-700 dark:text-sky-300 hover:bg-sky-500/10 dark:hover:bg-sky-500/15 transition-colors"
+          title="Open printable prescription (PDF via browser print)"
+          aria-label="Open printable prescription"
+        >
+          <Printer className="h-4 w-4 shrink-0" aria-hidden />
+          <span className="sm:hidden">PDF view</span>
+        </Link>
+      </div>
+      </div>
       {expanded && (
         <div className="px-4 pb-4 pt-0 border-t border-slate-100 dark:border-slate-800 space-y-3">
           <ul className="space-y-2 text-sm">
@@ -179,6 +192,8 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
       ? 'text-sky-600 dark:text-sky-400'
       : 'text-emerald-600 dark:text-emerald-400'
 
+  const printBasePath = variant === 'admin' ? '/admin/prescriptions' : '/doctor/prescriptions'
+
   return (
     <div className="space-y-8">
       <div>
@@ -264,6 +279,7 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
                   canManage={variant === 'admin' || rx.doctorId === user?.id}
                   onStatus={onStatus}
                   onDelete={onDelete}
+                  printBasePath={printBasePath}
                 />
               ))}
             </div>

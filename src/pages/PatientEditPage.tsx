@@ -65,6 +65,8 @@ export default function PatientEditPage() {
       <PatientRegistrationForm
         initialRecord={patient}
         redirectTo={`/admin/patients/${encodeURIComponent(patient.id)}`}
+        exitTo={`/admin/patients/${encodeURIComponent(patient.id)}`}
+        exitLabel="← Back to profile"
       />
     </div>
   )
