@@ -20,12 +20,24 @@ export async function createInternalDoctor(record: InternalDoctorRecord): Promis
   return res.json() as Promise<InternalDoctorRecord>
 }
 
+export async function updateInternalDoctor(record: InternalDoctorRecord): Promise<InternalDoctorRecord> {
+  const res = await fetch(`${base()}/${encodeURIComponent(record.id)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(record),
+  })
+  if (!res.ok) throw new Error(`Failed to update doctor: ${res.status}`)
+  return res.json() as Promise<InternalDoctorRecord>
+}
+
 export async function deleteInternalDoctor(id: string): Promise<void> {
   const res = await fetch(`${base()}/${encodeURIComponent(id)}`, { method: 'DELETE' })
   if (!res.ok && res.status !== 404) throw new Error(`Failed to remove doctor: ${res.status}`)
 }
 
 export async function findInternalDoctorByNpi(npi: string): Promise<InternalDoctorRecord | null> {
+  const digits = npi.replace(/\D/g, '')
+  if (digits.length < 2) return null
   const list = await fetchInternalDoctors()
-  return list.find((d) => d.npi === npi) ?? null
+  return list.find((d) => d.npi === digits) ?? null
 }

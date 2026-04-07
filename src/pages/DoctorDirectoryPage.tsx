@@ -3,10 +3,12 @@ import { createPortal } from 'react-dom'
 import { useDispatch } from 'react-redux'
 import {
   Building2,
+  CalendarClock,
   ChevronLeft,
   ChevronRight,
   Loader2,
   MapPin,
+  Pencil,
   Phone,
   Stethoscope,
   UserPlus,
@@ -27,13 +29,18 @@ import {
 } from '../api/internalDoctorsApi'
 import type { NpiProviderCard, NpiRawResult, NpiSearchParams } from '../lib/npiRegistryApi'
 import { npiCardToInternalRecord, searchNpiRegistry } from '../lib/npiRegistryApi'
-import { internalRecordToScheduleDoctor, type InternalDoctorRecord } from '../types/internalDoctor'
+import {
+  formatInternalDoctorScheduleSummary,
+  internalRecordToScheduleDoctor,
+  type InternalDoctorRecord,
+} from '../types/internalDoctor'
 import {
   addImportedScheduleDoctor,
   removeImportedScheduleDoctor,
   setImportedScheduleDoctors,
 } from '../features/appointments/appointmentsSlice'
 import { notify } from '../lib/notify'
+import InternalDoctorScheduleModal from '../components/InternalDoctorScheduleModal'
 
 const PAGE_SIZE = 12
 const MAX_SKIP = 1000
@@ -42,6 +49,12 @@ const NPI_TAXONOMY_PRESET_VALUES: ReadonlySet<string> = new Set(
   NPI_TAXONOMY_FILTERS.map((f) => f.value as string),
 )
 const TAXONOMY_SELECT_CUSTOM = '__custom__'
+
+function canShowNpiProfile(r: InternalDoctorRecord): boolean {
+  if (r.source === 'manual') return false
+  const raw = r.rawResult
+  return typeof raw === 'object' && raw !== null && 'number' in raw
+}
 
 function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => void }) {
   const b = raw.basic ?? {}
@@ -255,6 +268,8 @@ export default function DoctorDirectoryPage() {
 
   const [internalList, setInternalList] = useState<InternalDoctorRecord[]>([])
   const [internalLoading, setInternalLoading] = useState(false)
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
+  const [scheduleModalRecord, setScheduleModalRecord] = useState<InternalDoctorRecord | null>(null)
 
   const regionOptions = useMemo(() => getNpiRegionOptionsForCountry(countryCode), [countryCode])
   const stateIsSelect = regionOptions !== null && regionOptions.length > 1
@@ -276,6 +291,17 @@ export default function DoctorDirectoryPage() {
   useEffect(() => {
     if (tab === 'internal') void loadInternal()
   }, [tab, loadInternal])
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const rows = await fetchInternalDoctors()
+        setInternalList(rows)
+      } catch {
+        /* JSON Server offline — count stays 0 until Internal tab load */
+      }
+    })()
+  }, [])
 
   const clearNpiSearchForm = () => {
     setNpiNumber('')
@@ -762,65 +788,128 @@ export default function DoctorDirectoryPage() {
       )}
 
       {tab === 'internal' && (
-        <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/45 overflow-hidden ring-1 ring-slate-200/40 dark:ring-slate-700/40">
-          {internalLoading ? (
-            <div className="flex justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-sky-500" />
-            </div>
-          ) : internalList.length === 0 ? (
-            <p className="text-slate-500 dark:text-slate-400 text-sm p-8 text-center">
-              No imported doctors yet. Use <strong>Doctor search</strong> and <strong>Add to HMS</strong>.
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-slate-600 dark:text-slate-400 max-w-2xl">
+              Import from <strong className="font-medium text-slate-700 dark:text-slate-200">Doctor search</strong> or add
+              a provider manually. Set weekly hours and lunch so slots match your clinic.
             </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left min-w-[640px]">
-                <thead className="bg-slate-50/90 dark:bg-slate-900/70 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
-                  <tr>
-                    <th className="px-4 py-3 font-bold text-[11px] uppercase tracking-wider">Name</th>
-                    <th className="px-4 py-3 font-bold text-[11px] uppercase tracking-wider">NPI</th>
-                    <th className="px-4 py-3 font-bold text-[11px] uppercase tracking-wider">Department</th>
-                    <th className="px-4 py-3 font-bold text-[11px] uppercase tracking-wider">Location</th>
-                    <th className="px-4 py-3 font-bold text-[11px] uppercase tracking-wider">Phone</th>
-                    <th className="px-4 py-3 font-bold text-[11px] uppercase tracking-wider text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {internalList.map((r) => (
-                    <tr
-                      key={r.id}
-                      className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50/80 dark:hover:bg-slate-800/40"
-                    >
-                      <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{r.name}</td>
-                      <td className="px-4 py-3 font-mono text-xs text-sky-600 dark:text-sky-400">{r.npi}</td>
-                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{r.department}</td>
-                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
-                        {[r.city, r.state].filter(Boolean).join(', ') || '—'}
-                      </td>
-                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{r.phone ?? '—'}</td>
-                      <td className="px-4 py-3 text-right space-x-2">
-                        <button
-                          type="button"
-                          onClick={() => setProfileRaw(r.rawResult as NpiRawResult)}
-                          className="text-sky-600 dark:text-sky-400 font-semibold text-xs hover:underline"
-                        >
-                          Profile
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => void removeInternal(r)}
-                          className="text-red-600 dark:text-red-400 font-semibold text-xs hover:underline"
-                        >
-                          Remove
-                        </button>
-                      </td>
+            <button
+              type="button"
+              onClick={() => {
+                setScheduleModalRecord(null)
+                setScheduleModalOpen(true)
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-sky-600 text-white hover:bg-sky-500 shadow-sm"
+            >
+              <UserPlus className="h-4 w-4" />
+              Add manual doctor
+            </button>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/45 overflow-hidden ring-1 ring-slate-200/40 dark:ring-slate-700/40">
+            {internalLoading ? (
+              <div className="flex justify-center py-16">
+                <Loader2 className="h-8 w-8 animate-spin text-sky-500" />
+              </div>
+            ) : internalList.length === 0 ? (
+              <div className="p-10 text-center space-y-4">
+                <CalendarClock className="h-10 w-10 mx-auto text-slate-300 dark:text-slate-600" aria-hidden />
+                <p className="text-slate-500 dark:text-slate-400 text-sm">
+                  No doctors in HMS yet. Add one manually or import from the registry.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setScheduleModalRecord(null)
+                    setScheduleModalOpen(true)
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200"
+                >
+                  <UserPlus className="h-4 w-4" />
+                  Add manual doctor
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left min-w-[900px]">
+                  <thead className="bg-slate-50/90 dark:bg-slate-900/70 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
+                    <tr>
+                      <th className="px-4 py-3 font-bold text-[11px] uppercase tracking-wider">Name</th>
+                      <th className="px-4 py-3 font-bold text-[11px] uppercase tracking-wider">NPI</th>
+                      <th className="px-4 py-3 font-bold text-[11px] uppercase tracking-wider">Department</th>
+                      <th className="px-4 py-3 font-bold text-[11px] uppercase tracking-wider">Weekly schedule</th>
+                      <th className="px-4 py-3 font-bold text-[11px] uppercase tracking-wider">Location</th>
+                      <th className="px-4 py-3 font-bold text-[11px] uppercase tracking-wider">Phone</th>
+                      <th className="px-4 py-3 font-bold text-[11px] uppercase tracking-wider text-right">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  </thead>
+                  <tbody>
+                    {internalList.map((r) => (
+                      <tr
+                        key={r.id}
+                        className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50/80 dark:hover:bg-slate-800/40"
+                      >
+                        <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{r.name}</td>
+                        <td className="px-4 py-3 font-mono text-xs text-sky-600 dark:text-sky-400">
+                          {r.npi || '—'}
+                        </td>
+                        <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{r.department}</td>
+                        <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300 max-w-[220px] leading-snug">
+                          {formatInternalDoctorScheduleSummary(r)}
+                        </td>
+                        <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                          {[r.city, r.state].filter(Boolean).join(', ') || '—'}
+                        </td>
+                        <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{r.phone ?? '—'}</td>
+                        <td className="px-4 py-3 text-right space-x-2 whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setScheduleModalRecord(r)
+                              setScheduleModalOpen(true)
+                            }}
+                            className="inline-flex items-center gap-1 text-violet-600 dark:text-violet-400 font-semibold text-xs hover:underline"
+                          >
+                            <Pencil className="h-3 w-3" />
+                            Edit schedule
+                          </button>
+                          {canShowNpiProfile(r) && (
+                            <button
+                              type="button"
+                              onClick={() => setProfileRaw(r.rawResult as NpiRawResult)}
+                              className="text-sky-600 dark:text-sky-400 font-semibold text-xs hover:underline"
+                            >
+                              Profile
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => void removeInternal(r)}
+                            className="text-red-600 dark:text-red-400 font-semibold text-xs hover:underline"
+                          >
+                            Remove
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       )}
+
+      <InternalDoctorScheduleModal
+        open={scheduleModalOpen}
+        record={scheduleModalRecord}
+        onClose={() => {
+          setScheduleModalOpen(false)
+          setScheduleModalRecord(null)
+        }}
+        onSaved={() => void loadInternal()}
+      />
 
       {profileRaw && <NpiProfileModal raw={profileRaw} onClose={() => setProfileRaw(null)} />}
 

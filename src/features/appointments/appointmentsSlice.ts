@@ -122,9 +122,14 @@ const appointmentsSlice = createSlice({
       const a = state.appointments.find((x) => x.id === action.payload)
       if (a) a.status = 'cancelled'
     },
-    /** Replace NPI-imported rows; keeps seeded defaults from initial merge pattern. */
+    /** Replace JSON Server doctors; keeps seeded demo rows only. */
     setImportedScheduleDoctors(state, action: PayloadAction<ScheduleDoctor[]>) {
-      const seeds = state.doctors.filter((d) => d.source === 'seed' || (!d.source && !d.npi))
+      const isFromJsonServer = (d: ScheduleDoctor) =>
+        d.source === 'npi' ||
+        d.source === 'manual' ||
+        d.id.startsWith('npi-') ||
+        d.id.startsWith('manual-')
+      const seeds = state.doctors.filter((d) => !isFromJsonServer(d))
       const seen = new Set(seeds.map((d) => d.id))
       const imports = action.payload.filter((d) => !seen.has(d.id))
       state.doctors = [...seeds, ...imports]
@@ -134,9 +139,16 @@ const appointmentsSlice = createSlice({
       if (state.doctors.some((x) => x.id === d.id)) return
       state.doctors.push(d)
     },
+    updateImportedScheduleDoctor(state, action: PayloadAction<ScheduleDoctor>) {
+      const d = action.payload
+      const i = state.doctors.findIndex((x) => x.id === d.id)
+      if (i === -1) return
+      if (state.doctors[i]!.source === 'seed') return
+      state.doctors[i] = d
+    },
     removeImportedScheduleDoctor(state, action: PayloadAction<string>) {
       const id = action.payload
-      state.doctors = state.doctors.filter((d) => !(d.id === id && d.source === 'npi'))
+      state.doctors = state.doctors.filter((d) => !(d.id === id && d.source !== 'seed'))
     },
   },
 })
@@ -149,6 +161,7 @@ export const {
   cancelAppointment,
   setImportedScheduleDoctors,
   addImportedScheduleDoctor,
+  updateImportedScheduleDoctor,
   removeImportedScheduleDoctor,
 } = appointmentsSlice.actions
 
