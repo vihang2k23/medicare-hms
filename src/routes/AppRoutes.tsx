@@ -13,7 +13,6 @@ import NurseBeds from '../pages/NurseBeds'
 const VitalsEntryPage = lazy(() => import('../pages/VitalsEntryPage'))
 const VitalsPatientDetailPage = lazy(() => import('../pages/VitalsPatientDetailPage'))
 import AccessDenied from '../pages/AccessDenied'
-import PlaceholderPage from '../components/PlaceholderPage'
 import PatientListPage from '../pages/PatientListPage'
 import PatientRegistrationPage from '../pages/PatientRegistrationPage'
 import PatientProfilePage from '../pages/PatientProfilePage'
@@ -24,6 +23,8 @@ import AppointmentsPage from '../pages/AppointmentsPage'
 import PrescriptionsPage from '../pages/PrescriptionsPage'
 import PrescriptionPrintPage from '../pages/PrescriptionPrintPage'
 import DoctorDirectoryPage from '../pages/DoctorDirectoryPage'
+import DoctorMyPatientsPage from '../pages/DoctorMyPatientsPage'
+import DoctorPatientProfilePage from '../pages/DoctorPatientProfilePage'
 import ReportsPage from '../pages/ReportsPage'
 
 export default function AppRoutes() {
@@ -51,7 +52,8 @@ export default function AppRoutes() {
           <Route path="admin/reports" element={<ReportsPage />} />
           {/* Doctor */}
           <Route path="doctor" element={<DoctorDashboard />} />
-          <Route path="doctor/patients" element={<PlaceholderPage title="My Patients" />} />
+          <Route path="doctor/patients" element={<DoctorMyPatientsPage />} />
+          <Route path="doctor/patients/:patientId" element={<DoctorPatientProfilePage />} />
           <Route path="doctor/prescriptions" element={<PrescriptionsPage variant="doctor" />} />
           <Route
             path="doctor/prescriptions/:prescriptionId/print"

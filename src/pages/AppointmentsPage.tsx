@@ -16,10 +16,7 @@ import { isDateInWeek, startOfWeekMonday } from '../features/appointments/slotUt
 import type { Appointment } from '../features/appointments/types'
 import { notify } from '../lib/notify'
 import type { PatientRecord } from '../types/patient'
-
-const DEMO_USER_DOCTOR_ID: Record<string, string> = {
-  DOC001: 'D1',
-}
+import { scheduleDoctorIdForAuthUser } from '../config/doctorScheduleMap'
 
 export type AppointmentsVariant = 'admin' | 'receptionist' | 'doctor'
 
@@ -33,7 +30,7 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
   const doctors = useSelector((s: RootState) => s.appointments.doctors)
   const appointments = useSelector((s: RootState) => s.appointments.appointments)
 
-  const lockedDoctorId = variant === 'doctor' ? (DEMO_USER_DOCTOR_ID[user?.id ?? ''] ?? 'D1') : null
+  const lockedDoctorId = variant === 'doctor' ? scheduleDoctorIdForAuthUser(user?.id) : null
   const [weekStart, setWeekStart] = useState(() => startOfWeekMonday(new Date()))
   const [doctorId, setDoctorId] = useState(() => lockedDoctorId ?? doctors[0]?.id ?? '')
 
