@@ -17,7 +17,6 @@ import type { Appointment } from '../features/appointments/types'
 import { notify } from '../lib/notify'
 import type { PatientRecord } from '../types/patient'
 
-/** Demo: map logged-in doctor user to seeded schedule id */
 const DEMO_USER_DOCTOR_ID: Record<string, string> = {
   DOC001: 'D1',
 }
@@ -42,7 +41,6 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
     if (lockedDoctorId) setDoctorId(lockedDoctorId)
   }, [lockedDoctorId])
 
-  /** Enables @media print rules that hide nav/sidebar (same pattern as Reports). */
   useEffect(() => {
     document.documentElement.classList.add('appointments-print-route')
     return () => document.documentElement.classList.remove('appointments-print-route')
@@ -174,11 +172,7 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
           {variant === 'doctor' ? 'My schedule' : 'Appointments'}
         </h1>
         <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-2xl leading-relaxed max-sm:text-xs">
-          Custom week view: <strong className="font-medium text-slate-700 dark:text-slate-200">time rows</strong>{' '}
-          × <strong className="font-medium text-slate-700 dark:text-slate-200">Mon–Sun</strong> columns (date-fns, no
-          calendar library). Appointments are color-coded by status.{' '}
-          <strong className="font-medium text-slate-700 dark:text-slate-200">Drag</strong> a booking onto an empty slot
-          to reschedule; click for full detail, modal reschedule, or cancel.
+          Week grid: time rows × Mon–Sun. Status colors on bookings. Drag to reschedule; click to open details.
         </p>
       </div>
 
@@ -217,7 +211,7 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
           <button
             type="button"
             onClick={printSchedule}
-            title="Tip: in the print dialog, turn off Headers and footers to hide the page URL on PDFs."
+            title="Print: disable browser headers/footers to omit the URL in PDFs."
             className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80"
           >
             <Printer className="h-4 w-4" aria-hidden />
@@ -286,8 +280,8 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
 
       {variant !== 'doctor' && (
         <p className="no-print-appt text-xs text-slate-500 dark:text-slate-400">
-          Bookings are saved in this browser ({`localStorage`}). Run{' '}
-          <code className="font-mono text-[11px]">npm run server</code> to load patients for the dropdown.
+          Data stored in this browser. Use <code className="font-mono text-[11px]">npm run server</code> for the patient
+          list API.
         </p>
       )}
     </div>

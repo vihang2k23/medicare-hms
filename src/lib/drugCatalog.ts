@@ -1,7 +1,3 @@
-/**
- * In-app static drug catalog + demo recall records (no network calls).
- */
-
 import type { OpenFdaLabelHit, PrescriptionRecallSnapshot } from '../features/prescriptions/types'
 import { STATIC_DRUG_CATALOG, STATIC_DRUG_RECALLS, type StaticDrugEntry } from '../data/drugCatalogData'
 
@@ -105,9 +101,6 @@ export function fetchRecallAlertsForDrugIds(drugIds: string[]): Promise<Prescrip
   return Promise.resolve(recallsForDrugIds(drugIds))
 }
 
-/**
- * Match search terms to catalog entries, then return demo recalls for those drugs.
- */
 export function fetchRecallAlertsForTerms(terms: string[]): Promise<PrescriptionRecallSnapshot[]> {
   const cleaned = [...new Set(terms.map((t) => t.trim()).filter((t) => t.length >= 2))].slice(0, 8)
   if (cleaned.length === 0) return Promise.resolve([])

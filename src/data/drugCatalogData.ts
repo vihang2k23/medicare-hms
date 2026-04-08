@@ -1,7 +1,4 @@
-/**
- * Static demo drug catalog for prescription search (no external API).
- * Inspired by common prescribing patterns; not for clinical use.
- */
+/* Static drug catalog for in-app prescription search. */
 
 export interface StaticDrugEntry {
   id: string
@@ -13,7 +10,6 @@ export interface StaticDrugEntry {
   drugClass: string
   commonStrengths: string[]
   dosageForms: string[]
-  /** Short clinical-use summary for the UI */
   indications: string
   contraindicationsNote?: string
   commonAdverseEffects?: string
@@ -22,7 +18,6 @@ export interface StaticDrugEntry {
 
 export interface StaticRecallEntry {
   recallId: string
-  /** Catalog drug ids this demo recall is tied to */
   drugIds: string[]
   status: string
   classification: string
@@ -410,7 +405,6 @@ export const STATIC_DRUG_CATALOG: StaticDrugEntry[] = [
   },
 ]
 
-/** Demo recall rows linked to catalog ids — fictional report numbers for training UI only */
 export const STATIC_DRUG_RECALLS: StaticRecallEntry[] = [
   {
     recallId: 'DEMO-RX-2024-001',

@@ -78,7 +78,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
       const alerts = await fetchRecallAlertsForDrugIds([hit.id])
       onChange({ ...base, recallAlerts: alerts })
     } catch {
-      notify.error('Could not load demo recall data for this drug.')
+      notify.error('Could not load recall sample for this drug.')
     } finally {
       setRecallLoading(false)
     }
@@ -137,7 +137,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
 
       <div className="relative">
         <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
-          Drug (static catalog)
+          Drug (catalog)
         </label>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" aria-hidden />
@@ -153,7 +153,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
               setOpen(true)
             }}
             onFocus={() => setOpen(true)}
-            placeholder="Search bundled drugs (e.g. metformin, paracetamol, omeprazole)…"
+            placeholder="Search catalog (e.g. metformin, paracetamol)…"
             className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
           />
           {loading && (
@@ -248,18 +248,16 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
           className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold border border-amber-200 dark:border-amber-800/80 text-amber-900 dark:text-amber-200 bg-amber-50/80 dark:bg-amber-950/30 hover:bg-amber-100/80 dark:hover:bg-amber-950/50 disabled:opacity-50"
         >
           {recallLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <AlertTriangle className="h-3.5 w-3.5" />}
-          Check demo recalls
+          Check recalls
         </button>
-        <span className="text-[11px] text-slate-500 dark:text-slate-400">
-          Static recall scenarios (metformin, ibuprofen, amoxicillin in demo data).
-        </span>
+        <span className="text-[11px] text-slate-500 dark:text-slate-400">Sample scenarios for common drugs.</span>
       </div>
 
       {line.recallAlerts && line.recallAlerts.length > 0 && (
         <div className="rounded-xl border border-amber-200/90 dark:border-amber-800/60 bg-amber-50/90 dark:bg-amber-950/35 p-3 space-y-2">
           <p className="text-xs font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
             <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden />
-            Demo recall flags — training only; verify all meds in real practice
+            Sample recalls — verify against live sources
           </p>
           <ul className="space-y-2 text-xs text-amber-950 dark:text-amber-100">
             {line.recallAlerts.map((a) => (

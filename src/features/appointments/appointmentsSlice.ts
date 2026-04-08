@@ -122,7 +122,6 @@ const appointmentsSlice = createSlice({
       const a = state.appointments.find((x) => x.id === action.payload)
       if (a) a.status = 'cancelled'
     },
-    /** Replace JSON Server doctors; keeps seeded demo rows only. */
     setImportedScheduleDoctors(state, action: PayloadAction<ScheduleDoctor[]>) {
       const isFromJsonServer = (d: ScheduleDoctor) =>
         d.source === 'npi' ||

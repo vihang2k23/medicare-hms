@@ -122,9 +122,9 @@ function VitalsEntryPage() {
             Vitals entry
           </h1>
           <p className="text-slate-600 dark:text-slate-400 text-sm mt-3 max-w-2xl leading-relaxed">
-            Open <strong className="font-medium text-slate-700 dark:text-slate-200">View</strong> for charts and full vitals history on a patient page, or{' '}
-            <strong className="font-medium text-slate-700 dark:text-slate-200">Record</strong> to add readings in a modal. Data syncs to{' '}
-            <code className="text-xs font-mono text-orange-700 dark:text-orange-300/90">vitals</code> on the local server.
+            <strong className="font-medium text-slate-700 dark:text-slate-200">View</strong> opens charts and history;{' '}
+            <strong className="font-medium text-slate-700 dark:text-slate-200">Record</strong> adds vitals. Saved to{' '}
+            <code className="text-xs font-mono text-orange-700 dark:text-orange-300/90">vitals</code>.
           </p>
         </div>
       </div>
@@ -150,10 +150,10 @@ function VitalsEntryPage() {
               {totalFiltered} patient{totalFiltered === 1 ? '' : 's'}
               {query.trim()
                 ? ` ${totalFiltered === 1 ? 'matches' : 'match'} your search.`
-                : ` in the list.`}{' '}
-              Use rows per page and Prev/Next below. Chevron: demographics.{' '}
-              <strong className="font-medium text-slate-600 dark:text-slate-300">View</strong> → full vitals page.{' '}
-              <strong className="font-medium text-slate-600 dark:text-slate-300">Record</strong> → entry modal.
+                : '.'}{' '}
+              Paginate below. Chevron expands demographics.{' '}
+              <strong className="font-medium text-slate-600 dark:text-slate-300">View</strong> /{' '}
+              <strong className="font-medium text-slate-600 dark:text-slate-300">Record</strong>.
             </p>
             <div className="space-y-3">
             <div className="max-h-[min(28rem,52vh)] overflow-auto rounded-xl border border-slate-200/90 dark:border-slate-700/90 bg-white dark:bg-slate-950/20 ring-1 ring-slate-200/40 dark:ring-slate-800/50">

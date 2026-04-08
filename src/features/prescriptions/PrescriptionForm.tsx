@@ -130,15 +130,14 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">New prescription</h2>
           {variant === 'admin' ? (
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-              Signed in as <span className="font-medium text-slate-700 dark:text-slate-200">{user?.name}</span> (administrator).
-              The prescription is attributed to the <strong className="font-medium text-slate-600 dark:text-slate-300">prescribing physician</strong> you
-              select below — not to your admin account. Drug names come from the bundled{' '}
-              <strong className="font-medium text-slate-600 dark:text-slate-300">static catalog</strong>; recall flags are demo only.
+              Admin: <span className="font-medium text-slate-700 dark:text-slate-200">{user?.name}</span>. Attribution follows the{' '}
+              <strong className="font-medium text-slate-600 dark:text-slate-300">physician</strong> you select. Catalog lookup; recall alerts are
+              illustrative.
             </p>
           ) : (
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-              Prescriber on file: <span className="font-medium text-slate-700 dark:text-slate-200">{user?.name}</span> (your account). Drug names come
-              from the bundled <strong className="font-medium text-slate-600 dark:text-slate-300">static catalog</strong>; recall flags are demo only.
+              Prescriber: <span className="font-medium text-slate-700 dark:text-slate-200">{user?.name}</span>. Catalog lookup; recall alerts are
+              illustrative.
             </p>
           )}
         </div>

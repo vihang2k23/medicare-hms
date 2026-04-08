@@ -134,7 +134,7 @@ function PrescriptionHistoryCard({
                     {recallCount > 0 && (
                       <span
                         className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-950 dark:bg-amber-900/40 dark:text-amber-100 ring-1 ring-amber-200/80 dark:ring-amber-800/50"
-                        title="Demo recall check flags"
+                        title="Recall flags"
                       >
                         Recall note{recallCount > 1 ? 's' : ''} ({recallCount})
                       </span>
@@ -335,13 +335,13 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
   return (
     <div className="space-y-8">
       <div>
-        <p className={`text-[11px] font-bold uppercase tracking-[0.2em] mb-2 ${accent}`}>Week 7 · Clinical</p>
+        <p className={`text-[11px] font-bold uppercase tracking-[0.2em] mb-2 ${accent}`}>Clinical</p>
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
           Prescriptions
         </h1>
         <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-2xl leading-relaxed">
-          Write multi-line prescriptions using the bundled <strong className="font-medium text-slate-700 dark:text-slate-200">drug catalog</strong>, run{' '}
-          <strong className="font-medium text-slate-700 dark:text-slate-200">demo recall</strong> checks (static training data), and browse saved history.
+          Use the in-app <strong className="font-medium text-slate-700 dark:text-slate-200">drug catalog</strong>, optional{' '}
+          <strong className="font-medium text-slate-700 dark:text-slate-200">recall check</strong> (sample data), and history below.
         </p>
       </div>
 
@@ -404,8 +404,7 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
             </div>
             {variant === 'doctor' && (
               <p className="text-xs text-slate-500 dark:text-slate-400 sm:text-right max-w-md">
-                Only prescriptions you prescribed are listed (demo user <span className="font-mono">{user?.id ?? '—'}</span>
-                ).
+                Showing your prescriptions only (<span className="font-mono">{user?.id ?? '—'}</span>).
               </p>
             )}
           </div>

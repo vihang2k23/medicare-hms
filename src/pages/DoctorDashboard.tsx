@@ -33,7 +33,7 @@ export default function DoctorDashboard() {
         <StatCard
           label="Prescriptions today"
           value={prescriptionsToday}
-          subLabel="Written so far (this demo user)"
+          subLabel="Today"
           accent="blue"
           icon={<FileText className="h-5 w-5" aria-hidden />}
         />

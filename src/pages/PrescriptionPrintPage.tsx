@@ -6,6 +6,7 @@ import type { RootState } from '../app/store'
 import { useAuth } from '../hooks/useAuth'
 import { fetchPatientById } from '../api/patientsApi'
 import MediCareLogo from '../components/brand/MediCareLogo'
+import { MedicarePrintPageFooter, MedicarePrintPageHeader } from '../components/print/MedicarePrintChrome'
 import type { PatientRecord } from '../types/patient'
 
 function formatRxDate(ts: number) {
@@ -109,6 +110,11 @@ export default function PrescriptionPrintPage({ variant }: PrescriptionPrintPage
 
   return (
     <div className="space-y-6">
+      <MedicarePrintPageHeader
+        documentLabel="Prescription document"
+        detail={`Rx ID ${rx.id} · ${rx.patientName}`}
+      />
+
       <div className="no-print-rx flex flex-wrap items-center gap-3">
         <Link
           to={listPath}
@@ -128,7 +134,10 @@ export default function PrescriptionPrintPage({ variant }: PrescriptionPrintPage
       </div>
 
       <article className="prescription-print-root rx-print-sheet mx-auto max-w-[210mm] bg-white text-slate-900 shadow-sm sm:shadow-md border border-slate-200 dark:border-slate-600 rounded-xl sm:rounded-2xl overflow-hidden print:shadow-none print:border print:rounded-none">
-        <header className="rx-print-header border-b-2 border-sky-700/25 bg-sky-50/80 px-6 py-5 print:bg-sky-50">
+        <div
+          role="banner"
+          className="rx-print-header border-b-2 border-sky-700/25 bg-sky-50/80 px-6 py-5 print:bg-sky-50"
+        >
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-start gap-4 min-w-0">
               <div className="shrink-0 rounded-xl border border-sky-600/30 bg-white p-1.5">
@@ -160,7 +169,7 @@ export default function PrescriptionPrintPage({ variant }: PrescriptionPrintPage
               </p>
             </div>
           </div>
-        </header>
+        </div>
 
         <div className="px-6 py-5 space-y-6 print:py-4">
           <section className="rx-print-patient grid gap-4 sm:grid-cols-2 border border-slate-200 rounded-xl p-4 bg-slate-50/60 print:bg-slate-50">
@@ -288,12 +297,13 @@ export default function PrescriptionPrintPage({ variant }: PrescriptionPrintPage
               </div>
             </div>
             <p className="text-[10px] text-slate-500 mt-8 leading-relaxed max-w-2xl">
-              This document is generated from MediCare HMS for training and demonstration. Verify all medications with
-              your pharmacist. Controlled substances require compliant prescribing workflows in production systems.
+              Verify medications with your pharmacist. Follow jurisdictional rules for controlled substances.
             </p>
           </section>
         </div>
       </article>
+
+      <MedicarePrintPageFooter />
     </div>
   )
 }

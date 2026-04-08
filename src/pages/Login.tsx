@@ -76,7 +76,7 @@ export default function Login() {
               Sign in to your workspace
             </h1>
             <p className="mt-3 text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-md mx-auto leading-relaxed">
-              Choose your role to continue. Demo environment — no password required.
+              Select your role. No password required.
             </p>
           </div>
 
@@ -118,7 +118,7 @@ export default function Login() {
               MediCare HMS
             </span>
             <span className="text-slate-300 dark:text-slate-600">·</span>
-            <span>Demo accounts</span>
+            <span>Role shortcuts</span>
           </p>
         </div>
       </div>

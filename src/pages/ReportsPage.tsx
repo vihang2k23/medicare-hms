@@ -33,6 +33,7 @@ import {
 } from '../features/reports/reportsAnalyticsData'
 import { fetchAllPatients } from '../api/patientsApi'
 import { downloadCsv } from '../lib/csvExport'
+import { MedicarePrintPageFooter, MedicarePrintPageHeader } from '../components/print/MedicarePrintChrome'
 import { BedDouble, Calendar, Download, FileText, ListOrdered, Printer, Stethoscope, Users } from 'lucide-react'
 
 const BED_STATUS_COLORS = {
@@ -89,6 +90,15 @@ export default function ReportsPage() {
   useEffect(() => {
     document.documentElement.classList.add('report-print-route')
     return () => document.documentElement.classList.remove('report-print-route')
+  }, [])
+
+  useEffect(() => {
+    const warmChartsForPrint = () => {
+      window.dispatchEvent(new Event('resize'))
+      requestAnimationFrame(() => window.dispatchEvent(new Event('resize')))
+    }
+    window.addEventListener('beforeprint', warmChartsForPrint)
+    return () => window.removeEventListener('beforeprint', warmChartsForPrint)
   }, [])
 
   useEffect(() => {
@@ -309,9 +319,13 @@ export default function ReportsPage() {
     downloadCsv(`medicare-hms-report-${stamp}.csv`, buildCsvRows())
   }
 
-  const handlePrint = () => {
-    window.print()
-  }
+  const handlePrint = useCallback(() => {
+    window.dispatchEvent(new Event('resize'))
+    requestAnimationFrame(() => {
+      window.dispatchEvent(new Event('resize'))
+      setTimeout(() => window.print(), 250)
+    })
+  }, [])
 
   const pieFallback = (
     <p className="text-sm text-slate-500 dark:text-slate-400 py-12 text-center">No data for this chart.</p>
@@ -319,12 +333,12 @@ export default function ReportsPage() {
 
   return (
     <div className="reports-print-root space-y-8">
-      <div className="print-only-banner px-4 py-3 border border-slate-300 rounded-xl bg-white text-slate-900 mb-2">
-        <p className="font-bold text-base">MediCare HMS — operational report</p>
-        <p className="text-sm text-slate-600">Printed {formatReportTimestamp()}</p>
-      </div>
+      <MedicarePrintPageHeader
+        documentLabel="Operational reports & analytics"
+        detail="OPD, beds, appointments, prescriptions, trends."
+      />
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+      <div className="no-print-report flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-400 mb-2">
             Analytics
@@ -333,7 +347,7 @@ export default function ReportsPage() {
             Reports &amp; analytics
           </h1>
         </div>
-        <div className="no-print-report flex flex-wrap gap-2 shrink-0">
+        <div className="flex flex-wrap gap-2 shrink-0">
           <button
             type="button"
             onClick={handleExportCsv}
@@ -353,7 +367,7 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      <div className="no-print-report grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="report-print-stat-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
           label="Patients (registry)"
           value={patientTotal ?? '—'}
@@ -398,13 +412,16 @@ export default function ReportsPage() {
         />
       </div>
 
-      <div className="no-print-report space-y-6">
-        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-violet-600 dark:text-violet-400">
+      <div className="report-print-charts space-y-6">
+        <p className="no-print-report text-[11px] font-bold uppercase tracking-[0.14em] text-violet-600 dark:text-violet-400">
           Scheduling &amp; clinical analytics
+        </p>
+        <p className="hidden print:block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600 border-b border-slate-400 pb-2">
+          Trends, workload &amp; operational charts
         </p>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <DashboardCard title="OPD trend — unique patients per day (30d, from appointments)">
-            <div className="h-72">
+            <div className="report-chart-host h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={opdTrendFromAppointments} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
@@ -435,7 +452,7 @@ export default function ReportsPage() {
           </DashboardCard>
 
           <DashboardCard title="Bed occupancy over time (simulated %, 30d)">
-            <div className="h-72">
+            <div className="report-chart-host h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={bedOccupancySimulated} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                   <defs>
@@ -464,7 +481,7 @@ export default function ReportsPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <DashboardCard title="Department-wise patient distribution (unique patients with bookings)">
-            <div className="h-72">
+            <div className="report-chart-host h-72">
               {departmentPatientPie.length === 0 ? (
                 pieFallback
               ) : (
@@ -498,7 +515,7 @@ export default function ReportsPage() {
           </DashboardCard>
 
           <DashboardCard title="Appointment status — completed vs cancelled vs no-show (stacked)">
-            <div className="h-72">
+            <div className="report-chart-host h-72">
               {appointmentOutcomes.completed + appointmentOutcomes.cancelled + appointmentOutcomes.noShow === 0 ? (
                 pieFallback
               ) : (
@@ -521,7 +538,7 @@ export default function ReportsPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <DashboardCard title="Doctor workload — appointments this month">
-            <div className="h-72">
+            <div className="report-chart-host h-72">
               {doctorWorkloadMonth.length === 0 ? (
                 pieFallback
               ) : (
@@ -543,7 +560,7 @@ export default function ReportsPage() {
           </DashboardCard>
 
           <DashboardCard title="Revenue summary (simulated ₹ thousands by department)">
-            <div className="h-72">
+            <div className="report-chart-host h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={revenueByDepartment} margin={{ top: 8, right: 8, left: 0, bottom: 40 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
@@ -560,9 +577,9 @@ export default function ReportsPage() {
         <DrugRecallSummaryCard />
       </div>
 
-      <div className="no-print-report grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="report-print-charts grid grid-cols-1 lg:grid-cols-2 gap-6">
         <DashboardCard title="OPD queue — token status">
-          <div className="h-72">
+          <div className="report-chart-host h-72">
             {opdStatusPie.length === 0 ? (
               pieFallback
             ) : (
@@ -596,7 +613,7 @@ export default function ReportsPage() {
         </DashboardCard>
 
         <DashboardCard title="Beds — status mix">
-          <div className="h-72">
+          <div className="report-chart-host h-72">
             {beds.length === 0 ? (
               pieFallback
             ) : (
@@ -630,9 +647,9 @@ export default function ReportsPage() {
         </DashboardCard>
       </div>
 
-      <div className="no-print-report grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="report-print-charts grid grid-cols-1 lg:grid-cols-2 gap-6">
         <DashboardCard title="Operational volume (snapshot)">
-          <div className="h-72">
+          <div className="report-chart-host h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={volumeBarData} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="#64748b" interval={0} angle={-15} textAnchor="end" height={52} />
@@ -645,7 +662,7 @@ export default function ReportsPage() {
         </DashboardCard>
 
         <DashboardCard title="Appointments — by status">
-          <div className="h-72">
+          <div className="report-chart-host h-72">
             {appointmentsByStatus.length === 0 ? (
               pieFallback
             ) : (
@@ -666,9 +683,9 @@ export default function ReportsPage() {
         </DashboardCard>
       </div>
 
-      <div className="no-print-report">
+      <div className="report-print-charts">
       <DashboardCard title="Beds by ward (stacked)">
-        <div className="h-80">
+        <div className="report-chart-host h-80">
           {wardStackData.length === 0 ? (
             pieFallback
           ) : (
@@ -688,6 +705,8 @@ export default function ReportsPage() {
         </div>
       </DashboardCard>
       </div>
+
+      <MedicarePrintPageFooter />
     </div>
   )
 }

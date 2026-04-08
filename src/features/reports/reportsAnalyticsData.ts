@@ -7,7 +7,7 @@ function parseApptDate(d: string): Date | null {
   return Number.isNaN(x.getTime()) ? null : x
 }
 
-/** Unique patients seen (by appointment date) per calendar day — last 30 days ending today. */
+/** Unique patients per day (last 30 days). */
 export function buildPatientsPerDayFromAppointments(appointments: Appointment[]) {
   const end = startOfToday()
   const start = subDays(end, 29)
@@ -32,7 +32,7 @@ export function buildPatientsPerDayFromAppointments(appointments: Appointment[])
   })
 }
 
-/** Simulated occupancy % per day — anchored to current grid, smooth variation (demo time series). */
+/** Simulated daily occupancy % from current bed grid. */
 export function buildSimulatedBedOccupancySeries(beds: Bed[], dayCount = 30) {
   const total = beds.length || 1
   const occupied = beds.filter((b) => b.status === 'occupied').length
@@ -93,7 +93,7 @@ export function buildDoctorWorkloadThisMonth(appointments: Appointment[]) {
     .sort((a, b) => b.count - a.count)
 }
 
-/** Deterministic pseudo revenue (₹ thousands) per department label for analytics demo. */
+/** Deterministic pseudo revenue (₹ thousands) by department. */
 export function buildSimulatedRevenueByDepartment(departments: readonly string[]) {
   return departments.map((name, i) => {
     let h = 0

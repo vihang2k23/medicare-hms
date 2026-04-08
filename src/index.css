@@ -73,6 +73,10 @@
 .print-only-banner {
   display: none;
 }
+/* Shared MediCare HMS print header/footer (see components/print/MedicarePrintChrome.tsx) */
+.print-only-medicare-chrome {
+  display: none;
+}
 .report-format {
   display: block;
 }
@@ -80,7 +84,8 @@
 @media print {
   @page {
     size: A4 portrait;
-    margin: 10mm;
+    /* Room for fixed MediCare print header/footer on report / schedule / Rx routes */
+    margin: 24mm 10mm 22mm 10mm;
   }
 
   html,
@@ -141,6 +146,99 @@
   .print-only-banner {
     display: block !important;
   }
+  .print-only-medicare-chrome {
+    display: block !important;
+  }
+
+  /* Shared fixed strip — repeats at top/bottom of each sheet in Chromium; in-flow content uses @page margins */
+  html.report-print-route .medicare-print-fixed-header,
+  html.appointments-print-route .medicare-print-fixed-header,
+  html.prescription-print-route .medicare-print-fixed-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2147483646;
+    padding: 3mm 10mm 3.5mm;
+    background: #fff !important;
+    border-bottom: 2px solid #0f172a !important;
+    color: #0f172a !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    box-sizing: border-box !important;
+  }
+  html.report-print-route .medicare-print-fixed-header__brand,
+  html.appointments-print-route .medicare-print-fixed-header__brand,
+  html.prescription-print-route .medicare-print-fixed-header__brand {
+    margin: 0 0 1mm;
+    font-size: 7.5pt;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #475569 !important;
+  }
+  html.report-print-route .medicare-print-fixed-header__title,
+  html.appointments-print-route .medicare-print-fixed-header__title,
+  html.prescription-print-route .medicare-print-fixed-header__title {
+    margin: 0 0 0.5mm;
+    font-size: 11pt;
+    font-weight: 700;
+    line-height: 1.25;
+    color: #0f172a !important;
+  }
+  html.report-print-route .medicare-print-fixed-header__detail,
+  html.appointments-print-route .medicare-print-fixed-header__detail,
+  html.prescription-print-route .medicare-print-fixed-header__detail {
+    margin: 0 0 1mm;
+    font-size: 8pt;
+    line-height: 1.35;
+    color: #334155 !important;
+  }
+  html.report-print-route .medicare-print-fixed-header__meta,
+  html.appointments-print-route .medicare-print-fixed-header__meta,
+  html.prescription-print-route .medicare-print-fixed-header__meta {
+    margin: 0;
+    font-size: 7.5pt;
+    color: #64748b !important;
+  }
+
+  html.report-print-route .medicare-print-fixed-footer,
+  html.appointments-print-route .medicare-print-fixed-footer,
+  html.prescription-print-route .medicare-print-fixed-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2147483646;
+    padding: 2.5mm 10mm 3mm;
+    background: #fff !important;
+    border-top: 1px solid #94a3b8 !important;
+    color: #334155 !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    box-sizing: border-box !important;
+  }
+  html.report-print-route .medicare-print-fixed-footer__line,
+  html.appointments-print-route .medicare-print-fixed-footer__line,
+  html.prescription-print-route .medicare-print-fixed-footer__line {
+    margin: 0;
+    font-size: 7pt;
+    line-height: 1.35;
+    text-align: center;
+    color: #334155 !important;
+  }
+  html.report-print-route .medicare-print-fixed-footer__line + .medicare-print-fixed-footer__line,
+  html.appointments-print-route .medicare-print-fixed-footer__line + .medicare-print-fixed-footer__line,
+  html.prescription-print-route .medicare-print-fixed-footer__line + .medicare-print-fixed-footer__line {
+    margin-top: 1mm;
+  }
+  html.report-print-route .medicare-print-fixed-footer__muted,
+  html.appointments-print-route .medicare-print-fixed-footer__muted,
+  html.prescription-print-route .medicare-print-fixed-footer__muted {
+    font-size: 6.5pt !important;
+    color: #64748b !important;
+  }
+
   .no-print-appt {
     display: none !important;
   }
@@ -365,6 +463,34 @@
     padding: 0.75rem !important;
     max-width: none !important;
   }
+  html.report-print-route #root {
+    overflow: visible !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    background: #fff !important;
+    background-image: none !important;
+  }
+  html.report-print-route main {
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    background: #fff !important;
+    background-image: none !important;
+    padding: 0 !important;
+  }
+  html.report-print-route .page-enter {
+    background: #fff !important;
+    min-height: 0 !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  html.report-print-route .app-surface-gradient > div.flex {
+    overflow: visible !important;
+    min-height: auto !important;
+    height: auto !important;
+    background: #fff !important;
+    background-image: none !important;
+  }
   html.report-print-route .page-enter,
   html.appointments-print-route .page-enter,
   html.prescription-print-route .page-enter {
@@ -384,27 +510,57 @@
     background-image: none !important;
   }
   .reports-print-root {
-    break-inside: avoid;
     color: #0f172a !important;
     background: #fff !important;
+    max-width: 210mm;
+    margin: 0 auto;
   }
-  .reports-print-root > * {
-    break-inside: avoid-page;
+  .reports-print-root .report-print-stat-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    margin-bottom: 14px !important;
+    page-break-inside: avoid;
+  }
+  html.report-print-route .reports-print-root .stat-card__icon {
+    display: none !important;
+  }
+  .reports-print-root .report-print-stat-grid > div {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    padding: 12px !important;
+  }
+  .reports-print-root .report-print-charts .grid {
+    gap: 12px !important;
+  }
+  .reports-print-root .report-print-charts > .rounded-2xl,
+  .reports-print-root .report-print-charts .grid > .rounded-2xl {
+    break-inside: avoid;
     page-break-inside: avoid;
   }
   .reports-print-root .grid {
     gap: 10px !important;
   }
   .reports-print-root .rounded-2xl {
-    border: 1px solid #cbd5e1 !important;
+    border: 1px solid #94a3b8 !important;
     background: #fff !important;
     box-shadow: none !important;
     backdrop-filter: none !important;
+    border-radius: 6px !important;
+  }
+  .reports-print-root .border-b {
+    border-color: #cbd5e1 !important;
+  }
+  .reports-print-root .bg-slate-50\/80,
+  .reports-print-root .dark\:bg-slate-900\/60,
+  .reports-print-root .bg-white\/80,
+  .reports-print-root .dark\:bg-slate-900\/50 {
+    background: #f8fafc !important;
   }
   .reports-print-root .bg-gradient-to-r,
   .reports-print-root .bg-slate-50\/80,
   .reports-print-root .dark\:bg-slate-900\/60 {
-    background: #fff !important;
+    background: #f1f5f9 !important;
   }
   .reports-print-root .text-white,
   .reports-print-root .dark\:text-white,
@@ -415,17 +571,67 @@
   .reports-print-root .dark\:text-slate-500 {
     color: #0f172a !important;
   }
+  .reports-print-root .text-slate-500,
+  .reports-print-root .dark\:text-slate-400 {
+    color: #475569 !important;
+  }
   .reports-print-root .h-72 {
-    height: 220px !important;
+    height: 200px !important;
+    min-height: 180px !important;
   }
   .reports-print-root .h-80 {
-    height: 240px !important;
+    height: 220px !important;
+    min-height: 200px !important;
+  }
+  /*
+   * Recharts ResponsiveContainer measures the parent; print / PDF often never fires resize,
+   * leaving inline width/height at 0. Force a real box and override Recharts inline sizes.
+   */
+  html.report-print-route .reports-print-root .report-chart-host {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    position: relative !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+  html.report-print-route .reports-print-root .report-chart-host.h-72 {
+    height: 210px !important;
+    min-height: 200px !important;
+  }
+  html.report-print-route .reports-print-root .report-chart-host.h-80 {
+    height: 235px !important;
+    min-height: 220px !important;
+  }
+  html.report-print-route .reports-print-root .report-chart-host .recharts-responsive-container {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    min-height: 180px !important;
+    position: relative !important;
+  }
+  html.report-print-route .reports-print-root .report-chart-host .recharts-wrapper {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    position: absolute !important;
+    inset: 0 !important;
+    left: 0 !important;
+    top: 0 !important;
   }
   .reports-print-root .recharts-legend-wrapper {
-    font-size: 10px !important;
+    font-size: 9px !important;
+    max-height: 56px !important;
+    overflow: visible !important;
   }
   .reports-print-root .recharts-surface {
-    overflow: visible;
+    overflow: visible !important;
+  }
+  .reports-print-root .recharts-wrapper {
+    max-width: 100% !important;
   }
   .reports-print-root .recharts-wrapper text {
     fill: #334155 !important;
@@ -433,6 +639,9 @@
   .reports-print-root .recharts-cartesian-grid-horizontal line,
   .reports-print-root .recharts-cartesian-grid-vertical line {
     stroke: #cbd5e1 !important;
+  }
+  .reports-print-root .recharts-pie-labels text {
+    font-size: 8px !important;
   }
 
   /* Prescription printable sheet */

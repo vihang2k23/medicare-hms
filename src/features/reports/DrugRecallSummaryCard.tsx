@@ -6,7 +6,6 @@ import { fetchRecallCountsByDrugClass } from '../../lib/openfdaEnforcementApi'
 
 const BAR_COLORS = ['#7c3aed', '#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6', '#64748b', '#ec4899']
 
-/** In-app sample so the chart always renders if OpenFDA is empty or unreachable. */
 const DEMO_RECALL_BY_CLASS = [
   { name: 'Anti-inflammatory agents, NSAID', count: 18 },
   { name: 'Antibiotic', count: 14 },
@@ -40,7 +39,7 @@ export default function DrugRecallSummaryCard() {
 
   return (
     <DashboardCard title="Drug recall summary (OpenFDA enforcement)">
-      <div className="flex flex-wrap items-center justify-end gap-2 mb-3">
+      <div className="no-print-report flex flex-wrap items-center justify-end gap-2 mb-3">
         <button
           type="button"
           onClick={() => void load()}
@@ -57,7 +56,7 @@ export default function DrugRecallSummaryCard() {
           <span>{error}</span>
         </div>
       )}
-      <div className="h-80">
+      <div className="report-chart-host h-80">
         {loading && rows.length === 0 ? (
           <div className="h-full flex items-center justify-center text-slate-500 dark:text-slate-400 text-sm gap-2">
             <Loader2 className="h-5 w-5 animate-spin" aria-hidden />

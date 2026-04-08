@@ -31,7 +31,7 @@ export default function StatCard({ label, value, subLabel, icon, accent = 'slate
         </div>
         {icon && (
           <div
-            className={`rounded-xl p-2.5 ring-1 shrink-0 transition-transform duration-300 group-hover:scale-105 ${accentStyles[accent]}`}
+            className={`stat-card__icon rounded-xl p-2.5 ring-1 shrink-0 transition-transform duration-300 group-hover:scale-105 ${accentStyles[accent]}`}
           >
             {icon}
           </div>
