@@ -51,6 +51,23 @@ export default function Sidebar() {
   const links = config.sidebarLinks
   const styles = ACCENT[config.accent]
 
+  /** Longest matching path wins so `/admin` does not stay active on `/admin/patients`. */
+  const activeSidebarPath = (() => {
+    let best: string | null = null
+    let bestLen = -1
+    for (const { path } of links) {
+      const exact = location.pathname === path
+      const nested = location.pathname.startsWith(`${path}/`)
+      if (exact || nested) {
+        if (path.length > bestLen) {
+          bestLen = path.length
+          best = path
+        }
+      }
+    }
+    return best
+  })()
+
   const closeOnMobileNav = () => {
     if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches) {
       dispatch(setSidebarOpen(false))
@@ -106,7 +123,7 @@ export default function Sidebar() {
           </p>
           <ul className="space-y-1">
             {links.map(({ path, label }) => {
-              const isActive = location.pathname === path || location.pathname.startsWith(path + '/')
+              const isActive = path === activeSidebarPath
               const Icon = getNavIcon(path)
               return (
                 <li key={path}>
