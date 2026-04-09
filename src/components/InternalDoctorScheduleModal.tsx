@@ -6,6 +6,7 @@ import type { AppDispatch } from '../app/store'
 import { createInternalDoctor, findInternalDoctorByNpi, updateInternalDoctor } from '../api/internalDoctorsApi'
 import { defaultImportedSchedule } from '../lib/npiRegistryApi'
 import { notify } from '../lib/notify'
+import { useModalScrollLock } from '../hooks/useModalScrollLock'
 import {
   addImportedScheduleDoctor,
   updateImportedScheduleDoctor,
@@ -34,6 +35,7 @@ export default function InternalDoctorScheduleModal({
   onClose,
   onSaved,
 }: InternalDoctorScheduleModalProps) {
+  useModalScrollLock(open)
   const dispatch = useDispatch<AppDispatch>()
   const isEdit = record != null
   const [name, setName] = useState('')
@@ -190,22 +192,21 @@ export default function InternalDoctorScheduleModal({
   if (!open) return null
 
   const modal = (
-    <div className="fixed inset-0 z-[100] overflow-y-auto overscroll-contain">
-      <div className="relative flex min-h-full items-center justify-center px-4 py-8 sm:px-6 sm:py-10">
-        <button
-          type="button"
-          className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm"
-          aria-label="Close dialog"
-          onClick={onClose}
-        />
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="internal-doctor-schedule-title"
-          className="relative z-10 w-full max-w-lg max-h-[min(90dvh,42rem)] flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl ring-1 ring-slate-200/60 dark:ring-slate-600/60 overflow-hidden"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-hidden overscroll-none">
+      <button
+        type="button"
+        className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm"
+        aria-label="Close dialog"
+        onClick={onClose}
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="internal-doctor-schedule-title"
+        className="relative z-10 w-full max-w-lg max-h-[min(90dvh,42rem)] min-h-0 flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl ring-1 ring-slate-200/60 dark:ring-slate-600/60 overflow-hidden overscroll-contain"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80">
             <div className="min-w-0">
               <h2
                 id="internal-doctor-schedule-title"
@@ -392,7 +393,6 @@ export default function InternalDoctorScheduleModal({
             </button>
           </div>
         </div>
-      </div>
     </div>
   )
 

@@ -22,6 +22,31 @@ Optional: set `VITE_JSON_SERVER_URL` in `.env` if the API is not at `http://loca
 
 ---
 
+## Deploy on Render
+
+This repo includes a **[Render Blueprint](https://render.com/docs/infrastructure-as-code)** at `render.yaml` with two services:
+
+| Service | Type | Purpose |
+|--------|------|--------|
+| **medicare-hms-api** | Web (Node) | `npm run server` — JSON Server + `/api/npi` proxy |
+| **medicare-hms-web** | Static | Vite production build from `dist/` |
+
+**Setup**
+
+1. Push the repo to GitHub (or GitLab/Bitbucket) and connect it in [Render](https://dashboard.render.com).
+2. Use **New → Blueprint** and select the repo (or create the two services manually using the same build/start commands as in `render.yaml`).
+3. Wait until **medicare-hms-api** is deployed and copy its public URL (e.g. `https://medicare-hms-api.onrender.com`).
+4. In **medicare-hms-web** → **Environment**, set **`VITE_JSON_SERVER_URL`** to that URL (**no trailing slash**). Redeploy the static site so the value is baked into the build (Vite reads this at build time, not runtime).
+5. Open the static site URL in the browser.
+
+**Notes**
+
+- On the free tier, services **spin down** after idle time; the first request can be slow (cold start).
+- **`server/db.json`** lives on **ephemeral** disk: changes are lost when the API instance restarts or redeploys. For durable data you would add a real database later.
+- The API listens on **`PORT`** (set by Render) and **`0.0.0.0`** so it accepts external traffic.
+
+---
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

@@ -4,6 +4,7 @@ import { X } from 'lucide-react'
 import type { PatientRecord } from '../../types/patient'
 import { fetchPatients } from '../../api/patientsApi'
 import { notify } from '../../lib/notify'
+import { useModalScrollLock } from '../../hooks/useModalScrollLock'
 import type { Appointment, ScheduleDoctor } from './types'
 import { generateDaySlots } from './slotUtils'
 
@@ -26,6 +27,7 @@ export function BookAppointmentModal({
   slotEnd,
   onConfirm,
 }: BookModalProps) {
+  useModalScrollLock(open)
   const [patients, setPatients] = useState<PatientRecord[]>([])
   const [patientId, setPatientId] = useState('')
   const [reason, setReason] = useState('')
@@ -72,14 +74,14 @@ export function BookAppointmentModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-hidden overscroll-none bg-slate-950/50 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="book-apt-title"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md max-h-[min(90dvh,40rem)] flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden"
+        className="w-full max-w-md max-h-[min(90dvh,40rem)] min-h-0 flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden overscroll-contain"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80">
@@ -103,7 +105,7 @@ export function BookAppointmentModal({
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="p-5 space-y-4 overflow-y-auto overscroll-contain min-h-0">
+        <div className="p-5 space-y-4 overflow-y-auto overscroll-contain min-h-0 flex-1 touch-pan-y">
           <div>
             <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Patient</label>
             <select
@@ -177,6 +179,7 @@ export function ManageAppointmentModal({
   onReschedule,
   onCancel,
 }: ManageModalProps) {
+  useModalScrollLock(open)
   const [newDate, setNewDate] = useState('')
   const [newSlot, setNewSlot] = useState('')
 
@@ -210,14 +213,14 @@ export function ManageAppointmentModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-hidden overscroll-none bg-slate-950/50 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="manage-apt-title"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md max-h-[min(90dvh,40rem)] flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden"
+        className="w-full max-w-md max-h-[min(90dvh,40rem)] min-h-0 flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden overscroll-contain"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80">
@@ -253,7 +256,7 @@ export function ManageAppointmentModal({
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="p-5 space-y-4 overflow-y-auto overscroll-contain min-h-0">
+        <div className="p-5 space-y-4 overflow-y-auto overscroll-contain min-h-0 flex-1 touch-pan-y">
           <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Reschedule</p>
           <div>
             <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">New date</label>

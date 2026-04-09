@@ -40,6 +40,7 @@ import {
   setImportedScheduleDoctors,
 } from '../features/appointments/appointmentsSlice'
 import { notify } from '../lib/notify'
+import { useModalScrollLock } from '../hooks/useModalScrollLock'
 import InternalDoctorScheduleModal from '../components/InternalDoctorScheduleModal'
 
 const PAGE_SIZE = 12
@@ -57,19 +58,12 @@ function canShowNpiProfile(r: InternalDoctorRecord): boolean {
 }
 
 function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => void }) {
+  useModalScrollLock(true)
   const b = raw.basic ?? {}
   const name =
     raw.enumeration_type === 'NPI-2'
       ? b.organization_name ?? 'Organization'
       : [b.first_name, b.middle_name, b.last_name].filter(Boolean).join(' ')
-
-  useEffect(() => {
-    const prevOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prevOverflow
-    }
-  }, [])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -80,21 +74,20 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
   }, [onClose])
 
   const modal = (
-    <div className="fixed inset-0 z-[100] overflow-y-auto overscroll-contain">
-      <div className="relative flex min-h-full items-center justify-center px-4 py-8 sm:px-6 sm:py-10">
-        <button
-          type="button"
-          className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm"
-          aria-label="Close dialog"
-          onClick={onClose}
-        />
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="npi-profile-title"
-          className="relative z-10 w-full max-w-2xl max-h-[min(85dvh,44rem)] flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl shadow-slate-900/20 dark:shadow-black/40 ring-1 ring-slate-200/60 dark:ring-slate-600/60 overflow-hidden"
-          onClick={(e) => e.stopPropagation()}
-        >
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-hidden overscroll-none">
+      <button
+        type="button"
+        className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm"
+        aria-label="Close dialog"
+        onClick={onClose}
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="npi-profile-title"
+        className="relative z-10 w-full max-w-2xl max-h-[min(90dvh,44rem)] min-h-0 flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl shadow-slate-900/20 dark:shadow-black/40 ring-1 ring-slate-200/60 dark:ring-slate-600/60 overflow-hidden overscroll-contain"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80 bg-gradient-to-r from-sky-500/10 to-transparent">
           <div className="min-w-0">
             <h2 id="npi-profile-title" className="text-lg font-bold text-slate-900 dark:text-slate-100 truncate">
@@ -233,7 +226,6 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
               </ul>
             </section>
           )}
-        </div>
         </div>
       </div>
     </div>

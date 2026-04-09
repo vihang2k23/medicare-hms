@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { useModalScrollLock } from '../../hooks/useModalScrollLock'
 import { useDispatch, useSelector } from 'react-redux'
 import { Building2, Layers, Pencil, Plus, Shield, Trash2, X } from 'lucide-react'
 import type { AppDispatch, RootState } from '../../app/store'
@@ -23,7 +24,7 @@ function ModalShell({
 }) {
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-slate-950/60 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 overflow-hidden overscroll-none bg-slate-950/60 backdrop-blur-[2px]"
       role="dialog"
       aria-modal="true"
       aria-labelledby="ward-modal-title"
@@ -71,6 +72,8 @@ export default function WardManagementPanel() {
   const [editId, setEditId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const [removeId, setRemoveId] = useState<string | null>(null)
+
+  useModalScrollLock(addOpen || editId != null || removeId != null)
 
   const bedCountFor = (wardId: string) => beds.filter((b) => b.wardId === wardId).length
 

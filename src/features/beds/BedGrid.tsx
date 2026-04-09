@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import type { AppDispatch, RootState } from '../../app/store'
 import { notify } from '../../lib/notify'
+import { useModalScrollLock } from '../../hooks/useModalScrollLock'
 import type { Bed, BedStatus, WardDefinition } from './bedSlice'
 import {
   addBedToWard,
@@ -104,6 +105,8 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
 
   const activeBed = activeBedId ? beds.find((b) => b.id === activeBedId) ?? null : null
   const byWard = useMemo(() => groupByWard(beds, wards), [beds, wards])
+
+  useModalScrollLock(!!activeBedId)
 
   const openBed = (bed: Bed) => {
     setActiveBedId(bed.id)
@@ -390,14 +393,14 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
 
       {activeBed && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center sm:items-center p-4 bg-slate-950/50 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-hidden overscroll-none bg-slate-950/50 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
           aria-labelledby="bed-panel-title"
           onClick={closePanel}
         >
           <div
-            className="w-full max-w-md max-h-[min(90dvh,36rem)] flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl shadow-slate-900/20 ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden"
+            className="w-full max-w-md max-h-[min(90dvh,36rem)] min-h-0 flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl shadow-slate-900/20 ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden overscroll-contain"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80 bg-gradient-to-r from-teal-500/10 to-transparent">
@@ -425,7 +428,7 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
               </button>
             </div>
 
-            <div className="p-5 space-y-5 overflow-y-auto overscroll-contain min-h-0">
+            <div className="p-5 space-y-5 min-h-0 flex-1 overflow-y-auto overscroll-contain touch-pan-y">
               {activeBed.status === 'available' && (
                 <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-slate-50/80 dark:bg-slate-800/40 px-4 py-3 text-xs text-slate-600 dark:text-slate-300 leading-relaxed flex gap-2">
                   <GripVertical className="h-4 w-4 shrink-0 text-teal-600 dark:text-teal-400 mt-0.5" aria-hidden />

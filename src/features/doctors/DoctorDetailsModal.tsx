@@ -1,4 +1,5 @@
 import { Briefcase, MapPin, Phone, User, X } from 'lucide-react'
+import { useModalScrollLock } from '../../hooks/useModalScrollLock'
 import type { AutocompleteDoctor } from './npiAutocompleteMap'
 
 export interface DoctorDetailsModalProps {
@@ -16,12 +17,13 @@ export default function DoctorDetailsModal({
   onAddToSystem,
   adding,
 }: DoctorDetailsModalProps) {
+  useModalScrollLock(open && !!selectedDoctor)
   if (!open || !selectedDoctor) return null
 
   const d = selectedDoctor
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-hidden overscroll-none">
       <button
         type="button"
         className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm"
@@ -31,10 +33,10 @@ export default function DoctorDetailsModal({
       <div
         role="dialog"
         aria-modal="true"
-        className="relative z-10 w-full max-w-lg rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl max-h-[min(90dvh,36rem)] overflow-y-auto"
+        className="relative z-10 w-full max-w-lg max-h-[min(90dvh,36rem)] min-h-0 flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden overscroll-contain"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80">
+        <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80">
           <div className="min-w-0">
             <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 truncate">{d.fullName}</h2>
             <p className="text-xs font-mono text-sky-600 dark:text-sky-400 mt-1">NPI {d.npi}</p>
@@ -49,7 +51,7 @@ export default function DoctorDetailsModal({
           </button>
         </div>
 
-        <div className="p-5 space-y-4 text-sm text-slate-700 dark:text-slate-200">
+        <div className="p-5 space-y-4 text-sm text-slate-700 dark:text-slate-200 overflow-y-auto overscroll-contain min-h-0 flex-1 touch-pan-y">
           {d.specialty && (
             <div className="flex items-start gap-2">
               <Briefcase className="h-4 w-4 mt-0.5 text-sky-600 shrink-0" />
@@ -96,7 +98,7 @@ export default function DoctorDetailsModal({
           )}
         </div>
 
-        <div className="p-5 pt-0 flex flex-wrap gap-2 justify-end">
+        <div className="shrink-0 p-5 pt-0 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-2 justify-end">
           <button
             type="button"
             onClick={onClose}

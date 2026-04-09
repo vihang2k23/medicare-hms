@@ -314,7 +314,8 @@ const router = jsonServer.router(dbPath)
 server.use(router)
 
 const PORT = Number(process.env.PORT) || 3001
-server.listen(PORT, () => {
-  console.log(`JSON Server + NPI proxy listening on http://localhost:${PORT}`)
+const HOST = process.env.HOST ?? '0.0.0.0'
+server.listen(PORT, HOST, () => {
+  console.log(`JSON Server + NPI proxy listening on http://${HOST}:${PORT}`)
   console.log(`  NPPES: GET /api/npi?version=2.1&first_name=Rama&country=US`)
 })
