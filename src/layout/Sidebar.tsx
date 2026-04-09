@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { PanelLeftClose, PanelRightClose, ShieldAlert } from 'lucide-react'
+import { PanelLeftClose, PanelRightClose } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { ROLE_CONFIG } from '../config/roles'
 import { getNavIcon } from '../config/navIcons'
@@ -149,19 +149,6 @@ export default function Sidebar() {
               )
             })}
           </ul>
-          <p className="px-3 mt-8 mb-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">
-            System
-          </p>
-          <Link
-            to="/access-denied"
-            onClick={closeOnMobileNav}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100/90 dark:hover:bg-slate-800/80 text-sm font-medium transition-all duration-200 touch-manipulation"
-          >
-            <span className="w-9 h-9 rounded-xl bg-slate-100/90 dark:bg-slate-800/80 flex items-center justify-center shrink-0">
-              <ShieldAlert className="h-[18px] w-[18px]" aria-hidden />
-            </span>
-            Access Denied
-          </Link>
         </nav>
       </div>
     </aside>

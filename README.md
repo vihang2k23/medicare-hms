@@ -1,5 +1,7 @@
 # MediCare HMS
 
+
+
 ## JSON Server (patient API)
 
 Patient registration/list uses **[JSON Server](https://github.com/typicode/json-server)** against `server/db.json`.

@@ -21,6 +21,38 @@ const BLOOD_OPTIONS = ['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as 
 const selectClass =
   'w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-slate-800 dark:text-slate-100 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/35 focus:border-sky-400/40 transition-[box-shadow,border-color]'
 
+/** Match API values like "A +" or "o+" to filter option "A+", "O+". */
+function normalizeBloodGroup(bg: string): string {
+  return bg.replace(/\s+/g, '').toUpperCase()
+}
+
+/**
+ * Every whitespace-separated token must match at least one field (name, id, email, phone, city, pin).
+ * Supports picking "Name + ID" from the combobox and multi-word searches like "Patel MED-2026".
+ */
+function patientMatchesSearch(p: PatientRecord, rawQuery: string): boolean {
+  const q = rawQuery.trim().toLowerCase()
+  if (!q) return true
+  const tokens = q.split(/\s+/).filter(Boolean)
+  const phoneCompact = p.phone.replace(/\s/g, '').toLowerCase()
+  const phoneDigits = p.phone.replace(/\D/g, '')
+
+  return tokens.every((token) => {
+    const t = token.toLowerCase()
+    const tokenDigits = t.replace(/\D/g, '')
+    if (p.fullName.toLowerCase().includes(t)) return true
+    if (p.id.toLowerCase().includes(t)) return true
+    if (p.email.toLowerCase().includes(t)) return true
+    if (p.city.toLowerCase().includes(t)) return true
+    if (p.pin && p.pin.toLowerCase().includes(t)) return true
+    if (phoneCompact.includes(t.replace(/\s/g, ''))) return true
+    // Only match phone by digit substring when the token is purely numeric; otherwise
+    // IDs like MED-SEED-0003 yield tokenDigits "0003" and wrongly match phones e.g. 9800000003.
+    if (tokenDigits.length >= 3 && tokenDigits === t && phoneDigits.includes(tokenDigits)) return true
+    return false
+  })
+}
+
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean)
   if (parts.length === 0) return '?'
@@ -61,17 +93,10 @@ export default function PatientListPage() {
   }, [load])
 
   const filtered = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase()
     return patients.filter((p) => {
-      if (bloodFilter && p.bloodGroup !== bloodFilter) return false
-      if (genderFilter && p.gender !== genderFilter) return false
-      if (!q) return true
-      return (
-        p.fullName.toLowerCase().includes(q) ||
-        p.phone.replace(/\s/g, '').includes(q.replace(/\s/g, '')) ||
-        p.id.toLowerCase().includes(q) ||
-        p.email.toLowerCase().includes(q)
-      )
+      if (bloodFilter && normalizeBloodGroup(p.bloodGroup) !== normalizeBloodGroup(bloodFilter)) return false
+      if (genderFilter && p.gender.trim().toLowerCase() !== genderFilter) return false
+      return patientMatchesSearch(p, searchQuery)
     })
   }, [patients, searchQuery, bloodFilter, genderFilter])
 
@@ -187,7 +212,7 @@ export default function PatientListPage() {
         </div>
       )}
 
-      <DashboardCard title="Search & filters">
+      <DashboardCard title="Search & filters" className="relative z-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 items-start">
           <div className="lg:col-span-2 min-w-0 w-full">
             <SearchFilterCombobox<PatientRecord>
@@ -197,16 +222,7 @@ export default function PatientListPage() {
               onChange={setSearchQuery}
               suggestions={patients}
               getKey={(p) => p.id}
-              filterItem={(p, q) => {
-                const t = q.trim().toLowerCase()
-                if (!t) return true
-                return (
-                  p.fullName.toLowerCase().includes(t) ||
-                  p.phone.replace(/\s/g, '').includes(t.replace(/\s/g, '')) ||
-                  p.id.toLowerCase().includes(t) ||
-                  p.email.toLowerCase().includes(t)
-                )
-              }}
+              filterItem={(p, q) => patientMatchesSearch(p, q)}
               renderSuggestion={(p) => (
                 <span className="flex items-center gap-2">
                   <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-100 dark:bg-sky-950/50 text-[11px] font-bold text-sky-800 dark:text-sky-200">
@@ -218,7 +234,7 @@ export default function PatientListPage() {
                   </span>
                 </span>
               )}
-              onPick={(p) => setSearchQuery(`${p.fullName} ${p.id}`)}
+              onPick={(p) => setSearchQuery(p.id)}
               placeholder="Name, phone, email, or patient ID"
               accent="sky"
               hint="Pick a suggestion or keep typing to narrow the table."
@@ -283,7 +299,7 @@ export default function PatientListPage() {
         )}
       </DashboardCard>
 
-      <DashboardCard title="Patient directory">
+      <DashboardCard title="Patient directory" className="relative z-0">
         {loading ? (
           <div className="flex flex-col items-center justify-center gap-3 py-16">
             <Loader2 className="h-10 w-10 animate-spin text-sky-500" aria-hidden />

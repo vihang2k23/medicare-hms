@@ -153,7 +153,7 @@ Config: `config/roles.ts`.
 - **Bed occupancy donut + “Bed occupancy” stat card** — **live** from Redux `beds.beds` (counts by status; % occupied = occupied / total beds). Same data as **Bed management** / nurse grid.
 - **Revenue (bar)** — mock `MOCK_REVENUE_DATA` in `dashboardMockData.ts`.
 - **Top 5 departments (horizontal bar)** — mock `MOCK_TOP_DEPARTMENTS` (**clinical departments**, not ward bed counts — see [Departments vs inpatient wards](#departments-vs-inpatient-wards)).
-- Other admin stat cards: mix of mock (`MOCK_PATIENTS_TODAY`, revenue headline) and **live** OPD queue from **Zustand** (`currentToken` as `#nnn`, waiting/done counts) and **live** alerts (last 5).
+- Other admin stat cards: mix of mock (`MOCK_PATIENTS_TODAY`, revenue headline) and **live** OPD queue from **Redux** (`queueSlice` / `currentToken` as `#nnn`, waiting/done counts) and **live** alerts (last 5).
 
 ### Role dashboards (widgets)
 
@@ -165,8 +165,7 @@ Config: `config/roles.ts`.
 | **Nurse** | Ward bed summary + occupancy; Pending vitals list; Ward bed grid (BedGrid); Recent bed status changes feed. |
 
 ### Data
-- **Live (Zustand):** OPD queue (`queue`, `currentToken`, `servedToday`, `simulationRunning`).
-- **Live (Redux):** beds (`beds`, `wardSummary`), alerts, prescriptions, appointments.
+- **Live (Redux Toolkit):** OPD queue (`queueSlice`: `queue`, `currentToken`, `servedToday`, `simulationRunning`); beds (`beds`, `wardSummary`); alerts; prescriptions; appointments; auth; UI sidebar/theme, etc.
 - **Live (JSON Server):** patient list / register / profile / edit — when `npm run server` is running (`patientsApi.ts`).
 - **Static mocks:** `dashboardMockData.ts` — registrations count, pending appointments, revenue series, top departments, doctor availability, doctor appointments, vitals list, recent bed *feed* (narrative), etc.
 
