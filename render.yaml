@@ -14,10 +14,10 @@ services:
     startCommand: npm run server
     healthCheckPath: /patients
 
+  # Static sites on Render cannot set `region` (global CDN).
   - type: web
     name: medicare-hms-web
     runtime: static
-    region: oregon
     buildCommand: npm ci && npm run build
     staticPublishPath: dist
     routes:
