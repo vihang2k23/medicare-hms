@@ -3,6 +3,11 @@ import { WARDS } from '../../config/wards'
 
 export type BedStatus = 'available' | 'occupied' | 'reserved' | 'maintenance'
 
+export interface WardDefinition {
+  id: string
+  name: string
+}
+
 export interface Bed {
   id: string
   wardId: string
@@ -15,13 +20,17 @@ export interface Bed {
 }
 
 export interface BedState {
+  wards: WardDefinition[]
   beds: Bed[]
   /** Ward id -> count of beds by status */
   wardSummary: Record<string, { available: number; occupied: number; reserved: number; maintenance: number }>
 }
 
-function summarizeBeds(beds: Bed[]): BedState['wardSummary'] {
+function computeWardSummary(wards: WardDefinition[], beds: Bed[]): BedState['wardSummary'] {
   const wardSummary: BedState['wardSummary'] = {}
+  for (const w of wards) {
+    wardSummary[w.id] = { available: 0, occupied: 0, reserved: 0, maintenance: 0 }
+  }
   for (const bed of beds) {
     if (!wardSummary[bed.wardId]) {
       wardSummary[bed.wardId] = { available: 0, occupied: 0, reserved: 0, maintenance: 0 }
@@ -30,6 +39,38 @@ function summarizeBeds(beds: Bed[]): BedState['wardSummary'] {
   }
   return wardSummary
 }
+
+function nextWardId(wards: WardDefinition[], beds: Bed[]): string {
+  let max = 0
+  const scan = (id: string) => {
+    const m = /^W(\d+)$/.exec(id)
+    if (m) max = Math.max(max, parseInt(m[1], 10))
+  }
+  for (const w of wards) scan(w.id)
+  for (const b of beds) scan(b.wardId)
+  return `W${max + 1}`
+}
+
+function newBedId(): string {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return `bed-${crypto.randomUUID()}`
+  }
+  return `bed-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+}
+
+/** Next numeric bed label within a ward (avoids colliding after transfers). */
+function nextBedNumberInWard(wardId: string, beds: Bed[], excludeBedId?: string): string {
+  let max = 0
+  for (const b of beds) {
+    if (excludeBedId && b.id === excludeBedId) continue
+    if (b.wardId !== wardId) continue
+    const n = parseInt(b.bedNumber, 10)
+    if (!Number.isNaN(n)) max = Math.max(max, n)
+  }
+  return String(max + 1)
+}
+
+const initialWards: WardDefinition[] = WARDS.map((w) => ({ id: w.id, name: w.name }))
 
 const [wardGeneral, wardIcu, wardPed] = WARDS
 
@@ -53,8 +94,9 @@ const initialBeds: Bed[] = [
 ]
 
 const initialState: BedState = {
+  wards: initialWards,
   beds: initialBeds,
-  wardSummary: summarizeBeds(initialBeds),
+  wardSummary: computeWardSummary(initialWards, initialBeds),
 }
 
 const bedSlice = createSlice({
@@ -63,30 +105,53 @@ const bedSlice = createSlice({
   reducers: {
     setBeds(state, action: PayloadAction<Bed[]>) {
       state.beds = action.payload
-      state.wardSummary = {}
-      action.payload.forEach((bed) => {
-        if (!state.wardSummary[bed.wardId]) {
-          state.wardSummary[bed.wardId] = { available: 0, occupied: 0, reserved: 0, maintenance: 0 }
-        }
-        state.wardSummary[bed.wardId][bed.status]++
+      state.wardSummary = computeWardSummary(state.wards, state.beds)
+    },
+    setWards(state, action: PayloadAction<WardDefinition[]>) {
+      state.wards = action.payload
+      state.wardSummary = computeWardSummary(state.wards, state.beds)
+    },
+    addWard(state, action: PayloadAction<{ name: string }>) {
+      const name = action.payload.name.trim()
+      if (!name) return
+      const id = nextWardId(state.wards, state.beds)
+      state.wards.push({ id, name })
+      state.beds.push({
+        id: newBedId(),
+        wardId: id,
+        wardName: name,
+        bedNumber: '1',
+        status: 'available',
       })
+      state.wardSummary = computeWardSummary(state.wards, state.beds)
+    },
+    updateWard(state, action: PayloadAction<{ wardId: string; name: string }>) {
+      const name = action.payload.name.trim()
+      if (!name) return
+      const w = state.wards.find((x) => x.id === action.payload.wardId)
+      if (!w) return
+      w.name = name
+      for (const bed of state.beds) {
+        if (bed.wardId === action.payload.wardId) bed.wardName = name
+      }
+    },
+    removeWard(state, action: PayloadAction<{ wardId: string }>) {
+      const { wardId } = action.payload
+      state.wards = state.wards.filter((w) => w.id !== wardId)
+      state.beds = state.beds.filter((b) => b.wardId !== wardId)
+      state.wardSummary = computeWardSummary(state.wards, state.beds)
     },
     updateBedStatus(state, action: PayloadAction<{ bedId: string; status: BedStatus }>) {
       const bed = state.beds.find((b) => b.id === action.payload.bedId)
       if (!bed) return
-      const prev = bed.status
       const next = action.payload.status
-      if (prev === next) return
+      if (bed.status === next) return
       bed.status = next
       if (next !== 'occupied') {
         delete bed.patientId
         delete bed.occupantName
       }
-      const w = state.wardSummary[bed.wardId]
-      if (w) {
-        w[prev] = Math.max(0, w[prev] - 1)
-        w[next] = (w[next] ?? 0) + 1
-      }
+      state.wardSummary = computeWardSummary(state.wards, state.beds)
     },
     assignPatientToBed(
       state,
@@ -97,29 +162,66 @@ const bedSlice = createSlice({
       if (bed.status !== 'available' && bed.status !== 'reserved') return
       const name = action.payload.occupantName.trim()
       if (!name) return
-      const prev = bed.status
-      const w = state.wardSummary[bed.wardId]
-      if (!w) return
-      w[prev] = Math.max(0, w[prev] - 1)
-      w.occupied += 1
       bed.status = 'occupied'
       bed.occupantName = name
       const pid = action.payload.patientId?.trim()
       bed.patientId = pid || undefined
+      state.wardSummary = computeWardSummary(state.wards, state.beds)
     },
     dischargePatientFromBed(state, action: PayloadAction<{ bedId: string }>) {
       const bed = state.beds.find((b) => b.id === action.payload.bedId)
       if (!bed || bed.status !== 'occupied') return
-      const w = state.wardSummary[bed.wardId]
-      if (!w) return
-      w.occupied = Math.max(0, w.occupied - 1)
-      w.available += 1
       bed.status = 'available'
       delete bed.patientId
       delete bed.occupantName
+      state.wardSummary = computeWardSummary(state.wards, state.beds)
+    },
+    addBedToWard(state, action: PayloadAction<{ wardId: string }>) {
+      const ward = state.wards.find((w) => w.id === action.payload.wardId)
+      if (!ward) return
+      const bedNumber = nextBedNumberInWard(action.payload.wardId, state.beds)
+      state.beds.push({
+        id: newBedId(),
+        wardId: ward.id,
+        wardName: ward.name,
+        bedNumber,
+        status: 'available',
+      })
+      state.wardSummary = computeWardSummary(state.wards, state.beds)
+    },
+    /** Move an available bed to another ward; assigns next free bed number in the target ward. */
+    transferBedToWard(state, action: PayloadAction<{ bedId: string; targetWardId: string }>) {
+      const bed = state.beds.find((b) => b.id === action.payload.bedId)
+      if (!bed || bed.status !== 'available') return
+      const target = state.wards.find((w) => w.id === action.payload.targetWardId)
+      if (!target || target.id === bed.wardId) return
+      const bedNumber = nextBedNumberInWard(target.id, state.beds, bed.id)
+      bed.wardId = target.id
+      bed.wardName = target.name
+      bed.bedNumber = bedNumber
+      state.wardSummary = computeWardSummary(state.wards, state.beds)
+    },
+    /** Remove an empty (available) bed from the grid. */
+    removeBed(state, action: PayloadAction<{ bedId: string }>) {
+      const bed = state.beds.find((b) => b.id === action.payload.bedId)
+      if (!bed || bed.status !== 'available') return
+      state.beds = state.beds.filter((b) => b.id !== action.payload.bedId)
+      state.wardSummary = computeWardSummary(state.wards, state.beds)
     },
   },
 })
 
-export const { setBeds, updateBedStatus, assignPatientToBed, dischargePatientFromBed } = bedSlice.actions
+export const {
+  setBeds,
+  setWards,
+  addWard,
+  updateWard,
+  removeWard,
+  updateBedStatus,
+  assignPatientToBed,
+  dischargePatientFromBed,
+  addBedToWard,
+  transferBedToWard,
+  removeBed,
+} = bedSlice.actions
 export default bedSlice.reducer

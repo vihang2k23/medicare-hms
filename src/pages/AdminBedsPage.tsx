@@ -10,11 +10,10 @@ export default function AdminBedsPage() {
         </p>
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Bed management</h1>
         <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-2xl leading-relaxed">
-          Ward-level occupancy, bed status, admissions, and discharges. Changes sync with the nurse ward view
-          (shared session state).
+          Configure wards (admin only). Add or remove empty beds; drag <strong className="text-slate-700 dark:text-slate-200">available</strong> beds onto another ward to transfer. Changes sync with the nurse bed view.
         </p>
       </div>
-      <BedGrid />
+      <BedGrid showWardManagement />
     </div>
   )
 }

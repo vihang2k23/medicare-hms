@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import DashboardCard from '../components/ui/DashboardCard'
-import { wardDisplayName } from '../config/wards'
 import { BedGrid } from '../features/beds'
 import { MOCK_RECENT_BED_CHANGES } from '../data/dashboardMockData'
 import { useSelector } from 'react-redux'
@@ -17,7 +16,7 @@ const VITALS_STALE_MS = 24 * 60 * 60 * 1000
 export default function NurseDashboard() {
   const { user } = useAuth()
   const [pendingVitals, setPendingVitals] = useState<{ patient: PatientRecord; reason: string }[]>([])
-  const { wardSummary } = useSelector((state: RootState) => state.beds)
+  const { wardSummary, wards } = useSelector((state: RootState) => state.beds)
   const totalBeds = Object.values(wardSummary).reduce(
     (acc, w) => acc + w.available + w.occupied + w.reserved + w.maintenance,
     0
@@ -87,7 +86,7 @@ export default function NurseDashboard() {
                 className="p-2 rounded-lg bg-slate-50 dark:bg-slate-700/50 text-xs leading-relaxed text-slate-600 dark:text-slate-300"
               >
                 <span className="font-semibold text-slate-800 dark:text-slate-100">
-                  {wardDisplayName(wardId)}
+                  {wards.find((w) => w.id === wardId)?.name ?? wardId}
                   <span className="font-mono text-slate-500 dark:text-slate-400 font-normal text-[11px] ml-1">
                     {wardId}
                   </span>
@@ -132,7 +131,7 @@ export default function NurseDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-3">Ward bed status grid</h2>
-          <BedGrid showWardSummary={false} />
+          <BedGrid showWardSummary={false} showWardManagement={false} />
         </div>
         <DashboardCard title="Recent bed status changes">
           <ul className="space-y-2">
