@@ -250,6 +250,7 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
             {saving ? 'Saving…' : 'Save vitals'}
           </button>
         </div>
+        </div>
       </div>
     </div>
   )
