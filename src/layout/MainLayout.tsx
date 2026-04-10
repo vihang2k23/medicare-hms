@@ -19,9 +19,9 @@ export default function MainLayout() {
   }, [pathname, dispatch])
 
   return (
-    <div className="min-h-dvh flex flex-col app-surface-gradient">
+    <div className="flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden app-surface-gradient">
       <Navbar />
-      <div className="flex flex-1 min-h-0 min-w-0 relative">
+      <div className="flex min-h-0 flex-1 min-w-0 relative">
         {sidebarOpen && (
           <button
             type="button"
@@ -31,7 +31,7 @@ export default function MainLayout() {
           />
         )}
         <Sidebar />
-        <main className="flex-1 min-w-0 w-full max-w-full overflow-x-hidden px-4 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8 xl:px-10 xl:py-10 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
+        <main className="min-h-0 flex-1 min-w-0 w-full max-w-full overflow-y-auto overflow-x-hidden overscroll-contain px-4 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8 xl:px-10 xl:py-10 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
           <div className="mx-auto max-w-[1680px] w-full min-w-0 page-enter">
             <Outlet />
           </div>

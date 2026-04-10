@@ -2,11 +2,12 @@
  * JSON Server + GET /api/npi → CMS NPPES (maps `country` → `country_code`, adds `name_purpose` for names).
  * Run: npm run server
  */
-import { readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import dns from 'node:dns'
 import https from 'node:https'
 import path from 'node:path'
 import { fileURLToPath, URL } from 'node:url'
+import express from 'express'
 import jsonServer from 'json-server'
 
 dns.setDefaultResultOrder('ipv4first')
@@ -311,11 +312,26 @@ server.get(['/api/npi', '/api/npi/'], async (req, res) => {
 
 ensureDbCollections()
 const router = jsonServer.router(dbPath)
-server.use(router)
+/** REST resources (patients, vitals, …) — keeps `/` free for the SPA when `dist/` exists. */
+server.use('/api', router)
+
+const distDir = path.join(__dirname, '..', 'dist')
+if (existsSync(distDir)) {
+  server.use(express.static(distDir, { index: false }))
+  server.use((req, res, next) => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next()
+    if (req.path.startsWith('/api')) return next()
+    res.sendFile(path.join(distDir, 'index.html'), (err) => next(err))
+  })
+}
 
 const PORT = Number(process.env.PORT) || 3001
 const HOST = process.env.HOST ?? '0.0.0.0'
 server.listen(PORT, HOST, () => {
   console.log(`JSON Server + NPI proxy listening on http://${HOST}:${PORT}`)
+  console.log(`  REST:  /api/patients, /api/vitals, …`)
   console.log(`  NPPES: GET /api/npi?version=2.1&first_name=Rama&country=US`)
+  if (existsSync(distDir)) {
+    console.log(`  SPA:   static from ${distDir}`)
+  }
 })

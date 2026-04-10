@@ -5,6 +5,7 @@ import type { PatientRecord } from '../../types/patient'
 import { fetchPatients } from '../../api/patientsApi'
 import { notify } from '../../lib/notify'
 import { useModalScrollLock } from '../../hooks/useModalScrollLock'
+import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../components/ui/modalOverlayClasses'
 import type { Appointment, ScheduleDoctor } from './types'
 import { generateDaySlots } from './slotUtils'
 
@@ -73,17 +74,13 @@ export function BookAppointmentModal({
   const dayLabel = format(parse(date, 'yyyy-MM-dd', new Date()), 'EEEE d MMM yyyy')
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-hidden overscroll-none bg-slate-950/50 backdrop-blur-sm"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="book-apt-title"
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-md max-h-[min(90dvh,40rem)] min-h-0 flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden overscroll-contain"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className={modalFixedRoot('z-50')} role="dialog" aria-modal="true" aria-labelledby="book-apt-title">
+      <div className={modalFixedInner}>
+        <button type="button" className={modalBackdropDim} aria-label="Close" onClick={onClose} />
+        <div
+          className="relative z-10 w-full max-w-md max-h-[min(90dvh,40rem)] min-h-0 flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden overscroll-contain"
+          onClick={(e) => e.stopPropagation()}
+        >
         <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80">
           <div>
             <h2 id="book-apt-title" className="text-lg font-bold text-slate-900 dark:text-slate-100">
@@ -105,7 +102,7 @@ export function BookAppointmentModal({
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="p-5 space-y-4 overflow-y-auto overscroll-contain min-h-0 flex-1 touch-pan-y">
+        <div className="p-5 space-y-4 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] min-h-0 flex-1 touch-pan-y">
           <div>
             <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Patient</label>
             <select
@@ -156,6 +153,7 @@ export function BookAppointmentModal({
               Confirm booking
             </button>
           </div>
+        </div>
         </div>
       </div>
     </div>
@@ -212,17 +210,13 @@ export function ManageAppointmentModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-hidden overscroll-none bg-slate-950/50 backdrop-blur-sm"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="manage-apt-title"
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-md max-h-[min(90dvh,40rem)] min-h-0 flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden overscroll-contain"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className={modalFixedRoot('z-50')} role="dialog" aria-modal="true" aria-labelledby="manage-apt-title">
+      <div className={modalFixedInner}>
+        <button type="button" className={modalBackdropDim} aria-label="Close" onClick={onClose} />
+        <div
+          className="relative z-10 w-full max-w-md max-h-[min(90dvh,40rem)] min-h-0 flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden overscroll-contain"
+          onClick={(e) => e.stopPropagation()}
+        >
         <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80">
           <div>
             <h2 id="manage-apt-title" className="text-lg font-bold text-slate-900 dark:text-slate-100">
@@ -256,7 +250,7 @@ export function ManageAppointmentModal({
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="p-5 space-y-4 overflow-y-auto overscroll-contain min-h-0 flex-1 touch-pan-y">
+        <div className="p-5 space-y-4 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] min-h-0 flex-1 touch-pan-y">
           <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Reschedule</p>
           <div>
             <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">New date</label>
@@ -304,6 +298,7 @@ export function ManageAppointmentModal({
           >
             Cancel appointment
           </button>
+        </div>
         </div>
       </div>
     </div>

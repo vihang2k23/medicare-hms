@@ -1,7 +1,7 @@
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { ListOrdered } from 'lucide-react'
-import type { AppDispatch, RootState } from '../../app/store'
-import { formatOpdTokenLabel, markTokenInProgress, updateTokenStatus } from './queueSlice'
+import type { RootState } from '../../app/store'
+import { formatOpdTokenLabel } from './queueSlice'
 import type { OpdTokenStatus } from './opdQueueTypes'
 
 function statusBadge(status: OpdTokenStatus) {
@@ -26,15 +26,7 @@ function statusBadge(status: OpdTokenStatus) {
   )
 }
 
-const ROW_STATUS_OPTIONS: { value: OpdTokenStatus; label: string }[] = [
-  { value: 'waiting', label: 'Waiting' },
-  { value: 'in-progress', label: 'In progress' },
-  { value: 'done', label: 'Done' },
-  { value: 'skipped', label: 'Skipped' },
-]
-
 export default function QueueBoard() {
-  const dispatch = useDispatch<AppDispatch>()
   const queue = useSelector((s: RootState) => s.queue.queue)
   const currentToken = useSelector((s: RootState) => s.queue.currentToken)
   const simulationRunning = useSelector((s: RootState) => s.queue.simulationRunning)
@@ -43,15 +35,6 @@ export default function QueueBoard() {
     const order: OpdTokenStatus[] = ['in-progress', 'waiting', 'skipped', 'done']
     return order.indexOf(a.status) - order.indexOf(b.status) || a.tokenId - b.tokenId
   })
-
-  const onStatusChange = (tokenId: number, value: string) => {
-    const next = value as OpdTokenStatus
-    if (next === 'in-progress') {
-      dispatch(markTokenInProgress(tokenId))
-    } else {
-      dispatch(updateTokenStatus({ tokenId, status: next }))
-    }
-  }
 
   return (
     <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/50 backdrop-blur-sm p-5 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
@@ -83,7 +66,7 @@ export default function QueueBoard() {
             return (
               <li
                 key={t.tokenId}
-                className={`grid grid-cols-1 sm:grid-cols-[minmax(4rem,auto)_1fr_auto_auto] gap-2 sm:gap-3 items-center p-3.5 rounded-xl text-sm border transition-colors ${
+                className={`grid grid-cols-1 sm:grid-cols-[minmax(4rem,auto)_1fr_auto] gap-2 sm:gap-3 items-center p-3.5 rounded-xl text-sm border transition-colors ${
                   isCurrent
                     ? 'border-sky-300/90 dark:border-sky-600/80 bg-sky-50/90 dark:bg-sky-950/40 ring-1 ring-sky-200/50 dark:ring-sky-500/20'
                     : 'border-slate-100 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/40'
@@ -97,23 +80,6 @@ export default function QueueBoard() {
                   </p>
                 </div>
                 <div className="justify-self-start sm:justify-self-end">{statusBadge(t.status)}</div>
-                <div className="sm:justify-self-end w-full sm:w-auto">
-                  <label className="sr-only" htmlFor={`status-${t.tokenId}`}>
-                    Status for {label}
-                  </label>
-                  <select
-                    id={`status-${t.tokenId}`}
-                    value={t.status}
-                    onChange={(e) => onStatusChange(t.tokenId, e.target.value)}
-                    className="w-full sm:w-[9.5rem] px-2.5 py-2 rounded-lg border border-slate-200/90 dark:border-slate-600 bg-white/95 dark:bg-slate-950/60 text-slate-800 dark:text-slate-100 text-xs font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/35"
-                  >
-                    {ROW_STATUS_OPTIONS.map((o) => (
-                      <option key={o.value} value={o.value}>
-                        {o.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
               </li>
             )
           })}

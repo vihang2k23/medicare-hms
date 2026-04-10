@@ -1,7 +1,7 @@
 import { getJsonServerBaseUrl } from '../config/api'
 import type { InternalDoctorRecord } from '../types/internalDoctor'
 
-const base = () => `${getJsonServerBaseUrl()}/internalDoctors`
+const base = () => `${getJsonServerBaseUrl()}/api/internalDoctors`
 
 export async function fetchInternalDoctors(): Promise<InternalDoctorRecord[]> {
   const res = await fetch(base())

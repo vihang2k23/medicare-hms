@@ -179,8 +179,8 @@ Config: `config/roles.ts`.
 
 ### JSON Server (REST API)
 - **Data file:** `server/db.json` — `{ "patients": [] }` (JSON Server watches this file).
-- **Run API:** `npm run server` → `server/jsonServer.mjs` on `http://localhost:3001` — REST resources from `db.json` (e.g. `/patients`) plus **`GET /api/npi`** (proxies to CMS NPPES; maps `country` → `country_code`, sets `name_purpose=Provider` when `first_name` / `last_name` are used). Plain json-server only: `npm run server:plain`.
-- **Client:** `src/config/api.ts` — `getJsonServerBaseUrl()` (env `VITE_JSON_SERVER_URL` or `http://localhost:3001`).
+- **Run API:** `npm run server` → `server/jsonServer.mjs` on `http://localhost:3001` — REST under **`/api/...`** (e.g. `/api/patients`) plus **`GET /api/npi`** (proxies to CMS NPPES; maps `country` → `country_code`, sets `name_purpose=Provider` when `first_name` / `last_name` are used). If `dist/` exists, the same process also serves the Vite SPA. Plain json-server only: `npm run server:plain`.
+- **Client:** `src/config/api.ts` — `getJsonServerBaseUrl()` (dev default `http://localhost:3001`; production same-origin `''` → relative `/api/...` unless `VITE_JSON_SERVER_URL` is set).
 - **API helpers:** `src/api/patientsApi.ts` — `fetchPatients()`, `fetchAllPatients()`, `fetchPatientById()`, `createPatient()`, `updatePatient()` (PATCH), `softDeletePatient()` (`isActive: false`).
 - **Types:** `src/types/patient.ts` — `PatientRecord` (same fields as before; stored as JSON).
 

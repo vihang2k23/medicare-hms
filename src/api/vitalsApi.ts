@@ -1,7 +1,7 @@
 import { getJsonServerBaseUrl } from '../config/api'
 import type { VitalRecord } from '../types/vitals'
 
-const base = () => `${getJsonServerBaseUrl()}/vitals`
+const base = () => `${getJsonServerBaseUrl()}/api/vitals`
 
 export async function fetchAllVitals(): Promise<VitalRecord[]> {
   const res = await fetch(base())

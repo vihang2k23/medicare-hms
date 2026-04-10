@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { useModalScrollLock } from '../../hooks/useModalScrollLock'
+import { modalBackdropDimStrong, modalFixedInner, modalFixedRoot } from '../../components/ui/modalOverlayClasses'
 import { useDispatch, useSelector } from 'react-redux'
 import { Building2, Layers, Pencil, Plus, Shield, Trash2, X } from 'lucide-react'
 import type { AppDispatch, RootState } from '../../app/store'
@@ -23,18 +24,14 @@ function ModalShell({
   footer: ReactNode
 }) {
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 overflow-hidden overscroll-none bg-slate-950/60 backdrop-blur-[2px]"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="ward-modal-title"
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-[420px] rounded-2xl border border-slate-200/90 dark:border-slate-600/80 bg-white dark:bg-slate-900 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-200/50 dark:ring-slate-700/60 overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="px-5 pt-5 pb-4 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-teal-500/[0.08] via-transparent to-sky-500/[0.06] dark:from-teal-500/15 dark:to-sky-500/10">
+    <div className={modalFixedRoot('z-[60]')} role="dialog" aria-modal="true" aria-labelledby="ward-modal-title">
+      <div className={modalFixedInner}>
+        <button type="button" className={modalBackdropDimStrong} aria-label="Close dialog" onClick={onClose} />
+        <div
+          className="relative z-10 w-full max-w-[420px] max-h-[min(90dvh,32rem)] min-h-0 flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/80 bg-white dark:bg-slate-900 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-200/50 dark:ring-slate-700/60 overflow-hidden overscroll-contain"
+          onClick={(e) => e.stopPropagation()}
+        >
+        <div className="shrink-0 px-5 pt-5 pb-4 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-teal-500/[0.08] via-transparent to-sky-500/[0.06] dark:from-teal-500/15 dark:to-sky-500/10">
           <div className="flex items-start justify-between gap-3">
             <div>
               <h3 id="ward-modal-title" className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
@@ -54,9 +51,12 @@ function ModalShell({
             </button>
           </div>
         </div>
-        <div className="p-5">{children}</div>
-        <div className="px-5 py-4 bg-slate-50/90 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 flex flex-wrap justify-end gap-2">
+        <div className="p-5 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] min-h-0 flex-1 touch-pan-y">
+          {children}
+        </div>
+        <div className="shrink-0 px-5 py-4 bg-slate-50/90 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 flex flex-wrap justify-end gap-2">
           {footer}
+        </div>
         </div>
       </div>
     </div>

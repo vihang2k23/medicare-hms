@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Activity, Heart, Thermometer, Wind, X } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { useModalScrollLock } from '../../hooks/useModalScrollLock'
+import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../ui/modalOverlayClasses'
 import { createVital } from '../../api/vitalsApi'
 import type { PatientRecord } from '../../types/patient'
 import { notify } from '../../lib/notify'
@@ -113,18 +114,19 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-hidden overscroll-none"
+      className={modalFixedRoot('z-[100]')}
       role="dialog"
       aria-modal="true"
       aria-labelledby="vitals-record-modal-title"
     >
-      <button
-        type="button"
-        className="absolute inset-0 bg-slate-950/60 backdrop-blur-[2px]"
-        aria-label="Close vitals form"
-        onClick={handleClose}
-      />
-      <div className="relative z-10 w-full max-w-xl max-h-[min(90dvh,44rem)] min-h-0 flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl shadow-slate-900/25 dark:shadow-black/40 ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden overscroll-contain">
+      <div className={modalFixedInner}>
+        <button
+          type="button"
+          className={modalBackdropDim}
+          aria-label="Close vitals form"
+          onClick={handleClose}
+        />
+        <div className="relative z-10 w-full max-w-xl max-h-[min(90dvh,44rem)] min-h-0 flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl shadow-slate-900/25 dark:shadow-black/40 ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden overscroll-contain">
         <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-slate-200/90 dark:border-slate-700/90 shrink-0">
           <div className="min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400">Record vitals</p>
@@ -146,7 +148,7 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
           </button>
         </div>
 
-        <div className="overflow-y-auto overscroll-contain px-5 py-5 space-y-5 flex-1 min-h-0 touch-pan-y">
+        <div className="overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] px-5 py-5 space-y-5 flex-1 min-h-0 touch-pan-y">
           <div className="rounded-xl border border-slate-200/90 dark:border-slate-700/90 bg-slate-50/60 dark:bg-slate-800/25 p-4 space-y-3">
             <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               <Heart className="h-3.5 w-3.5 text-rose-500 shrink-0" strokeWidth={2.5} aria-hidden />

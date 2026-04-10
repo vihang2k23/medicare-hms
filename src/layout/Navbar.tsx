@@ -97,7 +97,7 @@ export default function Navbar() {
 
         {isAuthenticated ? (
           <>
-            {user?.role === 'admin' && <NotificationBell />}
+            {user?.role === 'admin' && <NotificationBell onOpen={() => setDropdownOpen(false)} />}
             <div className="relative ml-1 sm:ml-2" ref={ref}>
               <button
                 type="button"

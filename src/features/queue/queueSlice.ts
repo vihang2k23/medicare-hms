@@ -88,7 +88,10 @@ const queueSlice = createSlice({
       const skippedId = cur.tokenId
       const without = state.queue.filter((_, i) => i !== idx)
       const requeued: OpdQueueToken = { ...cur, status: 'waiting' }
-      const tokens = [...without, requeued]
+      /** End of the waiting line: other statuses keep their relative order, then all other waiting, then skipped last. */
+      const waitingOthers = without.filter((t) => t.status === 'waiting')
+      const nonWaiting = without.filter((t) => t.status !== 'waiting')
+      const tokens = [...nonWaiting, ...waitingOthers, requeued]
       const waitings = tokens.filter((t) => t.status === 'waiting')
       if (waitings.length === 0) {
         state.queue = tokens

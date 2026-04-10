@@ -13,6 +13,7 @@ import {
   setSimulationRunning,
   skipCurrent,
 } from './queueSlice'
+import { canCallNext, canStartQueueSimulation } from './queueSimulation'
 
 const SIM_INTERVALS = [
   { label: '30 seconds (recommended)', ms: 30000 },
@@ -33,15 +34,21 @@ export default function QueueControls({
   const dispatch = useDispatch<AppDispatch>()
   const currentToken = useSelector((s: RootState) => s.queue.currentToken)
   const simulationRunning = useSelector((s: RootState) => s.queue.simulationRunning)
+  const queue = useSelector((s: RootState) => s.queue.queue)
   const scheduleDoctors = useSelector((s: RootState) => s.appointments.doctors)
+  const canStartSimulation = canStartQueueSimulation(queue)
+  const callNextEnabled = canCallNext(queue)
   const [patientName, setPatientName] = useState('')
-  const [department, setDepartment] = useState<string>(OPD_DEPARTMENTS[0])
 
   const issue = () => {
     const name = patientName.trim()
     if (!name) return
     dispatch(
-      issueToken({ patientName: name, department: department || undefined, scheduleDoctors }),
+      issueToken({
+        patientName: name,
+        department: OPD_DEPARTMENTS[0],
+        scheduleDoctors,
+      }),
     )
     setPatientName('')
     const q = store.getState().queue.queue
@@ -54,34 +61,18 @@ export default function QueueControls({
   return (
     <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/50 backdrop-blur-sm p-5 space-y-5 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
       <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.14em]">Issue token</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Patient name</label>
-          <input
-            value={patientName}
-            onChange={(e) => setPatientName(e.target.value)}
-            placeholder="Walk-in or registered name"
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white/90 dark:bg-slate-950/50 text-slate-800 dark:text-slate-100 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Department</label>
-          <select
-            value={department}
-            onChange={(e) => setDepartment(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white/90 dark:bg-slate-950/50 text-slate-800 dark:text-slate-100 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30"
-          >
-            {OPD_DEPARTMENTS.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div>
+        <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Patient name</label>
+        <input
+          value={patientName}
+          onChange={(e) => setPatientName(e.target.value)}
+          placeholder="Walk-in or registered name"
+          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white/90 dark:bg-slate-950/50 text-slate-800 dark:text-slate-100 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+        />
       </div>
       <p className="text-[11px] text-slate-500 dark:text-slate-400">
-        Doctor is assigned from the appointment schedule for this department (includes doctors imported from the NPI
-        directory when their department matches).
+        Tokens are issued for <strong className="text-slate-600 dark:text-slate-300">{OPD_DEPARTMENTS[0]}</strong>.
+        Doctor is picked from the appointment schedule when their department matches (including NPI-imported doctors).
       </p>
       <button
         type="button"
@@ -104,12 +95,28 @@ export default function QueueControls({
           <button
             type="button"
             onClick={() => {
+              if (!canCallNext(store.getState().queue.queue)) return
               dispatch(callNext())
-              const cur = store.getState().queue.currentToken
-              if (cur != null) notify.success(`Now serving ${formatOpdTokenLabel(cur)}`)
-              else notify.success('Queue updated — no active token right now')
+              const { queue: qAfter, currentToken: cur } = store.getState().queue
+              if (cur != null) {
+                notify.success(`Now serving ${formatOpdTokenLabel(cur)}`)
+                return
+              }
+              if (qAfter.length === 0) {
+                notify.success(
+                  'No more patients waiting in queue. Issue a token when the next patient arrives.',
+                )
+              } else {
+                notify.success('No more patients waiting in queue.')
+              }
             }}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-sm font-semibold shadow-md shadow-emerald-500/20 transition-all"
+            disabled={!callNextEnabled}
+            title={
+              !callNextEnabled
+                ? 'No one is waiting or in consultation — issue a token or wait for the queue to have patients'
+                : undefined
+            }
+            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold shadow-md shadow-emerald-500/20 transition-all"
           >
             Call next
           </button>
@@ -130,7 +137,7 @@ export default function QueueControls({
             onClick={() => {
               if (currentToken == null) return
               dispatch(skipCurrent())
-              notify.success('Current patient sent to back of queue — next called if available')
+              notify.success('Patient moved to the end of the queue.')
             }}
             disabled={currentToken == null}
             className="px-4 py-2.5 rounded-xl border border-amber-200/90 dark:border-amber-800/80 text-amber-900 dark:text-amber-200 text-sm font-semibold hover:bg-amber-50/80 dark:hover:bg-amber-950/30 disabled:opacity-40 transition-colors"
@@ -158,7 +165,8 @@ export default function QueueControls({
           Auto-advance (simulation)
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-          Fires &ldquo;Call next&rdquo; every {simulationIntervalMs / 1000}s while running. Turn off for a real desk.
+          Fires &ldquo;Call next&rdquo; every {simulationIntervalMs / 1000}s while running. Starts only when someone is
+          waiting; stops automatically when the queue has no waiting or in-consultation patients.
         </p>
         <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 items-stretch sm:items-center">
           <label className="text-xs font-medium text-slate-600 dark:text-slate-400 shrink-0">Interval</label>
@@ -177,11 +185,25 @@ export default function QueueControls({
           <button
             type="button"
             onClick={() => {
-              const next = !simulationRunning
-              dispatch(setSimulationRunning(next))
-              notify.success(next ? 'Start simulation — auto-advance on' : 'Simulation stopped')
+              if (simulationRunning) {
+                dispatch(setSimulationRunning(false))
+                notify.success('Simulation stopped')
+                return
+              }
+              if (!canStartSimulation) {
+                notify.error('Issue at least one token (waiting) before starting simulation.')
+                return
+              }
+              dispatch(setSimulationRunning(true))
+              notify.success('Simulation on — calling next automatically')
             }}
-            className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            disabled={!simulationRunning && !canStartSimulation}
+            title={
+              !simulationRunning && !canStartSimulation
+                ? 'No more patients waiting in queue'
+                : undefined
+            }
+            className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-45 ${
               simulationRunning
                 ? 'bg-violet-600 text-white shadow-md shadow-violet-500/25 hover:bg-violet-500'
                 : 'border border-violet-200/90 dark:border-violet-800/80 text-violet-800 dark:text-violet-200 hover:bg-violet-50 dark:hover:bg-violet-950/40'

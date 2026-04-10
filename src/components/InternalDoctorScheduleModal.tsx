@@ -7,6 +7,7 @@ import { createInternalDoctor, findInternalDoctorByNpi, updateInternalDoctor } f
 import { defaultImportedSchedule } from '../lib/npiRegistryApi'
 import { notify } from '../lib/notify'
 import { useModalScrollLock } from '../hooks/useModalScrollLock'
+import { modalBackdropDim, modalFixedInner, modalFixedRoot } from './ui/modalOverlayClasses'
 import {
   addImportedScheduleDoctor,
   updateImportedScheduleDoctor,
@@ -192,20 +193,16 @@ export default function InternalDoctorScheduleModal({
   if (!open) return null
 
   const modal = (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-hidden overscroll-none">
-      <button
-        type="button"
-        className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm"
-        aria-label="Close dialog"
-        onClick={onClose}
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="internal-doctor-schedule-title"
-        className="relative z-10 w-full max-w-lg max-h-[min(90dvh,42rem)] min-h-0 flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl ring-1 ring-slate-200/60 dark:ring-slate-600/60 overflow-hidden overscroll-contain"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className={modalFixedRoot('z-[100]')}>
+      <div className={modalFixedInner}>
+        <button type="button" className={modalBackdropDim} aria-label="Close dialog" onClick={onClose} />
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="internal-doctor-schedule-title"
+          className="relative z-10 w-full max-w-lg max-h-[min(90dvh,42rem)] min-h-0 flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl ring-1 ring-slate-200/60 dark:ring-slate-600/60 overflow-hidden overscroll-contain"
+          onClick={(e) => e.stopPropagation()}
+        >
         <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80">
             <div className="min-w-0">
               <h2
@@ -228,7 +225,7 @@ export default function InternalDoctorScheduleModal({
             </button>
           </div>
 
-          <div className="p-5 overflow-y-auto overscroll-contain min-h-0 flex-1 space-y-4 text-sm">
+          <div className="p-5 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] min-h-0 flex-1 space-y-4 text-sm touch-pan-y">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="sm:col-span-2">
                 <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
@@ -393,6 +390,7 @@ export default function InternalDoctorScheduleModal({
             </button>
           </div>
         </div>
+      </div>
     </div>
   )
 

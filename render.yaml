@@ -1,29 +1,13 @@
-# Render Blueprint: https://render.com/docs/blueprint-spec
-# 1) Apply this blueprint (or create the two services manually).
-# 2) After the API is live, open the static site → Environment → set
-#    VITE_JSON_SERVER_URL to the API’s public URL (https://…onrender.com, no trailing slash).
-# 3) Trigger a new deploy of the static site so Vite bakes that URL into the build.
+# One Web service: Vite build + JSON Server on the same URL (no separate static site).
+# Do not set VITE_JSON_SERVER_URL — the app uses same-origin `/api/...` in production.
+# https://render.com/docs/blueprint-spec
 
 services:
   - type: web
-    name: medicare-hms-api
+    name: medicare-hms
     runtime: node
     plan: free
     region: oregon
-    buildCommand: npm ci --omit=dev
-    startCommand: npm run server
-    healthCheckPath: /patients
-
-  # Static sites on Render cannot set `region` (global CDN).
-  - type: web
-    name: medicare-hms-web
-    runtime: static
     buildCommand: npm ci && npm run build
-    staticPublishPath: dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: VITE_JSON_SERVER_URL
-        sync: false
+    startCommand: npm run server
+    healthCheckPath: /api/patients

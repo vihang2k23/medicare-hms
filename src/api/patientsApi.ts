@@ -1,7 +1,7 @@
 import { getJsonServerBaseUrl } from '../config/api'
 import type { PatientRecord } from '../types/patient'
 
-const patientsPath = () => `${getJsonServerBaseUrl()}/patients`
+const patientsPath = () => `${getJsonServerBaseUrl()}/api/patients`
 
 export async function fetchPatients(): Promise<PatientRecord[]> {
   const res = await fetch(patientsPath())

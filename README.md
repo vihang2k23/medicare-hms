@@ -18,32 +18,27 @@ Patient registration/list uses **[JSON Server](https://github.com/typicode/json-
    npm run dev
    ```
 
-Optional: set `VITE_JSON_SERVER_URL` in `.env` if the API is not at `http://localhost:3001`.
+Optional: set `VITE_JSON_SERVER_URL` in `.env` if the API is not at `http://localhost:3001`. REST endpoints are under **`/api/...`** on that host (e.g. `http://localhost:3001/api/patients`).
 
 ---
 
 ## Deploy on Render
 
-This repo includes a **[Render Blueprint](https://render.com/docs/infrastructure-as-code)** at `render.yaml` with two services:
-
-| Service | Type | Purpose |
-|--------|------|--------|
-| **medicare-hms-api** | Web (Node) | `npm run server` — JSON Server + `/api/npi` proxy |
-| **medicare-hms-web** | Static | Vite production build from `dist/` |
+The **[Blueprint](https://render.com/docs/infrastructure-as-code)** in `render.yaml` defines **one Web service** (`medicare-hms`). The build runs `npm ci && npm run build`; the start command runs `npm run server`, which serves the Vite app from `dist/` and the JSON API under **`/api`** on the **same URL**.
 
 **Setup**
 
-1. Push the repo to GitHub (or GitLab/Bitbucket) and connect it in [Render](https://dashboard.render.com).
-2. Use **New → Blueprint** and select the repo (or create the two services manually using the same build/start commands as in `render.yaml`).
-3. Wait until **medicare-hms-api** is deployed and copy its public URL (e.g. `https://medicare-hms-api.onrender.com`).
-4. In **medicare-hms-web** → **Environment**, set **`VITE_JSON_SERVER_URL`** to that URL (**no trailing slash**). Redeploy the static site so the value is baked into the build (Vite reads this at build time, not runtime).
-5. Open the static site URL in the browser.
+1. Push the repo and in [Render](https://dashboard.render.com) choose **New → Blueprint** (or **Web Service** with the same build/start commands as in `render.yaml`).
+2. Open the service’s **public URL** — that is both the UI and the API (e.g. `https://medicare-hms.onrender.com` for the app, `https://medicare-hms.onrender.com/api/patients` for data).
+3. **Do not** set `VITE_JSON_SERVER_URL` on Render for this setup; production builds use same-origin `/api/...`.
+
+**If you still have an old two-service deploy** (separate static site + API), remove the static site and use this single-service blueprint instead, or set `VITE_JSON_SERVER_URL` to your API origin only if the UI and API stay on different hosts (REST paths must be `/api/...` on that API host).
 
 **Notes**
 
-- On the free tier, services **spin down** after idle time; the first request can be slow (cold start).
-- **`server/db.json`** lives on **ephemeral** disk: changes are lost when the API instance restarts or redeploys. For durable data you would add a real database later.
-- The API listens on **`PORT`** (set by Render) and **`0.0.0.0`** so it accepts external traffic.
+- Free tier instances **spin down** when idle; the first load can be slow (cold start).
+- **`server/db.json`** is on **ephemeral** disk; data resets when the instance restarts or redeploys unless you add a real database later.
+- The server uses Render’s **`PORT`** and listens on **`0.0.0.0`**.
 
 ---
 
