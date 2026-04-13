@@ -277,6 +277,11 @@ const server = jsonServer.create()
 const middlewares = jsonServer.defaults()
 server.use(middlewares)
 
+/** Tiny response for load balancers (avoid probing `/api/patients` — that JSON can be multi‑MB and time out). */
+server.get(['/health', '/api/health'], (_req, res) => {
+  res.status(200).type('application/json').send('{"ok":true}')
+})
+
 function setNpiCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
@@ -312,6 +317,31 @@ server.get(['/api/npi', '/api/npi/'], async (req, res) => {
 
 ensureDbCollections()
 const router = jsonServer.router(dbPath)
+
+/**
+ * Canonical REST is mounted at `/api/...`. Some health checks and plain `json-server` setups probe
+ * `/patients` or `/vitals` (no prefix) → 404 on this app. Rewrite those paths before the router.
+ */
+function aliasJsonRestToApiPrefix(req, _res, next) {
+  const raw = (req.originalUrl || '').split('#')[0]
+  const q = raw.indexOf('?')
+  const pathOnly = q === -1 ? raw : raw.slice(0, q)
+  const search = q === -1 ? '' : raw.slice(q)
+
+  if (pathOnly === '' || pathOnly.startsWith('/api')) return next()
+
+  const roots = ['patients', 'vitals', 'internalDoctors']
+  for (const name of roots) {
+    const root = `/${name}`
+    if (pathOnly === root || pathOnly.startsWith(`${root}/`)) {
+      req.url = `/api${pathOnly}${search}`
+      break
+    }
+  }
+  next()
+}
+
+server.use(aliasJsonRestToApiPrefix)
 /** REST resources (patients, vitals, …) — keeps `/` free for the SPA when `dist/` exists. */
 server.use('/api', router)
 
@@ -329,7 +359,8 @@ const PORT = Number(process.env.PORT) || 3001
 const HOST = process.env.HOST ?? '0.0.0.0'
 server.listen(PORT, HOST, () => {
   console.log(`JSON Server + NPI proxy listening on http://${HOST}:${PORT}`)
-  console.log(`  REST:  /api/patients, /api/vitals, …`)
+  console.log(`  Health: GET /api/health (or /health)`)
+  console.log(`  REST:  /api/patients, /api/vitals, … (also /patients, /vitals → same)`)
   console.log(`  NPPES: GET /api/npi?version=2.1&first_name=Rama&country=US`)
   if (existsSync(distDir)) {
     console.log(`  SPA:   static from ${distDir}`)

@@ -10,4 +10,5 @@ services:
     region: oregon
     buildCommand: npm ci && npm run build
     startCommand: npm run server
-    healthCheckPath: /api/patients
+    # Prefer this over /api/patients — patient list JSON can be huge and slow health checks.
+    healthCheckPath: /api/health
