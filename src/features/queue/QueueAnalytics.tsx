@@ -51,43 +51,43 @@ export default function QueueAnalytics() {
       value: stats.waiting,
       icon: Users,
       className:
-        'from-amber-500/15 to-amber-600/5 text-amber-800 dark:text-amber-200 ring-amber-500/20',
+        'from-amber-500/15 to-amber-600/5 text-amber-800 dark:text-white ring-amber-500/20',
     },
     {
       label: 'In progress',
       value: stats.inProgress,
       icon: CircleDashed,
-      className: 'from-sky-500/15 to-sky-600/5 text-sky-800 dark:text-sky-200 ring-sky-500/20',
+      className: 'from-sky-500/15 to-sky-600/5 text-sky-800 dark:text-white ring-sky-500/20',
     },
     {
       label: 'Completed (list)',
       value: stats.done,
       icon: CheckCircle2,
       className:
-        'from-emerald-500/15 to-emerald-600/5 text-emerald-800 dark:text-emerald-200 ring-emerald-500/20',
+        'from-emerald-500/15 to-emerald-600/5 text-emerald-800 dark:text-white ring-emerald-500/20',
     },
     {
       label: 'Skipped',
       value: stats.skipped,
       icon: SkipForward,
-      className: 'from-slate-500/15 to-slate-600/5 text-slate-700 dark:text-slate-200 ring-slate-500/25',
+      className: 'from-slate-500/15 to-slate-600/5 text-slate-700 dark:text-white ring-slate-500/25',
     },
   ] as const
 
   return (
     <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/50 backdrop-blur-sm p-5 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-        <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 tracking-tight">
-          <Activity className="h-5 w-5 text-violet-600 dark:text-violet-400 shrink-0" aria-hidden />
+        <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
+          <Activity className="h-5 w-5 text-violet-600 dark:text-white shrink-0" aria-hidden />
           Queue analytics
         </h2>
-        <div className="text-xs text-slate-500 dark:text-slate-400">
-          <span className="font-mono text-slate-700 dark:text-slate-200">
+        <div className="text-xs text-slate-500 dark:text-white">
+          <span className="font-mono text-slate-700 dark:text-white">
             {currentToken != null ? formatOpdTokenLabel(currentToken) : '—'}
           </span>
           <span className="mx-1.5 opacity-50">·</span>
           <span>
-            Served today: <strong className="text-slate-800 dark:text-slate-200">{servedToday}</strong>
+            Served today: <strong className="text-slate-800 dark:text-white">{servedToday}</strong>
           </span>
         </div>
       </div>
@@ -109,10 +109,10 @@ export default function QueueAnalytics() {
         <div className="flex items-start gap-3 rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-slate-50/80 dark:bg-slate-800/40 p-3">
           <Clock className="h-5 w-5 text-violet-500 shrink-0 mt-0.5" aria-hidden />
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white">
               Avg wait (simulated)
             </p>
-            <p className="text-lg font-bold text-slate-900 dark:text-slate-100 tabular-nums">
+            <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">
               {avgWaitMinSim == null ? '—' : `${avgWaitMinSim} min`}
             </p>
           </div>
@@ -120,21 +120,21 @@ export default function QueueAnalytics() {
         <div className="flex items-start gap-3 rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-slate-50/80 dark:bg-slate-800/40 p-3">
           <Timer className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" aria-hidden />
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white">
               Longest wait (simulated)
             </p>
-            <p className="text-lg font-bold text-slate-900 dark:text-slate-100 tabular-nums">
+            <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">
               {longestWaitMinSim == null ? '—' : `${longestWaitMinSim} min`}
             </p>
           </div>
         </div>
       </div>
 
-      <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
-        Tokens in session: <strong className="text-slate-700 dark:text-slate-200">{stats.total}</strong>
+      <p className="mt-4 text-xs text-slate-500 dark:text-white">
+        Tokens in session: <strong className="text-slate-700 dark:text-white">{stats.total}</strong>
         {' · '}
         Completion rate (finished / issued):{' '}
-        <strong className="text-slate-700 dark:text-slate-200">
+        <strong className="text-slate-700 dark:text-white">
           {stats.total === 0 ? '—' : `${Math.round(((stats.done + stats.skipped) / stats.total) * 100)}%`}
         </strong>
       </p>

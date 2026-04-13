@@ -15,27 +15,27 @@ const ACCENT: Record<
 > = {
   blue: {
     activeBg: 'bg-sky-50 dark:bg-sky-500/10',
-    activeBorder: 'border-sky-500 text-sky-600 dark:text-sky-400',
+    activeBorder: 'border-sky-500 text-sky-600 dark:text-white',
     hoverBg: 'hover:bg-slate-100 dark:hover:bg-slate-800/80',
-    iconBg: 'bg-sky-100 dark:bg-sky-500/20 text-sky-600 dark:text-sky-400',
+    iconBg: 'bg-sky-100 dark:bg-sky-500/20 text-sky-600 dark:text-white',
   },
   green: {
     activeBg: 'bg-emerald-50 dark:bg-emerald-500/10',
-    activeBorder: 'border-emerald-500 text-emerald-600 dark:text-emerald-400',
+    activeBorder: 'border-emerald-500 text-emerald-600 dark:text-white',
     hoverBg: 'hover:bg-slate-100 dark:hover:bg-slate-800/80',
-    iconBg: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
+    iconBg: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-white',
   },
   purple: {
     activeBg: 'bg-violet-50 dark:bg-violet-500/10',
-    activeBorder: 'border-violet-500 text-violet-600 dark:text-violet-400',
+    activeBorder: 'border-violet-500 text-violet-600 dark:text-white',
     hoverBg: 'hover:bg-slate-100 dark:hover:bg-slate-800/80',
-    iconBg: 'bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400',
+    iconBg: 'bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-white',
   },
   orange: {
     activeBg: 'bg-orange-50 dark:bg-orange-500/10',
-    activeBorder: 'border-orange-500 text-orange-600 dark:text-orange-400',
+    activeBorder: 'border-orange-500 text-orange-600 dark:text-white',
     hoverBg: 'hover:bg-slate-100 dark:hover:bg-slate-800/80',
-    iconBg: 'bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400',
+    iconBg: 'bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-white',
   },
 }
 
@@ -97,7 +97,7 @@ export default function Sidebar() {
               <span className="font-semibold text-slate-900 dark:text-white text-sm truncate tracking-tight block leading-tight">
                 Navigation
               </span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-sky-600 dark:text-sky-400 truncate block">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-sky-600 dark:text-white truncate block">
                 MediCare HMS
               </span>
             </div>
@@ -105,7 +105,7 @@ export default function Sidebar() {
           <button
             type="button"
             onClick={() => dispatch(toggleSidebar())}
-            className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100/90 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 shrink-0"
+            className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100/90 dark:text-white dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 shrink-0"
             aria-label="Toggle sidebar"
           >
             {sidebarOpen ? (
@@ -118,7 +118,7 @@ export default function Sidebar() {
 
         {/* Vertical menu */}
         <nav className="flex-1 overflow-y-auto py-5 px-3">
-          <p className="px-3 mb-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">
+          <p className="px-3 mb-3 text-[10px] font-bold text-slate-400 dark:text-white uppercase tracking-[0.2em]">
             Main
           </p>
           <ul className="space-y-1">
@@ -133,12 +133,12 @@ export default function Sidebar() {
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 touch-manipulation ${
                       isActive
                         ? `${styles.activeBg} ${styles.activeBorder} shadow-sm ring-1 ring-slate-200/60 dark:ring-slate-600/40 font-semibold`
-                        : `text-slate-600 dark:text-slate-400 ${styles.hoverBg} hover:text-slate-900 dark:hover:text-slate-100`
+                        : `text-slate-600 dark:text-white ${styles.hoverBg} hover:text-slate-900 dark:hover:text-white`
                     }`}
                   >
                     <span
                       className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                        isActive ? styles.iconBg : 'bg-slate-100/90 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400'
+                        isActive ? styles.iconBg : 'bg-slate-100/90 dark:bg-slate-800/80 text-slate-500 dark:text-white'
                       }`}
                     >
                       <Icon className="h-[18px] w-[18px]" aria-hidden />

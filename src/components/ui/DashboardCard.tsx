@@ -13,7 +13,7 @@ export default function DashboardCard({ title, children, className = '' }: Dashb
     >
       {title && (
         <div className="px-5 py-3.5 border-b border-slate-100/90 dark:border-slate-800/90 bg-slate-50/80 dark:bg-slate-900/60">
-          <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 tracking-tight">{title}</h2>
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight">{title}</h2>
         </div>
       )}
       <div className="p-5">{children}</div>

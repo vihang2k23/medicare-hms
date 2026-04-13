@@ -78,9 +78,9 @@ export default function PrescriptionPrintPage({ variant }: PrescriptionPrintPage
 
   if (!prescriptionId) {
     return (
-      <div className="text-slate-600 dark:text-slate-400 text-sm">
+      <div className="text-slate-600 dark:text-white text-sm">
         Missing prescription id.{' '}
-        <Link to={listPath} className="text-sky-600 dark:text-sky-400 font-medium">
+        <Link to={listPath} className="text-sky-600 dark:text-white font-medium">
           Back to prescriptions
         </Link>
       </div>
@@ -90,10 +90,10 @@ export default function PrescriptionPrintPage({ variant }: PrescriptionPrintPage
   if (!rx) {
     return (
       <div className="space-y-3">
-        <p className="text-slate-600 dark:text-slate-400 text-sm">No prescription found for this id.</p>
+        <p className="text-slate-600 dark:text-white text-sm">No prescription found for this id.</p>
         <Link
           to={listPath}
-          className="inline-flex items-center gap-2 text-sm font-semibold text-sky-600 dark:text-sky-400"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-sky-600 dark:text-white"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
           Back to prescriptions
@@ -118,7 +118,7 @@ export default function PrescriptionPrintPage({ variant }: PrescriptionPrintPage
       <div className="no-print-rx flex flex-wrap items-center gap-3">
         <Link
           to={listPath}
-          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-white hover:text-sky-600 dark:hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
           Back
@@ -126,7 +126,7 @@ export default function PrescriptionPrintPage({ variant }: PrescriptionPrintPage
         <button
           type="button"
           onClick={() => window.print()}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-800 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
         >
           <Printer className="h-4 w-4" aria-hidden />
           Print / Save as PDF

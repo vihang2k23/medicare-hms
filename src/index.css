@@ -31,6 +31,24 @@
   html {
     font-family: var(--font-sans);
   }
+
+  /* Default copy color in dark mode (utilities on elements still override when needed). */
+  html.dark {
+    color: #ffffff;
+  }
+}
+
+/* Recharts tick labels / legend — axis props often set a gray stroke; force white text in dark mode. */
+@media not print {
+  .dark .recharts-cartesian-axis-tick text {
+    fill: #ffffff !important;
+  }
+  .dark .recharts-legend-wrapper text {
+    fill: #ffffff !important;
+  }
+  .dark .recharts-label {
+    fill: #ffffff !important;
+  }
 }
 
 ::selection {

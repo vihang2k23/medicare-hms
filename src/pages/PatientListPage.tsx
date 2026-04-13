@@ -19,7 +19,7 @@ const PAGE_SIZE = 10
 const BLOOD_OPTIONS = ['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const
 
 const selectClass =
-  'w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-slate-800 dark:text-slate-100 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/35 focus:border-sky-400/40 transition-[box-shadow,border-color]'
+  'w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-slate-800 dark:text-white text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/35 focus:border-sky-400/40 transition-[box-shadow,border-color]'
 
 /** Match API values like "A +" or "o+" to filter option "A+", "O+". */
 function normalizeBloodGroup(bg: string): string {
@@ -136,15 +136,15 @@ export default function PatientListPage() {
               <Users className="h-6 w-6" aria-hidden />
             </span>
             <div className="min-w-0">
-              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-600 dark:text-sky-400 mb-1">
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-600 dark:text-white mb-1">
                 Registry
               </p>
               <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                 Patients
               </h1>
-              <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-xl leading-relaxed">
+              <p className="text-slate-600 dark:text-white text-sm mt-2 max-w-xl leading-relaxed">
                 Search, filter, and manage records. Data syncs with JSON Server when{' '}
-                <code className="text-xs font-mono text-sky-700 dark:text-sky-300/90">npm run server</code> is running.
+                <code className="text-xs font-mono text-sky-700 dark:text-white">npm run server</code> is running.
               </p>
             </div>
           </div>
@@ -159,18 +159,18 @@ export default function PatientListPage() {
       </div>
 
       {loadError && (
-        <div className="rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 px-5 py-4 text-sm font-medium text-amber-950 dark:text-amber-200 ring-1 ring-amber-200/50 dark:ring-amber-500/20">
+        <div className="rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 px-5 py-4 text-sm font-medium text-amber-950 dark:text-white ring-1 ring-amber-200/50 dark:ring-amber-500/20">
           {loadError}
         </div>
       )}
 
       {registeredId && (
-        <div className="rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 px-5 py-4 text-sm font-medium text-emerald-900 dark:text-emerald-200 ring-1 ring-emerald-200/50 dark:ring-emerald-500/20 flex flex-wrap items-center gap-2">
+        <div className="rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 px-5 py-4 text-sm font-medium text-emerald-900 dark:text-white ring-1 ring-emerald-200/50 dark:ring-emerald-500/20 flex flex-wrap items-center gap-2">
           <span>Patient registered successfully.</span>
-          <span className="font-mono font-semibold text-emerald-800 dark:text-emerald-100">{registeredId}</span>
+          <span className="font-mono font-semibold text-emerald-800 dark:text-white">{registeredId}</span>
           <Link
             to={`/admin/patients/${encodeURIComponent(registeredId)}`}
-            className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 hover:underline"
+            className="text-sm font-semibold text-emerald-700 dark:text-white hover:underline"
           >
             Open profile
           </Link>
@@ -181,17 +181,17 @@ export default function PatientListPage() {
       {!loading && patients.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/50 px-4 py-3 ring-1 ring-slate-200/40 dark:ring-slate-700/40">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white">Total</p>
             <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums mt-0.5">{patients.length}</p>
           </div>
           <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/50 px-4 py-3 ring-1 ring-slate-200/40 dark:ring-slate-700/40">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Showing</p>
-            <p className="text-2xl font-bold text-sky-700 dark:text-sky-300 tabular-nums mt-0.5">{filtered.length}</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white">Showing</p>
+            <p className="text-2xl font-bold text-sky-700 dark:text-white tabular-nums mt-0.5">{filtered.length}</p>
           </div>
           <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/50 px-4 py-3 ring-1 ring-slate-200/40 dark:ring-slate-700/40 col-span-2 sm:col-span-2 flex items-center justify-between gap-2">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Filters</p>
-              <p className="text-sm text-slate-600 dark:text-slate-300 mt-0.5">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white">Filters</p>
+              <p className="text-sm text-slate-600 dark:text-white mt-0.5">
                 {activeFilters ? 'Refining list' : 'None applied'}
               </p>
             </div>
@@ -203,7 +203,7 @@ export default function PatientListPage() {
                   setBloodFilter('')
                   setGenderFilter('')
                 }}
-                className="shrink-0 text-xs font-semibold text-sky-600 dark:text-sky-400 hover:underline"
+                className="shrink-0 text-xs font-semibold text-sky-600 dark:text-white hover:underline"
               >
                 Clear all
               </button>
@@ -225,12 +225,12 @@ export default function PatientListPage() {
               filterItem={(p, q) => patientMatchesSearch(p, q)}
               renderSuggestion={(p) => (
                 <span className="flex items-center gap-2">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-100 dark:bg-sky-950/50 text-[11px] font-bold text-sky-800 dark:text-sky-200">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-100 dark:bg-sky-950/50 text-[11px] font-bold text-sky-800 dark:text-white">
                     {initials(p.fullName)}
                   </span>
                   <span>
                     <span className="font-medium text-slate-900 dark:text-white block">{p.fullName}</span>
-                    <span className="text-xs font-mono text-sky-600 dark:text-sky-400">{p.id}</span>
+                    <span className="text-xs font-mono text-sky-600 dark:text-white">{p.id}</span>
                   </span>
                 </span>
               )}
@@ -243,7 +243,7 @@ export default function PatientListPage() {
           <div>
             <label
               htmlFor="patient-blood-filter"
-              className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
+              className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5"
             >
               Blood group
             </label>
@@ -264,7 +264,7 @@ export default function PatientListPage() {
           <div>
             <label
               htmlFor="patient-gender-filter"
-              className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
+              className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5"
             >
               Gender
             </label>
@@ -282,18 +282,18 @@ export default function PatientListPage() {
           </div>
         </div>
         {!loading && patients.length > 0 && (
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <p className="text-xs text-slate-500 dark:text-white mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
             Showing{' '}
-            <span className="font-semibold text-slate-700 dark:text-slate-200 tabular-nums">
+            <span className="font-semibold text-slate-700 dark:text-white tabular-nums">
               {filtered.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1}
             </span>
             –
-            <span className="font-semibold text-slate-700 dark:text-slate-200 tabular-nums">
+            <span className="font-semibold text-slate-700 dark:text-white tabular-nums">
               {Math.min(safePage * PAGE_SIZE, filtered.length)}
             </span>{' '}
             of <span className="font-semibold tabular-nums">{filtered.length}</span>
             {filtered.length !== patients.length && (
-              <span className="text-slate-400 dark:text-slate-500"> (from {patients.length} total)</span>
+              <span className="text-slate-400 dark:text-white"> (from {patients.length} total)</span>
             )}
           </p>
         )}
@@ -303,15 +303,15 @@ export default function PatientListPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center gap-3 py-16">
             <Loader2 className="h-10 w-10 animate-spin text-sky-500" aria-hidden />
-            <p className="text-sm text-slate-500 dark:text-slate-400">Loading patients…</p>
+            <p className="text-sm text-slate-500 dark:text-white">Loading patients…</p>
           </div>
         ) : patients.length === 0 ? (
           <div className="flex flex-col items-center text-center py-14 px-4">
             <div className="h-16 w-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4 ring-1 ring-slate-200 dark:ring-slate-700">
               <Users className="h-8 w-8 text-slate-400" aria-hidden />
             </div>
-            <p className="text-slate-700 dark:text-slate-200 font-semibold">No patients yet</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
+            <p className="text-slate-700 dark:text-white font-semibold">No patients yet</p>
+            <p className="text-sm text-slate-500 dark:text-white mt-1 max-w-sm">
               Register your first patient to populate this list.
             </p>
             <Link
@@ -327,8 +327,8 @@ export default function PatientListPage() {
             <div className="h-16 w-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4 ring-1 ring-slate-200 dark:ring-slate-700">
               <SearchX className="h-8 w-8 text-slate-400" aria-hidden />
             </div>
-            <p className="text-slate-700 dark:text-slate-200 font-semibold">No matches</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
+            <p className="text-slate-700 dark:text-white font-semibold">No matches</p>
+            <p className="text-sm text-slate-500 dark:text-white mt-1 max-w-sm">
               Try clearing filters or adjusting your search.
             </p>
             <button
@@ -338,7 +338,7 @@ export default function PatientListPage() {
                 setBloodFilter('')
                 setGenderFilter('')
               }}
-              className="mt-5 text-sm font-semibold text-sky-600 dark:text-sky-400 hover:underline"
+              className="mt-5 text-sm font-semibold text-sky-600 dark:text-white hover:underline"
             >
               Clear all filters
             </button>
@@ -349,7 +349,7 @@ export default function PatientListPage() {
               <div className="overflow-x-auto overscroll-x-contain">
                 <table className="w-full min-w-[720px] text-sm text-left">
                   <thead className="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-200/90 dark:border-slate-700/90">
-                    <tr className="text-slate-600 dark:text-slate-400">
+                    <tr className="text-slate-600 dark:text-white">
                       <th className="px-4 sm:px-5 py-3.5 text-[11px] font-bold uppercase tracking-wider w-12" />
                       <th className="px-2 sm:px-3 py-3.5 text-[11px] font-bold uppercase tracking-wider">Patient ID</th>
                       <th className="px-2 sm:px-3 py-3.5 text-[11px] font-bold uppercase tracking-wider">Name</th>
@@ -367,48 +367,48 @@ export default function PatientListPage() {
                         className="hover:bg-sky-50/50 dark:hover:bg-sky-950/20 transition-colors"
                       >
                         <td className="px-4 sm:px-5 py-3">
-                          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-100 to-sky-50 dark:from-sky-950/60 dark:to-slate-800 text-xs font-bold text-sky-800 dark:text-sky-200 ring-1 ring-sky-200/60 dark:ring-sky-900/40">
+                          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-100 to-sky-50 dark:from-sky-950/60 dark:to-slate-800 text-xs font-bold text-sky-800 dark:text-white ring-1 ring-sky-200/60 dark:ring-sky-900/40">
                             {initials(p.fullName)}
                           </span>
                         </td>
-                        <td className="px-2 sm:px-3 py-3 font-mono text-xs font-medium text-sky-600 dark:text-sky-400 whitespace-nowrap">
+                        <td className="px-2 sm:px-3 py-3 font-mono text-xs font-medium text-sky-600 dark:text-white whitespace-nowrap">
                           {p.id}
                         </td>
                         <td className="px-2 sm:px-3 py-3">
-                          <span className="font-semibold text-slate-900 dark:text-slate-100">{p.fullName}</span>
+                          <span className="font-semibold text-slate-900 dark:text-white">{p.fullName}</span>
                         </td>
-                        <td className="px-2 sm:px-3 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap tabular-nums">
+                        <td className="px-2 sm:px-3 py-3 text-slate-600 dark:text-white whitespace-nowrap tabular-nums">
                           {p.phone}
                         </td>
                         <td className="px-2 sm:px-3 py-3">
-                          <span className="inline-flex capitalize px-2 py-0.5 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
+                          <span className="inline-flex capitalize px-2 py-0.5 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white">
                             {p.gender}
                           </span>
                         </td>
                         <td className="px-2 sm:px-3 py-3">
-                          <span className="inline-flex px-2 py-0.5 rounded-md text-xs font-semibold font-mono bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200 ring-1 ring-rose-200/50 dark:ring-rose-900/40">
+                          <span className="inline-flex px-2 py-0.5 rounded-md text-xs font-semibold font-mono bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-white ring-1 ring-rose-200/50 dark:ring-rose-900/40">
                             {p.bloodGroup}
                           </span>
                         </td>
-                        <td className="px-2 sm:px-3 py-3 text-slate-600 dark:text-slate-300">{p.city}</td>
+                        <td className="px-2 sm:px-3 py-3 text-slate-600 dark:text-white">{p.city}</td>
                         <td className="px-4 sm:px-5 py-3 text-right">
                           <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
                             <Link
                               to={`/admin/patients/${encodeURIComponent(p.id)}`}
-                              className="inline-flex px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-sky-500/10 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 transition-colors"
+                              className="inline-flex px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-sky-500/10 text-sky-700 dark:text-white hover:bg-sky-500/20 transition-colors"
                             >
                               View
                             </Link>
                             <Link
                               to={`/admin/patients/${encodeURIComponent(p.id)}/edit`}
-                              className="inline-flex px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors"
+                              className="inline-flex px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors"
                             >
                               Edit
                             </Link>
                             <button
                               type="button"
                               onClick={() => void deactivate(p)}
-                              className="inline-flex px-2.5 py-1.5 rounded-lg text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                              className="inline-flex px-2.5 py-1.5 rounded-lg text-xs font-semibold text-red-600 dark:text-white hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
                             >
                               Deactivate
                             </button>
@@ -427,19 +427,19 @@ export default function PatientListPage() {
                   type="button"
                   disabled={safePage <= 1}
                   onClick={() => setPage((pg) => Math.max(1, pg - 1))}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-white hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
                 >
                   <ChevronLeft className="h-4 w-4" aria-hidden />
                   Previous
                 </button>
-                <span className="text-sm font-medium text-slate-600 dark:text-slate-400 tabular-nums text-center">
+                <span className="text-sm font-medium text-slate-600 dark:text-white tabular-nums text-center">
                   Page {safePage} of {totalPages}
                 </span>
                 <button
                   type="button"
                   disabled={safePage >= totalPages}
                   onClick={() => setPage((pg) => Math.min(totalPages, pg + 1))}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-white hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
                 >
                   Next
                   <ChevronRight className="h-4 w-4" aria-hidden />

@@ -81,7 +81,7 @@ export function SearchableIdPicker<T>({
   return (
     <div ref={wrapRef} className={`relative z-[80] ${className}`}>
       {label && (
-        <label htmlFor={id} className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+        <label htmlFor={id} className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5">
           {label}
         </label>
       )}
@@ -105,14 +105,14 @@ export function SearchableIdPicker<T>({
             setOpen(true)
             setQ('')
           }}
-          className={`relative z-10 w-full pl-10 pr-20 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-2 ${ring} disabled:opacity-60`}
+          className={`relative z-10 w-full pl-10 pr-20 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-2 ${ring} disabled:opacity-60`}
         />
         <div className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex items-center gap-0.5">
           {loading && <Loader2 className="h-4 w-4 animate-spin text-slate-400" aria-hidden />}
           {allowClear && selectedId && !loading && (
             <button
               type="button"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
               aria-label="Clear selection"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
@@ -126,7 +126,7 @@ export function SearchableIdPicker<T>({
           )}
           <button
             type="button"
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white"
             aria-label={open ? 'Close list' : 'Open list'}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
@@ -143,7 +143,7 @@ export function SearchableIdPicker<T>({
             role="listbox"
           >
           {filtered.length === 0 ? (
-            <li className="px-3 py-3 text-sm text-slate-500 dark:text-slate-400">No matches.</li>
+            <li className="px-3 py-3 text-sm text-slate-500 dark:text-white">No matches.</li>
           ) : (
             filtered.map((item) => {
               const iid = getId(item)
@@ -156,8 +156,8 @@ export function SearchableIdPicker<T>({
                     aria-selected={active}
                     className={`w-full text-left px-3 py-2.5 text-sm transition-colors ${
                       active
-                        ? 'bg-sky-50 dark:bg-sky-950/40 text-sky-900 dark:text-sky-100'
-                        : 'text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/80'
+                        ? 'bg-sky-50 dark:bg-sky-950/40 text-sky-900 dark:text-white'
+                        : 'text-slate-800 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80'
                     }`}
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => pick(item)}
@@ -238,7 +238,7 @@ export function SearchFilterCombobox<T>({
   return (
     <div ref={wrapRef} className={`relative z-[80] ${className}`}>
       {label && (
-        <label htmlFor={id} className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+        <label htmlFor={id} className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5">
           {label}
         </label>
       )}
@@ -258,7 +258,7 @@ export function SearchFilterCombobox<T>({
           }}
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
-          className={`relative z-10 w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-2 ${ring} disabled:opacity-60`}
+          className={`relative z-10 w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-2 ${ring} disabled:opacity-60`}
         />
         {loading && (
           <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 z-20 h-4 w-4 animate-spin text-slate-400" aria-hidden />
@@ -269,19 +269,19 @@ export function SearchFilterCombobox<T>({
             role="listbox"
           >
             {!value.trim() && (
-              <li className="px-3 py-2 text-xs text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800">
+              <li className="px-3 py-2 text-xs text-slate-500 dark:text-white border-b border-slate-100 dark:border-slate-800">
                 {emptyText}
               </li>
             )}
             {filtered.length === 0 ? (
-              <li className="px-3 py-3 text-sm text-slate-500 dark:text-slate-400">{noResultsText}</li>
+              <li className="px-3 py-3 text-sm text-slate-500 dark:text-white">{noResultsText}</li>
             ) : (
               filtered.map((item) => (
                 <li key={getKey(item)}>
                   <button
                     type="button"
                     role="option"
-                    className="w-full text-left px-3 py-2.5 text-sm text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors"
+                    className="w-full text-left px-3 py-2.5 text-sm text-slate-800 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       onPick(item)
@@ -296,7 +296,7 @@ export function SearchFilterCombobox<T>({
           </ul>
         )}
       </div>
-      {hint && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">{hint}</p>}
+      {hint && <p className="text-xs text-slate-500 dark:text-white mt-1.5">{hint}</p>}
     </div>
   )
 }

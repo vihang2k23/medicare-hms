@@ -34,13 +34,13 @@ export default function PatientEditPage() {
   }, [patientId])
 
   if (patient === undefined) {
-    return <p className="text-slate-500 dark:text-slate-400">Loading…</p>
+    return <p className="text-slate-500 dark:text-white">Loading…</p>
   }
 
   if (error || !patient) {
     return (
       <div className="space-y-4">
-        <Link to="/admin/patients" className="text-sm text-sky-600 dark:text-sky-400 hover:underline">
+        <Link to="/admin/patients" className="text-sm text-sky-600 dark:text-white hover:underline">
           ← Back to patients
         </Link>
         <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm">
@@ -55,12 +55,12 @@ export default function PatientEditPage() {
       <div>
         <Link
           to={`/admin/patients/${encodeURIComponent(patient.id)}`}
-          className="text-sm text-sky-600 dark:text-sky-400 hover:underline"
+          className="text-sm text-sky-600 dark:text-white hover:underline"
         >
           ← Profile
         </Link>
         <h1 className="text-2xl font-semibold text-slate-800 dark:text-white mt-2">Edit patient</h1>
-        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-mono">{patient.id}</p>
+        <p className="text-slate-500 dark:text-white text-sm mt-1 font-mono">{patient.id}</p>
       </div>
       <PatientRegistrationForm
         initialRecord={patient}

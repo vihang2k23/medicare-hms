@@ -87,11 +87,11 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
         >
         <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80 bg-gradient-to-r from-sky-500/10 to-transparent">
           <div className="min-w-0">
-            <h2 id="npi-profile-title" className="text-lg font-bold text-slate-900 dark:text-slate-100 truncate">
+            <h2 id="npi-profile-title" className="text-lg font-bold text-slate-900 dark:text-white truncate">
               {name}
             </h2>
-            <p className="text-xs font-mono text-sky-600 dark:text-sky-400 mt-1">NPI {raw.number}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{raw.enumeration_type}</p>
+            <p className="text-xs font-mono text-sky-600 dark:text-white mt-1">NPI {raw.number}</p>
+            <p className="text-xs text-slate-500 dark:text-white mt-1">{raw.enumeration_type}</p>
           </div>
           <button
             type="button"
@@ -104,37 +104,37 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
         </div>
         <div className="p-5 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] min-h-0 flex-1 space-y-5 text-sm touch-pan-y">
           <section>
-            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-2">
               Credentials &amp; demographics
             </h3>
-            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-700 dark:text-slate-200">
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-700 dark:text-white">
               {b.credential && (
                 <>
-                  <dt className="text-slate-500 dark:text-slate-400">Credential</dt>
+                  <dt className="text-slate-500 dark:text-white">Credential</dt>
                   <dd>{b.credential}</dd>
                 </>
               )}
               {b.sex && (
                 <>
-                  <dt className="text-slate-500 dark:text-slate-400">Sex</dt>
+                  <dt className="text-slate-500 dark:text-white">Sex</dt>
                   <dd>{b.sex}</dd>
                 </>
               )}
               {b.enumeration_date && (
                 <>
-                  <dt className="text-slate-500 dark:text-slate-400">Enumeration date</dt>
+                  <dt className="text-slate-500 dark:text-white">Enumeration date</dt>
                   <dd>{b.enumeration_date}</dd>
                 </>
               )}
               {b.last_updated && (
                 <>
-                  <dt className="text-slate-500 dark:text-slate-400">Last updated</dt>
+                  <dt className="text-slate-500 dark:text-white">Last updated</dt>
                   <dd>{b.last_updated}</dd>
                 </>
               )}
               {b.sole_proprietor && (
                 <>
-                  <dt className="text-slate-500 dark:text-slate-400">Sole proprietor</dt>
+                  <dt className="text-slate-500 dark:text-white">Sole proprietor</dt>
                   <dd>{b.sole_proprietor}</dd>
                 </>
               )}
@@ -142,19 +142,19 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
           </section>
 
           <section>
-            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-2">
               Taxonomy (specialty)
             </h3>
             <ul className="space-y-2">
               {(raw.taxonomies ?? []).map((t, i) => (
                 <li
                   key={`${t.code ?? i}-${i}`}
-                  className="rounded-lg border border-slate-200/80 dark:border-slate-700/80 px-3 py-2 text-slate-700 dark:text-slate-200"
+                  className="rounded-lg border border-slate-200/80 dark:border-slate-700/80 px-3 py-2 text-slate-700 dark:text-white"
                 >
                   <span className="font-medium">{t.desc ?? t.code}</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 ml-2 font-mono">{t.code}</span>
+                  <span className="text-xs text-slate-500 dark:text-white ml-2 font-mono">{t.code}</span>
                   {t.primary && (
-                    <span className="ml-2 text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400">
+                    <span className="ml-2 text-[10px] font-bold uppercase text-emerald-600 dark:text-white">
                       Primary
                     </span>
                   )}
@@ -167,16 +167,16 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
           </section>
 
           <section>
-            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-2">
               Addresses
             </h3>
             <ul className="space-y-3">
               {(raw.addresses ?? []).map((a, i) => (
                 <li
                   key={i}
-                  className="rounded-lg bg-slate-50 dark:bg-slate-800/50 px-3 py-2 text-slate-700 dark:text-slate-200"
+                  className="rounded-lg bg-slate-50 dark:bg-slate-800/50 px-3 py-2 text-slate-700 dark:text-white"
                 >
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-white mb-1">
                     {a.address_purpose ?? 'Address'}
                   </p>
                   <p>{[a.address_1, a.address_2].filter(Boolean).join(', ')}</p>
@@ -192,10 +192,10 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
 
           {(raw.endpoints?.length ?? 0) > 0 && (
             <section>
-              <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-2">
                 Affiliated organizations &amp; endpoints
               </h3>
-              <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+              <ul className="space-y-2 text-xs text-slate-600 dark:text-white">
                 {raw.endpoints!.map((e, i) => (
                   <li key={i} className="border border-slate-200/80 dark:border-slate-700 rounded-lg p-2">
                     {e.endpoint && <p className="font-mono break-all">{e.endpoint}</p>}
@@ -211,10 +211,10 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
 
           {(raw.other_names?.length ?? 0) > 0 && (
             <section>
-              <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-2">
                 Other names
               </h3>
-              <ul className="list-disc list-inside text-slate-600 dark:text-slate-300 text-xs space-y-1">
+              <ul className="list-disc list-inside text-slate-600 dark:text-white text-xs space-y-1">
                 {raw.other_names!.map((o, i) => (
                   <li key={i}>
                     {o.organization_name ?? `${o.first_name ?? ''} ${o.last_name ?? ''}`.trim()} ({o.type})
@@ -393,7 +393,7 @@ export default function DoctorDirectoryPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Doctor directory</h1>
-        <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-2xl leading-relaxed">
+        <p className="text-slate-600 dark:text-white text-sm mt-2 max-w-2xl leading-relaxed">
           Search providers, filter by specialty or location, and add them for appointments and the OPD queue.
         </p>
       </div>
@@ -405,7 +405,7 @@ export default function DoctorDirectoryPage() {
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
             tab === 'search'
               ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
-              : 'text-slate-600 dark:text-slate-400'
+              : 'text-slate-600 dark:text-white'
           }`}
         >
           <Stethoscope className="h-4 w-4" />
@@ -417,7 +417,7 @@ export default function DoctorDirectoryPage() {
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
             tab === 'internal'
               ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
-              : 'text-slate-600 dark:text-slate-400'
+              : 'text-slate-600 dark:text-white'
           }`}
         >
           <Users className="h-4 w-4" />
@@ -428,17 +428,17 @@ export default function DoctorDirectoryPage() {
       {tab === 'search' && (
         <div className="space-y-6">
           <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/45 p-5 ring-1 ring-slate-200/40 dark:ring-slate-700/40 space-y-5">
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-white">
               Match the CMS NPI Registry search form. You need at least one real criterion (for example NPI, name,
-              organization, taxonomy text, city, or ZIP). <strong className="font-medium text-slate-600 dark:text-slate-300">State alone is not allowed</strong>;{' '}
-              <strong className="font-medium text-slate-600 dark:text-slate-300">United States cannot be the only</strong> filter.
+              organization, taxonomy text, city, or ZIP). <strong className="font-medium text-slate-600 dark:text-white">State alone is not allowed</strong>;{' '}
+              <strong className="font-medium text-slate-600 dark:text-white">United States cannot be the only</strong> filter.
               Country uses ISO codes (full list); state or region options follow the country you pick (or type a value when no list is available). Pagination uses{' '}
               <code className="font-mono">limit</code> + <code className="font-mono">skip</code> (max skip 1000; up to 200 rows per request).
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                   NPI number
                 </label>
                 <input
@@ -450,7 +450,7 @@ export default function DoctorDirectoryPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                   NPI type
                 </label>
                 <select
@@ -466,7 +466,7 @@ export default function DoctorDirectoryPage() {
                 </select>
               </div>
               <div className="sm:col-span-2 lg:col-span-1">
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                   Specialty (taxonomy)
                 </label>
                 <select
@@ -499,10 +499,10 @@ export default function DoctorDirectoryPage() {
             </div>
 
             <div className="space-y-3">
-              <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">For individuals</p>
+              <p className="text-[11px] font-semibold text-slate-500 dark:text-white">For individuals</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                  <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                     Provider first name
                   </label>
                   <input
@@ -513,7 +513,7 @@ export default function DoctorDirectoryPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                  <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                     Provider last name
                   </label>
                   <input
@@ -527,10 +527,10 @@ export default function DoctorDirectoryPage() {
             </div>
 
             <div className="space-y-3">
-              <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">For organizations</p>
+              <p className="text-[11px] font-semibold text-slate-500 dark:text-white">For organizations</p>
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                  <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                     Organization name (LBN, DBA, former LBN, or other name)
                   </label>
                   <input
@@ -542,7 +542,7 @@ export default function DoctorDirectoryPage() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                    <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                       Authorized official first name
                     </label>
                     <input
@@ -553,7 +553,7 @@ export default function DoctorDirectoryPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                    <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                       Authorized official last name
                     </label>
                     <input
@@ -569,7 +569,7 @@ export default function DoctorDirectoryPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">City</label>
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">City</label>
                 <input
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
@@ -578,7 +578,7 @@ export default function DoctorDirectoryPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Country</label>
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">Country</label>
                 <select
                   value={countryCode}
                   onChange={(e) => {
@@ -595,7 +595,7 @@ export default function DoctorDirectoryPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                   State / region
                 </label>
                 {stateIsSelect ? (
@@ -624,7 +624,7 @@ export default function DoctorDirectoryPage() {
                 )}
               </div>
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                   Postal code
                 </label>
                 <input
@@ -635,7 +635,7 @@ export default function DoctorDirectoryPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                   Address type
                 </label>
                 <select
@@ -652,8 +652,8 @@ export default function DoctorDirectoryPage() {
               </div>
             </div>
 
-            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-3xl leading-relaxed">
-              <strong className="font-medium text-slate-600 dark:text-slate-300">Note:</strong> The NPI Registry limits
+            <p className="text-xs text-slate-500 dark:text-white max-w-3xl leading-relaxed">
+              <strong className="font-medium text-slate-600 dark:text-white">Note:</strong> The NPI Registry limits
               searches to the first 2100 results. If you cannot find the NPI you need, refine your criteria.
             </p>
 
@@ -662,7 +662,7 @@ export default function DoctorDirectoryPage() {
                 type="button"
                 onClick={clearNpiSearchForm}
                 disabled={loading}
-                className="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-semibold shadow-sm disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-semibold shadow-sm disabled:opacity-50"
               >
                 Clear
               </button>
@@ -685,7 +685,7 @@ export default function DoctorDirectoryPage() {
 
           {!loading && providers.length > 0 && (
             <>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-600 dark:text-white">
                 Page {page + 1} — showing {providers.length} of {totalCount} match{totalCount === 1 ? '' : 'es'} (API
                 window limited by skip rules).
               </p>
@@ -697,10 +697,10 @@ export default function DoctorDirectoryPage() {
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <p className="font-bold text-slate-900 dark:text-slate-100 leading-tight">{p.displayName}</p>
-                        <p className="text-xs font-mono text-sky-600 dark:text-sky-400 mt-1">NPI {p.npi}</p>
+                        <p className="font-bold text-slate-900 dark:text-white leading-tight">{p.displayName}</p>
+                        <p className="text-xs font-mono text-sky-600 dark:text-white mt-1">NPI {p.npi}</p>
                         {p.primaryTaxonomyDesc && (
-                          <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 flex items-start gap-1.5">
+                          <p className="text-sm text-slate-600 dark:text-white mt-2 flex items-start gap-1.5">
                             <Stethoscope className="h-4 w-4 shrink-0 mt-0.5 text-violet-500" aria-hidden />
                             {p.primaryTaxonomyDesc}
                           </p>
@@ -708,7 +708,7 @@ export default function DoctorDirectoryPage() {
                       </div>
                     </div>
                     {(p.city || p.state) && (
-                      <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                      <p className="text-xs text-slate-500 dark:text-white flex items-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
                         {[p.addressLine1, [p.city, p.state].filter(Boolean).join(', '), p.postalCode]
                           .filter(Boolean)
@@ -716,7 +716,7 @@ export default function DoctorDirectoryPage() {
                       </p>
                     )}
                     {p.phone && (
-                      <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                      <p className="text-xs text-slate-500 dark:text-white flex items-center gap-1.5">
                         <Phone className="h-3.5 w-3.5 shrink-0" aria-hidden />
                         {p.phone}
                       </p>
@@ -725,7 +725,7 @@ export default function DoctorDirectoryPage() {
                       <button
                         type="button"
                         onClick={() => setProfileRaw(p.raw)}
-                        className="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200"
+                        className="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white"
                       >
                         Full profile
                       </button>
@@ -770,7 +770,7 @@ export default function DoctorDirectoryPage() {
           )}
 
           {!loading && providers.length === 0 && page === 0 && totalCount === 0 && (
-            <p className="text-slate-500 dark:text-slate-400 text-sm text-center py-12 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl">
+            <p className="text-slate-500 dark:text-white text-sm text-center py-12 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl">
               Run a search to load providers from the NPI Registry.
             </p>
           )}
@@ -780,8 +780,8 @@ export default function DoctorDirectoryPage() {
       {tab === 'internal' && (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-slate-600 dark:text-slate-400 max-w-2xl">
-              Import from <strong className="font-medium text-slate-700 dark:text-slate-200">Doctor search</strong> or add
+            <p className="text-sm text-slate-600 dark:text-white max-w-2xl">
+              Import from <strong className="font-medium text-slate-700 dark:text-white">Doctor search</strong> or add
               a provider manually. Set weekly hours and lunch so slots match your clinic.
             </p>
             <button
@@ -804,8 +804,8 @@ export default function DoctorDirectoryPage() {
               </div>
             ) : internalList.length === 0 ? (
               <div className="p-10 text-center space-y-4">
-                <CalendarClock className="h-10 w-10 mx-auto text-slate-300 dark:text-slate-600" aria-hidden />
-                <p className="text-slate-500 dark:text-slate-400 text-sm">
+                <CalendarClock className="h-10 w-10 mx-auto text-slate-300 dark:text-white" aria-hidden />
+                <p className="text-slate-500 dark:text-white text-sm">
                   No doctors in HMS yet. Add one manually or import from the registry.
                 </p>
                 <button
@@ -814,7 +814,7 @@ export default function DoctorDirectoryPage() {
                     setScheduleModalRecord(null)
                     setScheduleModalOpen(true)
                   }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white"
                 >
                   <UserPlus className="h-4 w-4" />
                   Add manual doctor
@@ -823,7 +823,7 @@ export default function DoctorDirectoryPage() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left min-w-[900px]">
-                  <thead className="bg-slate-50/90 dark:bg-slate-900/70 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
+                  <thead className="bg-slate-50/90 dark:bg-slate-900/70 text-slate-600 dark:text-white border-b border-slate-200 dark:border-slate-700">
                     <tr>
                       <th className="px-4 py-3 font-bold text-[11px] uppercase tracking-wider">Name</th>
                       <th className="px-4 py-3 font-bold text-[11px] uppercase tracking-wider">NPI</th>
@@ -840,18 +840,18 @@ export default function DoctorDirectoryPage() {
                         key={r.id}
                         className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50/80 dark:hover:bg-slate-800/40"
                       >
-                        <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{r.name}</td>
-                        <td className="px-4 py-3 font-mono text-xs text-sky-600 dark:text-sky-400">
+                        <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">{r.name}</td>
+                        <td className="px-4 py-3 font-mono text-xs text-sky-600 dark:text-white">
                           {r.npi || '—'}
                         </td>
-                        <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{r.department}</td>
-                        <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300 max-w-[220px] leading-snug">
+                        <td className="px-4 py-3 text-slate-600 dark:text-white">{r.department}</td>
+                        <td className="px-4 py-3 text-xs text-slate-600 dark:text-white max-w-[220px] leading-snug">
                           {formatInternalDoctorScheduleSummary(r)}
                         </td>
-                        <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                        <td className="px-4 py-3 text-slate-600 dark:text-white">
                           {[r.city, r.state].filter(Boolean).join(', ') || '—'}
                         </td>
-                        <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{r.phone ?? '—'}</td>
+                        <td className="px-4 py-3 text-slate-600 dark:text-white">{r.phone ?? '—'}</td>
                         <td className="px-4 py-3 text-right space-x-2 whitespace-nowrap">
                           <button
                             type="button"
@@ -859,7 +859,7 @@ export default function DoctorDirectoryPage() {
                               setScheduleModalRecord(r)
                               setScheduleModalOpen(true)
                             }}
-                            className="inline-flex items-center gap-1 text-violet-600 dark:text-violet-400 font-semibold text-xs hover:underline"
+                            className="inline-flex items-center gap-1 text-violet-600 dark:text-white font-semibold text-xs hover:underline"
                           >
                             <Pencil className="h-3 w-3" />
                             Edit schedule
@@ -868,7 +868,7 @@ export default function DoctorDirectoryPage() {
                             <button
                               type="button"
                               onClick={() => setProfileRaw(r.rawResult as NpiRawResult)}
-                              className="text-sky-600 dark:text-sky-400 font-semibold text-xs hover:underline"
+                              className="text-sky-600 dark:text-white font-semibold text-xs hover:underline"
                             >
                               Profile
                             </button>
@@ -876,7 +876,7 @@ export default function DoctorDirectoryPage() {
                           <button
                             type="button"
                             onClick={() => void removeInternal(r)}
-                            className="text-red-600 dark:text-red-400 font-semibold text-xs hover:underline"
+                            className="text-red-600 dark:text-white font-semibold text-xs hover:underline"
                           >
                             Remove
                           </button>
@@ -903,7 +903,7 @@ export default function DoctorDirectoryPage() {
 
       {profileRaw && <NpiProfileModal raw={profileRaw} onClose={() => setProfileRaw(null)} />}
 
-      <p className="text-[11px] text-slate-400 dark:text-slate-500 max-w-3xl leading-relaxed">
+      <p className="text-[11px] text-slate-400 dark:text-white max-w-3xl leading-relaxed">
         <Building2 className="inline h-3.5 w-3.5 mr-1 align-text-bottom opacity-70" aria-hidden />
         Issuance of an NPI does not verify licensure or credentials.
       </p>

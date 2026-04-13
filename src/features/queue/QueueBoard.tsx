@@ -6,10 +6,10 @@ import type { OpdTokenStatus } from './opdQueueTypes'
 
 function statusBadge(status: OpdTokenStatus) {
   const map: Record<OpdTokenStatus, string> = {
-    waiting: 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200',
-    'in-progress': 'bg-sky-100 text-sky-900 dark:bg-sky-900/40 dark:text-sky-200',
-    done: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-200',
-    skipped: 'bg-slate-200 text-slate-700 dark:bg-slate-600 dark:text-slate-200',
+    waiting: 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-white',
+    'in-progress': 'bg-sky-100 text-sky-900 dark:bg-sky-900/40 dark:text-white',
+    done: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-white',
+    skipped: 'bg-slate-200 text-slate-700 dark:bg-slate-600 dark:text-white',
   }
   const label: Record<OpdTokenStatus, string> = {
     waiting: 'Waiting',
@@ -39,25 +39,25 @@ export default function QueueBoard() {
   return (
     <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/50 backdrop-blur-sm p-5 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-        <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 tracking-tight">
-          <ListOrdered className="h-5 w-5 text-sky-600 dark:text-sky-400 shrink-0" aria-hidden />
+        <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
+          <ListOrdered className="h-5 w-5 text-sky-600 dark:text-white shrink-0" aria-hidden />
           OPD token queue
         </h2>
-        <div className="flex flex-wrap gap-3 text-xs text-slate-500 dark:text-slate-400">
+        <div className="flex flex-wrap gap-3 text-xs text-slate-500 dark:text-white">
           <span>
             Now serving:{' '}
-            <strong className="text-slate-800 dark:text-slate-200">
+            <strong className="text-slate-800 dark:text-white">
               {currentToken != null ? formatOpdTokenLabel(currentToken) : '—'}
             </strong>
           </span>
           {simulationRunning && (
-            <span className="text-violet-600 dark:text-violet-400 font-medium">Auto-advance on</span>
+            <span className="text-violet-600 dark:text-white font-medium">Auto-advance on</span>
           )}
         </div>
       </div>
 
       {ordered.length === 0 ? (
-        <p className="text-slate-500 dark:text-slate-400 text-sm">Queue is empty. Issue a token to begin.</p>
+        <p className="text-slate-500 dark:text-white text-sm">Queue is empty. Issue a token to begin.</p>
       ) : (
         <ul className="space-y-2">
           {ordered.map((t) => {
@@ -72,10 +72,10 @@ export default function QueueBoard() {
                     : 'border-slate-100 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/40'
                 }`}
               >
-                <span className="font-mono font-semibold text-sky-700 dark:text-sky-300">{label}</span>
+                <span className="font-mono font-semibold text-sky-700 dark:text-white">{label}</span>
                 <div className="min-w-0 sm:col-span-1">
-                  <p className="font-medium text-slate-800 dark:text-slate-100 truncate">{t.patientName}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                  <p className="font-medium text-slate-800 dark:text-white truncate">{t.patientName}</p>
+                  <p className="text-xs text-slate-500 dark:text-white truncate">
                     {t.department} · {t.doctorName}
                   </p>
                 </div>

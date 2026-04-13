@@ -108,19 +108,19 @@ export default function DoctorMyPatientsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-2 text-emerald-600 dark:text-emerald-400">
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-2 text-emerald-600 dark:text-white">
           Clinical
         </p>
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">My patients</h1>
-        <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-2xl leading-relaxed">
-          Patients you have seen on <strong className="font-medium text-slate-700 dark:text-slate-200">your schedule</strong> or{' '}
-          <strong className="font-medium text-slate-700 dark:text-slate-200">your prescriptions</strong>. Cancelled appointments are
+        <p className="text-slate-600 dark:text-white text-sm mt-2 max-w-2xl leading-relaxed">
+          Patients you have seen on <strong className="font-medium text-slate-700 dark:text-white">your schedule</strong> or{' '}
+          <strong className="font-medium text-slate-700 dark:text-white">your prescriptions</strong>. Cancelled appointments are
           excluded.
         </p>
       </div>
 
       {loadError && (
-        <div className="rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 px-5 py-4 text-sm font-medium text-amber-950 dark:text-amber-200 ring-1 ring-amber-200/50 dark:ring-amber-500/20">
+        <div className="rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 px-5 py-4 text-sm font-medium text-amber-950 dark:text-white ring-1 ring-amber-200/50 dark:ring-amber-500/20">
           {loadError}
         </div>
       )}
@@ -136,18 +136,18 @@ export default function DoctorMyPatientsPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name, id, or phone…"
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-950/60 text-slate-800 dark:text-slate-100 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/35 focus:border-emerald-400/40"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-950/60 text-slate-800 dark:text-white text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/35 focus:border-emerald-400/40"
             aria-label="Search patients"
           />
         </div>
 
         {loading ? (
-          <p className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center">Loading patients…</p>
+          <p className="text-sm text-slate-500 dark:text-white py-8 text-center">Loading patients…</p>
         ) : rows.length === 0 ? (
           <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-700 px-6 py-12 text-center">
-            <Users className="h-10 w-10 mx-auto text-slate-300 dark:text-slate-600 mb-3" aria-hidden />
-            <p className="text-slate-700 dark:text-slate-200 font-medium">No patients linked yet</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-md mx-auto">
+            <Users className="h-10 w-10 mx-auto text-slate-300 dark:text-white mb-3" aria-hidden />
+            <p className="text-slate-700 dark:text-white font-medium">No patients linked yet</p>
+            <p className="text-sm text-slate-500 dark:text-white mt-2 max-w-md mx-auto">
               Book appointments on your schedule or create a prescription to populate this list.
             </p>
             <div className="flex flex-wrap justify-center gap-2 mt-6">
@@ -160,7 +160,7 @@ export default function DoctorMyPatientsPage() {
               </Link>
               <Link
                 to="/doctor/prescriptions"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-sm font-semibold hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-white text-sm font-semibold hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
               >
                 <FileText className="h-4 w-4" aria-hidden />
                 Prescriptions
@@ -169,7 +169,7 @@ export default function DoctorMyPatientsPage() {
           </div>
         ) : (
           <>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-white">
               {filtered.length === rows.length
                 ? `${rows.length} patient${rows.length === 1 ? '' : 's'} · Most recent activity first`
                 : `Showing ${filtered.length} of ${rows.length} patient${rows.length === 1 ? '' : 's'}`}
@@ -178,7 +178,7 @@ export default function DoctorMyPatientsPage() {
             <div className="overflow-x-auto rounded-xl border border-slate-200/80 dark:border-slate-700/80">
               <table className="min-w-full text-sm">
                 <thead>
-                  <tr className="bg-slate-50/90 dark:bg-slate-800/50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  <tr className="bg-slate-50/90 dark:bg-slate-800/50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white">
                     <th className="px-4 py-3">Patient</th>
                     <th className="px-4 py-3 hidden sm:table-cell">Phone</th>
                     <th className="px-4 py-3 hidden md:table-cell">Last activity</th>
@@ -194,41 +194,41 @@ export default function DoctorMyPatientsPage() {
                       <tr key={r.patientId} className="bg-white dark:bg-slate-900/40 hover:bg-slate-50/80 dark:hover:bg-slate-800/30">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3 min-w-0">
-                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200 text-xs font-bold">
+                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-white text-xs font-bold">
                               {initials(name)}
                             </span>
                             <div className="min-w-0">
                               <p className="font-semibold text-slate-900 dark:text-white truncate">{name}</p>
-                              <p className="font-mono text-xs text-emerald-700 dark:text-emerald-400 truncate">{r.patientId}</p>
+                              <p className="font-mono text-xs text-emerald-700 dark:text-white truncate">{r.patientId}</p>
                               {!r.record && (
-                                <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">Not in registry API</p>
+                                <p className="text-xs text-amber-700 dark:text-white mt-0.5">Not in registry API</p>
                               )}
                               {inactive && (
-                                <span className="inline-block mt-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+                                <span className="inline-block mt-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white">
                                   Inactive
                                 </span>
                               )}
-                              <p className="md:hidden text-xs text-slate-500 dark:text-slate-400 mt-1">
+                              <p className="md:hidden text-xs text-slate-500 dark:text-white mt-1">
                                 {formatActivity(r.meta.lastActivityAt)}
                               </p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3 hidden sm:table-cell text-slate-600 dark:text-slate-300">
+                        <td className="px-4 py-3 hidden sm:table-cell text-slate-600 dark:text-white">
                           {r.record?.phone ?? '—'}
                         </td>
-                        <td className="px-4 py-3 hidden md:table-cell text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                        <td className="px-4 py-3 hidden md:table-cell text-slate-600 dark:text-white whitespace-nowrap">
                           {formatActivity(r.meta.lastActivityAt)}
                         </td>
-                        <td className="px-4 py-3 hidden lg:table-cell text-slate-600 dark:text-slate-300">
+                        <td className="px-4 py-3 hidden lg:table-cell text-slate-600 dark:text-white">
                           <span className="inline-flex flex-wrap gap-1">
                             {r.meta.fromAppointment && (
-                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/40 text-sky-800 dark:text-sky-200">
+                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/40 text-sky-800 dark:text-white">
                                 Schedule ({r.meta.appointmentCount})
                               </span>
                             )}
                             {r.meta.fromPrescription && (
-                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200">
+                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-white">
                                 Rx ({r.meta.prescriptionCount})
                               </span>
                             )}
@@ -244,7 +244,7 @@ export default function DoctorMyPatientsPage() {
                             </Link>
                             <Link
                               to={`/doctor/prescriptions?patient=${encodeURIComponent(r.patientId)}`}
-                              className="inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-xs font-semibold border border-emerald-200 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                              className="inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-xs font-semibold border border-emerald-200 dark:border-emerald-700 text-emerald-800 dark:text-white hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
                             >
                               Rx
                             </Link>
@@ -259,7 +259,7 @@ export default function DoctorMyPatientsPage() {
 
             {totalPages > 1 && (
               <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-white">
                   Page {safePage} of {totalPages}
                 </p>
                 <div className="flex gap-2">
@@ -267,7 +267,7 @@ export default function DoctorMyPatientsPage() {
                     type="button"
                     disabled={safePage <= 1}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 text-sm font-medium text-slate-700 dark:text-slate-200 disabled:opacity-40"
+                    className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 text-sm font-medium text-slate-700 dark:text-white disabled:opacity-40"
                   >
                     <ChevronLeft className="h-4 w-4" aria-hidden />
                     Prev
@@ -276,7 +276,7 @@ export default function DoctorMyPatientsPage() {
                     type="button"
                     disabled={safePage >= totalPages}
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 text-sm font-medium text-slate-700 dark:text-slate-200 disabled:opacity-40"
+                    className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 text-sm font-medium text-slate-700 dark:text-white disabled:opacity-40"
                   >
                     Next
                     <ChevronRight className="h-4 w-4" aria-hidden />

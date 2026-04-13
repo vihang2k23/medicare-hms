@@ -73,7 +73,7 @@ export function MediCareWordmark({
     <div className={`flex flex-col leading-tight min-w-0 ${className}`}>
       <span className={titleCls}>MediCare</span>
       <span
-        className={`font-semibold uppercase tracking-[0.16em] text-sky-600 dark:text-sky-400 truncate max-w-[16rem] sm:max-w-none ${
+        className={`font-semibold uppercase tracking-[0.16em] text-sky-600 dark:text-white truncate max-w-[16rem] sm:max-w-none ${
           size === 'compact' ? 'text-[11px] hidden md:block' : 'text-[10px] sm:text-[11px] mt-0.5'
         }`}
       >

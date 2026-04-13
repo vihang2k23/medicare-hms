@@ -59,10 +59,10 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-600 dark:text-sky-400 mb-2">Overview</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-600 dark:text-white mb-2">Overview</p>
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Admin dashboard</h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-2 text-sm">
-          Welcome back, <span className="font-semibold text-slate-800 dark:text-slate-200">{user?.name}</span>.
+        <p className="text-slate-600 dark:text-white mt-2 text-sm">
+          Welcome back, <span className="font-semibold text-slate-800 dark:text-white">{user?.name}</span>.
         </p>
       </div>
 
@@ -123,7 +123,7 @@ export default function AdminDashboard() {
                 <Legend
                   verticalAlign="bottom"
                   height={28}
-                  formatter={(value) => <span className="text-xs text-slate-600 dark:text-slate-300">{value}</span>}
+                  formatter={(value) => <span className="text-xs text-slate-600 dark:text-white">{value}</span>}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -177,16 +177,16 @@ export default function AdminDashboard() {
                 className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between py-2.5 px-3 rounded-lg bg-slate-50 dark:bg-slate-700/50"
               >
                 <div className="min-w-0">
-                  <span className="font-medium text-slate-800 dark:text-slate-100">{doc.name}</span>
-                  <span className="text-slate-500 dark:text-slate-400 text-sm sm:ml-2 block sm:inline">
+                  <span className="font-medium text-slate-800 dark:text-white">{doc.name}</span>
+                  <span className="text-slate-500 dark:text-white text-sm sm:ml-2 block sm:inline">
                     ({doc.dept})
                   </span>
                 </div>
                 <span
                   className={`self-start sm:self-auto text-xs font-medium px-2 py-1 rounded shrink-0 ${
                     doc.status === 'available'
-                      ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
-                      : 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300'
+                      ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-white'
+                      : 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-white'
                   }`}
                 >
                   {doc.status === 'available' ? 'Available' : 'Busy'}
@@ -199,7 +199,7 @@ export default function AdminDashboard() {
 
       <DashboardCard title="Recent alerts (last 5)">
         {alerts.length === 0 ? (
-          <p className="text-slate-500 dark:text-slate-400 text-sm">No alerts.</p>
+          <p className="text-slate-500 dark:text-white text-sm">No alerts.</p>
         ) : (
           <ul className="space-y-2">
             {alerts.map((a) => (
@@ -207,10 +207,10 @@ export default function AdminDashboard() {
                 key={a.id}
                 className={`text-sm p-2 rounded ${
                   a.level === 'error'
-                    ? 'bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200'
+                    ? 'bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-white'
                     : a.level === 'warning'
-                      ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200'
-                      : 'bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200'
+                      ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-white'
+                      : 'bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-white'
                 }`}
               >
                 {a.message}

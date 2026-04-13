@@ -155,20 +155,20 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
 
   if (!doctor) {
     return (
-      <div className="text-slate-600 dark:text-slate-400 text-sm">No doctor schedules loaded.</div>
+      <div className="text-slate-600 dark:text-white text-sm">No doctor schedules loaded.</div>
     )
   }
 
   return (
     <div className="space-y-8">
       <div className="no-print-appt">
-        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-400 mb-2">
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-600 dark:text-white mb-2">
           Scheduling
         </p>
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
           {variant === 'doctor' ? 'My schedule' : 'Appointments'}
         </h1>
-        <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-2xl leading-relaxed max-sm:text-xs">
+        <p className="text-slate-600 dark:text-white text-sm mt-2 max-w-2xl leading-relaxed max-sm:text-xs">
           Week grid: time rows × Mon–Sun. Status colors on bookings. Drag to reschedule; click to open details.
         </p>
       </div>
@@ -186,7 +186,7 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
           <button
             type="button"
             onClick={() => setWeekStart(startOfWeekMonday(new Date()))}
-            className="px-3 py-2 rounded-xl text-sm font-semibold text-sky-700 dark:text-sky-300 bg-sky-500/10 hover:bg-sky-500/20"
+            className="px-3 py-2 rounded-xl text-sm font-semibold text-sky-700 dark:text-white bg-sky-500/10 hover:bg-sky-500/20"
           >
             Today
           </button>
@@ -198,7 +198,7 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
           >
             <ChevronRight className="h-5 w-5" />
           </button>
-          <span className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 ml-0 sm:ml-2 min-w-0">
+          <span className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-800 dark:text-white ml-0 sm:ml-2 min-w-0">
             <CalendarDays className="h-4 w-4 shrink-0 text-violet-500" aria-hidden />
             <span className="truncate">{headerRange}</span>
           </span>
@@ -209,20 +209,20 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
             type="button"
             onClick={printSchedule}
             title="Print: disable browser headers/footers to omit the URL in PDFs."
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80"
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80"
           >
             <Printer className="h-4 w-4" aria-hidden />
             Print week
           </button>
           {lockedDoctorId ? (
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              <span className="font-medium text-slate-800 dark:text-slate-200">{doctor.name}</span>
+            <p className="text-sm text-slate-600 dark:text-white">
+              <span className="font-medium text-slate-800 dark:text-white">{doctor.name}</span>
               <span className="text-slate-400 mx-1">·</span>
               {doctor.department}
             </p>
           ) : (
             <div className="flex items-center gap-2">
-              <label htmlFor="appt-doctor" className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              <label htmlFor="appt-doctor" className="text-xs font-medium text-slate-500 dark:text-white">
                 Doctor
               </label>
               <select
@@ -276,7 +276,7 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
       />
 
       {variant !== 'doctor' && (
-        <p className="no-print-appt text-xs text-slate-500 dark:text-slate-400">
+        <p className="no-print-appt text-xs text-slate-500 dark:text-white">
           Data stored in this browser. Use <code className="font-mono text-[11px]">npm run server</code> for the patient
           list API.
         </p>

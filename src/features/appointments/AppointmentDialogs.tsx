@@ -83,13 +83,13 @@ export function BookAppointmentModal({
         >
         <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80">
           <div>
-            <h2 id="book-apt-title" className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            <h2 id="book-apt-title" className="text-lg font-bold text-slate-900 dark:text-white">
               Book appointment
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-xs text-slate-500 dark:text-white mt-1">
               {doctor.name} · {dayLabel}
             </p>
-            <p className="text-sm font-mono text-sky-700 dark:text-sky-300 mt-1">
+            <p className="text-sm font-mono text-sky-700 dark:text-white mt-1">
               {slotStart} – {slotEnd}
             </p>
           </div>
@@ -104,7 +104,7 @@ export function BookAppointmentModal({
         </div>
         <div className="p-5 space-y-4 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] min-h-0 flex-1 touch-pan-y">
           <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Patient</label>
+            <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">Patient</label>
             <select
               value={patientId}
               onChange={(e) => setPatientId(e.target.value)}
@@ -120,7 +120,7 @@ export function BookAppointmentModal({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Reason</label>
+            <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">Reason</label>
             <input
               value={reason}
               onChange={(e) => setReason(e.target.value)}
@@ -129,7 +129,7 @@ export function BookAppointmentModal({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Notes</label>
+            <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">Notes</label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -141,7 +141,7 @@ export function BookAppointmentModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-slate-200"
+              className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-white"
             >
               Cancel
             </button>
@@ -219,24 +219,24 @@ export function ManageAppointmentModal({
         >
         <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80">
           <div>
-            <h2 id="manage-apt-title" className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            <h2 id="manage-apt-title" className="text-lg font-bold text-slate-900 dark:text-white">
               Appointment
             </h2>
-            <p className="text-sm font-medium text-slate-800 dark:text-slate-200 mt-1">{appointment.patientName}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-sm font-medium text-slate-800 dark:text-white mt-1">{appointment.patientName}</p>
+            <p className="text-xs text-slate-500 dark:text-white">
               {format(parse(appointment.date, 'yyyy-MM-dd', new Date()), 'EEE d MMM yyyy')} ·{' '}
               <span className="font-mono">
                 {appointment.slotStart} – {appointment.slotEnd}
               </span>
             </p>
-            <p className="text-xs text-violet-600 dark:text-violet-400 mt-1 uppercase tracking-wide">{appointment.status}</p>
+            <p className="text-xs text-violet-600 dark:text-white mt-1 uppercase tracking-wide">{appointment.status}</p>
             {appointment.reason ? (
-              <p className="text-xs text-slate-600 dark:text-slate-300 mt-2">
+              <p className="text-xs text-slate-600 dark:text-white mt-2">
                 <span className="font-semibold">Reason:</span> {appointment.reason}
               </p>
             ) : null}
             {appointment.notes ? (
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 dark:text-white mt-1">
                 <span className="font-semibold">Notes:</span> {appointment.notes}
               </p>
             ) : null}
@@ -251,9 +251,9 @@ export function ManageAppointmentModal({
           </button>
         </div>
         <div className="p-5 space-y-4 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] min-h-0 flex-1 touch-pan-y">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Reschedule</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white">Reschedule</p>
           <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">New date</label>
+            <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">New date</label>
             <input
               type="date"
               value={newDate}
@@ -265,7 +265,7 @@ export function ManageAppointmentModal({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">New slot</label>
+            <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">New slot</label>
             <select
               value={newSlot}
               onChange={(e) => setNewSlot(e.target.value)}
@@ -294,7 +294,7 @@ export function ManageAppointmentModal({
               onClose()
             }}
             disabled={appointment.status === 'cancelled'}
-            className="w-full py-2.5 rounded-xl border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300 text-sm font-semibold"
+            className="w-full py-2.5 rounded-xl border border-red-200 dark:border-red-900/50 text-red-700 dark:text-white text-sm font-semibold"
           >
             Cancel appointment
           </button>

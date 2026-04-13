@@ -207,11 +207,11 @@ export default function InternalDoctorScheduleModal({
             <div className="min-w-0">
               <h2
                 id="internal-doctor-schedule-title"
-                className="text-lg font-bold text-slate-900 dark:text-slate-100"
+                className="text-lg font-bold text-slate-900 dark:text-white"
               >
                 {isEdit ? 'Edit schedule' : 'Add manual doctor'}
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 dark:text-white mt-1">
                 Set weekly hours, slot length, and lunch break. Used for appointment booking and the OPD queue.
               </p>
             </div>
@@ -228,28 +228,28 @@ export default function InternalDoctorScheduleModal({
           <div className="p-5 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] min-h-0 flex-1 space-y-4 text-sm touch-pan-y">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="sm:col-span-2">
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                   Name
                 </label>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white"
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                   Department
                 </label>
                 <input
                   value={department}
                   onChange={(e) => setDepartment(e.target.value)}
                   placeholder="e.g. General OPD, Cardiology"
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                   NPI (optional)
                 </label>
                 <input
@@ -257,23 +257,23 @@ export default function InternalDoctorScheduleModal({
                   onChange={(e) => setNpiInput(e.target.value)}
                   readOnly={record?.source === 'npi' || record?.id.startsWith('npi-')}
                   disabled={record?.source === 'npi' || record?.id.startsWith('npi-')}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100 disabled:opacity-60"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white disabled:opacity-60"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                   Phone
                 </label>
                 <input
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white"
                 />
               </div>
             </div>
 
             <div>
-              <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-2">Working days</p>
+              <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-2">Working days</p>
               <div className="flex flex-wrap gap-2">
                 {WEEKDAYS.map((d) => (
                   <button
@@ -283,7 +283,7 @@ export default function InternalDoctorScheduleModal({
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
                       workingDays.has(d)
                         ? 'bg-sky-600 text-white border-sky-600'
-                        : 'border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                        : 'border-slate-200 dark:border-slate-600 text-slate-600 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800'
                     }`}
                   >
                     {ISO_WEEKDAY_SHORT[d]}
@@ -294,37 +294,37 @@ export default function InternalDoctorScheduleModal({
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                   Day start
                 </label>
                 <input
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                   Day end
                 </label>
                 <input
                   type="time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+              <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                 Slot length
               </label>
               <select
                 value={slotDurationMinutes}
                 onChange={(e) => setSlotDurationMinutes(Number(e.target.value) as 15 | 20 | 30)}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white"
               >
                 {SLOT_OPTIONS.map((m) => (
                   <option key={m} value={m}>
@@ -341,30 +341,30 @@ export default function InternalDoctorScheduleModal({
                 onChange={(e) => setHasLunch(e.target.checked)}
                 className="rounded border-slate-300 text-sky-600 focus:ring-sky-500"
               />
-              <span className="text-slate-700 dark:text-slate-200 font-medium">Lunch break (no bookable slots)</span>
+              <span className="text-slate-700 dark:text-white font-medium">Lunch break (no bookable slots)</span>
             </label>
             {hasLunch && (
               <div className="grid grid-cols-2 gap-3 pl-6">
                 <div>
-                  <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                  <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                     Lunch start
                   </label>
                   <input
                     type="time"
                     value={lunchStart}
                     onChange={(e) => setLunchStart(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                  <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
                     Lunch end
                   </label>
                   <input
                     type="time"
                     value={lunchEnd}
                     onChange={(e) => setLunchEnd(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-slate-100"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white"
                   />
                 </div>
               </div>
@@ -375,7 +375,7 @@ export default function InternalDoctorScheduleModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-slate-200"
+              className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-white"
             >
               Cancel
             </button>

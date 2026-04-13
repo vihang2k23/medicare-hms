@@ -221,7 +221,7 @@ export default function DoctorAutocomplete({
           onChange={handleInputChange}
           onFocus={handleInputFocus}
           placeholder="Search by name (at least 2 characters)…"
-          className="w-full pl-10 pr-12 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500"
+          className="w-full pl-10 pr-12 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500"
           autoComplete="off"
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
@@ -229,7 +229,7 @@ export default function DoctorAutocomplete({
             <button
               type="button"
               onClick={handleClear}
-              className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+              className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-white"
               title="Clear"
             >
               <X className="w-4 h-4" />
@@ -249,12 +249,12 @@ export default function DoctorAutocomplete({
           <div className="sticky top-0 bg-gradient-to-r from-sky-500/10 to-transparent dark:from-sky-500/15 p-4 border-b border-slate-200 dark:border-slate-600">
             <div className="flex items-center justify-between gap-2">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">NPI Registry</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">NPI Registry</h3>
+                <p className="text-xs text-slate-500 dark:text-white mt-0.5">
                   {suggestions.length} match{suggestions.length !== 1 ? 'es' : ''}
                 </p>
               </div>
-              <span className="text-xs font-medium text-sky-700 dark:text-sky-300 bg-sky-100 dark:bg-sky-950/80 px-2 py-1 rounded-full truncate max-w-[40%]">
+              <span className="text-xs font-medium text-sky-700 dark:text-white bg-sky-100 dark:bg-sky-950/80 px-2 py-1 rounded-full truncate max-w-[40%]">
                 {query}
               </span>
             </div>
@@ -278,11 +278,11 @@ export default function DoctorAutocomplete({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-10 h-10 bg-sky-100 dark:bg-sky-950/80 rounded-full flex items-center justify-center shrink-0">
-                        <User className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+                        <User className="w-5 h-5 text-sky-600 dark:text-white" />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">{doctor.fullName}</p>
-                        <p className="text-xs font-mono text-sky-600 dark:text-sky-400">NPI {doctor.npi}</p>
+                        <p className="font-semibold text-slate-900 dark:text-white truncate">{doctor.fullName}</p>
+                        <p className="text-xs font-mono text-sky-600 dark:text-white">NPI {doctor.npi}</p>
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 ml-0 sm:ml-12">
@@ -293,7 +293,7 @@ export default function DoctorAutocomplete({
                         </span>
                       ) : null}
                       {doctor.city ? (
-                        <span className="inline-flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full">
+                        <span className="inline-flex items-center gap-1 text-xs text-slate-600 dark:text-white bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full">
                           <MapPin className="w-3 h-3 shrink-0" />
                           {[doctor.city, doctor.state].filter(Boolean).join(', ')}
                         </span>
@@ -303,7 +303,7 @@ export default function DoctorAutocomplete({
                   <button
                     type="button"
                     onClick={(e) => handleViewDetails(doctor, e)}
-                    className="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold border border-sky-600 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/50"
+                    className="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold border border-sky-600 text-sky-600 dark:text-white hover:bg-sky-50 dark:hover:bg-sky-950/50"
                   >
                     <Eye className="w-3.5 h-3.5" />
                     Details

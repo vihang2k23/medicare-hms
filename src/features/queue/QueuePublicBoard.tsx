@@ -35,9 +35,9 @@ export default function QueuePublicBoard() {
   return (
     <div className="rounded-2xl border-2 border-sky-200/80 dark:border-sky-800/80 bg-gradient-to-br from-sky-50/90 via-white to-slate-50/90 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 p-5 sm:p-6 shadow-lg shadow-sky-500/10 ring-1 ring-sky-200/50 dark:ring-sky-900/50">
       <div className="flex flex-wrap items-center gap-2 mb-5">
-        <Tv className="h-6 w-6 text-sky-600 dark:text-sky-400 shrink-0" aria-hidden />
+        <Tv className="h-6 w-6 text-sky-600 dark:text-white shrink-0" aria-hidden />
         <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight">Live queue display</h2>
-        <span className="text-xs font-semibold uppercase tracking-wider text-sky-600 dark:text-sky-400 ml-auto">
+        <span className="text-xs font-semibold uppercase tracking-wider text-sky-600 dark:text-white ml-auto">
           Public board
         </span>
       </div>
@@ -57,12 +57,12 @@ export default function QueuePublicBoard() {
         </div>
 
         <div className="lg:col-span-4 rounded-2xl border border-slate-200/90 dark:border-slate-700 bg-white/90 dark:bg-slate-900/60 p-4">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-1">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-3 flex items-center gap-1">
             Next in line
             <ChevronRight className="h-3.5 w-3.5 opacity-60" aria-hidden />
           </p>
           {nextFive.length === 0 ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400">No waiting tokens</p>
+            <p className="text-sm text-slate-500 dark:text-white">No waiting tokens</p>
           ) : (
             <ol className="space-y-2">
               {nextFive.map((t: OpdQueueToken, i: number) => (
@@ -71,8 +71,8 @@ export default function QueuePublicBoard() {
                   className="flex items-center justify-between gap-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 px-3 py-2 text-sm"
                 >
                   <span className="text-xs font-bold text-slate-400 w-5">{i + 1}</span>
-                  <span className="font-mono font-semibold text-sky-700 dark:text-sky-300">{formatOpdTokenLabel(t.tokenId)}</span>
-                  <span className="truncate flex-1 text-right text-slate-700 dark:text-slate-200">{t.patientName}</span>
+                  <span className="font-mono font-semibold text-sky-700 dark:text-white">{formatOpdTokenLabel(t.tokenId)}</span>
+                  <span className="truncate flex-1 text-right text-slate-700 dark:text-white">{t.patientName}</span>
                 </li>
               ))}
             </ol>
@@ -80,13 +80,13 @@ export default function QueuePublicBoard() {
         </div>
 
         <div className="lg:col-span-3 rounded-2xl border border-slate-200/90 dark:border-slate-700 bg-white/90 dark:bg-slate-900/60 p-4">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-1">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-3 flex items-center gap-1">
             <Building2 className="h-3.5 w-3.5" aria-hidden />
             By department
           </p>
           <ul className="space-y-1.5 text-sm">
             {OPD_DEPARTMENTS.map((d) => (
-              <li key={d} className="flex justify-between gap-2 text-slate-700 dark:text-slate-200">
+              <li key={d} className="flex justify-between gap-2 text-slate-700 dark:text-white">
                 <span className="truncate">{d}</span>
                 <span className="font-bold tabular-nums text-slate-900 dark:text-white">{deptCounts[d] ?? 0}</span>
               </li>

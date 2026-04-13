@@ -35,24 +35,24 @@ const STATUS_STYLES: Record<
 > = {
   available: {
     cell:
-      'bg-emerald-500/15 text-emerald-900 dark:text-emerald-100 ring-emerald-500/25 hover:ring-emerald-400/50',
+      'bg-emerald-500/15 text-emerald-900 dark:text-white ring-emerald-500/25 hover:ring-emerald-400/50',
     dot: 'bg-emerald-500',
     label: 'Available',
   },
   occupied: {
-    cell: 'bg-rose-500/15 text-rose-900 dark:text-rose-100 ring-rose-500/25 hover:ring-rose-400/50',
+    cell: 'bg-rose-500/15 text-rose-900 dark:text-white ring-rose-500/25 hover:ring-rose-400/50',
     dot: 'bg-rose-500',
     label: 'Occupied',
   },
   reserved: {
     cell:
-      'bg-amber-500/15 text-amber-950 dark:text-amber-100 ring-amber-500/25 hover:ring-amber-400/50',
+      'bg-amber-500/15 text-amber-950 dark:text-white ring-amber-500/25 hover:ring-amber-400/50',
     dot: 'bg-amber-500',
     label: 'Reserved',
   },
   maintenance: {
     cell:
-      'bg-slate-500/20 text-slate-800 dark:text-slate-100 ring-slate-400/30 hover:ring-slate-400/45',
+      'bg-slate-500/20 text-slate-800 dark:text-white ring-slate-400/30 hover:ring-slate-400/45',
     dot: 'bg-slate-500',
     label: 'Maintenance',
   },
@@ -204,17 +204,17 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
       {showWardSummary && (
         <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/50 backdrop-blur-sm p-5 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 tracking-tight">
-              <Activity className="h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0" aria-hidden />
+            <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
+              <Activity className="h-5 w-5 text-teal-600 dark:text-white shrink-0" aria-hidden />
               Ward summary
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md leading-relaxed">
-              Live counts by ward — drag an <strong className="text-slate-600 dark:text-slate-300">available</strong> bed
+            <p className="text-xs text-slate-500 dark:text-white max-w-md leading-relaxed">
+              Live counts by ward — drag an <strong className="text-slate-600 dark:text-white">available</strong> bed
               onto another ward to transfer it.
             </p>
           </div>
           {Object.keys(wardSummary).length === 0 ? (
-            <p className="text-slate-500 dark:text-slate-400 text-sm">No ward data.</p>
+            <p className="text-slate-500 dark:text-white text-sm">No ward data.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               {Object.entries(wardSummary).map(([wardId, c]) => {
@@ -231,39 +231,39 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white">
                           {wardId}
                         </p>
-                        <p className="text-lg font-bold text-slate-900 dark:text-slate-100">{wardName}</p>
+                        <p className="text-lg font-bold text-slate-900 dark:text-white">{wardName}</p>
                       </div>
-                      <span className="text-xs font-semibold tabular-nums text-teal-700 dark:text-teal-300 bg-teal-500/10 px-2 py-1 rounded-lg">
+                      <span className="text-xs font-semibold tabular-nums text-teal-700 dark:text-white bg-teal-500/10 px-2 py-1 rounded-lg">
                         {occPct}% occ.
                       </span>
                     </div>
                     <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                      <div className="flex items-center gap-2 rounded-lg bg-emerald-500/10 px-2.5 py-2 text-emerald-900 dark:text-emerald-100">
+                      <div className="flex items-center gap-2 rounded-lg bg-emerald-500/10 px-2.5 py-2 text-emerald-900 dark:text-white">
                         <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
                         <span className="font-medium">Free</span>
                         <span className="ml-auto font-bold tabular-nums">{c.available}</span>
                       </div>
-                      <div className="flex items-center gap-2 rounded-lg bg-rose-500/10 px-2.5 py-2 text-rose-900 dark:text-rose-100">
+                      <div className="flex items-center gap-2 rounded-lg bg-rose-500/10 px-2.5 py-2 text-rose-900 dark:text-white">
                         <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0" />
                         <span className="font-medium">Occupied</span>
                         <span className="ml-auto font-bold tabular-nums">{c.occupied}</span>
                       </div>
-                      <div className="flex items-center gap-2 rounded-lg bg-amber-500/10 px-2.5 py-2 text-amber-950 dark:text-amber-100">
+                      <div className="flex items-center gap-2 rounded-lg bg-amber-500/10 px-2.5 py-2 text-amber-950 dark:text-white">
                         <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
                         <span className="font-medium">Reserved</span>
                         <span className="ml-auto font-bold tabular-nums">{c.reserved}</span>
                       </div>
-                      <div className="flex items-center gap-2 rounded-lg bg-slate-500/15 px-2.5 py-2 text-slate-800 dark:text-slate-100">
+                      <div className="flex items-center gap-2 rounded-lg bg-slate-500/15 px-2.5 py-2 text-slate-800 dark:text-white">
                         <span className="h-2 w-2 rounded-full bg-slate-500 shrink-0" />
                         <span className="font-medium">Maint.</span>
                         <span className="ml-auto font-bold tabular-nums">{c.maintenance}</span>
                       </div>
                     </div>
-                    <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400">
-                      Total beds: <strong className="text-slate-700 dark:text-slate-200">{total}</strong>
+                    <p className="mt-3 text-[11px] text-slate-500 dark:text-white">
+                      Total beds: <strong className="text-slate-700 dark:text-white">{total}</strong>
                     </p>
                   </div>
                 )
@@ -273,7 +273,7 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-600 dark:text-slate-400">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-600 dark:text-white">
         {(Object.keys(STATUS_STYLES) as BedStatus[]).map((s) => (
           <span key={s} className="inline-flex items-center gap-1.5">
             <span className={`h-2.5 w-2.5 rounded-full ${STATUS_STYLES[s].dot}`} />
@@ -281,9 +281,9 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
           </span>
         ))}
         <span className="inline-flex items-center gap-1.5 sm:ml-2 pl-3 sm:pl-0 border-l border-slate-200 dark:border-slate-700">
-          <GripVertical className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400 shrink-0" aria-hidden />
+          <GripVertical className="h-3.5 w-3.5 text-teal-600 dark:text-white shrink-0" aria-hidden />
           <span>
-            <strong className="text-slate-700 dark:text-slate-200">Available</strong> beds: drag onto another ward
+            <strong className="text-slate-700 dark:text-white">Available</strong> beds: drag onto another ward
             to transfer (reserved / occupied / maintenance cannot be dragged).
           </span>
         </span>
@@ -305,11 +305,11 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
               ].join(' ')}
             >
               <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 min-w-0">
-                  <BedDouble className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" aria-hidden />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 min-w-0">
+                  <BedDouble className="h-4 w-4 text-teal-600 dark:text-white shrink-0" aria-hidden />
                   <span className="truncate">
                     {wardName}
-                    <span className="text-slate-400 dark:text-slate-500 font-mono text-xs font-normal ml-1.5">
+                    <span className="text-slate-400 dark:text-white font-mono text-xs font-normal ml-1.5">
                       {wardId}
                     </span>
                   </span>
@@ -317,14 +317,14 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
                 <button
                   type="button"
                   onClick={() => addBedInWard(wardId, wardName)}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-teal-700 dark:text-teal-300 bg-teal-500/10 hover:bg-teal-500/15 border border-teal-200/60 dark:border-teal-800/50 transition-colors shrink-0"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-teal-700 dark:text-white bg-teal-500/10 hover:bg-teal-500/15 border border-teal-200/60 dark:border-teal-800/50 transition-colors shrink-0"
                 >
                   <Plus className="h-3.5 w-3.5" aria-hidden />
                   Add bed
                 </button>
               </div>
               {isDropTarget && (
-                <p className="mb-3 text-xs font-medium text-teal-700 dark:text-teal-300 flex items-center gap-1.5">
+                <p className="mb-3 text-xs font-medium text-teal-700 dark:text-white flex items-center gap-1.5">
                   <span className="inline-block h-1.5 w-1.5 rounded-full bg-teal-500 animate-pulse" aria-hidden />
                   Drop here to move bed into this ward
                 </p>
@@ -370,7 +370,7 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
                     >
                       {canDrag && (
                         <span
-                          className="absolute top-2 right-2 text-emerald-700/50 dark:text-emerald-300/40 pointer-events-none"
+                          className="absolute top-2 right-2 text-emerald-700/50 dark:text-white pointer-events-none"
                           aria-hidden
                         >
                           <GripVertical className="h-3.5 w-3.5" />
@@ -402,15 +402,15 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
             >
             <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80 bg-gradient-to-r from-teal-500/10 to-transparent">
               <div>
-                <p id="bed-panel-title" className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                <p id="bed-panel-title" className="text-lg font-bold text-slate-900 dark:text-white">
                   {activeBed.wardName} · Bed {activeBed.bedNumber}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-white mt-0.5">
                   {STATUS_STYLES[activeBed.status].label}
                   {activeBed.occupantName && (
                     <>
                       {' · '}
-                      <span className="text-slate-700 dark:text-slate-200">{activeBed.occupantName}</span>
+                      <span className="text-slate-700 dark:text-white">{activeBed.occupantName}</span>
                     </>
                   )}
                 </p>
@@ -427,18 +427,18 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
 
             <div className="p-5 space-y-5 min-h-0 flex-1 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] touch-pan-y">
               {activeBed.status === 'available' && (
-                <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-slate-50/80 dark:bg-slate-800/40 px-4 py-3 text-xs text-slate-600 dark:text-slate-300 leading-relaxed flex gap-2">
-                  <GripVertical className="h-4 w-4 shrink-0 text-teal-600 dark:text-teal-400 mt-0.5" aria-hidden />
+                <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-slate-50/80 dark:bg-slate-800/40 px-4 py-3 text-xs text-slate-600 dark:text-white leading-relaxed flex gap-2">
+                  <GripVertical className="h-4 w-4 shrink-0 text-teal-600 dark:text-white mt-0.5" aria-hidden />
                   <p>
                     Drag this bed card onto another ward in the grid to transfer. Only{' '}
-                    <strong className="text-slate-800 dark:text-slate-100">available</strong> beds can be moved;
+                    <strong className="text-slate-800 dark:text-white">available</strong> beds can be moved;
                     discharge patients or change status first if needed.
                   </p>
                 </div>
               )}
 
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-2">
                   Bed status
                 </p>
                 <div className="grid grid-cols-2 gap-2">
@@ -450,7 +450,7 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
                       className={`px-3 py-2.5 rounded-xl text-xs font-semibold ring-1 transition-all ${
                         activeBed.status === value
                           ? 'bg-teal-600 text-white ring-teal-600 shadow-md shadow-teal-500/20'
-                          : 'bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 ring-slate-200/80 dark:ring-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800'
+                          : 'bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-white ring-slate-200/80 dark:ring-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800'
                       }`}
                     >
                       {label}
@@ -463,7 +463,7 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
                 <button
                   type="button"
                   onClick={removeThisBed}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-red-200/90 dark:border-red-900/55 text-red-800 dark:text-red-200 text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-950/35 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-red-200/90 dark:border-red-900/55 text-red-800 dark:text-white text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-950/35 transition-colors"
                 >
                   <Trash2 className="h-4 w-4" aria-hidden />
                   Remove bed
@@ -472,12 +472,12 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
 
               {(activeBed.status === 'available' || activeBed.status === 'reserved') && (
                 <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-slate-50/80 dark:bg-slate-800/40 p-4 space-y-3">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white flex items-center gap-1.5">
                     <UserPlus className="h-3.5 w-3.5" aria-hidden />
                     Admit / assign
                   </p>
                   <div>
-                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                    <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">
                       Patient name
                     </label>
                     <input
@@ -488,7 +488,7 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                    <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">
                       Patient ID (optional)
                     </label>
                     <input
@@ -514,7 +514,7 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
                 <button
                   type="button"
                   onClick={discharge}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-rose-200 dark:border-rose-900/60 text-rose-800 dark:text-rose-200 text-sm font-semibold hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-rose-200 dark:border-rose-900/60 text-rose-800 dark:text-white text-sm font-semibold hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                 >
                   <DoorOpen className="h-4 w-4" aria-hidden />
                   Discharge &amp; free bed
@@ -522,7 +522,7 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
               )}
 
               {activeBed.status === 'maintenance' && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                <p className="text-xs text-slate-500 dark:text-white flex items-center gap-2">
                   <Wrench className="h-4 w-4 shrink-0" aria-hidden />
                   Mark available when the bed is ready for patients again.
                 </p>

@@ -328,7 +328,7 @@ export default function ReportsPage() {
   }, [])
 
   const pieFallback = (
-    <p className="text-sm text-slate-500 dark:text-slate-400 py-12 text-center">No data for this chart.</p>
+    <p className="text-sm text-slate-500 dark:text-white py-12 text-center">No data for this chart.</p>
   )
 
   return (
@@ -340,7 +340,7 @@ export default function ReportsPage() {
 
       <div className="no-print-report flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-400 mb-2">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-600 dark:text-white mb-2">
             Analytics
           </p>
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -351,7 +351,7 @@ export default function ReportsPage() {
           <button
             type="button"
             onClick={handleExportCsv}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-semibold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-semibold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800"
           >
             <Download className="h-4 w-4" aria-hidden />
             Export CSV
@@ -413,7 +413,7 @@ export default function ReportsPage() {
       </div>
 
       <div className="report-print-charts space-y-6">
-        <p className="no-print-report text-[11px] font-bold uppercase tracking-[0.14em] text-violet-600 dark:text-violet-400">
+        <p className="no-print-report text-[11px] font-bold uppercase tracking-[0.14em] text-violet-600 dark:text-white">
           Scheduling &amp; clinical analytics
         </p>
         <p className="hidden print:block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600 border-b border-slate-400 pb-2">
@@ -506,7 +506,7 @@ export default function ReportsPage() {
                     <Legend
                       verticalAlign="bottom"
                       height={36}
-                      formatter={(v) => <span className="text-xs text-slate-600 dark:text-slate-300">{v}</span>}
+                      formatter={(v) => <span className="text-xs text-slate-600 dark:text-white">{v}</span>}
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -604,7 +604,7 @@ export default function ReportsPage() {
                   <Legend
                     verticalAlign="bottom"
                     height={32}
-                    formatter={(value) => <span className="text-xs text-slate-600 dark:text-slate-300">{value}</span>}
+                    formatter={(value) => <span className="text-xs text-slate-600 dark:text-white">{value}</span>}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -638,7 +638,7 @@ export default function ReportsPage() {
                   <Legend
                     verticalAlign="bottom"
                     height={32}
-                    formatter={(value) => <span className="text-xs text-slate-600 dark:text-slate-300">{value}</span>}
+                    formatter={(value) => <span className="text-xs text-slate-600 dark:text-white">{value}</span>}
                   />
                 </PieChart>
               </ResponsiveContainer>

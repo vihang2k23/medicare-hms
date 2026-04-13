@@ -48,7 +48,7 @@ export default function NotificationBell({ onOpen }: NotificationBellProps) {
             return next
           })
         }}
-        className="relative p-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100/90 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 touch-manipulation"
+        className="relative p-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100/90 dark:text-white dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 touch-manipulation"
         aria-label="Alerts"
         aria-expanded={open}
         aria-haspopup="dialog"
@@ -72,7 +72,7 @@ export default function NotificationBell({ onOpen }: NotificationBellProps) {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-400"
+              className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-white"
               aria-label="Close notifications"
             >
               <X className="h-4 w-4" aria-hidden />
@@ -80,7 +80,7 @@ export default function NotificationBell({ onOpen }: NotificationBellProps) {
           </div>
           <div className="overflow-y-auto overscroll-contain px-2 py-2 min-h-0 flex-1">
             {alerts.length === 0 ? (
-              <p className="text-sm text-slate-500 dark:text-slate-400 px-2 py-4 text-center">No alerts right now.</p>
+              <p className="text-sm text-slate-500 dark:text-white px-2 py-4 text-center">No alerts right now.</p>
             ) : (
               <ul className="space-y-1.5">
                 {alerts.map((a) => (
@@ -88,10 +88,10 @@ export default function NotificationBell({ onOpen }: NotificationBellProps) {
                     key={a.id}
                     className={`rounded-xl p-2.5 pr-10 relative text-sm ${
                       a.level === 'error'
-                        ? 'bg-red-50 dark:bg-red-900/25 text-red-900 dark:text-red-100'
+                        ? 'bg-red-50 dark:bg-red-900/25 text-red-900 dark:text-white'
                         : a.level === 'warning'
-                          ? 'bg-amber-50 dark:bg-amber-900/25 text-amber-950 dark:text-amber-100'
-                          : 'bg-sky-50 dark:bg-sky-900/20 text-sky-950 dark:text-sky-100'
+                          ? 'bg-amber-50 dark:bg-amber-900/25 text-amber-950 dark:text-white'
+                          : 'bg-sky-50 dark:bg-sky-900/20 text-sky-950 dark:text-white'
                     }`}
                   >
                     <p className="font-medium leading-snug pr-1">{a.message}</p>
@@ -115,7 +115,7 @@ export default function NotificationBell({ onOpen }: NotificationBellProps) {
             <Link
               to="/admin"
               onClick={() => setOpen(false)}
-              className="block w-full text-center rounded-xl py-2.5 text-sm font-semibold text-sky-700 dark:text-sky-300 hover:bg-sky-50 dark:hover:bg-sky-950/50 transition-colors"
+              className="block w-full text-center rounded-xl py-2.5 text-sm font-semibold text-sky-700 dark:text-white hover:bg-sky-50 dark:hover:bg-sky-950/50 transition-colors"
             >
               Open admin dashboard
             </Link>

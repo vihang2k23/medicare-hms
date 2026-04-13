@@ -18,10 +18,10 @@ export default function ReceptionistDashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-400 mb-2">Front desk</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-600 dark:text-white mb-2">Front desk</p>
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Receptionist dashboard</h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-2 text-sm">
-          Hello, <span className="font-semibold text-slate-800 dark:text-slate-200">{user?.name}</span>.
+        <p className="text-slate-600 dark:text-white mt-2 text-sm">
+          Hello, <span className="font-semibold text-slate-800 dark:text-white">{user?.name}</span>.
         </p>
       </div>
 
@@ -51,7 +51,7 @@ export default function ReceptionistDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-3">OPD queue live view</h2>
+          <h2 className="text-sm font-semibold text-slate-800 dark:text-white mb-3">OPD queue live view</h2>
           <QueueBoard />
         </div>
         <DashboardCard title="Quick actions">
@@ -65,14 +65,14 @@ export default function ReceptionistDashboard() {
             </Link>
             <Link
               to="/receptionist/registration"
-              className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-200 text-sm font-medium transition-colors"
+              className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-white text-sm font-medium transition-colors"
             >
               <UserPlus className="h-4 w-4" aria-hidden />
               Register new patient
             </Link>
             <Link
               to="/receptionist/appointments"
-              className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-200 text-sm font-medium transition-colors"
+              className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-white text-sm font-medium transition-colors"
             >
               Book appointment
             </Link>

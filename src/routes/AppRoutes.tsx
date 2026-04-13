@@ -71,7 +71,7 @@ export default function AppRoutes() {
           <Route
             path="nurse/vitals/patient/:patientId"
             element={
-              <Suspense fallback={<div className="p-6 text-slate-500 dark:text-slate-400">Loading vitals…</div>}>
+              <Suspense fallback={<div className="p-6 text-slate-500 dark:text-white">Loading vitals…</div>}>
                 <VitalsPatientDetailPage />
               </Suspense>
             }
@@ -79,7 +79,7 @@ export default function AppRoutes() {
           <Route
             path="nurse/vitals"
             element={
-              <Suspense fallback={<div className="p-6 text-slate-500 dark:text-slate-400">Loading vitals…</div>}>
+              <Suspense fallback={<div className="p-6 text-slate-500 dark:text-white">Loading vitals…</div>}>
                 <VitalsEntryPage />
               </Suspense>
             }

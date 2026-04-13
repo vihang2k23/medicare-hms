@@ -119,7 +119,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
       }`}
     >
       <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-semibold text-sm">
+        <div className="flex items-center gap-2 text-slate-700 dark:text-white font-semibold text-sm">
           <Pill className="h-4 w-4 text-violet-500 shrink-0" aria-hidden />
           Medicine
         </div>
@@ -127,7 +127,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
           <button
             type="button"
             onClick={onRemove}
-            className="p-2 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-red-300 transition-colors"
+            className="p-2 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-white transition-colors"
             aria-label="Remove medicine line"
           >
             <Trash2 className="h-4 w-4" />
@@ -136,7 +136,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
       </div>
 
       <div className="relative">
-        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">
           Drug (catalog)
         </label>
         <div className="relative">
@@ -182,9 +182,9 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
                     className="w-full text-left px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/80 border-b border-slate-100 dark:border-slate-800 last:border-0"
                     onClick={() => void applyHit(hit)}
                   >
-                    <span className="font-medium text-slate-900 dark:text-slate-100">{label}</span>
-                    {sub && <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">{sub}</span>}
-                    {hint && <span className="block text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 leading-snug">{hint}</span>}
+                    <span className="font-medium text-slate-900 dark:text-white">{label}</span>
+                    {sub && <span className="block text-xs text-slate-500 dark:text-white mt-0.5">{sub}</span>}
+                    {hint && <span className="block text-[11px] text-slate-400 dark:text-white mt-0.5 leading-snug">{hint}</span>}
                   </button>
                 </li>
               )
@@ -195,7 +195,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">
             Dosage
           </label>
           <input
@@ -206,7 +206,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
           />
         </div>
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">
             Frequency
           </label>
           <input
@@ -217,7 +217,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
           />
         </div>
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">
             Duration
           </label>
           <input
@@ -229,7 +229,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
         </div>
       </div>
       <div>
-        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">
           Instructions
         </label>
         <input
@@ -245,28 +245,28 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
           type="button"
           onClick={() => void checkRecallsManual()}
           disabled={recallLoading}
-          className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold border border-amber-200 dark:border-amber-800/80 text-amber-900 dark:text-amber-200 bg-amber-50/80 dark:bg-amber-950/30 hover:bg-amber-100/80 dark:hover:bg-amber-950/50 disabled:opacity-50"
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold border border-amber-200 dark:border-amber-800/80 text-amber-900 dark:text-white bg-amber-50/80 dark:bg-amber-950/30 hover:bg-amber-100/80 dark:hover:bg-amber-950/50 disabled:opacity-50"
         >
           {recallLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <AlertTriangle className="h-3.5 w-3.5" />}
           Check recalls
         </button>
-        <span className="text-[11px] text-slate-500 dark:text-slate-400">Sample scenarios for common drugs.</span>
+        <span className="text-[11px] text-slate-500 dark:text-white">Sample scenarios for common drugs.</span>
       </div>
 
       {line.recallAlerts && line.recallAlerts.length > 0 && (
         <div className="rounded-xl border border-amber-200/90 dark:border-amber-800/60 bg-amber-50/90 dark:bg-amber-950/35 p-3 space-y-2">
-          <p className="text-xs font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
+          <p className="text-xs font-bold text-amber-900 dark:text-white flex items-center gap-1.5">
             <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden />
             Sample recalls — verify against live sources
           </p>
-          <ul className="space-y-2 text-xs text-amber-950 dark:text-amber-100">
+          <ul className="space-y-2 text-xs text-amber-950 dark:text-white">
             {line.recallAlerts.map((a) => (
               <li key={a.recallId} className="border-t border-amber-200/60 dark:border-amber-800/40 pt-2 first:border-0 first:pt-0">
                 <span className="font-semibold">{a.status}</span>
-                <span className="text-amber-800/90 dark:text-amber-300/90"> · {a.classification}</span>
-                <span className="text-slate-600 dark:text-slate-400"> · Report {a.reportDate}</span>
-                <p className="mt-1 text-slate-700 dark:text-slate-300">{a.reason}</p>
-                <p className="mt-0.5 text-slate-600 dark:text-slate-400 line-clamp-2">{a.productDescription}</p>
+                <span className="text-amber-800/90 dark:text-white"> · {a.classification}</span>
+                <span className="text-slate-600 dark:text-white"> · Report {a.reportDate}</span>
+                <p className="mt-1 text-slate-700 dark:text-white">{a.reason}</p>
+                <p className="mt-0.5 text-slate-600 dark:text-white line-clamp-2">{a.productDescription}</p>
               </li>
             ))}
           </ul>

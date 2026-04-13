@@ -35,8 +35,8 @@ export default function DoctorDetailsModal({
         >
         <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80">
           <div className="min-w-0">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 truncate">{d.fullName}</h2>
-            <p className="text-xs font-mono text-sky-600 dark:text-sky-400 mt-1">NPI {d.npi}</p>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white truncate">{d.fullName}</h2>
+            <p className="text-xs font-mono text-sky-600 dark:text-white mt-1">NPI {d.npi}</p>
           </div>
           <button
             type="button"
@@ -48,12 +48,12 @@ export default function DoctorDetailsModal({
           </button>
         </div>
 
-        <div className="p-5 space-y-4 text-sm text-slate-700 dark:text-slate-200 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] min-h-0 flex-1 touch-pan-y">
+        <div className="p-5 space-y-4 text-sm text-slate-700 dark:text-white overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] min-h-0 flex-1 touch-pan-y">
           {d.specialty && (
             <div className="flex items-start gap-2">
               <Briefcase className="h-4 w-4 mt-0.5 text-sky-600 shrink-0" />
               <div>
-                <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400">Specialty</p>
+                <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-white">Specialty</p>
                 <p>{d.specialty}</p>
               </div>
             </div>
@@ -62,7 +62,7 @@ export default function DoctorDetailsModal({
             <div className="flex items-start gap-2">
               <MapPin className="h-4 w-4 mt-0.5 text-sky-600 shrink-0" />
               <div>
-                <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400">Practice address</p>
+                <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-white">Practice address</p>
                 <p>
                   {[d.address, d.address2].filter(Boolean).join(', ')}
                   {(d.city || d.state || d.postalCode) && (
@@ -79,7 +79,7 @@ export default function DoctorDetailsModal({
             <div className="flex items-start gap-2">
               <Phone className="h-4 w-4 mt-0.5 text-sky-600 shrink-0" />
               <div>
-                <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400">Phone</p>
+                <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-white">Phone</p>
                 <p>{d.contact}</p>
               </div>
             </div>
@@ -88,7 +88,7 @@ export default function DoctorDetailsModal({
             <div className="flex items-start gap-2">
               <User className="h-4 w-4 mt-0.5 text-sky-600 shrink-0" />
               <div>
-                <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400">Sex</p>
+                <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-white">Sex</p>
                 <p className="capitalize">{d.gender}</p>
               </div>
             </div>
@@ -99,7 +99,7 @@ export default function DoctorDetailsModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
+            className="px-4 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
           >
             Close
           </button>

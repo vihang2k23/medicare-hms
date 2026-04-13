@@ -129,14 +129,14 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
         <div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">New prescription</h2>
           {variant === 'admin' ? (
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-              Admin: <span className="font-medium text-slate-700 dark:text-slate-200">{user?.name}</span>. Attribution follows the{' '}
-              <strong className="font-medium text-slate-600 dark:text-slate-300">physician</strong> you select. Catalog lookup; recall alerts are
+            <p className="text-xs text-slate-500 dark:text-white mt-1 leading-relaxed">
+              Admin: <span className="font-medium text-slate-700 dark:text-white">{user?.name}</span>. Attribution follows the{' '}
+              <strong className="font-medium text-slate-600 dark:text-white">physician</strong> you select. Catalog lookup; recall alerts are
               illustrative.
             </p>
           ) : (
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-              Prescriber: <span className="font-medium text-slate-700 dark:text-slate-200">{user?.name}</span>. Catalog lookup; recall alerts are
+            <p className="text-xs text-slate-500 dark:text-white mt-1 leading-relaxed">
+              Prescriber: <span className="font-medium text-slate-700 dark:text-white">{user?.name}</span>. Catalog lookup; recall alerts are
               illustrative.
             </p>
           )}
@@ -146,7 +146,7 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
       <div className="grid grid-cols-1 gap-4">
         {variant === 'admin' && (
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5">
               Prescribing physician
             </label>
             <select
@@ -165,13 +165,13 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
                 ))
               )}
             </select>
-            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5">
+            <p className="text-[11px] text-slate-400 dark:text-white mt-1.5">
               This name appears on the prescription, history, and printable PDF.
             </p>
           </div>
         )}
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5">
             Patient
           </label>
           <select
@@ -189,7 +189,7 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
           </select>
         </div>
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5">
             Diagnosis / indication (optional)
           </label>
           <input
@@ -200,7 +200,7 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
           />
         </div>
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5">
             Notes (optional)
           </label>
           <textarea
@@ -214,11 +214,11 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
 
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Medicines</h3>
+          <h3 className="text-sm font-bold text-slate-800 dark:text-white">Medicines</h3>
           <button
             type="button"
             onClick={addLine}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-violet-500/10 text-violet-800 dark:text-violet-200 hover:bg-violet-500/20"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-violet-500/10 text-violet-800 dark:text-white hover:bg-violet-500/20"
           >
             <Plus className="h-3.5 w-3.5" />
             Add line

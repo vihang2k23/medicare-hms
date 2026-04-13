@@ -22,10 +22,10 @@ export default function DoctorDashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 mb-2">Clinical</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-white mb-2">Clinical</p>
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Doctor dashboard</h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-2 text-sm">
-          <span className="font-semibold text-slate-800 dark:text-slate-200">{user?.name}</span> — today at a glance.
+        <p className="text-slate-600 dark:text-white mt-2 text-sm">
+          <span className="font-semibold text-slate-800 dark:text-white">{user?.name}</span> — today at a glance.
         </p>
       </div>
 
@@ -48,12 +48,12 @@ export default function DoctorDashboard() {
 
       <DashboardCard title="Next patient">
         <div className="flex items-center gap-4 p-4 rounded-lg bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800">
-          <div className="w-12 h-12 rounded-full bg-sky-200 dark:bg-sky-800 flex items-center justify-center text-sky-700 dark:text-sky-300 font-bold text-lg">
+          <div className="w-12 h-12 rounded-full bg-sky-200 dark:bg-sky-800 flex items-center justify-center text-sky-700 dark:text-white font-bold text-lg">
             {MOCK_NEXT_PATIENT.name.charAt(0)}
           </div>
           <div>
-            <p className="font-semibold text-slate-800 dark:text-slate-100">{MOCK_NEXT_PATIENT.name}</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="font-semibold text-slate-800 dark:text-white">{MOCK_NEXT_PATIENT.name}</p>
+            <p className="text-sm text-slate-500 dark:text-white">
               Token {MOCK_NEXT_PATIENT.token} · {MOCK_NEXT_PATIENT.reason}
             </p>
           </div>
@@ -65,16 +65,16 @@ export default function DoctorDashboard() {
           {MOCK_TODAY_APPOINTMENTS.map((apt) => (
             <li key={apt.id} className="flex items-center justify-between py-3 first:pt-0">
               <div>
-                <p className="font-medium text-slate-800 dark:text-slate-100">{apt.patientName}</p>
-                <p className="text-sm text-slate-500 dark:text-slate-400">{apt.time}</p>
+                <p className="font-medium text-slate-800 dark:text-white">{apt.patientName}</p>
+                <p className="text-sm text-slate-500 dark:text-white">{apt.time}</p>
               </div>
               <span
                 className={`text-xs font-medium px-2 py-1 rounded ${
                   apt.status === 'completed'
-                    ? 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                    ? 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-white'
                     : apt.status === 'in-progress'
-                      ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300'
-                      : 'bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300'
+                      ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-white'
+                      : 'bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-white'
                 }`}
               >
                 {apt.status === 'in-progress' ? 'In progress' : apt.status === 'completed' ? 'Done' : 'Waiting'}
@@ -85,7 +85,7 @@ export default function DoctorDashboard() {
       </DashboardCard>
 
       <DashboardCard title="My schedule summary">
-        <p className="text-slate-500 dark:text-slate-400 text-sm">
+        <p className="text-slate-500 dark:text-white text-sm">
           Today: 09:00 – 13:00 (8 slots). Next slot at 10:30.
         </p>
       </DashboardCard>
