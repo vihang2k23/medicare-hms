@@ -1,19 +1,15 @@
+import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRight, ClipboardList, HeartPulse, ShieldCheck, Stethoscope, type LucideIcon } from 'lucide-react'
 import { login } from '../features/auth/authSlice'
 import type { AuthUser } from '../features/auth/authSlice'
 import { getDefaultDashboard } from '../config/roles'
+import { DEMO_DOCTOR_USERS, DEMO_STAFF_USERS, demoEntryToAuthUser } from '../config/demoAccounts'
+import { DEFAULT_SCHEDULE_DOCTORS } from '../features/appointments/appointmentsSlice'
 import Navbar from '../layout/Navbar'
 import { notify } from '../lib/notify'
 import MediCareLogo, { MediCareWordmark } from '../components/brand/MediCareLogo'
-
-const demoUsers: Array<{ role: AuthUser['role']; name: string; id: string; avatar: string }> = [
-  { role: 'admin', name: 'Admin User', id: 'ADM001', avatar: '' },
-  { role: 'doctor', name: 'Dr. Vihang', id: 'DOC001', avatar: '' },
-  { role: 'receptionist', name: 'Riya Patel', id: 'REC001', avatar: '' },
-  { role: 'nurse', name: 'Meena Patel', id: 'NUR001', avatar: '' },
-]
 
 const roleLabels: Record<AuthUser['role'], string> = {
   admin: 'Administrator',
@@ -32,17 +28,21 @@ const roleIcons: Record<AuthUser['role'], LucideIcon> = {
 export default function Login() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const [selectedDoctorId, setSelectedDoctorId] = useState(() => DEMO_DOCTOR_USERS[0]?.id ?? '')
 
-  const handleLogin = (user: (typeof demoUsers)[0]) => {
-    const authUser: AuthUser = {
-      id: user.id,
-      role: user.role,
-      name: user.name,
-      avatar: user.avatar,
-    }
-    dispatch(login(authUser))
+  const handleLogin = (user: (typeof DEMO_STAFF_USERS)[0] | (typeof DEMO_DOCTOR_USERS)[0]) => {
+    dispatch(login(demoEntryToAuthUser(user)))
     notify.success(`Welcome, ${user.name}`)
     navigate(getDefaultDashboard(user.role))
+  }
+
+  const handleDoctorContinue = () => {
+    const doc = DEMO_DOCTOR_USERS.find((d) => d.id === selectedDoctorId)
+    if (!doc) {
+      notify.error('Select a doctor.')
+      return
+    }
+    handleLogin(doc)
   }
 
   return (
@@ -76,17 +76,17 @@ export default function Login() {
               Sign in to your workspace
             </h1>
             <p className="mt-3 text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-md mx-auto leading-relaxed">
-              Select your role. No password required.
+              Choose staff by role, or pick your name under Doctor. No password required.
             </p>
           </div>
 
           <div className="rounded-[1.75rem] border border-slate-200/70 dark:border-slate-700/70 bg-white/50 dark:bg-slate-900/45 backdrop-blur-xl p-5 sm:p-8 shadow-xl shadow-slate-300/25 dark:shadow-black/40 ring-1 ring-white/70 dark:ring-slate-600/25">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-            {demoUsers.map((user) => {
+            {DEMO_STAFF_USERS.map((user) => {
               const RoleIcon = roleIcons[user.role]
               return (
                 <button
-                  key={user.role}
+                  key={user.id}
                   type="button"
                   onClick={() => handleLogin(user)}
                   className="group text-left rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/75 dark:bg-slate-900/50 backdrop-blur-md p-6 shadow-sm shadow-slate-200/40 dark:shadow-none ring-1 ring-slate-200/50 dark:ring-slate-700/50 transition-all duration-300 hover:shadow-xl hover:shadow-sky-500/10 hover:ring-sky-200/60 dark:hover:ring-sky-500/30 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
@@ -109,6 +109,49 @@ export default function Login() {
                 </button>
               )
             })}
+
+            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/75 dark:bg-slate-900/50 backdrop-blur-md p-6 shadow-sm shadow-slate-200/40 dark:shadow-none ring-1 ring-slate-200/50 dark:ring-slate-700/50 sm:col-span-2">
+              <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6">
+                <div className="flex items-start gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500/10 to-sky-600/5 dark:from-sky-500/20 dark:to-sky-600/10 flex items-center justify-center text-sky-600 dark:text-sky-400 ring-1 ring-sky-200/50 dark:ring-sky-500/20">
+                    <Stethoscope className="h-6 w-6" aria-hidden />
+                  </div>
+                  <div className="pt-0.5 min-w-0">
+                    <div className="font-bold text-slate-900 dark:text-white text-base tracking-tight">
+                      {roleLabels.doctor}
+                    </div>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-medium">
+                      Select your name, then continue
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-1 flex-col sm:flex-row gap-3 sm:items-center sm:justify-end min-w-0">
+                  <label htmlFor="login-doctor-select" className="sr-only">
+                    Doctor name
+                  </label>
+                  <select
+                    id="login-doctor-select"
+                    value={selectedDoctorId}
+                    onChange={(e) => setSelectedDoctorId(e.target.value)}
+                    className="w-full sm:max-w-md rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900/80 px-3 py-2.5 text-sm font-medium text-slate-900 dark:text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+                  >
+                    {DEFAULT_SCHEDULE_DOCTORS.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.name} — {d.department}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={handleDoctorContinue}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-sky-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 transition-colors shrink-0"
+                  >
+                    Continue
+                    <ArrowRight className="h-4 w-4" aria-hidden />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
           </div>
 

@@ -11,17 +11,7 @@ import { setTheme, toggleSidebar } from '../features/ui/uiSlice'
 import type { RootState } from '../app/store'
 import { notify } from '../lib/notify'
 import MediCareLogo, { MediCareWordmark } from '../components/brand/MediCareLogo'
-
-const DEMO_USERS: Array<{ role: AuthUser['role']; name: string; id: string; avatar: string }> = [
-  { role: 'admin', name: 'Admin User', id: 'ADM001', avatar: '' },
-  { role: 'doctor', name: 'Dr. Vihang', id: 'DOC001', avatar: '' },
-  { role: 'receptionist', name: 'Riya Patel', id: 'REC001', avatar: '' },
-  { role: 'nurse', name: 'Meena Patel', id: 'NUR001', avatar: '' },
-]
-
-function toAuthUser(u: (typeof DEMO_USERS)[0]): AuthUser {
-  return { id: u.id, role: u.role, name: u.name, avatar: u.avatar }
-}
+import { ALL_DEMO_LOGIN_ENTRIES, demoEntryToAuthUser, type DemoLoginEntry } from '../config/demoAccounts'
 
 /** Human-readable role for the menu (neutral copy, no loud badge colors). */
 const ROLE_DISPLAY: Record<AuthUser['role'], string> = {
@@ -48,8 +38,8 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const handleSwitchAccount = (u: (typeof DEMO_USERS)[0]) => {
-    dispatch(login(toAuthUser(u)))
+  const handleSwitchAccount = (u: DemoLoginEntry) => {
+    dispatch(login(demoEntryToAuthUser(u)))
     setDropdownOpen(false)
     notify.success(`Switched to ${u.name}`)
     setTimeout(() => navigate(getDefaultDashboard(u.role)), 0)
@@ -150,7 +140,7 @@ export default function Navbar() {
                     Switch account
                   </p>
                   <div className="max-h-52 overflow-auto px-0.5 pb-1">
-                    {DEMO_USERS.map((u) => (
+                    {ALL_DEMO_LOGIN_ENTRIES.map((u) => (
                       <button
                         key={u.id}
                         type="button"
@@ -188,14 +178,7 @@ export default function Navbar() {
               )}
             </div>
           </>
-        ) : (
-          <Link
-            to="/login"
-            className="ml-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 text-white shadow-lg shadow-sky-500/25 transition-all duration-200"
-          >
-            Log in
-          </Link>
-        )}
+        ) : <></>}
       </div>
     </header>
   )
