@@ -16,6 +16,7 @@ import type { AppDispatch, RootState } from '../../app/store'
 import { notify } from '../../lib/notify'
 import { useModalScrollLock } from '../../hooks/useModalScrollLock'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../components/ui/modalOverlayClasses'
+import { ModalPortal } from '../../components/ui/ModalPortal'
 import type { Bed, BedStatus, WardDefinition } from './bedSlice'
 import {
   addBedToWard,
@@ -93,9 +94,15 @@ export interface BedGridProps {
   showWardSummary?: boolean
   /** Add / rename / remove wards (full bed pages only; hide on compact dashboard embed). */
   showWardManagement?: boolean
+  /** Per-ward "Add bed" control (hide on nurse dashboard; full bed pages usually keep true). */
+  showAddBed?: boolean
 }
 
-export default function BedGrid({ showWardSummary = true, showWardManagement = false }: BedGridProps) {
+export default function BedGrid({
+  showWardSummary = true,
+  showWardManagement = false,
+  showAddBed = true,
+}: BedGridProps) {
   const dispatch = useDispatch<AppDispatch>()
   const { beds, wardSummary, wards } = useSelector((state: RootState) => state.beds)
   const [activeBedId, setActiveBedId] = useState<string | null>(null)
@@ -314,14 +321,16 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
                     </span>
                   </span>
                 </h3>
-                <button
-                  type="button"
-                  onClick={() => addBedInWard(wardId, wardName)}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-teal-700 dark:text-white bg-teal-500/10 hover:bg-teal-500/15 border border-teal-200/60 dark:border-teal-800/50 transition-colors shrink-0"
-                >
-                  <Plus className="h-3.5 w-3.5" aria-hidden />
-                  Add bed
-                </button>
+                {showAddBed && (
+                  <button
+                    type="button"
+                    onClick={() => addBedInWard(wardId, wardName)}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-teal-700 dark:text-white bg-teal-500/10 hover:bg-teal-500/15 border border-teal-200/60 dark:border-teal-800/50 transition-colors shrink-0"
+                  >
+                    <Plus className="h-3.5 w-3.5" aria-hidden />
+                    Add bed
+                  </button>
+                )}
               </div>
               {isDropTarget && (
                 <p className="mb-3 text-xs font-medium text-teal-700 dark:text-white flex items-center gap-1.5">
@@ -393,6 +402,7 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
       </div>
 
       {activeBed && (
+        <ModalPortal>
         <div className={modalFixedRoot('z-50')} role="dialog" aria-modal="true" aria-labelledby="bed-panel-title">
           <div className={modalFixedInner}>
             <button type="button" className={modalBackdropDim} aria-label="Close bed panel" onClick={closePanel} />
@@ -531,6 +541,7 @@ export default function BedGrid({ showWardSummary = true, showWardManagement = f
             </div>
           </div>
         </div>
+        </ModalPortal>
       )}
     </div>
   )

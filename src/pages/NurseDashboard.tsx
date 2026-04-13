@@ -131,7 +131,7 @@ export default function NurseDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-white mb-3">Ward bed status grid</h2>
-          <BedGrid showWardSummary={false} showWardManagement={false} />
+          <BedGrid showWardSummary={false} showWardManagement={false} showAddBed={false} />
         </div>
         <DashboardCard title="Recent bed status changes">
           <ul className="space-y-2">

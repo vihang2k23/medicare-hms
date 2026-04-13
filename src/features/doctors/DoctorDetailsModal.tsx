@@ -1,6 +1,7 @@
 import { Briefcase, MapPin, Phone, User, X } from 'lucide-react'
 import { useModalScrollLock } from '../../hooks/useModalScrollLock'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../components/ui/modalOverlayClasses'
+import { ModalPortal } from '../../components/ui/ModalPortal'
 import type { AutocompleteDoctor } from './npiAutocompleteMap'
 
 export interface DoctorDetailsModalProps {
@@ -24,6 +25,7 @@ export default function DoctorDetailsModal({
   const d = selectedDoctor
 
   return (
+    <ModalPortal>
     <div className={modalFixedRoot('z-[100]')}>
       <div className={modalFixedInner}>
         <button type="button" className={modalBackdropDim} aria-label="Close" onClick={onClose} />
@@ -115,5 +117,6 @@ export default function DoctorDetailsModal({
         </div>
       </div>
     </div>
+    </ModalPortal>
   )
 }

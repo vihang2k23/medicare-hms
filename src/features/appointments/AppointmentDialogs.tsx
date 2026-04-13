@@ -6,6 +6,7 @@ import { fetchPatients } from '../../api/patientsApi'
 import { notify } from '../../lib/notify'
 import { useModalScrollLock } from '../../hooks/useModalScrollLock'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../components/ui/modalOverlayClasses'
+import { ModalPortal } from '../../components/ui/ModalPortal'
 import type { Appointment, ScheduleDoctor } from './types'
 import { generateDaySlots } from './slotUtils'
 
@@ -74,6 +75,7 @@ export function BookAppointmentModal({
   const dayLabel = format(parse(date, 'yyyy-MM-dd', new Date()), 'EEEE d MMM yyyy')
 
   return (
+    <ModalPortal>
     <div className={modalFixedRoot('z-50')} role="dialog" aria-modal="true" aria-labelledby="book-apt-title">
       <div className={modalFixedInner}>
         <button type="button" className={modalBackdropDim} aria-label="Close" onClick={onClose} />
@@ -157,6 +159,7 @@ export function BookAppointmentModal({
         </div>
       </div>
     </div>
+    </ModalPortal>
   )
 }
 
@@ -210,6 +213,7 @@ export function ManageAppointmentModal({
   }
 
   return (
+    <ModalPortal>
     <div className={modalFixedRoot('z-50')} role="dialog" aria-modal="true" aria-labelledby="manage-apt-title">
       <div className={modalFixedInner}>
         <button type="button" className={modalBackdropDim} aria-label="Close" onClick={onClose} />
@@ -302,5 +306,6 @@ export function ManageAppointmentModal({
         </div>
       </div>
     </div>
+    </ModalPortal>
   )
 }

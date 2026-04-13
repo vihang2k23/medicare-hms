@@ -3,6 +3,7 @@ import { Activity, Heart, Thermometer, Wind, X } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { useModalScrollLock } from '../../hooks/useModalScrollLock'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../ui/modalOverlayClasses'
+import { ModalPortal } from '../ui/ModalPortal'
 import { createVital } from '../../api/vitalsApi'
 import type { PatientRecord } from '../../types/patient'
 import { notify } from '../../lib/notify'
@@ -113,6 +114,7 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
   }
 
   return (
+    <ModalPortal>
     <div
       className={modalFixedRoot('z-[100]')}
       role="dialog"
@@ -253,5 +255,6 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
         </div>
       </div>
     </div>
+    </ModalPortal>
   )
 }

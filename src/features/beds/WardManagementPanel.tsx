@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { useModalScrollLock } from '../../hooks/useModalScrollLock'
 import { modalBackdropDimStrong, modalFixedInner, modalFixedRoot } from '../../components/ui/modalOverlayClasses'
+import { ModalPortal } from '../../components/ui/ModalPortal'
 import { useDispatch, useSelector } from 'react-redux'
 import { Building2, Layers, Pencil, Plus, Shield, Trash2, X } from 'lucide-react'
 import type { AppDispatch, RootState } from '../../app/store'
@@ -24,6 +25,7 @@ function ModalShell({
   footer: ReactNode
 }) {
   return (
+    <ModalPortal>
     <div className={modalFixedRoot('z-[60]')} role="dialog" aria-modal="true" aria-labelledby="ward-modal-title">
       <div className={modalFixedInner}>
         <button type="button" className={modalBackdropDimStrong} aria-label="Close dialog" onClick={onClose} />
@@ -60,6 +62,7 @@ function ModalShell({
         </div>
       </div>
     </div>
+    </ModalPortal>
   )
 }
 

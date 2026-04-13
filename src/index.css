@@ -36,6 +36,26 @@
   html.dark {
     color: #ffffff;
   }
+
+  /* Hand cursor on links and buttons app-wide (Router <Link> → <a>). */
+  a,
+  button,
+  [role='button'],
+  input[type='button'],
+  input[type='submit'],
+  input[type='reset'] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  button[aria-disabled='true'],
+  a[aria-disabled='true'],
+  [role='button'][aria-disabled='true'],
+  input[type='button']:disabled,
+  input[type='submit']:disabled,
+  input[type='reset']:disabled {
+    cursor: not-allowed;
+  }
 }
 
 /* Recharts tick labels / legend — axis props often set a gray stroke; force white text in dark mode. */
@@ -48,6 +68,20 @@
   }
   .dark .recharts-label {
     fill: #ffffff !important;
+  }
+
+  /*
+   * Recharts sets tabIndex on the SVG surface and pie <g> layers for a11y; clicking
+   * focuses them and the browser draws a default outline (often black). Remove it —
+   * keyboard users rarely rely on this ring on raw chart geometry.
+   */
+  .recharts-wrapper:focus,
+  .recharts-wrapper:focus-visible,
+  .recharts-surface:focus,
+  .recharts-surface:focus-visible,
+  .recharts-layer:focus,
+  .recharts-layer:focus-visible {
+    outline: none;
   }
 }
 

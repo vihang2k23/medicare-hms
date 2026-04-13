@@ -3,12 +3,15 @@ export function modalFixedRoot(zClass: string) {
   return `fixed inset-0 ${zClass} overflow-y-auto overscroll-y-contain`
 }
 
-/** Centers dialog vertically when it fits; stretches to at least viewport height for scroll. */
+/**
+ * At least one dynamic viewport tall so flex centering is true vertical center (not stuck to bottom).
+ * Use with ModalPortal → body for reliable placement under app layout scroll/transform.
+ */
 export const modalFixedInner =
-  'relative flex min-h-full w-full items-center justify-center p-4 py-10 sm:p-6 sm:py-12'
+  'relative box-border flex min-h-[100dvh] w-full max-w-full items-center justify-center px-4 py-8 sm:px-6 sm:py-12'
 
 /** Full-bleed dim layer behind the panel (inside scrollable column). */
-export const modalBackdropDim = 'absolute inset-0 min-h-full w-full bg-slate-950/50 backdrop-blur-sm'
+export const modalBackdropDim = 'absolute inset-0 min-h-full min-w-full bg-slate-950/50 backdrop-blur-sm'
 
 export const modalBackdropDimStrong =
-  'absolute inset-0 min-h-full w-full bg-slate-950/60 backdrop-blur-[2px]'
+  'absolute inset-0 min-h-full min-w-full bg-slate-950/60 backdrop-blur-[2px]'
