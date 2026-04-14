@@ -20,8 +20,13 @@ interface BookModalProps {
   onConfirm: (patient: PatientRecord, reason: string, notes: string) => void
 }
 
-export function BookAppointmentModal({
-  open,
+export function BookAppointmentModal(props: BookModalProps) {
+  useModalScrollLock(props.open)
+  if (!props.open) return null
+  return <BookAppointmentModalOpen {...props} />
+}
+
+function BookAppointmentModalOpen({
   onClose,
   doctor,
   date,
@@ -29,20 +34,14 @@ export function BookAppointmentModal({
   slotEnd,
   onConfirm,
 }: BookModalProps) {
-  useModalScrollLock(open)
   const [patients, setPatients] = useState<PatientRecord[]>([])
   const [patientId, setPatientId] = useState('')
   const [reason, setReason] = useState('')
   const [notes, setNotes] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!open) return
-    setPatientId('')
-    setReason('')
-    setNotes('')
     let cancelled = false
-    setLoading(true)
     fetchPatients()
       .then((list) => {
         if (!cancelled) setPatients(list)
@@ -57,9 +56,7 @@ export function BookAppointmentModal({
     return () => {
       cancelled = true
     }
-  }, [open])
-
-  if (!open) return null
+  }, [])
 
   const selected = patients.find((p) => p.id === patientId)
 
@@ -172,24 +169,30 @@ interface ManageModalProps {
   onCancel: () => void
 }
 
-export function ManageAppointmentModal({
-  open,
+export function ManageAppointmentModal({ open, onClose, appointment, doctor, onReschedule, onCancel }: ManageModalProps) {
+  useModalScrollLock(open)
+  if (!open || !appointment) return null
+  return (
+    <ManageAppointmentModalContent
+      key={`${appointment.id}-${appointment.date}-${appointment.slotStart}-${appointment.slotEnd}`}
+      onClose={onClose}
+      appointment={appointment}
+      doctor={doctor}
+      onReschedule={onReschedule}
+      onCancel={onCancel}
+    />
+  )
+}
+
+function ManageAppointmentModalContent({
   onClose,
   appointment,
   doctor,
   onReschedule,
   onCancel,
-}: ManageModalProps) {
-  useModalScrollLock(open)
-  const [newDate, setNewDate] = useState('')
-  const [newSlot, setNewSlot] = useState('')
-
-  useEffect(() => {
-    if (appointment) {
-      setNewDate(appointment.date)
-      setNewSlot(`${appointment.slotStart}|${appointment.slotEnd}`)
-    }
-  }, [appointment])
+}: Omit<ManageModalProps, 'open' | 'appointment'> & { appointment: Appointment }) {
+  const [newDate, setNewDate] = useState(appointment.date)
+  const [newSlot, setNewSlot] = useState(`${appointment.slotStart}|${appointment.slotEnd}`)
 
   const slotOptions = useMemo(() => {
     if (!newDate) return []
@@ -199,8 +202,6 @@ export function ManageAppointmentModal({
       label: `${s.startStr} – ${s.endStr}`,
     }))
   }, [newDate, doctor])
-
-  if (!open || !appointment) return null
 
   const applyReschedule = () => {
     const [start, end] = newSlot.split('|')

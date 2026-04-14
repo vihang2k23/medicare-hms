@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from 'lucide-react'
 import type { VitalRecord } from '../../types/vitals'
@@ -12,43 +12,43 @@ function bp(v: VitalRecord): string {
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50] as const
 
-export default function VitalsHistoryList({
-  rows,
-  emptyLabel,
-  listKey,
-}: {
+type VitalsHistoryListProps = {
   rows: VitalRecord[]
   emptyLabel?: string
-  /** When this changes (e.g. patient id), pagination resets to page 1. */
+  /** When this changes (e.g. patient id), list state resets via remount. */
   listKey?: string
-}) {
+}
+
+export default function VitalsHistoryList({ listKey, ...rest }: VitalsHistoryListProps) {
+  return <VitalsHistoryListInner key={listKey ?? '__all__'} {...rest} />
+}
+
+function VitalsHistoryListInner({ rows, emptyLabel }: Omit<VitalsHistoryListProps, 'listKey'>) {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZE_OPTIONS)[number]>(10)
 
   const total = rows.length
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
+  const safePage = Math.min(Math.max(1, page), totalPages)
 
   const paginatedRows = useMemo(() => {
-    const start = (page - 1) * pageSize
+    const start = (safePage - 1) * pageSize
     return rows.slice(start, start + pageSize)
-  }, [rows, page, pageSize])
+  }, [rows, safePage, pageSize])
 
-  const rangeStart = total === 0 ? 0 : (page - 1) * pageSize + 1
-  const rangeEnd = Math.min(page * pageSize, total)
+  const rangeStart = total === 0 ? 0 : (safePage - 1) * pageSize + 1
+  const rangeEnd = Math.min(safePage * pageSize, total)
 
-  useEffect(() => {
-    setPage(1)
+  const goPrev = () => {
     setExpandedId(null)
-  }, [listKey])
+    setPage(Math.max(1, safePage - 1))
+  }
 
-  useEffect(() => {
-    setPage((p) => Math.min(Math.max(1, p), totalPages))
-  }, [totalPages])
-
-  useEffect(() => {
+  const goNext = () => {
     setExpandedId(null)
-  }, [page, pageSize])
+    setPage(Math.min(totalPages, safePage + 1))
+  }
 
   if (rows.length === 0) {
     return (
@@ -156,6 +156,7 @@ export default function VitalsHistoryList({
             <select
               value={pageSize}
               onChange={(e) => {
+                setExpandedId(null)
                 setPageSize(Number(e.target.value) as (typeof PAGE_SIZE_OPTIONS)[number])
                 setPage(1)
               }}
@@ -171,8 +172,8 @@ export default function VitalsHistoryList({
           <div className="flex items-center gap-1">
             <button
               type="button"
-              disabled={page <= 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={safePage <= 1}
+              onClick={goPrev}
               className="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-600 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-white hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none"
               aria-label="Previous page"
             >
@@ -180,12 +181,12 @@ export default function VitalsHistoryList({
               Prev
             </button>
             <span className="text-xs font-medium text-slate-600 dark:text-white tabular-nums px-2 min-w-[6.5rem] text-center">
-              Page {page} / {totalPages}
+              Page {safePage} / {totalPages}
             </span>
             <button
               type="button"
-              disabled={page >= totalPages}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={safePage >= totalPages}
+              onClick={goNext}
               className="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-600 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-white hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none"
               aria-label="Next page"
             >

@@ -17,7 +17,7 @@ export default function DoctorDashboard() {
     start.setHours(0, 0, 0, 0)
     const t0 = start.getTime()
     return prescriptions.filter((p) => p.doctorId === user.id && p.createdAt >= t0).length
-  }, [prescriptions, user?.id])
+  }, [prescriptions, user])
 
   return (
     <div className="space-y-8">

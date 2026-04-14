@@ -69,7 +69,7 @@ export default function PrescriptionPrintPage({ variant }: PrescriptionPrintPage
     return () => {
       cancelled = true
     }
-  }, [rx?.patientId])
+  }, [rx])
 
   const doctorProfile = useMemo(
     () => (rx ? doctors.find((d) => d.id === rx.doctorId) : undefined),

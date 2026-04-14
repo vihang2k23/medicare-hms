@@ -93,11 +93,6 @@ const queueSlice = createSlice({
       const nonWaiting = without.filter((t) => t.status !== 'waiting')
       const tokens = [...nonWaiting, ...waitingOthers, requeued]
       const waitings = tokens.filter((t) => t.status === 'waiting')
-      if (waitings.length === 0) {
-        state.queue = tokens
-        state.currentToken = null
-        return
-      }
       if (waitings.length === 1 && waitings[0].tokenId === skippedId) {
         state.queue = tokens
         state.currentToken = null

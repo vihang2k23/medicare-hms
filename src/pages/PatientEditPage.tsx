@@ -5,18 +5,29 @@ import { fetchPatientById } from '../api/patientsApi'
 import PatientRegistrationForm from '../features/patients/PatientRegistrationForm'
 
 export default function PatientEditPage() {
-  const { patientId } = useParams<{ patientId: string }>()
+  const { patientId: rawId } = useParams<{ patientId: string }>()
+  const patientId = rawId?.trim() ?? ''
+  if (!patientId) {
+    return (
+      <div className="space-y-4">
+        <Link to="/admin/patients" className="text-sm text-sky-600 dark:text-white hover:underline">
+          ← Back to patients
+        </Link>
+        <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm">
+          Missing patient id in the URL.
+        </div>
+      </div>
+    )
+  }
+  return <PatientEditLoaded key={patientId} patientId={patientId} />
+}
+
+function PatientEditLoaded({ patientId }: { patientId: string }) {
   const [patient, setPatient] = useState<PatientRecord | null | undefined>(undefined)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!patientId) {
-      setPatient(null)
-      return
-    }
     let cancelled = false
-    setError(null)
-    setPatient(undefined)
     void (async () => {
       try {
         const p = await fetchPatientById(patientId)

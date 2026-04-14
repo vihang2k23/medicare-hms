@@ -45,7 +45,24 @@ function aptSortKey(a: Appointment): number {
 }
 
 export default function DoctorPatientProfilePage() {
-  const { patientId } = useParams<{ patientId: string }>()
+  const { patientId: rawId } = useParams<{ patientId: string }>()
+  const patientId = rawId?.trim() ?? ''
+  if (!patientId) {
+    return (
+      <div className="space-y-4">
+        <Link to="/doctor/patients" className="text-sm text-emerald-600 dark:text-white hover:underline">
+          ← My patients
+        </Link>
+        <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-900 dark:text-white">
+          Missing patient id in the URL.
+        </div>
+      </div>
+    )
+  }
+  return <DoctorPatientProfileLoaded key={patientId} patientId={patientId} />
+}
+
+function DoctorPatientProfileLoaded({ patientId }: { patientId: string }) {
   const { user } = useAuth()
   const appointments = useSelector((s: RootState) => s.appointments.appointments)
   const prescriptions = useSelector((s: RootState) => s.prescriptions.prescriptions)
@@ -53,17 +70,15 @@ export default function DoctorPatientProfilePage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [patient, setPatient] = useState<PatientRecord | null | undefined>(undefined)
   const [error, setError] = useState<string | null>(null)
-  const [tab, setTab] = useState<Tab>(() => {
-    if (typeof window === 'undefined') return 'overview'
-    const t = new URLSearchParams(window.location.search).get('tab')
+  const tab = useMemo((): Tab => {
+    const t = searchParams.get('tab')
     return isTab(t) ? t : 'overview'
-  })
+  }, [searchParams])
   const [vitals, setVitals] = useState<VitalRecord[] | null>(null)
 
   const inCare = useMemo(() => {
-    if (!patientId) return false
     return isPatientInDoctorCare(user?.id, patientId, appointments, prescriptions)
-  }, [user?.id, patientId, appointments, prescriptions])
+  }, [user, patientId, appointments, prescriptions])
 
   const scheduleDoctorId = scheduleDoctorIdForAuthUser(user?.id)
 
@@ -75,20 +90,14 @@ export default function DoctorPatientProfilePage() {
   }, [appointments, patientId, scheduleDoctorId])
 
   const myPrescriptions = useMemo(() => {
-    if (!patientId || !user?.id) return []
+    if (!user?.id) return []
     return prescriptions
       .filter((r) => r.patientId === patientId && r.doctorId === user.id)
       .sort((a, b) => b.createdAt - a.createdAt)
-  }, [prescriptions, patientId, user?.id])
+  }, [prescriptions, patientId, user])
 
   useEffect(() => {
-    if (!patientId) {
-      setPatient(null)
-      return
-    }
     let cancelled = false
-    setError(null)
-    setPatient(undefined)
     void (async () => {
       try {
         const p = await fetchPatientById(patientId)
@@ -106,9 +115,8 @@ export default function DoctorPatientProfilePage() {
   }, [patientId])
 
   useEffect(() => {
-    if (!patientId || tab !== 'vitals') return
+    if (tab !== 'vitals') return
     let cancelled = false
-    setVitals(null)
     void (async () => {
       try {
         const rows = await fetchVitalsByPatientId(patientId)
@@ -122,13 +130,7 @@ export default function DoctorPatientProfilePage() {
     }
   }, [patientId, tab])
 
-  useEffect(() => {
-    const t = searchParams.get('tab')
-    if (isTab(t)) setTab(t)
-  }, [searchParams])
-
   const setTabInUrl = (id: Tab) => {
-    setTab(id)
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev)

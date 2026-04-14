@@ -20,10 +20,7 @@ export default function DrugRecallSummaryCard() {
   const [error, setError] = useState<string | null>(null)
   const [rows, setRows] = useState<{ name: string; count: number }[]>([])
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    const { byClass, error: apiError } = await fetchRecallCountsByDrugClass({ limit: 200 })
+  const applyResult = useCallback((byClass: { name: string; count: number }[], apiError: string | null | undefined) => {
     if (apiError || byClass.length === 0) {
       setRows(DEMO_RECALL_BY_CLASS)
       if (apiError) setError(apiError)
@@ -34,15 +31,32 @@ export default function DrugRecallSummaryCard() {
   }, [])
 
   useEffect(() => {
-    void load()
-  }, [load])
+    let cancelled = false
+    void (async () => {
+      const { byClass, error: apiError } = await fetchRecallCountsByDrugClass({ limit: 200 })
+      if (cancelled) return
+      applyResult(byClass, apiError)
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [applyResult])
+
+  const refresh = useCallback(() => {
+    setLoading(true)
+    setError(null)
+    void (async () => {
+      const { byClass, error: apiError } = await fetchRecallCountsByDrugClass({ limit: 200 })
+      applyResult(byClass, apiError)
+    })()
+  }, [applyResult])
 
   return (
     <DashboardCard title="Drug recall summary (OpenFDA enforcement)">
       <div className="no-print-report flex flex-wrap items-center justify-end gap-2 mb-3">
         <button
           type="button"
-          onClick={() => void load()}
+          onClick={() => void refresh()}
           disabled={loading}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 text-xs font-semibold text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50"
         >

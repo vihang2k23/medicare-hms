@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Activity, CheckCircle2, CircleDashed, Clock, SkipForward, Timer, Users } from 'lucide-react'
 import type { RootState } from '../../app/store'
@@ -8,13 +8,18 @@ export default function QueueAnalytics() {
   const queue = useSelector((s: RootState) => s.queue.queue)
   const servedToday = useSelector((s: RootState) => s.queue.servedToday)
   const currentToken = useSelector((s: RootState) => s.queue.currentToken)
+  const [now, setNow] = useState(() => Date.now())
+
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 30_000)
+    return () => window.clearInterval(id)
+  }, [])
 
   const { stats, avgWaitMinSim, longestWaitMinSim } = useMemo(() => {
     let waiting = 0
     let inProgress = 0
     let done = 0
     let skipped = 0
-    const now = Date.now()
     let longestMs = 0
     let waitSumMs = 0
     let waitCount = 0
@@ -34,16 +39,14 @@ export default function QueueAnalytics() {
       } else if (t.status === 'done') done += 1
       else skipped += 1
     }
-    const avgWaitMinSim =
-      waitCount === 0 ? null : Math.max(1, Math.round(waitSumMs / waitCount / 60000) + Math.round(Math.random() * 3))
-    const longestWaitMinSim =
-      longestMs === 0 ? null : Math.max(1, Math.round(longestMs / 60000) + Math.round(Math.random() * 2))
+    const avgWaitMinSim = waitCount === 0 ? null : Math.max(1, Math.round(waitSumMs / waitCount / 60000))
+    const longestWaitMinSim = longestMs === 0 ? null : Math.max(1, Math.round(longestMs / 60000))
     return {
       stats: { waiting, inProgress, done, skipped, total: queue.length },
       avgWaitMinSim,
       longestWaitMinSim,
     }
-  }, [queue])
+  }, [queue, now])
 
   const cards = [
     {
@@ -110,7 +113,7 @@ export default function QueueAnalytics() {
           <Clock className="h-5 w-5 text-violet-500 shrink-0 mt-0.5" aria-hidden />
           <div>
             <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white">
-              Avg wait (simulated)
+              Avg wait (live estimate)
             </p>
             <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">
               {avgWaitMinSim == null ? '—' : `${avgWaitMinSim} min`}
@@ -121,7 +124,7 @@ export default function QueueAnalytics() {
           <Timer className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" aria-hidden />
           <div>
             <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white">
-              Longest wait (simulated)
+              Longest active wait
             </p>
             <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">
               {longestWaitMinSim == null ? '—' : `${longestWaitMinSim} min`}

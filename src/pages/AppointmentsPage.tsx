@@ -32,11 +32,8 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
 
   const lockedDoctorId = variant === 'doctor' ? scheduleDoctorIdForAuthUser(user?.id) : null
   const [weekStart, setWeekStart] = useState(() => startOfWeekMonday(new Date()))
-  const [doctorId, setDoctorId] = useState(() => lockedDoctorId ?? doctors[0]?.id ?? '')
-
-  useEffect(() => {
-    if (lockedDoctorId) setDoctorId(lockedDoctorId)
-  }, [lockedDoctorId])
+  const [pickedDoctorId, setPickedDoctorId] = useState('')
+  const doctorId = lockedDoctorId ?? (pickedDoctorId || doctors[0]?.id || '')
 
   useEffect(() => {
     document.documentElement.classList.add('appointments-print-route')
@@ -228,7 +225,7 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
               <select
                 id="appt-doctor"
                 value={doctorId}
-                onChange={(e) => setDoctorId(e.target.value)}
+                onChange={(e) => setPickedDoctorId(e.target.value)}
                 className="w-full sm:w-auto sm:min-w-[12rem] px-3 py-2 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
               >
                 {doctors.map((d) => (
