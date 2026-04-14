@@ -1,7 +1,7 @@
 import { Briefcase, MapPin, Phone, User, X } from 'lucide-react'
-import { useModalScrollLock } from '../../hooks/useModalScrollLock'
-import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../components/ui/modalOverlayClasses'
-import { ModalPortal } from '../../components/ui/ModalPortal'
+import { useModalScrollLock } from '../../shared/hooks/useModalScrollLock'
+import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../shared/ui/modalOverlayClasses'
+import { ModalPortal } from '../../shared/ui/ModalPortal'
 import type { AutocompleteDoctor } from './npiAutocompleteMap'
 
 export interface DoctorDetailsModalProps {

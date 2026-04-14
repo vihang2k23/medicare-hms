@@ -1,13 +1,13 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Activity, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Loader2, Search } from 'lucide-react'
-import { fetchPatients } from '../api/patientsApi'
-import { fetchAllVitals } from '../api/vitalsApi'
-import type { PatientRecord } from '../types/patient'
-import type { VitalRecord } from '../types/vitals'
-import { notify } from '../lib/notify'
-import DashboardCard from '../components/ui/DashboardCard'
-import VitalsRecordModal from '../components/vitals/VitalsRecordModal'
+import { fetchPatients } from '../shared/api/patientsApi'
+import { fetchAllVitals } from '../shared/api/vitalsApi'
+import type { PatientRecord } from '../shared/types/patient'
+import type { VitalRecord } from '../shared/types/vitals'
+import { notify } from '../shared/lib/notify'
+import DashboardCard from '../shared/ui/DashboardCard'
+import VitalsRecordModal from '../features/vitals/VitalsRecordModal'
 
 function patientInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean)

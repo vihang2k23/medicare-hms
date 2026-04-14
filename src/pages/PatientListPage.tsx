@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import type { PatientRecord } from '../types/patient'
+import type { PatientRecord } from '../shared/types/patient'
 import {
   ChevronLeft,
   ChevronRight,
@@ -9,10 +9,10 @@ import {
   UserPlus,
   Users,
 } from 'lucide-react'
-import { fetchPatients, softDeletePatient } from '../api/patientsApi'
-import { notify } from '../lib/notify'
-import DashboardCard from '../components/ui/DashboardCard.tsx'
-import { SearchFilterCombobox } from '../components/ui/SearchWithDropdown.tsx'
+import { fetchPatients, softDeletePatient } from '../shared/api/patientsApi'
+import { notify } from '../shared/lib/notify'
+import DashboardCard from '../shared/ui/DashboardCard'
+import { SearchFilterCombobox } from '../shared/ui/SearchWithDropdown'
 
 const PAGE_SIZE = 10
 

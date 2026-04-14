@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import type { Role } from '../../config/roles'
+import type { Role } from '../../shared/config/roles'
 
 /** Stored in LocalStorage and Redux: { role, name, id, avatar } */
 export interface AuthUser {

@@ -13,10 +13,10 @@ import {
   X,
 } from 'lucide-react'
 import type { AppDispatch, RootState } from '../../app/store'
-import { notify } from '../../lib/notify'
-import { useModalScrollLock } from '../../hooks/useModalScrollLock'
-import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../components/ui/modalOverlayClasses'
-import { ModalPortal } from '../../components/ui/ModalPortal'
+import { notify } from '../../shared/lib/notify'
+import { useModalScrollLock } from '../../shared/hooks/useModalScrollLock'
+import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../shared/ui/modalOverlayClasses'
+import { ModalPortal } from '../../shared/ui/ModalPortal'
 import type { Bed, BedStatus, WardDefinition } from './bedSlice'
 import {
   addBedToWard,

@@ -3,11 +3,11 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { ArrowLeft, Printer } from 'lucide-react'
 import type { RootState } from '../app/store'
-import { useAuth } from '../hooks/useAuth'
-import { fetchPatientById } from '../api/patientsApi'
-import MediCareLogo from '../components/brand/MediCareLogo'
-import { MedicarePrintPageFooter, MedicarePrintPageHeader } from '../components/print/MedicarePrintChrome'
-import type { PatientRecord } from '../types/patient'
+import { useAuth } from '../shared/hooks/useAuth'
+import { fetchPatientById } from '../shared/api/patientsApi'
+import MediCareLogo from '../shared/ui/brand/MediCareLogo'
+import { MedicarePrintPageFooter, MedicarePrintPageHeader } from '../shared/ui/print/MedicarePrintChrome'
+import type { PatientRecord } from '../shared/types/patient'
 
 function formatRxDate(ts: number) {
   return new Date(ts).toLocaleString(undefined, {

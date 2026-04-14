@@ -18,10 +18,10 @@ import {
   YAxis,
 } from 'recharts'
 import type { RootState } from '../app/store'
-import DashboardCard from '../components/ui/DashboardCard'
-import StatCard from '../components/ui/StatCard'
+import DashboardCard from '../shared/ui/DashboardCard'
+import StatCard from '../shared/ui/StatCard'
 import { formatOpdTokenLabel } from '../features/queue/queueSlice'
-import { OPD_DEPARTMENTS } from '../config/departments'
+import { OPD_DEPARTMENTS } from '../shared/config/departments'
 import DrugRecallSummaryCard from '../features/reports/DrugRecallSummaryCard'
 import {
   buildAppointmentOutcomeCounts,
@@ -31,9 +31,9 @@ import {
   buildSimulatedBedOccupancySeries,
   buildSimulatedRevenueByDepartment,
 } from '../features/reports/reportsAnalyticsData'
-import { fetchAllPatients } from '../api/patientsApi'
-import { downloadCsv } from '../lib/csvExport'
-import { MedicarePrintPageFooter, MedicarePrintPageHeader } from '../components/print/MedicarePrintChrome'
+import { fetchAllPatients } from '../shared/api/patientsApi'
+import { downloadCsv } from '../shared/lib/csvExport'
+import { MedicarePrintPageFooter, MedicarePrintPageHeader } from '../shared/ui/print/MedicarePrintChrome'
 import { BedDouble, Calendar, Download, FileText, ListOrdered, Printer, Stethoscope, Users } from 'lucide-react'
 
 const BED_STATUS_COLORS = {

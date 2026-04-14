@@ -16,33 +16,33 @@ import {
   X,
 } from 'lucide-react'
 import type { AppDispatch } from '../app/store'
-import { NPI_ADDRESS_PURPOSE_OPTIONS } from '../config/npiAddressPurpose'
-import { NPI_COUNTRY_OPTIONS } from '../config/npiCountries'
-import { getNpiRegionOptionsForCountry } from '../config/npiRegionOptions'
-import { NPI_TAXONOMY_FILTERS } from '../config/npiTaxonomies'
-import { NPI_TYPE_OPTIONS } from '../config/npiTypeOptions'
+import { NPI_ADDRESS_PURPOSE_OPTIONS } from '../shared/config/npiAddressPurpose'
+import { NPI_COUNTRY_OPTIONS } from '../shared/config/npiCountries'
+import { getNpiRegionOptionsForCountry } from '../shared/config/npiRegionOptions'
+import { NPI_TAXONOMY_FILTERS } from '../shared/config/npiTaxonomies'
+import { NPI_TYPE_OPTIONS } from '../shared/config/npiTypeOptions'
 import {
   createInternalDoctor,
   deleteInternalDoctor,
   fetchInternalDoctors,
   findInternalDoctorByNpi,
-} from '../api/internalDoctorsApi'
-import type { NpiProviderCard, NpiRawResult, NpiSearchParams } from '../lib/npiRegistryApi'
-import { npiCardToInternalRecord, searchNpiRegistry } from '../lib/npiRegistryApi'
+} from '../shared/api/internalDoctorsApi'
+import type { NpiProviderCard, NpiRawResult, NpiSearchParams } from '../shared/lib/npiRegistryApi'
+import { npiCardToInternalRecord, searchNpiRegistry } from '../shared/lib/npiRegistryApi'
 import {
   formatInternalDoctorScheduleSummary,
   internalRecordToScheduleDoctor,
   type InternalDoctorRecord,
-} from '../types/internalDoctor'
+} from '../shared/types/internalDoctor'
 import {
   addImportedScheduleDoctor,
   removeImportedScheduleDoctor,
   setImportedScheduleDoctors,
 } from '../features/appointments/appointmentsSlice'
-import { notify } from '../lib/notify'
-import { useModalScrollLock } from '../hooks/useModalScrollLock'
-import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../components/ui/modalOverlayClasses'
-import InternalDoctorScheduleModal from '../components/InternalDoctorScheduleModal'
+import { notify } from '../shared/lib/notify'
+import { useModalScrollLock } from '../shared/hooks/useModalScrollLock'
+import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../shared/ui/modalOverlayClasses'
+import InternalDoctorScheduleModal from '../shared/components/InternalDoctorScheduleModal'
 
 const PAGE_SIZE = 12
 const MAX_SKIP = 1000

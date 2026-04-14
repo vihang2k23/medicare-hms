@@ -1,5 +1,5 @@
-import type { NpiProviderCard, NpiRawResult } from '../../lib/npiRegistryApi'
-import { taxonomyToDepartment } from '../../lib/npiRegistryApi'
+import type { NpiProviderCard, NpiRawResult } from '../../shared/lib/npiRegistryApi'
+import { taxonomyToDepartment } from '../../shared/lib/npiRegistryApi'
 
 function pickPracticeAddress(addrs: NpiRawResult['addresses']) {
   if (!addrs?.length) return undefined

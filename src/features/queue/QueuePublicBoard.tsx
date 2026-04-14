@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { Building2, ChevronRight, Tv } from 'lucide-react'
 import type { RootState } from '../../app/store'
-import { OPD_DEPARTMENTS, type OpdDepartment } from '../../config/departments'
+import { OPD_DEPARTMENTS, type OpdDepartment } from '../../shared/config/departments'
 import { formatOpdTokenLabel } from './queueSlice'
 import type { OpdQueueToken } from './opdQueueTypes'
 

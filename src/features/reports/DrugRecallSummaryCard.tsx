@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AlertTriangle, Loader2, RefreshCw } from 'lucide-react'
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import DashboardCard from '../../components/ui/DashboardCard'
-import { fetchRecallCountsByDrugClass } from '../../lib/openfdaEnforcementApi'
+import DashboardCard from '../../shared/ui/DashboardCard'
+import { fetchRecallCountsByDrugClass } from '../../shared/lib/openfdaEnforcementApi'
 
 const BAR_COLORS = ['#7c3aed', '#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6', '#64748b', '#ec4899']
 

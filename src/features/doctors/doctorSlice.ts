@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import type { NpiProviderCard } from '../../lib/npiRegistryApi'
-import { hasMinimumNpiSearchCriteria, searchNpiRegistry } from '../../lib/npiRegistryApi'
+import type { NpiProviderCard } from '../../shared/lib/npiRegistryApi'
+import { hasMinimumNpiSearchCriteria, searchNpiRegistry } from '../../shared/lib/npiRegistryApi'
 
 export interface SearchDoctorsArgs {
   firstName?: string

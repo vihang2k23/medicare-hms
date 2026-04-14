@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import type { PatientRecord } from '../types/patient'
-import { fetchPatientById } from '../api/patientsApi'
+import type { PatientRecord } from '../shared/types/patient'
+import { fetchPatientById } from '../shared/api/patientsApi'
 import PatientRegistrationForm from '../features/patients/PatientRegistrationForm'
 
 export default function PatientEditPage() {

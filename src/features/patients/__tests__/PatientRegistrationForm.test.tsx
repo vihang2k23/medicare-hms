@@ -1,9 +1,9 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { createPatient, updatePatient } from '../../../api/patientsApi'
-import { notify } from '../../../lib/notify'
-import type { PatientRecord } from '../../../types/patient'
+import { createPatient, updatePatient } from '../../../shared/api/patientsApi'
+import { notify } from '../../../shared/lib/notify'
+import type { PatientRecord } from '../../../shared/types/patient'
 import PatientRegistrationForm from '../PatientRegistrationForm'
 
 function fieldByName(name: string): HTMLElement {
@@ -12,12 +12,12 @@ function fieldByName(name: string): HTMLElement {
   return el as HTMLElement
 }
 
-jest.mock('../../../api/patientsApi', () => ({
+jest.mock('../../../shared/api/patientsApi', () => ({
   createPatient: jest.fn(() => Promise.resolve()),
   updatePatient: jest.fn(() => Promise.resolve()),
 }))
 
-jest.mock('../../../lib/notify', () => ({
+jest.mock('../../../shared/lib/notify', () => ({
   notify: { success: jest.fn(), error: jest.fn() },
 }))
 

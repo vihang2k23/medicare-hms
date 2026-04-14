@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { PatientRecord } from '../../types/patient'
+import type { PatientRecord } from '../../shared/types/patient'
 
 export const step1Schema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),

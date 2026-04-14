@@ -1,15 +1,15 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { Activity, ArrowLeft, Loader2, User } from 'lucide-react'
-import { fetchPatientById } from '../api/patientsApi'
-import { fetchVitalsByPatientId } from '../api/vitalsApi'
-import type { PatientRecord } from '../types/patient'
-import type { VitalRecord } from '../types/vitals'
-import { notify } from '../lib/notify'
-import VitalsHistoryList from '../components/vitals/VitalsHistoryList'
-import VitalsRecordModal from '../components/vitals/VitalsRecordModal'
+import { fetchPatientById } from '../shared/api/patientsApi'
+import { fetchVitalsByPatientId } from '../shared/api/vitalsApi'
+import type { PatientRecord } from '../shared/types/patient'
+import type { VitalRecord } from '../shared/types/vitals'
+import { notify } from '../shared/lib/notify'
+import VitalsHistoryList from '../features/vitals/VitalsHistoryList'
+import VitalsRecordModal from '../features/vitals/VitalsRecordModal'
 
-const VitalsTrendCharts = lazy(() => import('../components/vitals/VitalsTrendCharts'))
+const VitalsTrendCharts = lazy(() => import('../features/vitals/VitalsTrendCharts'))
 
 function patientInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean)

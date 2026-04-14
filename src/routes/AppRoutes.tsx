@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './ProtectedRoute'
-import MainLayout from '../layout/MainLayout'
+import MainLayout from '../layouts/MainLayout'
 import Login from '../pages/Login'
 import RedirectToDefault from '../pages/RedirectToDefault'
 import AdminDashboard from '../pages/AdminDashboard'

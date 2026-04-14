@@ -1,11 +1,11 @@
 import { useState, type ReactNode } from 'react'
-import { useModalScrollLock } from '../../hooks/useModalScrollLock'
-import { modalBackdropDimStrong, modalFixedInner, modalFixedRoot } from '../../components/ui/modalOverlayClasses'
-import { ModalPortal } from '../../components/ui/ModalPortal'
+import { useModalScrollLock } from '../../shared/hooks/useModalScrollLock'
+import { modalBackdropDimStrong, modalFixedInner, modalFixedRoot } from '../../shared/ui/modalOverlayClasses'
+import { ModalPortal } from '../../shared/ui/ModalPortal'
 import { useDispatch, useSelector } from 'react-redux'
 import { Building2, Layers, Pencil, Plus, Shield, Trash2, X } from 'lucide-react'
 import type { AppDispatch, RootState } from '../../app/store'
-import { notify } from '../../lib/notify'
+import { notify } from '../../shared/lib/notify'
 import { addWard, removeWard, updateWard } from './bedSlice'
 
 const inputClass =

@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import { OPD_DEPARTMENTS } from '../../config/departments'
+import { OPD_DEPARTMENTS } from '../../shared/config/departments'
 import type { ScheduleDoctor } from '../appointments/types'
 import { pickDoctorForDepartment } from './opdQueueDoctors'
 import type { OpdQueueToken, OpdTokenStatus } from './opdQueueTypes'

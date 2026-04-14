@@ -5,8 +5,8 @@ import {
   fetchRecallAlertsForDrugIds,
   fetchRecallAlertsForTerms,
   searchDrugLabels,
-} from '../../lib/drugCatalog'
-import { notify } from '../../lib/notify'
+} from '../../shared/lib/drugCatalog'
+import { notify } from '../../shared/lib/notify'
 
 interface MedicineLineEditorProps {
   line: PrescriptionMedicineLine

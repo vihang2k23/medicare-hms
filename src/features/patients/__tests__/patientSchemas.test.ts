@@ -1,5 +1,5 @@
 import { patientRecordToFormValues, step1Schema, step2Schema } from '../patientSchemas'
-import type { PatientRecord } from '../../../types/patient'
+import type { PatientRecord } from '../../../shared/types/patient'
 
 describe('step1Schema', () => {
   it('accepts valid personal fields', () => {

@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import type { RootState } from '../app/store'
-import { canAccessPath } from '../config/roles'
+import { canAccessPath } from '../shared/config/roles'
 
 /**
  * Role-based route protection:

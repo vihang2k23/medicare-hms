@@ -1,13 +1,13 @@
 import { useMemo } from 'react'
-import { useAuth } from '../hooks/useAuth'
-import DashboardCard from '../components/ui/DashboardCard'
-import StatCard from '../components/ui/StatCard'
+import { useAuth } from '../shared/hooks/useAuth'
+import DashboardCard from '../shared/ui/DashboardCard'
+import StatCard from '../shared/ui/StatCard'
 import {
   MOCK_PATIENTS_TODAY,
   MOCK_REVENUE_DATA,
   MOCK_TOP_DEPARTMENTS,
   MOCK_DOCTOR_AVAILABILITY,
-} from '../data/dashboardMockData'
+} from '../shared/data/dashboardMockData'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../app/store'
 import { formatOpdTokenLabel } from '../features/queue/queueSlice'

@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import { GripVertical } from 'lucide-react'
-import MediCareLogo from '../../components/brand/MediCareLogo'
+import MediCareLogo from '../../shared/ui/brand/MediCareLogo'
 import type { Appointment, AppointmentStatus, ScheduleDoctor } from './types'
 import { appointmentStatusClasses } from './appointmentStatusStyles'
 import { eachDayOfWeek, findSlotByStart, weekSlotStartLabels } from './slotUtils'

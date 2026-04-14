@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { Calendar, ChevronLeft, ChevronRight, FileText, Search, Users } from 'lucide-react'
 import type { RootState } from '../app/store'
-import { useAuth } from '../hooks/useAuth'
-import { fetchPatients } from '../api/patientsApi'
-import type { PatientRecord } from '../types/patient'
-import { notify } from '../lib/notify'
-import { aggregateMyPatients, type MyPatientRowMeta } from '../lib/myPatientsForDoctor'
+import { useAuth } from '../shared/hooks/useAuth'
+import { fetchPatients } from '../shared/api/patientsApi'
+import type { PatientRecord } from '../shared/types/patient'
+import { notify } from '../shared/lib/notify'
+import { aggregateMyPatients, type MyPatientRowMeta } from '../shared/lib/myPatientsForDoctor'
 
 const PAGE_SIZE = 10
 

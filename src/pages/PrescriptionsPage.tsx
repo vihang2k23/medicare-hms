@@ -14,11 +14,11 @@ import {
   X,
 } from 'lucide-react'
 import type { AppDispatch, RootState } from '../app/store'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../shared/hooks/useAuth'
 import { removePrescription, updatePrescriptionStatus } from '../features/prescriptions/prescriptionsSlice'
 import type { Prescription, PrescriptionStatus } from '../features/prescriptions/types'
 import PrescriptionForm from '../features/prescriptions/PrescriptionForm'
-import { notify } from '../lib/notify'
+import { notify } from '../shared/lib/notify'
 
 export type PrescriptionsVariant = 'admin' | 'doctor'
 

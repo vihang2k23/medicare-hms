@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import { WARDS } from '../../config/wards'
+import { WARDS } from '../../shared/config/wards'
 
 const MAX_ALERTS = 20
 

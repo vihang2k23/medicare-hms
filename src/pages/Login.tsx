@@ -4,12 +4,12 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowRight, ClipboardList, HeartPulse, ShieldCheck, Stethoscope, type LucideIcon } from 'lucide-react'
 import { login } from '../features/auth/authSlice'
 import type { AuthUser } from '../features/auth/authSlice'
-import { getDefaultDashboard } from '../config/roles'
-import { DEMO_DOCTOR_USERS, DEMO_STAFF_USERS, demoEntryToAuthUser } from '../config/demoAccounts'
+import { getDefaultDashboard } from '../shared/config/roles'
+import { DEMO_DOCTOR_USERS, DEMO_STAFF_USERS, demoEntryToAuthUser } from '../shared/config/demoAccounts'
 import { DEFAULT_SCHEDULE_DOCTORS } from '../features/appointments/appointmentsSlice'
-import Navbar from '../layout/Navbar'
-import { notify } from '../lib/notify'
-import MediCareLogo, { MediCareWordmark } from '../components/brand/MediCareLogo'
+import Navbar from '../layouts/Navbar'
+import { notify } from '../shared/lib/notify'
+import MediCareLogo, { MediCareWordmark } from '../shared/ui/brand/MediCareLogo'
 
 const roleLabels: Record<AuthUser['role'], string> = {
   admin: 'Administrator',

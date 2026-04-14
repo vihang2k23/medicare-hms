@@ -3,7 +3,7 @@ import { addWeeks, format } from 'date-fns'
 import { ChevronLeft, ChevronRight, CalendarDays, Printer } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import type { AppDispatch, RootState } from '../app/store'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../shared/hooks/useAuth'
 import {
   bookAppointment,
   cancelAppointment,
@@ -14,9 +14,9 @@ import WeeklyTimeGridCalendar from '../features/appointments/WeeklyTimeGridCalen
 import { BookAppointmentModal, ManageAppointmentModal } from '../features/appointments/AppointmentDialogs'
 import { isDateInWeek, startOfWeekMonday } from '../features/appointments/slotUtils'
 import type { Appointment } from '../features/appointments/types'
-import { notify } from '../lib/notify'
-import type { PatientRecord } from '../types/patient'
-import { scheduleDoctorIdForAuthUser } from '../config/doctorScheduleMap'
+import { notify } from '../shared/lib/notify'
+import type { PatientRecord } from '../shared/types/patient'
+import { scheduleDoctorIdForAuthUser } from '../shared/config/doctorScheduleMap'
 
 export type AppointmentsVariant = 'admin' | 'receptionist' | 'doctor'
 

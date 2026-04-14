@@ -12,9 +12,9 @@ import {
   patientRecordToFormValues,
   type PatientFormValues,
 } from './patientSchemas'
-import type { PatientRecord } from '../../types/patient'
-import { createPatient, updatePatient } from '../../api/patientsApi'
-import { notify } from '../../lib/notify'
+import type { PatientRecord } from '../../shared/types/patient'
+import { createPatient, updatePatient } from '../../shared/api/patientsApi'
+import { notify } from '../../shared/lib/notify'
 import { generatePatientId } from './patientId'
 
 const defaultValues: PatientFormValues = {

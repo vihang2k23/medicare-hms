@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { store, type AppDispatch, type RootState } from '../../app/store'
-import { notify } from '../../lib/notify'
+import { notify } from '../../shared/lib/notify'
 import { callNext, setSimulationRunning } from './queueSlice'
 import { canCallNext, shouldStopQueueSimulation } from './queueSimulation'
 

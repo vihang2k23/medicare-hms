@@ -1,8 +1,8 @@
 import { BrowserRouter } from 'react-router-dom'
 import AppRoutes from './routes/AppRoutes'
-import ThemeSync from './components/ThemeSync'
-import AppToaster from './components/ui/AppToaster'
-import ImportedDoctorsSync from './components/ImportedDoctorsSync'
+import ThemeSync from './shared/components/ThemeSync'
+import AppToaster from './shared/ui/AppToaster'
+import ImportedDoctorsSync from './shared/components/ImportedDoctorsSync'
 
 function App() {
   return (

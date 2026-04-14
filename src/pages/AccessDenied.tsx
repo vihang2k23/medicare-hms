@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ShieldX } from 'lucide-react'
-import { useAuth } from '../hooks/useAuth'
-import { getDefaultDashboard } from '../config/roles'
+import { useAuth } from '../shared/hooks/useAuth'
+import { getDefaultDashboard } from '../shared/config/roles'
 
 export default function AccessDenied() {
   const { user } = useAuth()

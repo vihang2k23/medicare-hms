@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../shared/hooks/useAuth'
 import type { RootState } from '../app/store'
-import DashboardCard from '../components/ui/DashboardCard'
-import StatCard from '../components/ui/StatCard'
-import { MOCK_TODAY_APPOINTMENTS, MOCK_NEXT_PATIENT } from '../data/dashboardMockData'
+import DashboardCard from '../shared/ui/DashboardCard'
+import StatCard from '../shared/ui/StatCard'
+import { MOCK_TODAY_APPOINTMENTS, MOCK_NEXT_PATIENT } from '../shared/data/dashboardMockData'
 import { Calendar, FileText } from 'lucide-react'
 
 export default function DoctorDashboard() {

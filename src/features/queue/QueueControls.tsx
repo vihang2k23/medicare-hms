@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Timer } from 'lucide-react'
 import { store, type AppDispatch, type RootState } from '../../app/store'
-import { notify } from '../../lib/notify'
-import { OPD_DEPARTMENTS } from '../../config/departments'
+import { notify } from '../../shared/lib/notify'
+import { OPD_DEPARTMENTS } from '../../shared/config/departments'
 import {
   callNext,
   completeCurrent,

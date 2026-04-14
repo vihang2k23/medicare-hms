@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
-import DashboardCard from '../components/ui/DashboardCard'
+import { useAuth } from '../shared/hooks/useAuth'
+import DashboardCard from '../shared/ui/DashboardCard'
 import { BedGrid } from '../features/beds'
-import { MOCK_RECENT_BED_CHANGES } from '../data/dashboardMockData'
+import { MOCK_RECENT_BED_CHANGES } from '../shared/data/dashboardMockData'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../app/store'
-import { fetchPatients } from '../api/patientsApi'
-import { fetchAllVitals } from '../api/vitalsApi'
-import type { PatientRecord } from '../types/patient'
-import type { VitalRecord } from '../types/vitals'
+import { fetchPatients } from '../shared/api/patientsApi'
+import { fetchAllVitals } from '../shared/api/vitalsApi'
+import type { PatientRecord } from '../shared/types/patient'
+import type { VitalRecord } from '../shared/types/vitals'
 
 const VITALS_STALE_MS = 24 * 60 * 60 * 1000
 
