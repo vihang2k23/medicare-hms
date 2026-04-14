@@ -19,11 +19,34 @@ export interface Bed {
   occupantName?: string
 }
 
+export interface BedFeedEntry {
+  id: string
+  time: number
+  message: string
+}
+
 export interface BedState {
   wards: WardDefinition[]
   beds: Bed[]
   /** Ward id -> count of beds by status */
   wardSummary: Record<string, { available: number; occupied: number; reserved: number; maintenance: number }>
+  /** When true, periodic simulation updates random beds (navbar toggle). */
+  bedSimulationRunning: boolean
+  /** Recent bed events (manual + simulation), newest first. */
+  bedFeed: BedFeedEntry[]
+}
+
+const MAX_BED_FEED = 20
+
+function pushBedFeed(state: BedState, message: string) {
+  state.bedFeed.unshift({
+    id: `bf-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    time: Date.now(),
+    message,
+  })
+  if (state.bedFeed.length > MAX_BED_FEED) {
+    state.bedFeed.length = MAX_BED_FEED
+  }
 }
 
 function computeWardSummary(wards: WardDefinition[], beds: Bed[]): BedState['wardSummary'] {
@@ -97,6 +120,8 @@ const initialState: BedState = {
   wards: initialWards,
   beds: initialBeds,
   wardSummary: computeWardSummary(initialWards, initialBeds),
+  bedSimulationRunning: false,
+  bedFeed: [],
 }
 
 const bedSlice = createSlice({
@@ -146,11 +171,13 @@ const bedSlice = createSlice({
       if (!bed) return
       const next = action.payload.status
       if (bed.status === next) return
+      const prev = bed.status
       bed.status = next
       if (next !== 'occupied') {
         delete bed.patientId
         delete bed.occupantName
       }
+      pushBedFeed(state, `${bed.wardName} · Bed ${bed.bedNumber}: ${prev} → ${next}`)
       state.wardSummary = computeWardSummary(state.wards, state.beds)
     },
     assignPatientToBed(
@@ -166,6 +193,7 @@ const bedSlice = createSlice({
       bed.occupantName = name
       const pid = action.payload.patientId?.trim()
       bed.patientId = pid || undefined
+      pushBedFeed(state, `${bed.wardName} · Bed ${bed.bedNumber}: assigned ${name}`)
       state.wardSummary = computeWardSummary(state.wards, state.beds)
     },
     dischargePatientFromBed(state, action: PayloadAction<{ bedId: string }>) {
@@ -174,6 +202,7 @@ const bedSlice = createSlice({
       bed.status = 'available'
       delete bed.patientId
       delete bed.occupantName
+      pushBedFeed(state, `${bed.wardName} · Bed ${bed.bedNumber}: discharged`)
       state.wardSummary = computeWardSummary(state.wards, state.beds)
     },
     addBedToWard(state, action: PayloadAction<{ wardId: string }>) {
@@ -208,6 +237,34 @@ const bedSlice = createSlice({
       state.beds = state.beds.filter((b) => b.id !== action.payload.bedId)
       state.wardSummary = computeWardSummary(state.wards, state.beds)
     },
+    setBedSimulationRunning(state, action: PayloadAction<boolean>) {
+      state.bedSimulationRunning = action.payload
+    },
+    runBedSimulationTick(state) {
+      if (!state.bedSimulationRunning || state.beds.length === 0) return
+      const statuses: BedStatus[] = ['available', 'occupied', 'reserved', 'maintenance']
+      const pickCount = Math.random() < 0.5 ? 1 : 2
+      const n = Math.min(pickCount, state.beds.length)
+      const used = new Set<number>()
+      while (used.size < n) {
+        used.add(Math.floor(Math.random() * state.beds.length))
+      }
+      for (const i of used) {
+        const bed = state.beds[i]!
+        const next = statuses[Math.floor(Math.random() * statuses.length)]!
+        if (bed.status === next) continue
+        const prev = bed.status
+        bed.status = next
+        if (next !== 'occupied') {
+          delete bed.patientId
+          delete bed.occupantName
+        } else if (!bed.occupantName?.trim()) {
+          bed.occupantName = 'Simulated occupant'
+        }
+        pushBedFeed(state, `${bed.wardName} · Bed ${bed.bedNumber}: ${prev} → ${next} (sim)`)
+      }
+      state.wardSummary = computeWardSummary(state.wards, state.beds)
+    },
   },
 })
 
@@ -223,5 +280,7 @@ export const {
   addBedToWard,
   transferBedToWard,
   removeBed,
+  setBedSimulationRunning,
+  runBedSimulationTick,
 } = bedSlice.actions
 export default bedSlice.reducer

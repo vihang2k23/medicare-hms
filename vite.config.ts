@@ -14,14 +14,4 @@ export default defineConfig({
   optimizeDeps: {
     include: ['lucide-react', 'react-hot-toast'],
   },
-  server: {
-    proxy: {
-      '/openfda': {
-        target: 'https://api.fda.gov',
-        changeOrigin: true,
-        secure: true,
-        rewrite: (path) => path.replace(/^\/openfda/, ''),
-      },
-    },
-  },
 })

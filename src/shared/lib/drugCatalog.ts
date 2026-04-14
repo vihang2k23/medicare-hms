@@ -1,5 +1,7 @@
 import type { OpenFdaLabelHit, PrescriptionRecallSnapshot } from '../../features/prescriptions/types'
 import { STATIC_DRUG_CATALOG, STATIC_DRUG_RECALLS, type StaticDrugEntry } from '../data/drugCatalogData'
+import { fetchRecallsForDrugTerms } from './openfdaEnforcementApi'
+import { searchOpenFdaDrugLabels } from './openfdaLabelApi'
 
 function entryToHit(d: StaticDrugEntry): OpenFdaLabelHit {
   return {
@@ -49,10 +51,10 @@ function entryMatches(entry: StaticDrugEntry, raw: string): boolean {
   return tokens.every((t) => hay.includes(t))
 }
 
-/** Search bundled drug catalog (substring / multi-token AND). */
-export function searchDrugLabels(query: string): Promise<OpenFdaLabelHit[]> {
+/** Bundled catalog only (offline / fallback). */
+function searchDrugLabelsStatic(query: string): OpenFdaLabelHit[] {
   const q = query.trim()
-  if (q.length < 2) return Promise.resolve([])
+  if (q.length < 2) return []
 
   const matches = STATIC_DRUG_CATALOG.filter((e) => entryMatches(e, q))
 
@@ -66,7 +68,35 @@ export function searchDrugLabels(query: string): Promise<OpenFdaLabelHit[]> {
     return aPrimary.localeCompare(bPrimary)
   })
 
-  return Promise.resolve(sorted.slice(0, 12).map(entryToHit))
+  return sorted.slice(0, 12).map(entryToHit)
+}
+
+/**
+ * Drug label autocomplete: OpenFDA live search when available, else bundled catalog.
+ */
+export async function searchDrugLabels(query: string): Promise<OpenFdaLabelHit[]> {
+  const q = query.trim()
+  if (q.length < 2) return []
+
+  const live = await searchOpenFdaDrugLabels(q, 12)
+  if (live.length > 0) return live
+  return searchDrugLabelsStatic(q)
+}
+
+function mergeRecallSnapshots(
+  primary: PrescriptionRecallSnapshot[],
+  secondary: PrescriptionRecallSnapshot[],
+): PrescriptionRecallSnapshot[] {
+  const seen = new Set<string>()
+  const out: PrescriptionRecallSnapshot[] = []
+  for (const r of [...primary, ...secondary]) {
+    const k = r.recallId.trim().toLowerCase()
+    if (seen.has(k)) continue
+    seen.add(k)
+    out.push(r)
+    if (out.length >= 12) break
+  }
+  return out
 }
 
 function recallsForDrugIds(ids: string[]): PrescriptionRecallSnapshot[] {
@@ -101,9 +131,9 @@ export function fetchRecallAlertsForDrugIds(drugIds: string[]): Promise<Prescrip
   return Promise.resolve(recallsForDrugIds(drugIds))
 }
 
-export function fetchRecallAlertsForTerms(terms: string[]): Promise<PrescriptionRecallSnapshot[]> {
+function recallsForTermsStatic(terms: string[]): PrescriptionRecallSnapshot[] {
   const cleaned = [...new Set(terms.map((t) => t.trim()).filter((t) => t.length >= 2))].slice(0, 8)
-  if (cleaned.length === 0) return Promise.resolve([])
+  if (cleaned.length === 0) return []
 
   const ids = new Set<string>()
   for (const entry of STATIC_DRUG_CATALOG) {
@@ -119,7 +149,25 @@ export function fetchRecallAlertsForTerms(terms: string[]): Promise<Prescription
       }
     }
   }
-  return Promise.resolve(recallsForDrugIds([...ids]))
+  return recallsForDrugIds([...ids])
+}
+
+/** OpenFDA enforcement + static demo recalls, merged and deduped. */
+export async function fetchRecallAlertsForTerms(terms: string[]): Promise<PrescriptionRecallSnapshot[]> {
+  const cleaned = [...new Set(terms.map((t) => t.trim()).filter((t) => t.length >= 2))].slice(0, 8)
+  if (cleaned.length === 0) return []
+
+  const staticAlerts = recallsForTermsStatic(cleaned)
+  const live = await fetchRecallsForDrugTerms(cleaned)
+  return mergeRecallSnapshots(live, staticAlerts)
+}
+
+/** After picking a label row: live recalls by brand/generic terms + static catalog by id. */
+export async function fetchRecallAlertsForLabelHit(hit: OpenFdaLabelHit): Promise<PrescriptionRecallSnapshot[]> {
+  const fromStatic = recallsForDrugIds([hit.id])
+  const terms = termsFromLabelHit(hit)
+  const live = terms.length > 0 ? await fetchRecallsForDrugTerms(terms) : []
+  return mergeRecallSnapshots(live, fromStatic)
 }
 
 export function termsFromLabelHit(hit: OpenFdaLabelHit): string[] {

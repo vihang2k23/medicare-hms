@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
-import { ChevronDown, LogOut, Menu, Moon, PanelLeftClose, Sun } from 'lucide-react'
+import { BedDouble, ChevronDown, LogOut, Menu, Moon, PanelLeftClose, Sun } from 'lucide-react'
 import { logout, login } from '../features/auth/authSlice'
 import type { AuthUser } from '../features/auth/authSlice'
 import { getDefaultDashboard } from '../shared/config/roles'
 import { useAuth } from '../shared/hooks/useAuth'
 import NotificationBell from '../features/alerts/NotificationBell'
 import { setTheme, toggleSidebar } from '../features/ui/uiSlice'
+import { setBedSimulationRunning } from '../features/beds/bedSlice'
 import type { RootState } from '../app/store'
 import { notify } from '../shared/lib/notify'
 import MediCareLogo, { MediCareWordmark } from '../shared/ui/brand/MediCareLogo'
@@ -27,6 +28,7 @@ export default function Navbar() {
   const navigate = useNavigate()
   const theme = useSelector((state: RootState) => state.ui.theme)
   const sidebarOpen = useSelector((state: RootState) => state.ui.sidebarOpen)
+  const bedSimulationRunning = useSelector((state: RootState) => state.beds.bedSimulationRunning)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -87,6 +89,22 @@ export default function Navbar() {
 
         {isAuthenticated ? (
           <>
+            {(user?.role === 'admin' || user?.role === 'nurse') && (
+              <button
+                type="button"
+                onClick={() => dispatch(setBedSimulationRunning(!bedSimulationRunning))}
+                className={`p-2.5 rounded-xl transition-all duration-200 touch-manipulation ${
+                  bedSimulationRunning
+                    ? 'text-amber-700 bg-amber-100/90 dark:text-amber-200 dark:bg-amber-950/50 ring-1 ring-amber-200/80 dark:ring-amber-800/60'
+                    : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/90 dark:text-white dark:hover:text-white dark:hover:bg-slate-800/80'
+                }`}
+                aria-pressed={bedSimulationRunning}
+                aria-label={bedSimulationRunning ? 'Stop bed simulation' : 'Start bed simulation'}
+                title="Toggle demo bed status simulation (~45s)"
+              >
+                <BedDouble className="h-5 w-5" aria-hidden />
+              </button>
+            )}
             {user?.role === 'admin' && <NotificationBell onOpen={() => setDropdownOpen(false)} />}
             <div className="relative ml-1 sm:ml-2" ref={ref}>
               <button

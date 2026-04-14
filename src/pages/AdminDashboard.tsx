@@ -1,13 +1,16 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../shared/hooks/useAuth'
 import DashboardCard from '../shared/ui/DashboardCard'
 import StatCard from '../shared/ui/StatCard'
+import { fetchPatients } from '../shared/api/patientsApi'
 import {
-  MOCK_PATIENTS_TODAY,
-  MOCK_REVENUE_DATA,
-  MOCK_TOP_DEPARTMENTS,
-  MOCK_DOCTOR_AVAILABILITY,
-} from '../shared/data/dashboardMockData'
+  estimateRevenueToday,
+  formatInrCompact,
+  formatLocalDate,
+  revenueSeriesLast7Days,
+  startOfLocalDayMs,
+  topDepartmentsByUniquePatients,
+} from '../shared/lib/dashboardMetrics'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../app/store'
 import { formatOpdTokenLabel } from '../features/queue/queueSlice'
@@ -37,7 +40,55 @@ export default function AdminDashboard() {
   const opdQueue = useSelector((state: RootState) => state.queue.queue)
   const opdCurrentToken = useSelector((state: RootState) => state.queue.currentToken)
   const beds = useSelector((state: RootState) => state.beds.beds)
+  const appointments = useSelector((state: RootState) => state.appointments.appointments)
+  const scheduleDoctors = useSelector((state: RootState) => state.appointments.doctors)
+  const prescriptions = useSelector((state: RootState) => state.prescriptions.prescriptions)
   const alerts = useSelector((state: RootState) => state.alerts.alerts).slice(0, 5)
+  const todayStr = formatLocalDate(new Date())
+  const t0 = startOfLocalDayMs()
+
+  const [registrationsTodayLoading, setRegistrationsTodayLoading] = useState(true)
+  const [registrationsToday, setRegistrationsToday] = useState(0)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setRegistrationsTodayLoading(true)
+      try {
+        const list = await fetchPatients()
+        if (cancelled) return
+        const start = startOfLocalDayMs()
+        setRegistrationsToday(list.filter((p) => p.isActive && p.createdAt >= start).length)
+      } catch {
+        if (!cancelled) setRegistrationsToday(0)
+      } finally {
+        if (!cancelled) setRegistrationsTodayLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const prescriptionsToday = useMemo(
+    () => prescriptions.filter((p) => p.createdAt >= t0).length,
+    [prescriptions, t0],
+  )
+
+  const revenueToday = useMemo(
+    () => estimateRevenueToday(appointments, prescriptionsToday, todayStr),
+    [appointments, prescriptionsToday, todayStr],
+  )
+
+  const topDeptChart = useMemo(() => {
+    const rows = topDepartmentsByUniquePatients(appointments, 5)
+    return rows.length > 0 ? rows : [{ name: 'No appointments yet', patients: 0 }]
+  }, [appointments])
+  const revenueChart = useMemo(() => revenueSeriesLast7Days(appointments), [appointments])
+  const doctorAvailabilityRows = useMemo(
+    () => scheduleDoctors.slice(0, 8).map((d) => ({ id: d.id, name: d.name, dept: d.department, status: 'available' as const })),
+    [scheduleDoctors],
+  )
   const opdWaiting = opdQueue.filter((t) => t.status === 'waiting').length
   const opdDone = opdQueue.filter((t) => t.status === 'done').length
 
@@ -70,8 +121,8 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Patients today"
-          value={MOCK_PATIENTS_TODAY}
-          subLabel="Total registrations"
+          value={registrationsTodayLoading ? '…' : registrationsToday}
+          subLabel="New registrations (active)"
           accent="blue"
           icon={<Users className="h-5 w-5" aria-hidden />}
         />
@@ -91,8 +142,8 @@ export default function AdminDashboard() {
         />
         <StatCard
           label="Revenue (today)"
-          value="₹22.1k"
-          subLabel="Billing summary"
+          value={formatInrCompact(revenueToday)}
+          subLabel="Estimated from completed visits + scripts"
           accent="slate"
           icon={<Banknote className="h-5 w-5" aria-hidden />}
         />
@@ -133,7 +184,7 @@ export default function AdminDashboard() {
         <DashboardCard title="Revenue summary (last 7 days)">
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={MOCK_REVENUE_DATA} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <BarChart data={revenueChart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <XAxis dataKey="day" tick={{ fontSize: 12 }} stroke="#64748b" />
                 <YAxis tick={{ fontSize: 12 }} stroke="#64748b" tickFormatter={(v) => `₹${v / 1000}k`} />
                 <Tooltip formatter={(value: unknown) => [`₹${Number(value).toLocaleString()}`, 'Amount']} />
@@ -149,7 +200,7 @@ export default function AdminDashboard() {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={MOCK_TOP_DEPARTMENTS}
+                data={topDeptChart}
                 layout="vertical"
                 margin={{ top: 0, right: 8, left: 4, bottom: 0 }}
               >
@@ -171,7 +222,7 @@ export default function AdminDashboard() {
 
         <DashboardCard title="Doctor availability">
           <div className="space-y-2">
-            {MOCK_DOCTOR_AVAILABILITY.map((doc) => (
+            {doctorAvailabilityRows.map((doc) => (
               <div
                 key={doc.id}
                 className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between py-2.5 px-3 rounded-lg bg-slate-50 dark:bg-slate-700/50"

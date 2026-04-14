@@ -38,7 +38,7 @@ export interface Prescription {
   createdAt: number
 }
 
-/** Drug catalog search hit (static data; same shape as former API mapping). */
+/** Drug label search hit (OpenFDA live or bundled catalog; same UI shape). */
 export interface OpenFdaLabelHit {
   id: string
   brandNames: string[]

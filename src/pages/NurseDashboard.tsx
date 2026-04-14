@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../shared/hooks/useAuth'
 import DashboardCard from '../shared/ui/DashboardCard'
 import { BedGrid } from '../features/beds'
-import { MOCK_RECENT_BED_CHANGES } from '../shared/data/dashboardMockData'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../app/store'
 import { fetchPatients } from '../shared/api/patientsApi'
@@ -16,7 +15,7 @@ const VITALS_STALE_MS = 24 * 60 * 60 * 1000
 export default function NurseDashboard() {
   const { user } = useAuth()
   const [pendingVitals, setPendingVitals] = useState<{ patient: PatientRecord; reason: string }[]>([])
-  const { wardSummary, wards } = useSelector((state: RootState) => state.beds)
+  const { wardSummary, wards, bedFeed } = useSelector((state: RootState) => state.beds)
   const totalBeds = Object.values(wardSummary).reduce(
     (acc, w) => acc + w.available + w.occupied + w.reserved + w.maintenance,
     0
@@ -134,28 +133,28 @@ export default function NurseDashboard() {
           <BedGrid showWardSummary={false} showWardManagement={false} showAddBed={false} />
         </div>
         <DashboardCard title="Recent bed status changes">
-          <ul className="space-y-2">
-            {MOCK_RECENT_BED_CHANGES.map((change, i) => (
-              <li
-                key={i}
-                className="flex items-center justify-between text-sm py-2 border-b border-slate-100 dark:border-slate-700 last:border-0"
-              >
-                <span className="text-slate-500 dark:text-white">{change.time}</span>
-                <span className="text-slate-800 dark:text-white">
-                  {change.ward} · Bed {change.bed}
-                </span>
-                <span
-                  className={
-                    change.action === 'Freed'
-                      ? 'text-emerald-600 dark:text-white'
-                      : 'text-amber-600 dark:text-white'
-                  }
+          {bedFeed.length === 0 ? (
+            <p className="text-sm text-slate-500 dark:text-white">
+              Updates appear here when beds change (assign, discharge, status, or navbar bed simulation).
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {bedFeed.map((e) => (
+                <li
+                  key={e.id}
+                  className="flex flex-col gap-0.5 text-sm py-2 border-b border-slate-100 dark:border-slate-700 last:border-0"
                 >
-                  {change.action}
-                </span>
-              </li>
-            ))}
-          </ul>
+                  <span className="text-[11px] font-medium text-slate-400 dark:text-white tabular-nums">
+                    {new Date(e.time).toLocaleString(undefined, {
+                      dateStyle: 'short',
+                      timeStyle: 'short',
+                    })}
+                  </span>
+                  <span className="text-slate-800 dark:text-white leading-snug">{e.message}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </DashboardCard>
       </div>
     </div>

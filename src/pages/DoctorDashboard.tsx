@@ -4,20 +4,54 @@ import { useAuth } from '../shared/hooks/useAuth'
 import type { RootState } from '../app/store'
 import DashboardCard from '../shared/ui/DashboardCard'
 import StatCard from '../shared/ui/StatCard'
-import { MOCK_TODAY_APPOINTMENTS, MOCK_NEXT_PATIENT } from '../shared/data/dashboardMockData'
+import {
+  doctorAppointmentsToday,
+  formatLocalDate,
+  pickNextDoctorAppointment,
+  startOfLocalDayMs,
+} from '../shared/lib/dashboardMetrics'
 import { Calendar, FileText } from 'lucide-react'
+
+function statusLabel(status: string): string {
+  if (status === 'in-progress') return 'In progress'
+  if (status === 'completed') return 'Done'
+  if (status === 'scheduled') return 'Scheduled'
+  if (status === 'confirmed') return 'Confirmed'
+  return status
+}
 
 export default function DoctorDashboard() {
   const { user } = useAuth()
   const prescriptions = useSelector((s: RootState) => s.prescriptions.prescriptions)
+  const appointments = useSelector((s: RootState) => s.appointments.appointments)
+  const todayStr = formatLocalDate(new Date())
+  const t0 = startOfLocalDayMs()
+
+  const doctorId = user?.id ?? ''
 
   const prescriptionsToday = useMemo(() => {
-    if (!user?.id) return 0
-    const start = new Date()
-    start.setHours(0, 0, 0, 0)
-    const t0 = start.getTime()
-    return prescriptions.filter((p) => p.doctorId === user.id && p.createdAt >= t0).length
-  }, [prescriptions, user])
+    if (!doctorId) return 0
+    return prescriptions.filter((p) => p.doctorId === doctorId && p.createdAt >= t0).length
+  }, [prescriptions, doctorId, t0])
+
+  const todayApts = useMemo(
+    () => (doctorId ? doctorAppointmentsToday(appointments, doctorId, todayStr) : []),
+    [appointments, doctorId, todayStr],
+  )
+
+  const sortedToday = useMemo(
+    () => [...todayApts].sort((a, b) => a.slotStart.localeCompare(b.slotStart)),
+    [todayApts],
+  )
+
+  const nextApt = useMemo(() => pickNextDoctorAppointment(todayApts), [todayApts])
+
+  const scheduleBlurb = useMemo(() => {
+    if (sortedToday.length === 0) return 'No visits on your calendar for today.'
+    const first = sortedToday[0]!
+    const last = sortedToday[sortedToday.length - 1]!
+    return `Today: ${first.slotStart} – ${last.slotEnd} (${sortedToday.length} on calendar).`
+  }, [sortedToday])
 
   return (
     <div className="space-y-8">
@@ -39,55 +73,65 @@ export default function DoctorDashboard() {
         />
         <StatCard
           label="Appointments today"
-          value={MOCK_TODAY_APPOINTMENTS.length}
-          subLabel="Scheduled"
+          value={todayApts.length}
+          subLabel="On calendar"
           accent="green"
           icon={<Calendar className="h-5 w-5" aria-hidden />}
         />
       </div>
 
       <DashboardCard title="Next patient">
-        <div className="flex items-center gap-4 p-4 rounded-lg bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800">
-          <div className="w-12 h-12 rounded-full bg-sky-200 dark:bg-sky-800 flex items-center justify-center text-sky-700 dark:text-white font-bold text-lg">
-            {MOCK_NEXT_PATIENT.name.charAt(0)}
+        {nextApt ? (
+          <div className="flex items-center gap-4 p-4 rounded-lg bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800">
+            <div className="w-12 h-12 rounded-full bg-sky-200 dark:bg-sky-800 flex items-center justify-center text-sky-700 dark:text-white font-bold text-lg">
+              {nextApt.patientName.charAt(0)}
+            </div>
+            <div>
+              <p className="font-semibold text-slate-800 dark:text-white">{nextApt.patientName}</p>
+              <p className="text-sm text-slate-500 dark:text-white">
+                {nextApt.slotStart} – {nextApt.slotEnd}
+                {nextApt.reason ? ` · ${nextApt.reason}` : ''}
+              </p>
+              <p className="text-xs text-slate-500 dark:text-white mt-0.5">{nextApt.department}</p>
+            </div>
           </div>
-          <div>
-            <p className="font-semibold text-slate-800 dark:text-white">{MOCK_NEXT_PATIENT.name}</p>
-            <p className="text-sm text-slate-500 dark:text-white">
-              Token {MOCK_NEXT_PATIENT.token} · {MOCK_NEXT_PATIENT.reason}
-            </p>
-          </div>
-        </div>
+        ) : (
+          <p className="text-sm text-slate-500 dark:text-white py-2">No upcoming visits today (or none scheduled for you).</p>
+        )}
       </DashboardCard>
 
       <DashboardCard title="Today's appointments">
-        <ul className="divide-y divide-slate-100 dark:divide-slate-700">
-          {MOCK_TODAY_APPOINTMENTS.map((apt) => (
-            <li key={apt.id} className="flex items-center justify-between py-3 first:pt-0">
-              <div>
-                <p className="font-medium text-slate-800 dark:text-white">{apt.patientName}</p>
-                <p className="text-sm text-slate-500 dark:text-white">{apt.time}</p>
-              </div>
-              <span
-                className={`text-xs font-medium px-2 py-1 rounded ${
-                  apt.status === 'completed'
-                    ? 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-white'
-                    : apt.status === 'in-progress'
-                      ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-white'
-                      : 'bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-white'
-                }`}
-              >
-                {apt.status === 'in-progress' ? 'In progress' : apt.status === 'completed' ? 'Done' : 'Waiting'}
-              </span>
-            </li>
-          ))}
-        </ul>
+        {sortedToday.length === 0 ? (
+          <p className="text-sm text-slate-500 dark:text-white">None on the calendar for today.</p>
+        ) : (
+          <ul className="divide-y divide-slate-100 dark:divide-slate-700">
+            {sortedToday.map((apt) => (
+              <li key={apt.id} className="flex items-center justify-between py-3 first:pt-0">
+                <div>
+                  <p className="font-medium text-slate-800 dark:text-white">{apt.patientName}</p>
+                  <p className="text-sm text-slate-500 dark:text-white">
+                    {apt.slotStart} – {apt.slotEnd}
+                  </p>
+                </div>
+                <span
+                  className={`text-xs font-medium px-2 py-1 rounded ${
+                    apt.status === 'completed'
+                      ? 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-white'
+                      : apt.status === 'in-progress'
+                        ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-white'
+                        : 'bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-white'
+                  }`}
+                >
+                  {statusLabel(apt.status)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </DashboardCard>
 
       <DashboardCard title="My schedule summary">
-        <p className="text-slate-500 dark:text-white text-sm">
-          Today: 09:00 – 13:00 (8 slots). Next slot at 10:30.
-        </p>
+        <p className="text-slate-500 dark:text-white text-sm">{scheduleBlurb}</p>
       </DashboardCard>
     </div>
   )

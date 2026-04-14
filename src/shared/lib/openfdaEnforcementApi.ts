@@ -2,15 +2,18 @@
  * OpenFDA drug enforcement (recalls) — browser-safe base URL (dev proxy avoids CORS).
  */
 
-const ENFORCEMENT_PATH = '/drug/enforcement.json'
+import type { PrescriptionRecallSnapshot } from '../../features/prescriptions/types'
+
+const DEFAULT_ENFORCEMENT_JSON = 'https://api.fda.gov/drug/enforcement.json'
+
+function enforcementEndpoint(): string {
+  const u = import.meta.env.VITE_OPENFDA_DRUG_ENFORCEMENT_URL?.trim()
+  return u && u.length > 0 ? u : DEFAULT_ENFORCEMENT_JSON
+}
 
 function enforcementUrl(searchParams: Record<string, string>) {
   const q = new URLSearchParams(searchParams).toString()
-  const base =
-    typeof import.meta !== 'undefined' && import.meta.env?.DEV
-      ? `${window.location.origin}/openfda`
-      : 'https://api.fda.gov'
-  return `${base}${ENFORCEMENT_PATH}?${q}`
+  return `${enforcementEndpoint()}?${q}`
 }
 
 export interface OpenFdaEnforcementHit {
@@ -27,6 +30,56 @@ export interface OpenFdaEnforcementHit {
 export interface OpenFdaEnforcementResponse {
   meta?: { results?: { total: number; limit: number; skip?: number } }
   results?: OpenFdaEnforcementHit[]
+}
+
+function mapEnforcementToSnapshot(hit: OpenFdaEnforcementHit, index: number): PrescriptionRecallSnapshot {
+  const desc =
+    (hit as { product_description?: string }).product_description?.trim() ||
+    hit.openfda?.brand_name?.[0] ||
+    'Product'
+  const recallId =
+    (hit as { recall_number?: string }).recall_number?.trim() ||
+    `enf-${(hit.recall_initiation_date ?? 'na').replace(/\D/g, '')}-${index}`
+  const status = (hit.status ?? 'Unknown').trim()
+  const classification = (hit as { classification?: string }).classification?.trim() || '—'
+  const reason = (hit.reason_for_recall ?? 'See OpenFDA').trim()
+  const reportDate = (hit.recall_initiation_date ?? '').trim() || '—'
+  return {
+    recallId,
+    status,
+    classification,
+    reason,
+    productDescription: desc.slice(0, 500),
+    reportDate,
+  }
+}
+
+/**
+ * Live recall check: search enforcement records by product description terms.
+ * Non-blocking; returns [] on failure.
+ */
+export async function fetchRecallsForDrugTerms(terms: string[], limit = 15): Promise<PrescriptionRecallSnapshot[]> {
+  const cleaned = [...new Set(terms.map((t) => t.trim()).filter((t) => t.length >= 2))].slice(0, 4)
+  if (cleaned.length === 0) return []
+
+  const clauses = cleaned.map((t) => {
+    const s = t.replace(/"/g, '').slice(0, 60)
+    return `product_description:"${s}"`
+  })
+  const search = `(${clauses.join('+OR+')})`
+
+  try {
+    const lim = String(Math.min(Math.max(limit, 1), 50))
+    const q = `search=${encodeURIComponent(search)}&limit=${encodeURIComponent(lim)}`
+    const res = await fetch(`${enforcementEndpoint()}?${q}`)
+    if (!res.ok) return []
+    const json = (await res.json()) as OpenFdaEnforcementResponse & { error?: { message?: string } }
+    if (json.error?.message) return []
+    const results = json.results ?? []
+    return results.slice(0, 8).map((h, i) => mapEnforcementToSnapshot(h, i))
+  } catch {
+    return []
+  }
 }
 
 function classifyHit(hit: OpenFdaEnforcementHit): string {

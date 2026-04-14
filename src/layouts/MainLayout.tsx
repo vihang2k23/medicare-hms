@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Outlet, useLocation } from 'react-router-dom'
 import type { RootState } from '../app/store'
 import { setSidebarOpen } from '../features/ui/uiSlice'
+import { useBedSimulation } from '../features/beds/useBedSimulation'
 import Navbar from './Navbar'
 import Sidebar from './Sidebar'
 
@@ -10,6 +11,8 @@ export default function MainLayout() {
   const dispatch = useDispatch()
   const sidebarOpen = useSelector((s: RootState) => s.ui.sidebarOpen)
   const { pathname } = useLocation()
+
+  useBedSimulation(45_000)
 
   useEffect(() => {
     if (typeof window === 'undefined') return

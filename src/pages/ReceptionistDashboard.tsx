@@ -1,19 +1,48 @@
+import { useEffect, useState } from 'react'
 import { useAuth } from '../shared/hooks/useAuth'
 import DashboardCard from '../shared/ui/DashboardCard'
 import StatCard from '../shared/ui/StatCard'
 import QueueBoard from '../features/queue/QueueBoard'
 import { Link } from 'react-router-dom'
 import { Calendar, Ticket, UserPlus } from 'lucide-react'
-import { MOCK_REGISTRATIONS_TODAY, MOCK_PENDING_APPOINTMENTS } from '../shared/data/dashboardMockData'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../app/store'
 import { formatOpdTokenLabel } from '../features/queue/queueSlice'
+import { fetchPatients } from '../shared/api/patientsApi'
+import { formatLocalDate, pendingAppointmentsToday, startOfLocalDayMs } from '../shared/lib/dashboardMetrics'
 
 export default function ReceptionistDashboard() {
   const { user } = useAuth()
   const opdQueue = useSelector((s: RootState) => s.queue.queue)
   const currentToken = useSelector((s: RootState) => s.queue.currentToken)
   const servedToday = useSelector((s: RootState) => s.queue.servedToday)
+  const appointments = useSelector((s: RootState) => s.appointments.appointments)
+  const todayStr = formatLocalDate(new Date())
+
+  const pendingToday = pendingAppointmentsToday(appointments, todayStr)
+
+  const [registrationsTodayLoading, setRegistrationsTodayLoading] = useState(true)
+  const [registrationsToday, setRegistrationsToday] = useState(0)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setRegistrationsTodayLoading(true)
+      try {
+        const list = await fetchPatients()
+        if (cancelled) return
+        const start = startOfLocalDayMs()
+        setRegistrationsToday(list.filter((p) => p.isActive && p.createdAt >= start).length)
+      } catch {
+        if (!cancelled) setRegistrationsToday(0)
+      } finally {
+        if (!cancelled) setRegistrationsTodayLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   return (
     <div className="space-y-8">
@@ -28,7 +57,7 @@ export default function ReceptionistDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard
           label="Registration count today"
-          value={MOCK_REGISTRATIONS_TODAY}
+          value={registrationsTodayLoading ? '…' : registrationsToday}
           subLabel="New patients"
           accent="blue"
           icon={<UserPlus className="h-5 w-5" aria-hidden />}
@@ -42,8 +71,8 @@ export default function ReceptionistDashboard() {
         />
         <StatCard
           label="Pending appointments"
-          value={MOCK_PENDING_APPOINTMENTS}
-          subLabel="For today"
+          value={pendingToday}
+          subLabel="Scheduled or confirmed today"
           accent="green"
           icon={<Calendar className="h-5 w-5" aria-hidden />}
         />

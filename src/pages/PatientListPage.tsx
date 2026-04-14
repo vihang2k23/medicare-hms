@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import type { RootState } from '../app/store'
+import type { Appointment } from '../features/appointments/types'
 import type { PatientRecord } from '../shared/types/patient'
 import {
   ChevronLeft,
@@ -60,13 +63,54 @@ function initials(name: string): string {
   return `${parts[0]![0] ?? ''}${parts[parts.length - 1]![0] ?? ''}`.toUpperCase() || '?'
 }
 
+function patientAgeYears(dob: string): number | null {
+  const t = Date.parse(dob)
+  if (Number.isNaN(t)) return null
+  const birth = new Date(t)
+  const now = new Date()
+  let age = now.getFullYear() - birth.getFullYear()
+  const md = now.getMonth() - birth.getMonth()
+  if (md < 0 || (md === 0 && now.getDate() < birth.getDate())) age--
+  return age
+}
+
+function departmentsForPatient(patientId: string, appointments: Appointment[]): string[] {
+  const s = new Set<string>()
+  for (const a of appointments) {
+    if (a.patientId === patientId && a.department?.trim()) s.add(a.department.trim())
+  }
+  return [...s]
+}
+
+function regRangeStartMs(isoDate: string): number | null {
+  const q = isoDate.trim()
+  if (!q) return null
+  const d = new Date(`${q}T00:00:00`)
+  const x = d.getTime()
+  return Number.isNaN(x) ? null : x
+}
+
+function regRangeEndMs(isoDate: string): number | null {
+  const q = isoDate.trim()
+  if (!q) return null
+  const d = new Date(`${q}T23:59:59.999`)
+  const x = d.getTime()
+  return Number.isNaN(x) ? null : x
+}
+
 export default function PatientListPage() {
+  const appointments = useSelector((s: RootState) => s.appointments.appointments)
   const [patients, setPatients] = useState<PatientRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [bloodFilter, setBloodFilter] = useState<string>('')
   const [genderFilter, setGenderFilter] = useState<string>('')
+  const [ageMin, setAgeMin] = useState('')
+  const [ageMax, setAgeMax] = useState('')
+  const [regFrom, setRegFrom] = useState('')
+  const [regTo, setRegTo] = useState('')
+  const [departmentFilter, setDepartmentFilter] = useState('')
   const [page, setPage] = useState(1)
   const location = useLocation()
   const registeredId = (location.state as { registeredId?: string } | null)?.registeredId
@@ -92,17 +136,60 @@ export default function PatientListPage() {
     void load()
   }, [load])
 
+  const departmentOptions = useMemo(() => {
+    const s = new Set<string>()
+    for (const a of appointments) {
+      const d = a.department?.trim()
+      if (d) s.add(d)
+    }
+    return [...s].sort((x, y) => x.localeCompare(y))
+  }, [appointments])
+
   const filtered = useMemo(() => {
+    const fromMs = regRangeStartMs(regFrom)
+    const toMs = regRangeEndMs(regTo)
     return patients.filter((p) => {
       if (bloodFilter && normalizeBloodGroup(p.bloodGroup) !== normalizeBloodGroup(bloodFilter)) return false
       if (genderFilter && p.gender.trim().toLowerCase() !== genderFilter) return false
+      if (fromMs !== null && p.createdAt < fromMs) return false
+      if (toMs !== null && p.createdAt > toMs) return false
+
+      const age = patientAgeYears(p.dob)
+      if (ageMin.trim()) {
+        const lo = Number(ageMin)
+        if (!Number.isNaN(lo)) {
+          if (age === null) return false
+          if (age < lo) return false
+        }
+      }
+      if (ageMax.trim()) {
+        const hi = Number(ageMax)
+        if (!Number.isNaN(hi)) {
+          if (age === null) return false
+          if (age > hi) return false
+        }
+      }
+
+      if (departmentFilter && !departmentsForPatient(p.id, appointments).includes(departmentFilter)) return false
+
       return patientMatchesSearch(p, searchQuery)
     })
-  }, [patients, searchQuery, bloodFilter, genderFilter])
+  }, [
+    patients,
+    searchQuery,
+    bloodFilter,
+    genderFilter,
+    ageMin,
+    ageMax,
+    regFrom,
+    regTo,
+    departmentFilter,
+    appointments,
+  ])
 
   useEffect(() => {
     setPage(1)
-  }, [searchQuery, bloodFilter, genderFilter])
+  }, [searchQuery, bloodFilter, genderFilter, ageMin, ageMax, regFrom, regTo, departmentFilter])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
@@ -111,7 +198,16 @@ export default function PatientListPage() {
     return filtered.slice(start, start + PAGE_SIZE)
   }, [filtered, safePage])
 
-  const activeFilters = Boolean(searchQuery.trim() || bloodFilter || genderFilter)
+  const activeFilters = Boolean(
+    searchQuery.trim() ||
+      bloodFilter ||
+      genderFilter ||
+      ageMin.trim() ||
+      ageMax.trim() ||
+      regFrom.trim() ||
+      regTo.trim() ||
+      departmentFilter,
+  )
 
   const deactivate = async (p: PatientRecord) => {
     if (!window.confirm(`Soft-delete (deactivate) patient ${p.fullName} (${p.id})? They will be hidden from this list.`)) {
@@ -202,6 +298,11 @@ export default function PatientListPage() {
                   setSearchQuery('')
                   setBloodFilter('')
                   setGenderFilter('')
+                  setAgeMin('')
+                  setAgeMax('')
+                  setRegFrom('')
+                  setRegTo('')
+                  setDepartmentFilter('')
                 }}
                 className="shrink-0 text-xs font-semibold text-sky-600 dark:text-white hover:underline"
               >
@@ -279,6 +380,101 @@ export default function PatientListPage() {
               <option value="female">Female</option>
               <option value="other">Other</option>
             </select>
+          </div>
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 lg:gap-5 items-start">
+          <div>
+            <label
+              htmlFor="patient-age-min"
+              className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5"
+            >
+              Min age
+            </label>
+            <input
+              id="patient-age-min"
+              type="number"
+              min={0}
+              max={130}
+              inputMode="numeric"
+              placeholder="Any"
+              value={ageMin}
+              onChange={(e) => setAgeMin(e.target.value)}
+              className={selectClass}
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="patient-age-max"
+              className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5"
+            >
+              Max age
+            </label>
+            <input
+              id="patient-age-max"
+              type="number"
+              min={0}
+              max={130}
+              inputMode="numeric"
+              placeholder="Any"
+              value={ageMax}
+              onChange={(e) => setAgeMax(e.target.value)}
+              className={selectClass}
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="patient-reg-from"
+              className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5"
+            >
+              Registered from
+            </label>
+            <input
+              id="patient-reg-from"
+              type="date"
+              value={regFrom}
+              onChange={(e) => setRegFrom(e.target.value)}
+              className={selectClass}
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="patient-reg-to"
+              className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5"
+            >
+              Registered to
+            </label>
+            <input
+              id="patient-reg-to"
+              type="date"
+              value={regTo}
+              onChange={(e) => setRegTo(e.target.value)}
+              className={selectClass}
+            />
+          </div>
+          <div className="sm:col-span-2 xl:col-span-2">
+            <label
+              htmlFor="patient-dept-filter"
+              className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5"
+            >
+              Department (from appointments)
+            </label>
+            <select
+              id="patient-dept-filter"
+              value={departmentFilter}
+              onChange={(e) => setDepartmentFilter(e.target.value)}
+              className={selectClass}
+            >
+              <option value="">All departments</option>
+              {departmentOptions.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+            {departmentOptions.length === 0 && (
+              <p className="text-[11px] text-slate-400 dark:text-white mt-1">Book appointments to enable this filter.</p>
+            )}
           </div>
         </div>
         {!loading && patients.length > 0 && (

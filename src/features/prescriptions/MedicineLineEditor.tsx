@@ -2,7 +2,7 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { AlertTriangle, Loader2, Pill, Search, Trash2 } from 'lucide-react'
 import type { OpenFdaLabelHit, PrescriptionMedicineLine } from './types'
 import {
-  fetchRecallAlertsForDrugIds,
+  fetchRecallAlertsForLabelHit,
   fetchRecallAlertsForTerms,
   searchDrugLabels,
 } from '../../shared/lib/drugCatalog'
@@ -75,10 +75,10 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
 
     setRecallLoading(true)
     try {
-      const alerts = await fetchRecallAlertsForDrugIds([hit.id])
+      const alerts = await fetchRecallAlertsForLabelHit(hit)
       onChange({ ...base, recallAlerts: alerts })
     } catch {
-      notify.error('Could not load recall sample for this drug.')
+      notify.error('Could not load recall information for this drug.')
     } finally {
       setRecallLoading(false)
     }
@@ -98,8 +98,8 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
     try {
       const alerts = await fetchRecallAlertsForTerms(uniq.slice(0, 6))
       onChange({ ...line, recallAlerts: alerts })
-      if (alerts.length === 0) notify.success('No demo recall records matched this drug.')
-      else notify.success(`${alerts.length} demo recall record(s) — review below.`)
+      if (alerts.length === 0) notify.success('No recall records matched this drug.')
+      else notify.success(`${alerts.length} recall record(s) — review below.`)
     } catch {
       notify.error('Recall lookup failed.')
     } finally {
