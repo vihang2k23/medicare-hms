@@ -7,6 +7,8 @@ import { notify } from '../../shared/lib/notify'
 import { useModalScrollLock } from '../../shared/hooks/useModalScrollLock'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../shared/ui/modalOverlayClasses'
 import { ModalPortal } from '../../shared/ui/ModalPortal'
+import { SearchableIdPicker } from '../../shared/ui/SearchWithDropdown'
+import { filterLabeledOption } from '../../shared/ui/labeledOptionFilter'
 import type { Appointment, ScheduleDoctor } from './types'
 import { generateDaySlots } from './slotUtils'
 
@@ -105,20 +107,26 @@ function BookAppointmentModalOpen({
         </div>
         <div className="p-5 space-y-4 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] min-h-0 flex-1 touch-pan-y">
           <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">Patient</label>
-            <select
-              value={patientId}
-              onChange={(e) => setPatientId(e.target.value)}
-              disabled={loading}
-              className="w-full max-w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
-            >
-              <option value="">{loading ? 'Loading…' : 'Select patient'}</option>
-              {patients.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.fullName} ({p.id})
-                </option>
-              ))}
-            </select>
+            <SearchableIdPicker<PatientRecord>
+              id="book-apt-patient"
+              label="Patient"
+              items={patients}
+              selectedId={patientId}
+              onSelectId={setPatientId}
+              getId={(p) => p.id}
+              getLabel={(p) => `${p.fullName} (${p.id})`}
+              filterItem={(p, q) => {
+                const t = q.trim().toLowerCase()
+                if (!t) return true
+                return p.fullName.toLowerCase().includes(t) || p.id.toLowerCase().includes(t)
+              }}
+              placeholder="Search patient…"
+              emptyLabel={loading ? 'Loading…' : 'Select patient'}
+              accent="sky"
+              allowClear
+              loading={loading}
+              disabled={loading && patients.length === 0}
+            />
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">Reason</label>
@@ -205,6 +213,11 @@ function ManageAppointmentModalContent({
     }))
   }, [newDate, doctor])
 
+  const slotPickerRows = useMemo(
+    () => [{ id: '', label: 'Select slot' }, ...slotOptions.map((o) => ({ id: o.value, label: o.label }))],
+    [slotOptions],
+  )
+
   const applyReschedule = () => {
     const [start, end] = newSlot.split('|')
     if (!start || !end) {
@@ -272,19 +285,20 @@ function ManageAppointmentModalContent({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">New slot</label>
-            <select
-              value={newSlot}
-              onChange={(e) => setNewSlot(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
-            >
-              <option value="">Select slot</option>
-              {slotOptions.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
+            <SearchableIdPicker<{ id: string; label: string }>
+              id="manage-apt-slot"
+              label="New slot"
+              items={slotPickerRows}
+              selectedId={newSlot}
+              onSelectId={setNewSlot}
+              getId={(o) => o.id}
+              getLabel={(o) => o.label}
+              filterItem={filterLabeledOption}
+              placeholder="Search time slot…"
+              emptyLabel="Select slot"
+              accent="violet"
+              allowClear={false}
+            />
           </div>
           <button
             type="button"

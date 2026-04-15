@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useDispatch } from 'react-redux'
 import {
-// DoctorDirectoryPage defines the Doctor Directory Page UI surface and its primary interaction flow.
   Building2,
   CalendarClock,
   ChevronLeft,
@@ -44,6 +43,8 @@ import { notify } from '../shared/lib/notify'
 import { useModalScrollLock } from '../shared/hooks/useModalScrollLock'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../shared/ui/modalOverlayClasses'
 import InternalDoctorScheduleModal from '../shared/components/InternalDoctorScheduleModal'
+import { SearchableIdPicker } from '../shared/ui/SearchWithDropdown'
+import { filterLabeledOption } from '../shared/ui/labeledOptionFilter'
 
 const PAGE_SIZE = 12
 const MAX_SKIP = 1000
@@ -391,6 +392,38 @@ export default function DoctorDirectoryPage() {
     return TAXONOMY_SELECT_CUSTOM
   }, [taxonomyDescription])
 
+  const npiTypeItems = useMemo(
+    () => NPI_TYPE_OPTIONS.map((o) => ({ id: o.value, label: o.label })),
+    [],
+  )
+
+  const taxonomyPickerItems = useMemo(
+    () => [
+      { id: '', label: 'Any specialty' },
+      ...NPI_TAXONOMY_FILTERS.map((o) => ({ id: o.value as string, label: o.label })),
+      { id: TAXONOMY_SELECT_CUSTOM, label: 'Other (type below)' },
+    ],
+    [],
+  )
+
+  const countryPickerItems = useMemo(
+    () => NPI_COUNTRY_OPTIONS.map((c) => ({ id: c.code, label: c.label })),
+    [],
+  )
+
+  const addressPurposePickerItems = useMemo(
+    () => NPI_ADDRESS_PURPOSE_OPTIONS.map((o) => ({ id: o.value, label: o.label })),
+    [],
+  )
+
+  const statePickerItems = useMemo(() => {
+    if (!regionOptions) return []
+    return regionOptions.map((r) => ({
+      id: r.code,
+      label: r.code ? `${r.code} · ${r.name}` : r.name,
+    }))
+  }, [regionOptions])
+
   return (
     <div className="space-y-8">
       <div>
@@ -452,43 +485,40 @@ export default function DoctorDirectoryPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
-                  NPI type
-                </label>
-                <select
-                  value={enumerationType}
-                  onChange={(e) => setEnumerationType(e.target.value as NpiSearchParams['enumerationType'])}
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
-                >
-                  {NPI_TYPE_OPTIONS.map((o) => (
-                    <option key={o.value || 'any'} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
+                <SearchableIdPicker<{ id: string; label: string }>
+                  id="npi-search-enum-type"
+                  label="NPI type"
+                  items={npiTypeItems}
+                  selectedId={enumerationType}
+                  onSelectId={(id) => setEnumerationType(id as NpiSearchParams['enumerationType'])}
+                  getId={(o) => o.id}
+                  getLabel={(o) => o.label}
+                  filterItem={filterLabeledOption}
+                  placeholder="Search type…"
+                  emptyLabel="NPI type"
+                  accent="sky"
+                  allowClear={false}
+                />
               </div>
               <div className="sm:col-span-2 lg:col-span-1">
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
-                  Specialty (taxonomy)
-                </label>
-                <select
-                  value={taxonomySelectValue}
-                  onChange={(e) => {
-                    const v = e.target.value
-                    if (v === '') setTaxonomyDescription('')
-                    else if (v === TAXONOMY_SELECT_CUSTOM) setTaxonomyDescription('')
-                    else setTaxonomyDescription(v)
+                <SearchableIdPicker<{ id: string; label: string }>
+                  id="npi-search-taxonomy"
+                  label="Specialty (taxonomy)"
+                  items={taxonomyPickerItems}
+                  selectedId={taxonomySelectValue}
+                  onSelectId={(id) => {
+                    if (id === '') setTaxonomyDescription('')
+                    else if (id === TAXONOMY_SELECT_CUSTOM) setTaxonomyDescription('')
+                    else setTaxonomyDescription(id)
                   }}
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
-                >
-                  <option value="">Any specialty</option>
-                  {NPI_TAXONOMY_FILTERS.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                  <option value={TAXONOMY_SELECT_CUSTOM}>Other (type below)</option>
-                </select>
+                  getId={(o) => o.id}
+                  getLabel={(o) => o.label}
+                  filterItem={filterLabeledOption}
+                  placeholder="Search specialty…"
+                  emptyLabel="Any specialty"
+                  accent="sky"
+                  allowClear={false}
+                />
                 {taxonomySelectValue === TAXONOMY_SELECT_CUSTOM ? (
                   <input
                     value={taxonomyDescription}
@@ -580,49 +610,56 @@ export default function DoctorDirectoryPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">Country</label>
-                <select
-                  value={countryCode}
-                  onChange={(e) => {
-                    setCountryCode(e.target.value)
+                <SearchableIdPicker<{ id: string; label: string }>
+                  id="npi-search-country"
+                  label="Country"
+                  items={countryPickerItems}
+                  selectedId={countryCode}
+                  onSelectId={(id) => {
+                    setCountryCode(id)
                     setState('')
                   }}
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
-                >
-                  {NPI_COUNTRY_OPTIONS.map((c) => (
-                    <option key={c.code || 'any'} value={c.code}>
-                      {c.label}
-                    </option>
-                  ))}
-                </select>
+                  getId={(o) => o.id}
+                  getLabel={(o) => o.label}
+                  filterItem={filterLabeledOption}
+                  placeholder="Search country…"
+                  emptyLabel="Country"
+                  accent="sky"
+                  allowClear={false}
+                />
               </div>
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
-                  State / region
-                </label>
                 {stateIsSelect ? (
-                  <select
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
-                  >
-                    {regionOptions!.map((r) => (
-                      <option key={r.code || 'any'} value={r.code}>
-                        {r.code ? `${r.code} — ${r.name}` : r.name}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                    placeholder={
-                      countryCode
-                        ? 'Subdivision code or name (none in list for this country)'
-                        : 'Optional — pick a country for a subdivision list'
-                    }
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+                  <SearchableIdPicker<{ id: string; label: string }>
+                    id="npi-search-state"
+                    label="State / region"
+                    items={statePickerItems}
+                    selectedId={state}
+                    onSelectId={setState}
+                    getId={(o) => o.id}
+                    getLabel={(o) => o.label}
+                    filterItem={filterLabeledOption}
+                    placeholder="Search state…"
+                    emptyLabel="State / region"
+                    accent="sky"
+                    allowClear={false}
                   />
+                ) : (
+                  <>
+                    <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
+                      State / region
+                    </label>
+                    <input
+                      value={state}
+                      onChange={(e) => setState(e.target.value)}
+                      placeholder={
+                        countryCode
+                          ? 'Subdivision code or name (none in list for this country)'
+                          : 'Optional — pick a country for a subdivision list'
+                      }
+                      className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+                    />
+                  </>
                 )}
               </div>
               <div>
@@ -637,20 +674,20 @@ export default function DoctorDirectoryPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
-                  Address type
-                </label>
-                <select
-                  value={addressPurpose}
-                  onChange={(e) => setAddressPurpose(e.target.value as NpiSearchParams['addressPurpose'])}
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
-                >
-                  {NPI_ADDRESS_PURPOSE_OPTIONS.map((o) => (
-                    <option key={o.value || 'any'} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
+                <SearchableIdPicker<{ id: string; label: string }>
+                  id="npi-search-address-purpose"
+                  label="Address type"
+                  items={addressPurposePickerItems}
+                  selectedId={addressPurpose}
+                  onSelectId={(id) => setAddressPurpose(id as NpiSearchParams['addressPurpose'])}
+                  getId={(o) => o.id}
+                  getLabel={(o) => o.label}
+                  filterItem={filterLabeledOption}
+                  placeholder="Search address type…"
+                  emptyLabel="Address type"
+                  accent="sky"
+                  allowClear={false}
+                />
               </div>
             </div>
 

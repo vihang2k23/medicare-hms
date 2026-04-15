@@ -2,6 +2,8 @@ import { Fragment, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from 'lucide-react'
 import type { VitalRecord } from '../../shared/types/vitals'
+import { SearchableIdPicker } from '../../shared/ui/SearchWithDropdown'
+import { filterLabeledOption } from '../../shared/ui/labeledOptionFilter'
 
 // VitalsHistoryList defines the Vitals History List UI surface and its primary interaction flow.
 function bp(v: VitalRecord): string {
@@ -12,6 +14,7 @@ function bp(v: VitalRecord): string {
 }
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50] as const
+const PAGE_SIZE_ITEMS = PAGE_SIZE_OPTIONS.map((n) => ({ id: String(n), label: String(n) }))
 
 type VitalsHistoryListProps = {
   rows: VitalRecord[]
@@ -153,24 +156,25 @@ function VitalsHistoryListInner({ rows, emptyLabel }: Omit<VitalsHistoryListProp
           <span className="font-semibold text-slate-800 dark:text-white">{total}</span>
         </p>
         <div className="flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-white">
-            Rows per page
-            <select
-              value={pageSize}
-              onChange={(e) => {
-                setExpandedId(null)
-                setPageSize(Number(e.target.value) as (typeof PAGE_SIZE_OPTIONS)[number])
-                setPage(1)
-              }}
-              className="rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-950/60 text-sm text-slate-900 dark:text-white py-1.5 pl-2 pr-8 focus:outline-none focus:ring-2 focus:ring-orange-500/30"
-            >
-              {PAGE_SIZE_OPTIONS.map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-          </label>
+          <SearchableIdPicker<(typeof PAGE_SIZE_ITEMS)[number]>
+            id="vitals-history-page-size"
+            label="Rows per page"
+            items={PAGE_SIZE_ITEMS}
+            selectedId={String(pageSize)}
+            onSelectId={(id) => {
+              setExpandedId(null)
+              setPageSize(Number(id) as (typeof PAGE_SIZE_OPTIONS)[number])
+              setPage(1)
+            }}
+            getId={(o) => o.id}
+            getLabel={(o) => o.label}
+            filterItem={filterLabeledOption}
+            placeholder="Rows…"
+            emptyLabel="Rows per page"
+            accent="orange"
+            allowClear={false}
+            className="w-[8.5rem]"
+          />
           <div className="flex items-center gap-1">
             <button
               type="button"

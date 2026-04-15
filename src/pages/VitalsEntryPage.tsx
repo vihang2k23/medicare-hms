@@ -7,6 +7,8 @@ import type { PatientRecord } from '../shared/types/patient'
 import type { VitalRecord } from '../shared/types/vitals'
 import { notify } from '../shared/lib/notify'
 import DashboardCard from '../shared/ui/DashboardCard'
+import { SearchableIdPicker } from '../shared/ui/SearchWithDropdown'
+import { filterLabeledOption } from '../shared/ui/labeledOptionFilter'
 import VitalsRecordModal from '../features/vitals/VitalsRecordModal'
 
 // VitalsEntryPage defines the Vitals Entry Page UI surface and its primary interaction flow.
@@ -21,6 +23,7 @@ const fieldInput =
   'w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white shadow-sm shadow-slate-200/20 dark:shadow-none focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400/50 transition-[box-shadow,border-color]'
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50] as const
+const PAGE_SIZE_ITEMS = PAGE_SIZE_OPTIONS.map((n) => ({ id: String(n), label: String(n) }))
 
 // VitalsEntryPage renders the vitals entry page UI.
 function VitalsEntryPage() {
@@ -317,23 +320,24 @@ function VitalsEntryPage() {
                   <span className="font-semibold text-slate-800 dark:text-white">{totalFiltered}</span>
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
-                  <label className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-white">
-                    Rows per page
-                    <select
-                      value={pageSize}
-                      onChange={(e) => {
-                        setPageSize(Number(e.target.value) as (typeof PAGE_SIZE_OPTIONS)[number])
-                        setPage(1)
-                      }}
-                      className="rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-950/60 text-sm text-slate-900 dark:text-white py-1.5 pl-2 pr-8 focus:outline-none focus:ring-2 focus:ring-orange-500/30"
-                    >
-                      {PAGE_SIZE_OPTIONS.map((n) => (
-                        <option key={n} value={n}>
-                          {n}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  <SearchableIdPicker<(typeof PAGE_SIZE_ITEMS)[number]>
+                    id="vitals-entry-page-size"
+                    label="Rows per page"
+                    items={PAGE_SIZE_ITEMS}
+                    selectedId={String(pageSize)}
+                    onSelectId={(id) => {
+                      setPageSize(Number(id) as (typeof PAGE_SIZE_OPTIONS)[number])
+                      setPage(1)
+                    }}
+                    getId={(o) => o.id}
+                    getLabel={(o) => o.label}
+                    filterItem={filterLabeledOption}
+                    placeholder="Rows…"
+                    emptyLabel="Rows per page"
+                    accent="orange"
+                    allowClear={false}
+                    className="w-[8.5rem]"
+                  />
                   <div className="flex items-center gap-1">
                     <button
                       type="button"

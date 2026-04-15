@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from 'react-router-dom'
+import { SearchableIdPicker } from '../../shared/ui/SearchWithDropdown'
+import { filterLabeledOption } from '../../shared/ui/labeledOptionFilter'
 import {
-// PatientRegistrationForm defines the Patient Registration Form UI surface and its primary interaction flow.
   patientRegistrationSchema,
   step1Schema,
   step2Schema,
@@ -40,6 +41,17 @@ const defaultValues: PatientFormValues = {
 }
 
 const STEPS = ['Personal', 'Contact', 'Medical', 'Emergency', 'Review'] as const
+
+const GENDER_PICKER = [
+  { id: 'male', label: 'Male' },
+  { id: 'female', label: 'Female' },
+  { id: 'other', label: 'Other' },
+] as const
+
+const BLOOD_PICKER = [
+  { id: '', label: 'Select' },
+  ...(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const).map((b) => ({ id: b, label: b })),
+]
 
 const stepSchemas = [step1Schema, step2Schema, step3Schema, step4Schema] as const
 
@@ -85,6 +97,7 @@ export default function PatientRegistrationForm({
 
   const {
     register,
+    control,
     handleSubmit,
     trigger,
     watch,
@@ -248,27 +261,53 @@ export default function PatientRegistrationForm({
               {errors.dob && <p className="text-red-500 text-sm mt-1">{errors.dob.message}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Gender</label>
-              <select {...register('gender')} className={inputClass(!!errors.gender)}>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
+              <Controller
+                name="gender"
+                control={control}
+                render={({ field }) => (
+                  <SearchableIdPicker<(typeof GENDER_PICKER)[number]>
+                    id="patient-reg-gender"
+                    name="gender"
+                    label="Gender"
+                    items={GENDER_PICKER}
+                    selectedId={field.value}
+                    onSelectId={field.onChange}
+                    getId={(x) => x.id}
+                    getLabel={(x) => x.label}
+                    filterItem={filterLabeledOption}
+                    allowClear={false}
+                    accent="sky"
+                    emptyLabel="Pick gender"
+                    placeholder="Search…"
+                    className={errors.gender ? 'ring-2 ring-red-500/20 rounded-xl' : ''}
+                  />
+                )}
+              />
               {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender.message}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Blood group</label>
-              <select {...register('bloodGroup')} className={inputClass(!!errors.bloodGroup)}>
-                <option value="">Select</option>
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-              </select>
+              <Controller
+                name="bloodGroup"
+                control={control}
+                render={({ field }) => (
+                  <SearchableIdPicker<(typeof BLOOD_PICKER)[number]>
+                    id="patient-reg-bloodGroup"
+                    name="bloodGroup"
+                    label="Blood group"
+                    items={BLOOD_PICKER}
+                    selectedId={field.value}
+                    onSelectId={field.onChange}
+                    getId={(x) => x.id}
+                    getLabel={(x) => x.label}
+                    filterItem={filterLabeledOption}
+                    allowClear={false}
+                    accent="sky"
+                    emptyLabel="Select"
+                    placeholder="Search…"
+                    className={errors.bloodGroup ? 'ring-2 ring-red-500/20 rounded-xl' : ''}
+                  />
+                )}
+              />
               {errors.bloodGroup && <p className="text-red-500 text-sm mt-1">{errors.bloodGroup.message}</p>}
             </div>
             <div>

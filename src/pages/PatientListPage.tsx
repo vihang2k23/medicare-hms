@@ -5,7 +5,6 @@ import type { RootState } from '../app/store'
 import type { Appointment } from '../features/appointments/types'
 import type { PatientRecord } from '../shared/types/patient'
 import {
-// PatientListPage defines the Patient List Page UI surface and its primary interaction flow.
   ChevronLeft,
   ChevronRight,
   Loader2,
@@ -16,7 +15,8 @@ import {
 import { fetchPatients, softDeletePatient } from '../shared/api/patientsApi'
 import { notify } from '../shared/lib/notify'
 import DashboardCard from '../shared/ui/DashboardCard'
-import { SearchFilterCombobox } from '../shared/ui/SearchWithDropdown'
+import { SearchFilterCombobox, SearchableIdPicker } from '../shared/ui/SearchWithDropdown'
+import { filterLabeledOption } from '../shared/ui/labeledOptionFilter'
 
 const PAGE_SIZE = 10
 
@@ -146,6 +146,29 @@ export default function PatientListPage() {
     }
     return [...s].sort((x, y) => x.localeCompare(y))
   }, [appointments])
+
+  const bloodFilterItems = useMemo(
+    () => [
+      { id: '', label: 'All groups' },
+      ...BLOOD_OPTIONS.filter(Boolean).map((b) => ({ id: b, label: b })),
+    ],
+    [],
+  )
+
+  const genderFilterItems = useMemo(
+    () => [
+      { id: '', label: 'All' },
+      { id: 'male', label: 'Male' },
+      { id: 'female', label: 'Female' },
+      { id: 'other', label: 'Other' },
+    ],
+    [],
+  )
+
+  const departmentFilterItems = useMemo(
+    () => [{ id: '', label: 'All departments' }, ...departmentOptions.map((d) => ({ id: d, label: d }))],
+    [departmentOptions],
+  )
 
   const filtered = useMemo(() => {
     const fromMs = regRangeStartMs(regFrom)
@@ -344,44 +367,38 @@ export default function PatientListPage() {
             />
           </div>
           <div>
-            <label
-              htmlFor="patient-blood-filter"
-              className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5"
-            >
-              Blood group
-            </label>
-            <select
+            <SearchableIdPicker<{ id: string; label: string }>
               id="patient-blood-filter"
-              value={bloodFilter}
-              onChange={(e) => setBloodFilter(e.target.value)}
-              className={selectClass}
-            >
-              <option value="">All groups</option>
-              {BLOOD_OPTIONS.filter(Boolean).map((b) => (
-                <option key={b} value={b}>
-                  {b}
-                </option>
-              ))}
-            </select>
+              label="Blood group"
+              items={bloodFilterItems}
+              selectedId={bloodFilter}
+              onSelectId={setBloodFilter}
+              getId={(o) => o.id}
+              getLabel={(o) => o.label}
+              filterItem={filterLabeledOption}
+              placeholder="Search blood group…"
+              emptyLabel="All groups"
+              accent="sky"
+              allowClear={false}
+              className="w-full"
+            />
           </div>
           <div>
-            <label
-              htmlFor="patient-gender-filter"
-              className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5"
-            >
-              Gender
-            </label>
-            <select
+            <SearchableIdPicker<{ id: string; label: string }>
               id="patient-gender-filter"
-              value={genderFilter}
-              onChange={(e) => setGenderFilter(e.target.value)}
-              className={selectClass}
-            >
-              <option value="">All</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
+              label="Gender"
+              items={genderFilterItems}
+              selectedId={genderFilter}
+              onSelectId={setGenderFilter}
+              getId={(o) => o.id}
+              getLabel={(o) => o.label}
+              filterItem={filterLabeledOption}
+              placeholder="Search gender…"
+              emptyLabel="All"
+              accent="sky"
+              allowClear={false}
+              className="w-full"
+            />
           </div>
         </div>
 
@@ -455,25 +472,21 @@ export default function PatientListPage() {
             />
           </div>
           <div className="sm:col-span-2 xl:col-span-2">
-            <label
-              htmlFor="patient-dept-filter"
-              className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5"
-            >
-              Department (from appointments)
-            </label>
-            <select
+            <SearchableIdPicker<{ id: string; label: string }>
               id="patient-dept-filter"
-              value={departmentFilter}
-              onChange={(e) => setDepartmentFilter(e.target.value)}
-              className={selectClass}
-            >
-              <option value="">All departments</option>
-              {departmentOptions.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
+              label="Department (from appointments)"
+              items={departmentFilterItems}
+              selectedId={departmentFilter}
+              onSelectId={setDepartmentFilter}
+              getId={(o) => o.id}
+              getLabel={(o) => o.label}
+              filterItem={filterLabeledOption}
+              placeholder="Search department…"
+              emptyLabel="All departments"
+              accent="sky"
+              allowClear={false}
+              className="w-full"
+            />
             {departmentOptions.length === 0 && (
               <p className="text-[11px] text-slate-400 dark:text-white mt-1">Book appointments to enable this filter.</p>
             )}

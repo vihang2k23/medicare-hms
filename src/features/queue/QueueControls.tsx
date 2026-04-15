@@ -4,8 +4,9 @@ import { Timer } from 'lucide-react'
 import { store, type AppDispatch, type RootState } from '../../app/store'
 import { notify } from '../../shared/lib/notify'
 import { OPD_DEPARTMENTS } from '../../shared/config/departments'
+import { SearchableIdPicker } from '../../shared/ui/SearchWithDropdown'
+import { filterLabeledOption } from '../../shared/ui/labeledOptionFilter'
 import {
-// QueueControls defines the Queue Controls UI surface and its primary interaction flow.
   callNext,
   completeCurrent,
   formatOpdTokenLabel,
@@ -22,6 +23,11 @@ const SIM_INTERVALS = [
   { label: '8 seconds', ms: 8000 },
   { label: '4 seconds', ms: 4000 },
 ] as const
+
+const SIM_INTERVAL_ITEMS = SIM_INTERVALS.map(({ label, ms }) => ({
+  id: String(ms),
+  label,
+}))
 
 export interface QueueControlsProps {
   simulationIntervalMs?: number
@@ -171,19 +177,22 @@ export default function QueueControls({
           waiting; stops automatically when the queue has no waiting or in-consultation patients.
         </p>
         <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 items-stretch sm:items-center">
-          <label className="text-xs font-medium text-slate-600 dark:text-white shrink-0">Interval</label>
-          <select
-            value={simulationIntervalMs}
-            onChange={(e) => onSimulationIntervalChange?.(Number(e.target.value))}
+          <SearchableIdPicker
+            id="queue-sim-interval"
+            label="Interval"
+            items={SIM_INTERVAL_ITEMS}
+            selectedId={String(simulationIntervalMs)}
+            onSelectId={(id) => onSimulationIntervalChange?.(Number(id))}
+            getId={(x) => x.id}
+            getLabel={(x) => x.label}
+            filterItem={filterLabeledOption}
+            placeholder="Search interval…"
+            emptyLabel="Interval"
+            accent="violet"
+            allowClear={false}
             disabled={!onSimulationIntervalChange}
-            className="sm:flex-1 min-w-[10rem] px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white/90 dark:bg-slate-950/50 text-slate-800 dark:text-white text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/30 disabled:opacity-50"
-          >
-            {SIM_INTERVALS.map((opt) => (
-              <option key={opt.ms} value={opt.ms}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+            className="sm:flex-1 min-w-[10rem]"
+          />
           <button
             type="button"
             onClick={() => {

@@ -10,6 +10,8 @@ import type { AppDispatch } from '../../app/store'
 import { addPrescription, newMedicineLine } from './prescriptionsSlice'
 import type { PrescriptionMedicineLine } from './types'
 import MedicineLineEditor from './MedicineLineEditor'
+import { SearchableIdPicker } from '../../shared/ui/SearchWithDropdown'
+import type { ScheduleDoctor } from '../appointments/types'
 
 // PrescriptionForm defines the Prescription Form UI surface and its primary interaction flow.
 export type PrescriptionFormVariant = 'admin' | 'doctor'
@@ -148,47 +150,58 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
       <div className="grid grid-cols-1 gap-4">
         {variant === 'admin' && (
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5">
-              Prescribing physician
-            </label>
-            <select
-              value={prescriberDoctorId}
-              onChange={(e) => setPrescriberDoctorId(e.target.value)}
-              disabled={doctors.length === 0}
-              className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
-            >
-              {doctors.length === 0 ? (
-                <option value="">No doctors in schedule</option>
-              ) : (
-                doctors.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name} — {d.department}
-                  </option>
-                ))
-              )}
-            </select>
+            {doctors.length === 0 ? (
+              <p className="text-sm text-amber-700 dark:text-amber-200">No doctors in schedule.</p>
+            ) : (
+              <SearchableIdPicker<ScheduleDoctor>
+                id="rx-prescriber-doctor"
+                label="Prescribing physician"
+                items={doctors}
+                selectedId={prescriberDoctorId}
+                onSelectId={setPrescriberDoctorId}
+                getId={(d) => d.id}
+                getLabel={(d) => `${d.name} · ${d.department}`}
+                filterItem={(d, q) => {
+                  const t = q.trim().toLowerCase()
+                  if (!t) return true
+                  return d.name.toLowerCase().includes(t) || d.department.toLowerCase().includes(t)
+                }}
+                placeholder="Search physician…"
+                emptyLabel="Choose physician"
+                accent="sky"
+                allowClear={false}
+              />
+            )}
             <p className="text-[11px] text-slate-400 dark:text-white mt-1.5">
               This name appears on the prescription, history, and printable PDF.
             </p>
           </div>
         )}
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5">
-            Patient
-          </label>
-          <select
-            value={patientId}
-            onChange={(e) => setPatientId(e.target.value)}
-            disabled={loadingPatients}
-            className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
-          >
-            <option value="">{loadingPatients ? 'Loading patients…' : 'Select patient'}</option>
-            {patients.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.fullName} ({p.id})
-              </option>
-            ))}
-          </select>
+          <SearchableIdPicker<PatientRecord>
+            id="rx-patient"
+            label="Patient"
+            items={patients}
+            selectedId={patientId}
+            onSelectId={setPatientId}
+            getId={(p) => p.id}
+            getLabel={(p) => `${p.fullName} (${p.id})`}
+            filterItem={(p, q) => {
+              const t = q.trim().toLowerCase()
+              if (!t) return true
+              return (
+                p.fullName.toLowerCase().includes(t) ||
+                p.id.toLowerCase().includes(t) ||
+                p.email.toLowerCase().includes(t)
+              )
+            }}
+            placeholder="Search patient…"
+            emptyLabel={loadingPatients ? 'Loading patients…' : 'Select patient'}
+            accent="sky"
+            allowClear
+            loading={loadingPatients}
+            disabled={loadingPatients && patients.length === 0}
+          />
         </div>
         <div>
           <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5">

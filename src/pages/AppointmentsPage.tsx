@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { addWeeks, format } from 'date-fns'
+import { addWeeks, format, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight, CalendarDays, Printer } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import type { AppDispatch, RootState } from '../app/store'
 import { useAuth } from '../shared/hooks/useAuth'
 import {
-// AppointmentsPage defines the Appointments Page UI surface and its primary interaction flow.
   bookAppointment,
   cancelAppointment,
   findSchedulingConflict,
@@ -14,10 +13,11 @@ import {
 import WeeklyTimeGridCalendar from '../features/appointments/WeeklyTimeGridCalendar'
 import { BookAppointmentModal, ManageAppointmentModal } from '../features/appointments/AppointmentDialogs'
 import { isDateInWeek, startOfWeekMonday } from '../features/appointments/slotUtils'
-import type { Appointment } from '../features/appointments/types'
+import type { Appointment, ScheduleDoctor } from '../features/appointments/types'
 import { notify } from '../shared/lib/notify'
 import type { PatientRecord } from '../shared/types/patient'
 import { scheduleDoctorIdForAuthUser } from '../shared/config/doctorScheduleMap'
+import { SearchableIdPicker } from '../shared/ui/SearchWithDropdown'
 
 export type AppointmentsVariant = 'admin' | 'receptionist' | 'doctor'
 
@@ -25,7 +25,6 @@ interface AppointmentsPageProps {
   variant?: AppointmentsVariant
 }
 
-// AppointmentsPage renders the appointments page UI.
 export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPageProps) {
   const { user } = useAuth()
   const dispatch = useDispatch<AppDispatch>()
@@ -197,10 +196,24 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
           >
             <ChevronRight className="h-5 w-5" />
           </button>
-          <span className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-800 dark:text-white ml-0 sm:ml-2 min-w-0">
-            <CalendarDays className="h-4 w-4 shrink-0 text-violet-500" aria-hidden />
-            <span className="truncate">{headerRange}</span>
-          </span>
+          <label className="relative inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-800 dark:text-white ml-0 sm:ml-2 min-w-0 cursor-pointer rounded-lg px-1 py-0.5 -mx-1 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 focus-within:ring-2 focus-within:ring-violet-400/60 focus-within:ring-offset-2 dark:focus-within:ring-offset-slate-900">
+            <input
+              type="date"
+              value={format(weekStart, 'yyyy-MM-dd')}
+              onChange={(e) => {
+                const v = e.target.value
+                if (!v) return
+                setWeekStart(startOfWeekMonday(parseISO(v)))
+              }}
+              className="absolute inset-0 z-[1] h-full w-full cursor-pointer opacity-0"
+              aria-label="Choose week to show in the schedule"
+            />
+            <CalendarDays
+              className="pointer-events-none h-4 w-4 shrink-0 text-violet-500"
+              aria-hidden
+            />
+            <span className="pointer-events-none truncate">{headerRange}</span>
+          </label>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 w-full sm:w-auto">
@@ -220,22 +233,28 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
               {doctor.department}
             </p>
           ) : (
-            <div className="flex items-center gap-2">
-              <label htmlFor="appt-doctor" className="text-xs font-medium text-slate-500 dark:text-white">
-                Doctor
-              </label>
-              <select
+            <div className="w-full sm:w-auto sm:min-w-[16rem] sm:max-w-md">
+              <SearchableIdPicker<ScheduleDoctor>
                 id="appt-doctor"
-                value={doctorId}
-                onChange={(e) => setPickedDoctorId(e.target.value)}
-                className="w-full sm:w-auto sm:min-w-[12rem] px-3 py-2 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
-              >
-                {doctors.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name} — {d.department}
-                  </option>
-                ))}
-              </select>
+                label="Doctor"
+                items={doctors}
+                selectedId={doctorId}
+                onSelectId={setPickedDoctorId}
+                getId={(d) => d.id}
+                getLabel={(d) => `${d.name} · ${d.department}`}
+                filterItem={(d, query) => {
+                  const t = query.trim().toLowerCase()
+                  if (!t) return true
+                  return (
+                    d.name.toLowerCase().includes(t) || d.department.toLowerCase().includes(t)
+                  )
+                }}
+                placeholder="Search by name or department…"
+                emptyLabel="Choose a doctor"
+                accent="violet"
+                allowClear={false}
+                maxVisible={20}
+              />
             </div>
           )}
         </div>

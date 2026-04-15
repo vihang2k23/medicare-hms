@@ -9,6 +9,8 @@ import { DEMO_DOCTOR_USERS, DEMO_STAFF_USERS, demoEntryToAuthUser } from '../sha
 import { DEFAULT_SCHEDULE_DOCTORS } from '../features/appointments/appointmentsSlice'
 import Navbar from '../layouts/Navbar'
 import { notify } from '../shared/lib/notify'
+import { SearchableIdPicker } from '../shared/ui/SearchWithDropdown'
+import type { ScheduleDoctor } from '../features/appointments/types'
 import MediCareLogo, { MediCareWordmark } from '../shared/ui/brand/MediCareLogo'
 
 // Login defines the Login UI surface and its primary interaction flow.
@@ -128,21 +130,25 @@ export default function Login() {
                   </div>
                 </div>
                 <div className="flex flex-1 flex-col sm:flex-row gap-3 sm:items-center sm:justify-end min-w-0">
-                  <label htmlFor="login-doctor-select" className="sr-only">
-                    Doctor name
-                  </label>
-                  <select
+                  <span className="sr-only">Doctor name</span>
+                  <SearchableIdPicker<ScheduleDoctor>
                     id="login-doctor-select"
-                    value={selectedDoctorId}
-                    onChange={(e) => setSelectedDoctorId(e.target.value)}
-                    className="w-full sm:max-w-md rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900/80 px-3 py-2.5 text-sm font-medium text-slate-900 dark:text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
-                  >
-                    {DEFAULT_SCHEDULE_DOCTORS.map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {d.name} — {d.department}
-                      </option>
-                    ))}
-                  </select>
+                    items={DEFAULT_SCHEDULE_DOCTORS}
+                    selectedId={selectedDoctorId}
+                    onSelectId={setSelectedDoctorId}
+                    getId={(d) => d.id}
+                    getLabel={(d) => `${d.name} · ${d.department}`}
+                    filterItem={(d, q) => {
+                      const t = q.trim().toLowerCase()
+                      if (!t) return true
+                      return d.name.toLowerCase().includes(t) || d.department.toLowerCase().includes(t)
+                    }}
+                    placeholder="Search by name or department…"
+                    emptyLabel="Choose doctor"
+                    accent="sky"
+                    allowClear={false}
+                    className="w-full sm:max-w-md"
+                  />
                   <button
                     type="button"
                     onClick={handleDoctorContinue}

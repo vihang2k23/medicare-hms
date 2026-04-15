@@ -12,6 +12,12 @@ function fieldByName(name: string): HTMLElement {
   return el as HTMLElement
 }
 
+async function pickBloodGroup(user: ReturnType<typeof userEvent.setup>, value: string) {
+  await user.click(fieldByName('bloodGroup'))
+  const opt = await screen.findByRole('option', { name: value })
+  await user.click(opt)
+}
+
 jest.mock('../../../shared/api/patientsApi', () => ({
   createPatient: jest.fn(() => Promise.resolve()),
   updatePatient: jest.fn(() => Promise.resolve()),
@@ -56,7 +62,7 @@ describe('PatientRegistrationForm', () => {
     renderForm()
     await user.type(fieldByName('fullName'), 'Jane Doe')
     await user.type(fieldByName('dob'), '1990-06-15')
-    await user.selectOptions(fieldByName('bloodGroup'), 'A+')
+    await pickBloodGroup(user, 'A+')
     await user.click(screen.getByRole('button', { name: 'Next' }))
     expect(await screen.findByRole('heading', { name: 'Contact & address' })).toBeInTheDocument()
   })
@@ -67,7 +73,7 @@ describe('PatientRegistrationForm', () => {
 
     await user.type(fieldByName('fullName'), 'Jane Doe')
     await user.type(fieldByName('dob'), '1990-06-15')
-    await user.selectOptions(fieldByName('bloodGroup'), 'A+')
+    await pickBloodGroup(user, 'A+')
     await user.click(screen.getByRole('button', { name: 'Next' }))
 
     await screen.findByRole('heading', { name: 'Contact & address' })
@@ -115,7 +121,7 @@ describe('PatientRegistrationForm', () => {
     renderForm()
     await user.type(fieldByName('fullName'), 'Jane Doe')
     await user.type(fieldByName('dob'), '1990-06-15')
-    await user.selectOptions(fieldByName('bloodGroup'), 'A+')
+    await pickBloodGroup(user, 'A+')
     await user.click(screen.getByRole('button', { name: 'Next' }))
     await screen.findByRole('heading', { name: 'Contact & address' })
     await user.click(screen.getByRole('button', { name: 'Back' }))
@@ -185,7 +191,7 @@ describe('PatientRegistrationForm', () => {
 
     await user.type(fieldByName('fullName'), 'Jane Doe')
     await user.type(fieldByName('dob'), '1990-06-15')
-    await user.selectOptions(fieldByName('bloodGroup'), 'A+')
+    await pickBloodGroup(user, 'A+')
     await user.click(screen.getByRole('button', { name: 'Next' }))
     await screen.findByRole('heading', { name: 'Contact & address' })
     await user.type(fieldByName('phone'), '9876543210')
@@ -265,7 +271,7 @@ describe('PatientRegistrationForm', () => {
       renderForm()
       await user.type(fieldByName('fullName'), 'Jane Doe')
       await user.type(fieldByName('dob'), '1990-06-15')
-      await user.selectOptions(fieldByName('bloodGroup'), 'A+')
+      await pickBloodGroup(user, 'A+')
       const file = new File(['x'], 'p.png', { type: 'image/png' })
       const input = document.querySelector('input[type="file"]') as HTMLInputElement
       await user.upload(input, file)
@@ -283,7 +289,7 @@ describe('PatientRegistrationForm', () => {
     renderForm()
     await user.type(fieldByName('fullName'), 'Jane Doe')
     await user.type(fieldByName('dob'), '1990-06-15')
-    await user.selectOptions(fieldByName('bloodGroup'), 'A+')
+    await pickBloodGroup(user, 'A+')
     const input = document.querySelector('input[type="file"]') as HTMLInputElement
     const emptyList = { length: 0, item: () => null } as FileList
     Object.defineProperty(input, 'files', { value: emptyList, configurable: true })

@@ -1,5 +1,46 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { ChevronDown, Loader2, Search, X } from 'lucide-react'
+
+/**
+ * Positions a dropdown below an anchor using fixed coordinates (viewport pixels from
+ * getBoundingClientRect). The list is portaled to document.body so "fixed" is not warped by
+ * transformed ancestors (see .page-enter fadeInUp) or overflow clipping on main content.
+ */
+function useFixedMenuBelowAnchor(
+  active: boolean,
+  anchorRef: React.RefObject<HTMLElement | null>,
+): CSSProperties | undefined {
+  const [style, setStyle] = useState<CSSProperties | undefined>(undefined)
+
+  useLayoutEffect(() => {
+    if (!active) return
+    const update = () => {
+      const el = anchorRef.current
+      if (!el) return
+      const r = el.getBoundingClientRect()
+      const gap = 6
+      const maxH = Math.max(120, window.innerHeight - r.bottom - gap - 12)
+      setStyle({
+        position: 'fixed',
+        top: r.bottom + gap,
+        left: r.left,
+        width: r.width,
+        maxHeight: Math.min(240, maxH),
+        zIndex: 9999,
+      })
+    }
+    update()
+    window.addEventListener('scroll', update, true)
+    window.addEventListener('resize', update)
+    return () => {
+      window.removeEventListener('scroll', update, true)
+      window.removeEventListener('resize', update)
+    }
+  }, [active, anchorRef])
+
+  return active ? style : undefined
+}
 
 // SearchWithDropdown defines the Search With Dropdown UI surface and its primary interaction flow.
 export type SearchAccent = 'sky' | 'orange' | 'violet' | 'emerald'
@@ -28,6 +69,8 @@ export interface SearchableIdPickerProps<T> {
   emptyLabel?: string
   maxVisible?: number
   className?: string
+  /** Optional native name for forms and tests (e.g. react-hook-form). */
+  name?: string
 }
 
 /** Pick one item by id: search narrows a dropdown list (replaces long &lt;select&gt;s). */
@@ -48,16 +91,22 @@ export function SearchableIdPicker<T>({
   emptyLabel = 'Select…',
   maxVisible = 14,
   className = '',
+  name,
 }: SearchableIdPickerProps<T>) {
   const wrapRef = useRef<HTMLDivElement>(null)
+  const anchorRef = useRef<HTMLDivElement>(null)
+  const menuPanelRef = useRef<HTMLUListElement>(null)
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
+  const menuStyle = useFixedMenuBelowAnchor(open && !disabled && !loading, anchorRef)
 
   const selected = useMemo(() => items.find((x) => getId(x) === selectedId), [items, selectedId, getId])
 
   useEffect(() => {
     function onDown(e: MouseEvent) {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false)
+      const t = e.target as Node
+      if (wrapRef.current?.contains(t) || menuPanelRef.current?.contains(t)) return
+      setOpen(false)
     }
     document.addEventListener('mousedown', onDown)
     return () => document.removeEventListener('mousedown', onDown)
@@ -86,10 +135,11 @@ export function SearchableIdPicker<T>({
           {label}
         </label>
       )}
-      <div className="relative">
+      <div ref={anchorRef} className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" aria-hidden />
         <input
           id={id}
+          name={name}
           type="text"
           role="combobox"
           aria-expanded={open}
@@ -138,39 +188,47 @@ export function SearchableIdPicker<T>({
             <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
           </button>
         </div>
-        {open && !disabled && !loading && (
-          <ul
-            className="absolute left-0 right-0 top-full z-[90] mt-1 max-h-60 overflow-auto rounded-xl border border-slate-200/90 dark:border-slate-700/90 bg-white dark:bg-slate-900 py-1 shadow-xl shadow-slate-300/40 dark:shadow-slate-950/60 ring-1 ring-slate-200/60 dark:ring-slate-600/50"
-            role="listbox"
-          >
-          {filtered.length === 0 ? (
-            <li className="px-3 py-3 text-sm text-slate-500 dark:text-white">No matches.</li>
-          ) : (
-            filtered.map((item) => {
-              const iid = getId(item)
-              const active = iid === selectedId
-              return (
-                <li key={iid}>
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={active}
-                    className={`w-full text-left px-3 py-2.5 text-sm transition-colors ${
-                      active
-                        ? 'bg-sky-50 dark:bg-sky-950/40 text-sky-900 dark:text-white'
-                        : 'text-slate-800 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80'
-                    }`}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => pick(item)}
-                  >
-                    {getLabel(item)}
-                  </button>
-                </li>
-              )
-            })
+        {open &&
+          !disabled &&
+          !loading &&
+          menuStyle &&
+          createPortal(
+            <ul
+              ref={menuPanelRef}
+              data-autocomplete-menu=""
+              style={menuStyle}
+              className="overflow-auto rounded-xl border border-slate-200/90 dark:border-slate-700/90 bg-white dark:bg-slate-900 py-1 shadow-xl shadow-slate-300/40 dark:shadow-slate-950/60 ring-1 ring-slate-200/60 dark:ring-slate-600/50"
+              role="listbox"
+            >
+              {filtered.length === 0 ? (
+                <li className="px-3 py-3 text-sm text-slate-500 dark:text-white">No matches.</li>
+              ) : (
+                filtered.map((item) => {
+                  const iid = getId(item)
+                  const active = iid === selectedId
+                  return (
+                    <li key={iid}>
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={active}
+                        className={`w-full text-left px-3 py-2.5 text-sm transition-colors ${
+                          active
+                            ? 'bg-sky-50 dark:bg-sky-950/40 text-sky-900 dark:text-white'
+                            : 'text-slate-800 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80'
+                        }`}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => pick(item)}
+                      >
+                        {getLabel(item)}
+                      </button>
+                    </li>
+                  )
+                })
+              )}
+            </ul>,
+            document.body,
           )}
-          </ul>
-        )}
       </div>
     </div>
   )
@@ -219,8 +277,11 @@ export function SearchFilterCombobox<T>({
   hint,
 }: SearchFilterComboboxProps<T>) {
   const wrapRef = useRef<HTMLDivElement>(null)
+  const anchorRef = useRef<HTMLDivElement>(null)
+  const menuPanelRef = useRef<HTMLUListElement>(null)
   const [open, setOpen] = useState(false)
   const ring = accentInput[accent]
+  const menuStyle = useFixedMenuBelowAnchor(open && !disabled && !loading, anchorRef)
 
   const filtered = useMemo(() => {
     const t = value.trim()
@@ -230,7 +291,9 @@ export function SearchFilterCombobox<T>({
 
   useEffect(() => {
     function onDown(e: MouseEvent) {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false)
+      const t = e.target as Node
+      if (wrapRef.current?.contains(t) || menuPanelRef.current?.contains(t)) return
+      setOpen(false)
     }
     document.addEventListener('mousedown', onDown)
     return () => document.removeEventListener('mousedown', onDown)
@@ -243,7 +306,7 @@ export function SearchFilterCombobox<T>({
           {label}
         </label>
       )}
-      <div className="relative">
+      <div ref={anchorRef} className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" aria-hidden />
         <input
           id={id}
@@ -264,38 +327,46 @@ export function SearchFilterCombobox<T>({
         {loading && (
           <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 z-20 h-4 w-4 animate-spin text-slate-400" aria-hidden />
         )}
-        {open && !disabled && !loading && (
-          <ul
-            className="absolute left-0 right-0 top-full z-[90] mt-1 max-h-56 overflow-auto rounded-xl border border-slate-200/90 dark:border-slate-700/90 bg-white dark:bg-slate-900 py-1 shadow-xl shadow-slate-300/40 dark:shadow-slate-950/60 ring-1 ring-slate-200/60 dark:ring-slate-600/50"
-            role="listbox"
-          >
-            {!value.trim() && (
-              <li className="px-3 py-2 text-xs text-slate-500 dark:text-white border-b border-slate-100 dark:border-slate-800">
-                {emptyText}
-              </li>
-            )}
-            {filtered.length === 0 ? (
-              <li className="px-3 py-3 text-sm text-slate-500 dark:text-white">{noResultsText}</li>
-            ) : (
-              filtered.map((item) => (
-                <li key={getKey(item)}>
-                  <button
-                    type="button"
-                    role="option"
-                    className="w-full text-left px-3 py-2.5 text-sm text-slate-800 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => {
-                      onPick(item)
-                      setOpen(false)
-                    }}
-                  >
-                    {renderSuggestion(item)}
-                  </button>
+        {open &&
+          !disabled &&
+          !loading &&
+          menuStyle &&
+          createPortal(
+            <ul
+              ref={menuPanelRef}
+              data-autocomplete-menu=""
+              style={menuStyle}
+              className="overflow-auto rounded-xl border border-slate-200/90 dark:border-slate-700/90 bg-white dark:bg-slate-900 py-1 shadow-xl shadow-slate-300/40 dark:shadow-slate-950/60 ring-1 ring-slate-200/60 dark:ring-slate-600/50"
+              role="listbox"
+            >
+              {!value.trim() && (
+                <li className="px-3 py-2 text-xs text-slate-500 dark:text-white border-b border-slate-100 dark:border-slate-800">
+                  {emptyText}
                 </li>
-              ))
-            )}
-          </ul>
-        )}
+              )}
+              {filtered.length === 0 ? (
+                <li className="px-3 py-3 text-sm text-slate-500 dark:text-white">{noResultsText}</li>
+              ) : (
+                filtered.map((item) => (
+                  <li key={getKey(item)}>
+                    <button
+                      type="button"
+                      role="option"
+                      className="w-full text-left px-3 py-2.5 text-sm text-slate-800 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        onPick(item)
+                        setOpen(false)
+                      }}
+                    >
+                      {renderSuggestion(item)}
+                    </button>
+                  </li>
+                ))
+              )}
+            </ul>,
+            document.body,
+          )}
       </div>
       {hint && <p className="text-xs text-slate-500 dark:text-white mt-1.5">{hint}</p>}
     </div>

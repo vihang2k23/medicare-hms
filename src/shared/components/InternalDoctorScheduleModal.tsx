@@ -8,8 +8,9 @@ import { defaultImportedSchedule } from '../lib/npiRegistryApi'
 import { notify } from '../lib/notify'
 import { useModalScrollLock } from '../hooks/useModalScrollLock'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../ui/modalOverlayClasses'
+import { SearchableIdPicker } from '../ui/SearchWithDropdown'
+import { filterLabeledOption } from '../ui/labeledOptionFilter'
 import {
-// InternalDoctorScheduleModal defines the Internal Doctor Schedule Modal UI surface and its primary interaction flow.
   addImportedScheduleDoctor,
   updateImportedScheduleDoctor,
 } from '../../features/appointments/appointmentsSlice'
@@ -22,6 +23,7 @@ import {
 } from '../types/internalDoctor'
 
 const SLOT_OPTIONS = [15, 20, 30] as const
+const SLOT_ITEMS = SLOT_OPTIONS.map((m) => ({ id: String(m), label: `${m} minutes` }))
 const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7] as const
 
 export interface InternalDoctorScheduleModalProps {
@@ -320,20 +322,20 @@ export default function InternalDoctorScheduleModal({
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
-                Slot length
-              </label>
-              <select
-                value={slotDurationMinutes}
-                onChange={(e) => setSlotDurationMinutes(Number(e.target.value) as 15 | 20 | 30)}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white"
-              >
-                {SLOT_OPTIONS.map((m) => (
-                  <option key={m} value={m}>
-                    {m} minutes
-                  </option>
-                ))}
-              </select>
+              <SearchableIdPicker<(typeof SLOT_ITEMS)[number]>
+                id="internal-doc-slot-mins"
+                label="Slot length"
+                items={SLOT_ITEMS}
+                selectedId={String(slotDurationMinutes)}
+                onSelectId={(id) => setSlotDurationMinutes(Number(id) as 15 | 20 | 30)}
+                getId={(x) => x.id}
+                getLabel={(x) => x.label}
+                filterItem={filterLabeledOption}
+                placeholder="Search…"
+                emptyLabel="Slot length"
+                accent="sky"
+                allowClear={false}
+              />
             </div>
 
             <label className="flex items-center gap-2 cursor-pointer">
