@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from 'react-router-dom'
 import {
+// PatientRegistrationForm defines the Patient Registration Form UI surface and its primary interaction flow.
   patientRegistrationSchema,
   step1Schema,
   step2Schema,
@@ -62,6 +63,7 @@ interface PatientRegistrationFormProps {
 const exitLinkClass =
   'inline-flex items-center justify-center px-5 py-2.5 rounded-xl border-2 border-slate-300/90 dark:border-slate-500 bg-white/90 dark:bg-slate-800/90 text-slate-800 dark:text-white font-semibold text-sm shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-colors'
 
+// PatientRegistrationForm renders the patient registration form UI.
 export default function PatientRegistrationForm({
   onSuccess,
   redirectTo = '/admin/patients',

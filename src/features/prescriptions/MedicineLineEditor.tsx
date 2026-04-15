@@ -2,6 +2,7 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { AlertTriangle, Loader2, Pill, Search, Trash2 } from 'lucide-react'
 import type { OpenFdaLabelHit, PrescriptionMedicineLine } from './types'
 import {
+// MedicineLineEditor defines the Medicine Line Editor UI surface and its primary interaction flow.
   fetchRecallAlertsForLabelHit,
   fetchRecallAlertsForTerms,
   searchDrugLabels,
@@ -15,6 +16,7 @@ interface MedicineLineEditorProps {
   canRemove: boolean
 }
 
+// MedicineLineEditor renders the medicine line editor UI.
 export default function MedicineLineEditor({ line, onChange, onRemove, canRemove }: MedicineLineEditorProps) {
   const listId = useId()
   const wrapRef = useRef<HTMLDivElement>(null)

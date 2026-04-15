@@ -1,10 +1,12 @@
 import { Construction } from 'lucide-react'
 
+// PlaceholderPage defines the Placeholder Page UI surface and its primary interaction flow.
 interface PlaceholderPageProps {
   title: string
   description?: string
 }
 
+// PlaceholderPage renders the placeholder page UI.
 export default function PlaceholderPage({ title, description = 'Coming soon.' }: PlaceholderPageProps) {
   return (
     <div className="w-full max-w-lg mx-auto rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/50 backdrop-blur-sm px-5 py-8 sm:p-10 text-center shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">

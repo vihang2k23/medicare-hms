@@ -10,6 +10,7 @@ import { ModalPortal } from '../../shared/ui/ModalPortal'
 import type { Appointment, ScheduleDoctor } from './types'
 import { generateDaySlots } from './slotUtils'
 
+// AppointmentDialogs defines the Appointment Dialogs UI surface and its primary interaction flow.
 interface BookModalProps {
   open: boolean
   onClose: () => void
@@ -20,6 +21,7 @@ interface BookModalProps {
   onConfirm: (patient: PatientRecord, reason: string, notes: string) => void
 }
 
+// BookAppointmentModal renders the appointment dialogs UI.
 export function BookAppointmentModal(props: BookModalProps) {
   useModalScrollLock(props.open)
   if (!props.open) return null

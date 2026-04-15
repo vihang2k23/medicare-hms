@@ -1,6 +1,7 @@
 import toast, { Toaster, ToastBar, type Toast } from 'react-hot-toast'
 import { X } from 'lucide-react'
 
+// AppToaster defines the App Toaster UI surface and its primary interaction flow.
 function ToastWithClose({ t }: { t: Toast }) {
   return (
     <ToastBar toast={t}>

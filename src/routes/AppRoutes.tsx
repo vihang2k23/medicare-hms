@@ -10,6 +10,7 @@ import ReceptionistDashboard from '../pages/ReceptionistDashboard'
 import ReceptionistQueue from '../pages/ReceptionistQueue'
 import NurseDashboard from '../pages/NurseDashboard'
 import NurseBeds from '../pages/NurseBeds'
+// AppRoutes defines the App Routes UI surface and its primary interaction flow.
 const VitalsEntryPage = lazy(() => import('../pages/VitalsEntryPage'))
 const VitalsPatientDetailPage = lazy(() => import('../pages/VitalsPatientDetailPage'))
 import AccessDenied from '../pages/AccessDenied'
@@ -27,11 +28,13 @@ import DoctorMyPatientsPage from '../pages/DoctorMyPatientsPage'
 import DoctorPatientProfilePage from '../pages/DoctorPatientProfilePage'
 import ReportsPage from '../pages/ReportsPage'
 
+// AppRoutes renders the app routes UI.
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/" element={<ProtectedRoute />}>
+        {/* Main shell groups all authenticated routes under a shared layout. */}
         <Route element={<MainLayout />}>
           <Route index element={<RedirectToDefault />} />
           {/* Admin */}

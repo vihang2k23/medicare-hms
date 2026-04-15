@@ -1,6 +1,8 @@
 import { useSelector } from 'react-redux'
 import type { RootState } from '../app/store'
 
+// Dashboard defines the Dashboard UI surface and its primary interaction flow.
+// Dashboard renders the dashboard UI.
 export default function Dashboard() {
   const { user } = useSelector((state: RootState) => state.auth)
 

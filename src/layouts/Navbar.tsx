@@ -14,6 +14,7 @@ import { notify } from '../shared/lib/notify'
 import MediCareLogo, { MediCareWordmark } from '../shared/ui/brand/MediCareLogo'
 import { ALL_DEMO_LOGIN_ENTRIES, demoEntryToAuthUser, type DemoLoginEntry } from '../shared/config/demoAccounts'
 
+// Navbar defines the Navbar UI surface and its primary interaction flow.
 /** Human-readable role for the menu (neutral copy, no loud badge colors). */
 const ROLE_DISPLAY: Record<AuthUser['role'], string> = {
   admin: 'Administrator',
@@ -22,6 +23,7 @@ const ROLE_DISPLAY: Record<AuthUser['role'], string> = {
   nurse: 'Nurse',
 }
 
+// Navbar renders the navbar UI.
 export default function Navbar() {
   const { user, isAuthenticated } = useAuth()
   const dispatch = useDispatch()

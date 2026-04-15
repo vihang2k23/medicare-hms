@@ -4,6 +4,7 @@ import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 
 import DashboardCard from '../../shared/ui/DashboardCard'
 import { fetchRecallCountsByDrugClass } from '../../shared/lib/openfdaEnforcementApi'
 
+// DrugRecallSummaryCard defines the Drug Recall Summary Card UI surface and its primary interaction flow.
 const BAR_COLORS = ['#7c3aed', '#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6', '#64748b', '#ec4899']
 
 const DEMO_RECALL_BY_CLASS = [
@@ -15,6 +16,7 @@ const DEMO_RECALL_BY_CLASS = [
   { name: 'Antidiabetic', count: 6 },
 ]
 
+// DrugRecallSummaryCard renders the drug recall summary card UI.
 export default function DrugRecallSummaryCard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

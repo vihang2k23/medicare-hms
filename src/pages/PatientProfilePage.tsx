@@ -17,6 +17,7 @@ import { appointmentStatusClasses } from '../features/appointments/appointmentSt
 import { buildSimulatedBillingForPatient, billingTotals } from '../shared/lib/patientBillingFromRecords'
 import type { BillingRecordStatus } from '../shared/types/billing'
 
+// PatientProfilePage defines the Patient Profile Page UI surface and its primary interaction flow.
 type Tab = 'overview' | 'appointments' | 'prescriptions' | 'vitals' | 'billing'
 
 function isTab(v: string | null): v is Tab {
@@ -76,6 +77,7 @@ const BILL_STATUS_PILL: Record<BillingRecordStatus, string> = {
 
 const money = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' })
 
+// PatientProfilePage renders the patient profile page UI.
 export default function PatientProfilePage() {
   const { patientId } = useParams<{ patientId: string }>()
   const [searchParams, setSearchParams] = useSearchParams()

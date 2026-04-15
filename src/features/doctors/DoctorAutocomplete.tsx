@@ -1,4 +1,5 @@
 import {
+// DoctorAutocomplete defines the Doctor Autocomplete UI surface and its primary interaction flow.
   useCallback,
   useEffect,
   useMemo,
@@ -67,6 +68,7 @@ function toPopulateFields(d: AutocompleteDoctor): DoctorFormPopulateFields {
   }
 }
 
+// DoctorAutocomplete renders the doctor autocomplete UI.
 export default function DoctorAutocomplete({
   onFieldPopulate,
   onFormPopulate,

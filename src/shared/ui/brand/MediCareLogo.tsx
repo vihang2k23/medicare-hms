@@ -1,5 +1,6 @@
 import { useId } from 'react'
 
+// MediCareLogo defines the Medi Care Logo UI surface and its primary interaction flow.
 type LogoSize = 'sm' | 'md' | 'lg' | 'xl'
 
 const sizePx: Record<LogoSize, number> = {

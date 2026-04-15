@@ -4,6 +4,7 @@ import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../shared/
 import { ModalPortal } from '../../shared/ui/ModalPortal'
 import type { AutocompleteDoctor } from './npiAutocompleteMap'
 
+// DoctorDetailsModal defines the Doctor Details Modal UI surface and its primary interaction flow.
 export interface DoctorDetailsModalProps {
   selectedDoctor: AutocompleteDoctor | null
   open: boolean
@@ -12,6 +13,7 @@ export interface DoctorDetailsModalProps {
   adding: boolean
 }
 
+// DoctorDetailsModal renders the doctor details modal UI.
 export default function DoctorDetailsModal({
   selectedDoctor,
   open,

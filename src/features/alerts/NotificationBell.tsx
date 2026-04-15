@@ -6,11 +6,13 @@ import { Bell, X } from 'lucide-react'
 import type { AppDispatch, RootState } from '../../app/store'
 import { removeAlert } from './alertSlice'
 
+// NotificationBell defines the Notification Bell UI surface and its primary interaction flow.
 export interface NotificationBellProps {
   /** Close other chrome (e.g. user menu) when opening notifications. */
   onOpen?: () => void
 }
 
+// NotificationBell renders the notification bell UI.
 export default function NotificationBell({ onOpen }: NotificationBellProps) {
   const dispatch = useDispatch<AppDispatch>()
   const alerts = useSelector((state: RootState) => state.alerts.alerts)

@@ -6,6 +6,7 @@ import type { Appointment, AppointmentStatus, ScheduleDoctor } from './types'
 import { appointmentStatusClasses } from './appointmentStatusStyles'
 import { eachDayOfWeek, findSlotByStart, weekSlotStartLabels } from './slotUtils'
 
+// WeeklyTimeGridCalendar defines the Weekly Time Grid Calendar UI surface and its primary interaction flow.
 const MIME = 'application/x-medicare-appointment-id'
 
 interface WeeklyTimeGridCalendarProps {
@@ -43,6 +44,7 @@ function canDrag(status: AppointmentStatus): boolean {
   return status !== 'completed' && status !== 'cancelled' && status !== 'no-show'
 }
 
+// WeeklyTimeGridCalendar renders the weekly time grid calendar UI.
 export default function WeeklyTimeGridCalendar({
   weekStart,
   doctor,

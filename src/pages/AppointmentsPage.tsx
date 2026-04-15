@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import type { AppDispatch, RootState } from '../app/store'
 import { useAuth } from '../shared/hooks/useAuth'
 import {
+// AppointmentsPage defines the Appointments Page UI surface and its primary interaction flow.
   bookAppointment,
   cancelAppointment,
   findSchedulingConflict,
@@ -24,6 +25,7 @@ interface AppointmentsPageProps {
   variant?: AppointmentsVariant
 }
 
+// AppointmentsPage renders the appointments page UI.
 export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPageProps) {
   const { user } = useAuth()
   const dispatch = useDispatch<AppDispatch>()

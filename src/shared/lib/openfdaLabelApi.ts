@@ -68,7 +68,7 @@ export async function searchOpenFdaDrugLabels(query: string, limit = 10): Promis
 
   const token = term.split(/\s+/).find((t) => t.length >= 2) ?? term
   const safe = token.replace(/"/g, '')
-  // Same pattern as e.g. openfda.brand_name:para*+openfda.generic_name:para*
+  // Same pattern as openFDA examples, e.g. openfda.brand_name:Para*+openfda.generic_name:Para*
   const search = `openfda.brand_name:${safe}*+openfda.generic_name:${safe}*`
 
   try {

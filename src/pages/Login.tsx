@@ -11,6 +11,7 @@ import Navbar from '../layouts/Navbar'
 import { notify } from '../shared/lib/notify'
 import MediCareLogo, { MediCareWordmark } from '../shared/ui/brand/MediCareLogo'
 
+// Login defines the Login UI surface and its primary interaction flow.
 const roleLabels: Record<AuthUser['role'], string> = {
   admin: 'Administrator',
   doctor: 'Doctor',
@@ -25,6 +26,7 @@ const roleIcons: Record<AuthUser['role'], LucideIcon> = {
   nurse: HeartPulse,
 }
 
+// Login renders the login UI.
 export default function Login() {
   const dispatch = useDispatch()
   const navigate = useNavigate()

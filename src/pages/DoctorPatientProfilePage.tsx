@@ -16,6 +16,7 @@ import { scheduleDoctorIdForAuthUser } from '../shared/config/doctorScheduleMap'
 import { isPatientInDoctorCare } from '../shared/lib/myPatientsForDoctor'
 import type { Appointment } from '../features/appointments/types'
 
+// DoctorPatientProfilePage defines the Doctor Patient Profile Page UI surface and its primary interaction flow.
 type Tab = 'overview' | 'medical' | 'emergency' | 'vitals'
 
 function isTab(v: string | null): v is Tab {
@@ -44,6 +45,7 @@ function aptSortKey(a: Appointment): number {
   return Number.isFinite(t) ? t : a.createdAt
 }
 
+// DoctorPatientProfilePage renders the doctor patient profile page UI.
 export default function DoctorPatientProfilePage() {
   const { patientId: rawId } = useParams<{ patientId: string }>()
   const patientId = rawId?.trim() ?? ''

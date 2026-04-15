@@ -10,8 +10,10 @@ import { fetchAllVitals } from '../shared/api/vitalsApi'
 import type { PatientRecord } from '../shared/types/patient'
 import type { VitalRecord } from '../shared/types/vitals'
 
+// NurseDashboard defines the Nurse Dashboard UI surface and its primary interaction flow.
 const VITALS_STALE_MS = 24 * 60 * 60 * 1000
 
+// NurseDashboard renders the nurse dashboard UI.
 export default function NurseDashboard() {
   const { user } = useAuth()
   const [pendingVitals, setPendingVitals] = useState<{ patient: PatientRecord; reason: string }[]>([])

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { ChevronDown, Loader2, Search, X } from 'lucide-react'
 
+// SearchWithDropdown defines the Search With Dropdown UI surface and its primary interaction flow.
 export type SearchAccent = 'sky' | 'orange' | 'violet' | 'emerald'
 
 const accentInput: Record<SearchAccent, string> = {

@@ -9,6 +9,7 @@ import type { PatientRecord } from '../shared/types/patient'
 import { notify } from '../shared/lib/notify'
 import { aggregateMyPatients, type MyPatientRowMeta } from '../shared/lib/myPatientsForDoctor'
 
+// DoctorMyPatientsPage defines the Doctor My Patients Page UI surface and its primary interaction flow.
 const PAGE_SIZE = 10
 
 function initials(name: string): string {
@@ -31,6 +32,7 @@ function formatActivity(ts: number) {
 
 type Row = { patientId: string; record: PatientRecord | null; meta: MyPatientRowMeta }
 
+// DoctorMyPatientsPage renders the doctor my patients page UI.
 export default function DoctorMyPatientsPage() {
   const { user } = useAuth()
   const appointments = useSelector((s: RootState) => s.appointments.appointments)

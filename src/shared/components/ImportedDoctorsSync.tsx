@@ -5,6 +5,8 @@ import { fetchInternalDoctors } from '../api/internalDoctorsApi'
 import { internalRecordToScheduleDoctor } from '../types/internalDoctor'
 import { setImportedScheduleDoctors } from '../../features/appointments/appointmentsSlice'
 
+// ImportedDoctorsSync defines the Imported Doctors Sync UI surface and its primary interaction flow.
+// ImportedDoctorsSync renders the imported doctors sync UI.
 export default function ImportedDoctorsSync() {
   const dispatch = useDispatch<AppDispatch>()
 

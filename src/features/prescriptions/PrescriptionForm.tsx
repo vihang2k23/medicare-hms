@@ -11,6 +11,7 @@ import { addPrescription, newMedicineLine } from './prescriptionsSlice'
 import type { PrescriptionMedicineLine } from './types'
 import MedicineLineEditor from './MedicineLineEditor'
 
+// PrescriptionForm defines the Prescription Form UI surface and its primary interaction flow.
 export type PrescriptionFormVariant = 'admin' | 'doctor'
 
 interface PrescriptionFormProps {
@@ -20,6 +21,7 @@ interface PrescriptionFormProps {
   onSaved?: () => void
 }
 
+// PrescriptionForm renders the prescription form UI.
 export default function PrescriptionForm({ variant, initialPatientId, onSaved }: PrescriptionFormProps) {
   const { user } = useAuth()
   const dispatch = useDispatch<AppDispatch>()

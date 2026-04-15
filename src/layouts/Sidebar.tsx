@@ -9,6 +9,7 @@ import type { RootState } from '../app/store'
 import { setSidebarOpen, toggleSidebar } from '../features/ui/uiSlice'
 import MediCareLogo from '../shared/ui/brand/MediCareLogo'
 
+// Sidebar defines the Sidebar UI surface and its primary interaction flow.
 const ACCENT: Record<
   SidebarAccent,
   { activeBg: string; activeBorder: string; hoverBg: string; iconBg: string }
@@ -39,6 +40,7 @@ const ACCENT: Record<
   },
 }
 
+// Sidebar renders the sidebar UI.
 export default function Sidebar() {
   const { user } = useAuth()
   const location = useLocation()

@@ -1,9 +1,11 @@
 import BedGrid from '../features/beds/BedGrid'
 
-/** Admin route — full ward summary + interactive grid (same Redux state as nurse view). */
+// AdminBedsPage defines the Admin Beds Page UI surface and its primary interaction flow.
+/** Admin route for ward summary and interactive grid management. */
 export default function AdminBedsPage() {
   return (
     <div className="space-y-8">
+      {/* Intro copy explains admin-only bed transfer and configuration actions. */}
       <div>
         <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-teal-600 dark:text-white mb-2">
           Capacity

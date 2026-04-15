@@ -5,6 +5,7 @@ import { store, type AppDispatch, type RootState } from '../../app/store'
 import { notify } from '../../shared/lib/notify'
 import { OPD_DEPARTMENTS } from '../../shared/config/departments'
 import {
+// QueueControls defines the Queue Controls UI surface and its primary interaction flow.
   callNext,
   completeCurrent,
   formatOpdTokenLabel,
@@ -27,6 +28,7 @@ export interface QueueControlsProps {
   onSimulationIntervalChange?: (ms: number) => void
 }
 
+// QueueControls renders the queue controls UI.
 export default function QueueControls({
   simulationIntervalMs = 30000,
   onSimulationIntervalChange,

@@ -1,6 +1,8 @@
 import { useSelector } from 'react-redux'
 import type { RootState } from '../../app/store'
 
+// AlertWidget defines the Alert Widget UI surface and its primary interaction flow.
+// AlertWidget renders the alert widget UI.
 export default function AlertWidget() {
   const alerts = useSelector((state: RootState) => state.alerts.alerts)
 

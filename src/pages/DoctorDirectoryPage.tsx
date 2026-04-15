@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useDispatch } from 'react-redux'
 import {
+// DoctorDirectoryPage defines the Doctor Directory Page UI surface and its primary interaction flow.
   Building2,
   CalendarClock,
   ChevronLeft,
@@ -232,6 +233,7 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
   return createPortal(modal, document.body)
 }
 
+// DoctorDirectoryPage renders the doctor directory page UI.
 export default function DoctorDirectoryPage() {
   const dispatch = useDispatch<AppDispatch>()
   const [tab, setTab] = useState<'search' | 'internal'>('search')

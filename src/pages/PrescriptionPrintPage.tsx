@@ -9,6 +9,7 @@ import MediCareLogo from '../shared/ui/brand/MediCareLogo'
 import { MedicarePrintPageFooter, MedicarePrintPageHeader } from '../shared/ui/print/MedicarePrintChrome'
 import type { PatientRecord } from '../shared/types/patient'
 
+// PrescriptionPrintPage defines the Prescription Print Page UI surface and its primary interaction flow.
 function formatRxDate(ts: number) {
   return new Date(ts).toLocaleString(undefined, {
     dateStyle: 'long',
@@ -32,6 +33,7 @@ interface PrescriptionPrintPageProps {
   variant: PrescriptionPrintVariant
 }
 
+// PrescriptionPrintPage renders the prescription print page UI.
 export default function PrescriptionPrintPage({ variant }: PrescriptionPrintPageProps) {
   const { prescriptionId } = useParams<{ prescriptionId: string }>()
   const navigate = useNavigate()

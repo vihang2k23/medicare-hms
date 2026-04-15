@@ -1,9 +1,11 @@
 import { Link, useLocation } from 'react-router-dom'
 import PatientRegistrationForm from '../features/patients/PatientRegistrationForm'
 
+// PatientRegistrationPage defines the Patient Registration Page UI surface and its primary interaction flow.
 const headerBackBtnClass =
   'inline-flex shrink-0 items-center justify-center gap-2 px-4 py-2.5 rounded-xl border-2 border-slate-300/90 dark:border-slate-500 bg-white/90 dark:bg-slate-800/90 text-slate-800 dark:text-white font-semibold text-sm shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-colors'
 
+// PatientRegistrationPage renders the patient registration page UI.
 export default function PatientRegistrationPage() {
   const location = useLocation()
   const isReceptionist = location.pathname.includes('receptionist')

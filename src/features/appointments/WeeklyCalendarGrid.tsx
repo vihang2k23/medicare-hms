@@ -3,6 +3,7 @@ import { CalendarOff } from 'lucide-react'
 import type { Appointment, ScheduleDoctor } from './types'
 import { eachDayOfWeek, generateDaySlots } from './slotUtils'
 
+// WeeklyCalendarGrid defines the Weekly Calendar Grid UI surface and its primary interaction flow.
 interface WeeklyCalendarGridProps {
   weekStart: Date
   doctor: ScheduleDoctor
@@ -11,6 +12,7 @@ interface WeeklyCalendarGridProps {
   onOpenAppointment: (apt: Appointment) => void
 }
 
+// WeeklyCalendarGrid renders the weekly calendar grid UI.
 export default function WeeklyCalendarGrid({
   weekStart,
   doctor,

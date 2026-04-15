@@ -6,6 +6,7 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, X
 import type { RootState } from '../../app/store'
 import type { VitalRecord } from '../../shared/types/vitals'
 
+// VitalsTrendCharts defines the Vitals Trend Charts UI surface and its primary interaction flow.
 type ChartRow = {
   label: string
   systolic: number | null
@@ -32,6 +33,7 @@ function countNumeric(data: ChartRow[], key: keyof ChartRow): number {
   return data.filter((d) => typeof d[key] === 'number' && d[key] !== null).length
 }
 
+// VitalsTrendCharts renders the vitals trend charts UI.
 export default function VitalsTrendCharts({ rows }: { rows: VitalRecord[] }) {
   const theme = useSelector((s: RootState) => s.ui.theme)
   const dark = theme === 'dark'

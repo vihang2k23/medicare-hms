@@ -4,6 +4,7 @@ import ThemeSync from './shared/components/ThemeSync'
 import AppToaster from './shared/ui/AppToaster'
 import ImportedDoctorsSync from './shared/components/ImportedDoctorsSync'
 
+// App renders the app UI.
 function App() {
   return (
     <>

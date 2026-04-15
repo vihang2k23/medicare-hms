@@ -11,6 +11,8 @@ import { formatOpdTokenLabel } from '../features/queue/queueSlice'
 import { fetchPatients } from '../shared/api/patientsApi'
 import { formatLocalDate, pendingAppointmentsToday, startOfLocalDayMs } from '../shared/lib/dashboardMetrics'
 
+// ReceptionistDashboard defines the Receptionist Dashboard UI surface and its primary interaction flow.
+// ReceptionistDashboard renders the receptionist dashboard UI.
 export default function ReceptionistDashboard() {
   const { user } = useAuth()
   const opdQueue = useSelector((s: RootState) => s.queue.queue)

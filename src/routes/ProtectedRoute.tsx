@@ -3,6 +3,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import type { RootState } from '../app/store'
 import { canAccessPath } from '../shared/config/roles'
 
+// ProtectedRoute defines the Protected Route UI surface and its primary interaction flow.
 /**
  * Role-based route protection:
  * - Not authenticated → redirect to login

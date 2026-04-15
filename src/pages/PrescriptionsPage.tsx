@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import {
+// PrescriptionsPage defines the Prescriptions Page UI surface and its primary interaction flow.
   Calendar,
   ChevronDown,
   ChevronUp,
@@ -268,6 +269,7 @@ function PrescriptionHistoryCard({
   )
 }
 
+// PrescriptionsPage renders the prescriptions page UI.
 export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsPageProps) {
   const { user } = useAuth()
   const dispatch = useDispatch<AppDispatch>()

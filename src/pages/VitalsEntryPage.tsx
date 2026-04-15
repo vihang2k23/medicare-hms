@@ -9,6 +9,7 @@ import { notify } from '../shared/lib/notify'
 import DashboardCard from '../shared/ui/DashboardCard'
 import VitalsRecordModal from '../features/vitals/VitalsRecordModal'
 
+// VitalsEntryPage defines the Vitals Entry Page UI surface and its primary interaction flow.
 function patientInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean)
   if (parts.length === 0) return '?'
@@ -21,6 +22,7 @@ const fieldInput =
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50] as const
 
+// VitalsEntryPage renders the vitals entry page UI.
 function VitalsEntryPage() {
   const [patients, setPatients] = useState<PatientRecord[]>([])
   const [vitalsByPatient, setVitalsByPatient] = useState<Record<string, VitalRecord[]>>({})

@@ -4,6 +4,7 @@ import DashboardCard from '../shared/ui/DashboardCard'
 import StatCard from '../shared/ui/StatCard'
 import { fetchPatients } from '../shared/api/patientsApi'
 import {
+// AdminDashboard defines the Admin Dashboard UI surface and its primary interaction flow.
   estimateRevenueToday,
   formatInrCompact,
   formatLocalDate,
@@ -35,6 +36,7 @@ const BED_PIE_COLORS = {
   maintenance: '#64748b',
 } as const
 
+// AdminDashboard renders the admin dashboard UI.
 export default function AdminDashboard() {
   const { user } = useAuth()
   const opdQueue = useSelector((state: RootState) => state.queue.queue)
@@ -109,6 +111,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8">
+      {/* Greeting and context block for daily admin operations. */}
       <div>
         <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-600 dark:text-white mb-2">Overview</p>
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Admin dashboard</h1>
@@ -195,6 +198,7 @@ export default function AdminDashboard() {
         </DashboardCard>
       </div>
 
+      {/* Secondary analytics section highlights load distribution and staffing view. */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <DashboardCard title="Top 5 departments by patient load">
           <div className="h-64">

@@ -1,10 +1,12 @@
 import { medicarePrintTimestamp } from '../../lib/medicarePrintTimestamp'
 
+// MedicarePrintChrome defines the Medicare Print Chrome UI surface and its primary interaction flow.
 type MedicarePrintPageHeaderProps = {
   documentLabel: string
   detail?: string
 }
 
+// MedicarePrintPageHeader renders the medicare print chrome UI.
 export function MedicarePrintPageHeader({ documentLabel, detail }: MedicarePrintPageHeaderProps) {
   const printedAt = medicarePrintTimestamp()
   return (

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
+// BedGrid defines the Bed Grid UI surface and its primary interaction flow.
   Activity,
   BedDouble,
   DoorOpen,
@@ -98,6 +99,7 @@ export interface BedGridProps {
   showAddBed?: boolean
 }
 
+// BedGrid renders the bed grid UI.
 export default function BedGrid({
   showWardSummary = true,
   showWardManagement = false,

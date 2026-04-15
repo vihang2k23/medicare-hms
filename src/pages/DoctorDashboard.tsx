@@ -5,6 +5,7 @@ import type { RootState } from '../app/store'
 import DashboardCard from '../shared/ui/DashboardCard'
 import StatCard from '../shared/ui/StatCard'
 import {
+// DoctorDashboard defines the Doctor Dashboard UI surface and its primary interaction flow.
   doctorAppointmentsToday,
   formatLocalDate,
   pickNextDoctorAppointment,
@@ -20,6 +21,7 @@ function statusLabel(status: string): string {
   return status
 }
 
+// DoctorDashboard renders the doctor dashboard UI.
 export default function DoctorDashboard() {
   const { user } = useAuth()
   const prescriptions = useSelector((s: RootState) => s.prescriptions.prescriptions)

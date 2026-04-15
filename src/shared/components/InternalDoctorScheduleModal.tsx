@@ -9,6 +9,7 @@ import { notify } from '../lib/notify'
 import { useModalScrollLock } from '../hooks/useModalScrollLock'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../ui/modalOverlayClasses'
 import {
+// InternalDoctorScheduleModal defines the Internal Doctor Schedule Modal UI surface and its primary interaction flow.
   addImportedScheduleDoctor,
   updateImportedScheduleDoctor,
 } from '../../features/appointments/appointmentsSlice'
@@ -30,6 +31,7 @@ export interface InternalDoctorScheduleModalProps {
   onSaved: () => void
 }
 
+// InternalDoctorScheduleModal renders the internal doctor schedule modal UI.
 export default function InternalDoctorScheduleModal({
   open,
   record,

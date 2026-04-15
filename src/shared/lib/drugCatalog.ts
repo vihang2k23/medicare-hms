@@ -68,7 +68,7 @@ function searchDrugLabelsStatic(query: string): OpenFdaLabelHit[] {
     return aPrimary.localeCompare(bPrimary)
   })
 
-  return sorted.slice(0, 12).map(entryToHit)
+  return sorted.slice(0, 10).map(entryToHit)
 }
 
 /**
@@ -78,7 +78,7 @@ export async function searchDrugLabels(query: string): Promise<OpenFdaLabelHit[]
   const q = query.trim()
   if (q.length < 2) return []
 
-  const live = await searchOpenFdaDrugLabels(q, 12)
+  const live = await searchOpenFdaDrugLabels(q, 10)
   if (live.length > 0) return live
   return searchDrugLabelsStatic(q)
 }

@@ -5,6 +5,7 @@ import type { RootState } from '../app/store'
 import type { Appointment } from '../features/appointments/types'
 import type { PatientRecord } from '../shared/types/patient'
 import {
+// PatientListPage defines the Patient List Page UI surface and its primary interaction flow.
   ChevronLeft,
   ChevronRight,
   Loader2,
@@ -98,6 +99,7 @@ function regRangeEndMs(isoDate: string): number | null {
   return Number.isNaN(x) ? null : x
 }
 
+// PatientListPage renders the patient list page UI.
 export default function PatientListPage() {
   const appointments = useSelector((s: RootState) => s.appointments.appointments)
   const [patients, setPatients] = useState<PatientRecord[]>([])

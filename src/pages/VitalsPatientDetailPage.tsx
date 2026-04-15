@@ -9,6 +9,7 @@ import { notify } from '../shared/lib/notify'
 import VitalsHistoryList from '../features/vitals/VitalsHistoryList'
 import VitalsRecordModal from '../features/vitals/VitalsRecordModal'
 
+// VitalsPatientDetailPage defines the Vitals Patient Detail Page UI surface and its primary interaction flow.
 const VitalsTrendCharts = lazy(() => import('../features/vitals/VitalsTrendCharts'))
 
 function patientInitials(name: string): string {
@@ -18,6 +19,7 @@ function patientInitials(name: string): string {
   return `${parts[0]![0] ?? ''}${parts[parts.length - 1]![0] ?? ''}`.toUpperCase() || '?'
 }
 
+// VitalsPatientDetailPage renders the vitals patient detail page UI.
 export default function VitalsPatientDetailPage() {
   const { patientId } = useParams<{ patientId: string }>()
   const [searchParams, setSearchParams] = useSearchParams()

@@ -8,6 +8,7 @@ import type { AppDispatch, RootState } from '../../app/store'
 import { notify } from '../../shared/lib/notify'
 import { addWard, removeWard, updateWard } from './bedSlice'
 
+// WardManagementPanel defines the Ward Management Panel UI surface and its primary interaction flow.
 const inputClass =
   'w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500/35 focus:border-teal-400/40 transition-[box-shadow,border-color]'
 
@@ -66,6 +67,7 @@ function ModalShell({
   )
 }
 
+// WardManagementPanel renders the ward management panel UI.
 export default function WardManagementPanel() {
   const dispatch = useDispatch<AppDispatch>()
   const { wards, beds } = useSelector((s: RootState) => s.beds)

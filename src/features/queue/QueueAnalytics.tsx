@@ -4,6 +4,8 @@ import { Activity, CheckCircle2, CircleDashed, Clock, SkipForward, Timer, Users 
 import type { RootState } from '../../app/store'
 import { formatOpdTokenLabel } from './queueSlice'
 
+// QueueAnalytics defines the Queue Analytics UI surface and its primary interaction flow.
+// QueueAnalytics renders the queue analytics UI.
 export default function QueueAnalytics() {
   const queue = useSelector((s: RootState) => s.queue.queue)
   const servedToday = useSelector((s: RootState) => s.queue.servedToday)
@@ -79,6 +81,7 @@ export default function QueueAnalytics() {
 
   return (
     <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/50 backdrop-blur-sm p-5 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
+      {/* Header surfaces current token and throughput context for quick triage. */}
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
         <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
           <Activity className="h-5 w-5 text-violet-600 dark:text-white shrink-0" aria-hidden />
@@ -95,6 +98,7 @@ export default function QueueAnalytics() {
         </div>
       </div>
 
+      {/* Metric cards expose live queue state by status bucket. */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {cards.map(({ label, value, icon: Icon, className }) => (
           <div

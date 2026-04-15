@@ -4,6 +4,8 @@ import type { PatientRecord } from '../shared/types/patient'
 import { fetchPatientById } from '../shared/api/patientsApi'
 import PatientRegistrationForm from '../features/patients/PatientRegistrationForm'
 
+// PatientEditPage defines the Patient Edit Page UI surface and its primary interaction flow.
+// PatientEditPage renders the patient edit page UI.
 export default function PatientEditPage() {
   const { patientId: rawId } = useParams<{ patientId: string }>()
   const patientId = rawId?.trim() ?? ''

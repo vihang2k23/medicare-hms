@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import {
+// ReportsPage defines the Reports Page UI surface and its primary interaction flow.
   Area,
   AreaChart,
   Bar,
@@ -77,6 +78,7 @@ function formatReportTimestamp() {
   })
 }
 
+// ReportsPage renders the reports page UI.
 export default function ReportsPage() {
   const opdQueue = useSelector((s: RootState) => s.queue.queue)
   const opdCurrentToken = useSelector((s: RootState) => s.queue.currentToken)

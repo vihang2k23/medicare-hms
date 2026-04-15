@@ -3,6 +3,7 @@ import { format } from 'date-fns'
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from 'lucide-react'
 import type { VitalRecord } from '../../shared/types/vitals'
 
+// VitalsHistoryList defines the Vitals History List UI surface and its primary interaction flow.
 function bp(v: VitalRecord): string {
   if (v.systolic != null && v.diastolic != null) return `${v.systolic}/${v.diastolic}`
   if (v.systolic != null) return `${v.systolic}/—`
@@ -19,6 +20,7 @@ type VitalsHistoryListProps = {
   listKey?: string
 }
 
+// VitalsHistoryList renders the vitals history list UI.
 export default function VitalsHistoryList({ listKey, ...rest }: VitalsHistoryListProps) {
   return <VitalsHistoryListInner key={listKey ?? '__all__'} {...rest} />
 }

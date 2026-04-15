@@ -3,6 +3,8 @@ import { ShieldX } from 'lucide-react'
 import { useAuth } from '../shared/hooks/useAuth'
 import { getDefaultDashboard } from '../shared/config/roles'
 
+// AccessDenied defines the Access Denied UI surface and its primary interaction flow.
+// AccessDenied renders the access denied UI.
 export default function AccessDenied() {
   const { user } = useAuth()
   const dashboardPath = user ? getDefaultDashboard(user.role) : '/'

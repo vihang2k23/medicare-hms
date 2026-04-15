@@ -7,6 +7,8 @@ import { useBedSimulation } from '../features/beds/useBedSimulation'
 import Navbar from './Navbar'
 import Sidebar from './Sidebar'
 
+// MainLayout defines the Main Layout UI surface and its primary interaction flow.
+// MainLayout renders the main layout UI.
 export default function MainLayout() {
   const dispatch = useDispatch()
   const sidebarOpen = useSelector((s: RootState) => s.ui.sidebarOpen)

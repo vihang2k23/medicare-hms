@@ -8,6 +8,7 @@ import { createVital } from '../../shared/api/vitalsApi'
 import type { PatientRecord } from '../../shared/types/patient'
 import { notify } from '../../shared/lib/notify'
 
+// VitalsRecordModal defines the Vitals Record Modal UI surface and its primary interaction flow.
 function parseOptInt(raw: string): number | undefined {
   const t = raw.trim()
   if (t === '') return undefined
@@ -33,6 +34,7 @@ export interface VitalsRecordModalProps {
   onSaved: () => void | Promise<void>
 }
 
+// VitalsRecordModal renders the vitals record modal UI.
 export default function VitalsRecordModal({ open, patient, onClose, onSaved }: VitalsRecordModalProps) {
   useModalScrollLock(open && !!patient)
   const { user } = useAuth()

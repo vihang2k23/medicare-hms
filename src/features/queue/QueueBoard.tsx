@@ -4,6 +4,7 @@ import type { RootState } from '../../app/store'
 import { formatOpdTokenLabel } from './queueSlice'
 import type { OpdTokenStatus } from './opdQueueTypes'
 
+// QueueBoard defines the Queue Board UI surface and its primary interaction flow.
 function statusBadge(status: OpdTokenStatus) {
   const map: Record<OpdTokenStatus, string> = {
     waiting: 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-white',
@@ -26,6 +27,7 @@ function statusBadge(status: OpdTokenStatus) {
   )
 }
 
+// QueueBoard renders the queue board UI.
 export default function QueueBoard() {
   const queue = useSelector((s: RootState) => s.queue.queue)
   const currentToken = useSelector((s: RootState) => s.queue.currentToken)
