@@ -117,10 +117,10 @@ export default function PrescriptionPrintPage({ variant }: PrescriptionPrintPage
         detail={`Rx ID ${rx.id} · ${rx.patientName}`}
       />
 
-      <div className="no-print-rx flex flex-wrap items-center gap-3">
+      <div className="no-print-rx flex flex-wrap items-center justify-between gap-3 w-full">
         <Link
           to={listPath}
-          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-white hover:text-sky-600 dark:hover:text-white"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-white hover:text-sky-600 dark:hover:text-white shrink-0"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
           Back
@@ -128,7 +128,7 @@ export default function PrescriptionPrintPage({ variant }: PrescriptionPrintPage
         <button
           type="button"
           onClick={() => window.print()}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-800 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-800 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 shrink-0"
         >
           <Printer className="h-4 w-4" aria-hidden />
           Print / Save as PDF

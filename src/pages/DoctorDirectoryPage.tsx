@@ -489,7 +489,7 @@ export default function DoctorDirectoryPage() {
                   id="npi-search-enum-type"
                   label="NPI type"
                   items={npiTypeItems}
-                  selectedId={enumerationType}
+                  selectedId={enumerationType ?? ''}
                   onSelectId={(id) => setEnumerationType(id as NpiSearchParams['enumerationType'])}
                   getId={(o) => o.id}
                   getLabel={(o) => o.label}
@@ -678,7 +678,7 @@ export default function DoctorDirectoryPage() {
                   id="npi-search-address-purpose"
                   label="Address type"
                   items={addressPurposePickerItems}
-                  selectedId={addressPurpose}
+                  selectedId={addressPurpose ?? ''}
                   onSelectId={(id) => setAddressPurpose(id as NpiSearchParams['addressPurpose'])}
                   getId={(o) => o.id}
                   getLabel={(o) => o.label}

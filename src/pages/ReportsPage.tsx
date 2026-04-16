@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import {
-// ReportsPage defines the Reports Page UI surface and its primary interaction flow.
   Area,
   AreaChart,
   Bar,
@@ -70,6 +69,62 @@ const DEPT_PIE_COLORS = [
   '#ec4899',
   '#64748b',
 ]
+
+/** Stable ids for per-chart print (single-chart PDF / paper). */
+const REPORT_CHART_IDS = {
+  opdTrend30d: 'opd-trend-30d',
+  bedOcc30d: 'bed-occupancy-30d',
+  deptPatientPie: 'dept-patient-pie',
+  apptOutcomes: 'appt-outcomes-stack',
+  doctorWorkload: 'doctor-workload-month',
+  revenueSim: 'revenue-dept-sim',
+  drugRecall: 'drug-recall-openfda',
+  opdTokenPie: 'opd-token-status',
+  bedStatusPie: 'bed-status-mix',
+  volumeSnap: 'volume-snapshot',
+  apptStatusBar: 'appt-by-status',
+  bedWardStack: 'beds-ward-stack',
+} as const
+
+function ReportChartPrintButton({
+  chartId,
+  onPrint,
+}: {
+  chartId: string
+  onPrint: (id: string) => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onPrint(chartId)}
+      className="no-print-report inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-[11px] font-semibold text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
+      title="Print this chart only (Save as PDF or paper)"
+    >
+      <Printer className="h-3.5 w-3.5" aria-hidden />
+      Print
+    </button>
+  )
+}
+
+function ReportChartCsvButton({
+  chartId,
+  onExport,
+}: {
+  chartId: string
+  onExport: (id: string) => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onExport(chartId)}
+      className="no-print-report inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-[11px] font-semibold text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
+      title="Download this chart’s data as CSV"
+    >
+      <Download className="h-3.5 w-3.5" aria-hidden />
+      CSV
+    </button>
+  )
+}
 
 function formatReportTimestamp() {
   return new Date().toLocaleString(undefined, {
@@ -295,13 +350,41 @@ export default function ReportsPage() {
       [],
       ['Simulated revenue (₹ thousands, demo)', 'Department', 'Revenue'],
       ...revenueByDepartment.map((d) => [d.name, String(d.revenue)]),
+      [],
+      ['OPD queue — token status', 'Status', 'Count (tokens)'],
+      ...opdStatusPie.map((r) => [r.name, String(r.value)]),
+      [],
+      ['Beds — status mix', 'Status', 'Count (beds)'],
+      ...bedStatusPie.map((r) => [r.name, String(r.value)]),
+      [],
+      ['Operational volume (snapshot)', 'Metric', 'Count'],
+      ...volumeBarData.map((r) => [r.name, String(r.value)]),
+      [],
+      ['Appointments — by status', 'Status (label)', 'Count'],
+      ...appointmentsByStatus.map((r) => [r.name, String(r.value)]),
+      [],
+      ['Beds by ward (stacked counts)', 'Ward', 'Available', 'Occupied', 'Reserved', 'Maintenance'],
+      ...wardStackData.map((r) => [
+        r.ward,
+        String(r.Available),
+        String(r.Occupied),
+        String(r.Reserved),
+        String(r.Maintenance),
+      ]),
+      [],
+      [
+        'Drug recall by drug class (OpenFDA)',
+        'Use CSV on the Drug recall card (toolbar) — data is loaded there.',
+      ],
     ]
     return rows
   }, [
     appointments,
     appointmentOutcomes,
+    appointmentsByStatus,
     beds,
     bedOccupancySimulated,
+    bedStatusPie,
     departmentPatientPie,
     doctorWorkloadMonth,
     doctors.length,
@@ -310,10 +393,13 @@ export default function ReportsPage() {
     opdCurrentToken,
     opdQueue,
     opdServedToday,
+    opdStatusPie,
     opdTrendFromAppointments,
     patientTotal,
     prescriptions,
     revenueByDepartment,
+    volumeBarData,
+    wardStackData,
   ])
 
   const handleExportCsv = () => {
@@ -328,6 +414,135 @@ export default function ReportsPage() {
       setTimeout(() => window.print(), 250)
     })
   }, [])
+
+  const printSingleReportChart = useCallback((chartId: string) => {
+    document.querySelectorAll('[data-report-chart-id]').forEach((el) => {
+      if (el.getAttribute('data-report-chart-id') !== chartId) {
+        el.classList.add('report-print-chart-hidden-print')
+      }
+    })
+    document.querySelectorAll('.report-print-skip-when-single').forEach((el) => {
+      el.classList.add('report-print-chart-hidden-print')
+    })
+    document.documentElement.classList.add('report-print-single-mode')
+
+    const onAfterPrint = () => {
+      document.documentElement.classList.remove('report-print-single-mode')
+      document.querySelectorAll('.report-print-chart-hidden-print').forEach((node) => {
+        node.classList.remove('report-print-chart-hidden-print')
+      })
+      window.removeEventListener('afterprint', onAfterPrint)
+    }
+    window.addEventListener('afterprint', onAfterPrint)
+
+    window.dispatchEvent(new Event('resize'))
+    requestAnimationFrame(() => {
+      window.dispatchEvent(new Event('resize'))
+      setTimeout(() => window.print(), 200)
+    })
+  }, [])
+
+  const exportSingleReportChartCsv = useCallback(
+    (chartId: string) => {
+      const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
+      const head = (): string[][] => [
+        ['MediCare HMS — chart data export'],
+        ['Chart', chartId],
+        ['Generated', formatReportTimestamp()],
+        [],
+      ]
+      let body: string[][] = []
+
+      switch (chartId) {
+        case REPORT_CHART_IDS.opdTrend30d:
+          body = [
+            ['Day label', 'Date key', 'Unique patients', 'Visits'],
+            ...opdTrendFromAppointments.map((r) => [r.day, r.dayKey, String(r.patients), String(r.visits)]),
+          ]
+          break
+        case REPORT_CHART_IDS.bedOcc30d:
+          body = [['Day', 'Occupancy %'], ...bedOccupancySimulated.map((r) => [r.day, String(r.occupancy)])]
+          break
+        case REPORT_CHART_IDS.deptPatientPie:
+          body = [
+            ['Department', 'Patients (unique w/ booking)'],
+            ...departmentPatientPie.map((d) => [d.name, String(d.value)]),
+          ]
+          break
+        case REPORT_CHART_IDS.apptOutcomes:
+          body = [
+            ['Metric', 'Count'],
+            ['Completed', String(appointmentOutcomes.completed)],
+            ['Cancelled', String(appointmentOutcomes.cancelled)],
+            ['No-show', String(appointmentOutcomes.noShow)],
+          ]
+          break
+        case REPORT_CHART_IDS.doctorWorkload:
+          body = [
+            ['Doctor', 'Appointments (this month)'],
+            ...doctorWorkloadMonth.map((d) => [d.name, String(d.count)]),
+          ]
+          break
+        case REPORT_CHART_IDS.revenueSim:
+          body = [
+            ['Department', 'Revenue (₹ thousands, simulated)'],
+            ...revenueByDepartment.map((d) => [d.name, String(d.revenue)]),
+          ]
+          break
+        case REPORT_CHART_IDS.opdTokenPie:
+          body = [['Token status', 'Count'], ...opdStatusPie.map((r) => [r.name, String(r.value)])]
+          break
+        case REPORT_CHART_IDS.bedStatusPie:
+          body = [['Bed status', 'Count'], ...bedStatusPie.map((r) => [r.name, String(r.value)])]
+          break
+        case REPORT_CHART_IDS.volumeSnap:
+          body = [['Metric', 'Count'], ...volumeBarData.map((r) => [r.name, String(r.value)])]
+          break
+        case REPORT_CHART_IDS.apptStatusBar:
+          body = [
+            ['Appointment status', 'Count'],
+            ...appointmentsByStatus.map((r) => [r.name, String(r.value)]),
+          ]
+          break
+        case REPORT_CHART_IDS.bedWardStack:
+          body = [
+            ['Ward', 'Available', 'Occupied', 'Reserved', 'Maintenance'],
+            ...wardStackData.map((r) => [
+              r.ward,
+              String(r.Available),
+              String(r.Occupied),
+              String(r.Reserved),
+              String(r.Maintenance),
+            ]),
+          ]
+          break
+        default:
+          return
+      }
+
+      downloadCsv(`medicare-hms-${chartId}-${stamp}.csv`, [...head(), ...body])
+    },
+    [
+      appointmentOutcomes,
+      appointmentsByStatus,
+      bedOccupancySimulated,
+      bedStatusPie,
+      departmentPatientPie,
+      doctorWorkloadMonth,
+      opdStatusPie,
+      opdTrendFromAppointments,
+      revenueByDepartment,
+      volumeBarData,
+      wardStackData,
+    ],
+  )
+
+  const reportChartToolbar = (chartId: string) => (
+    <>
+      <ReportChartCsvButton chartId={chartId} onExport={exportSingleReportChartCsv} />
+      <ReportChartPrintButton chartId={chartId} onPrint={printSingleReportChart} />
+    </>
+  )
 
   const pieFallback = (
     <p className="text-sm text-slate-500 dark:text-white py-12 text-center">No data for this chart.</p>
@@ -369,7 +584,7 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      <div className="report-print-stat-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="report-print-stat-grid report-print-skip-when-single grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
           label="Patients (registry)"
           value={patientTotal ?? '—'}
@@ -418,11 +633,15 @@ export default function ReportsPage() {
         <p className="no-print-report text-[11px] font-bold uppercase tracking-[0.14em] text-violet-600 dark:text-white">
           Scheduling &amp; clinical analytics
         </p>
-        <p className="hidden print:block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600 border-b border-slate-400 pb-2">
+        <p className="report-print-skip-when-single hidden print:block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600 border-b border-slate-400 pb-2">
           Trends, workload &amp; operational charts
         </p>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <DashboardCard title="OPD trend — unique patients per day (30d, from appointments)">
+          <div className="report-chart-section" data-report-chart-id={REPORT_CHART_IDS.opdTrend30d}>
+            <DashboardCard
+              title="OPD trend — unique patients per day (30d, from appointments)"
+              actions={reportChartToolbar(REPORT_CHART_IDS.opdTrend30d)}
+            >
             <div className="report-chart-host h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={opdTrendFromAppointments} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
@@ -452,8 +671,13 @@ export default function ReportsPage() {
               </ResponsiveContainer>
             </div>
           </DashboardCard>
+          </div>
 
-          <DashboardCard title="Bed occupancy over time (simulated %, 30d)">
+          <div className="report-chart-section" data-report-chart-id={REPORT_CHART_IDS.bedOcc30d}>
+            <DashboardCard
+              title="Bed occupancy over time (simulated %, 30d)"
+              actions={reportChartToolbar(REPORT_CHART_IDS.bedOcc30d)}
+            >
             <div className="report-chart-host h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={bedOccupancySimulated} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
@@ -479,10 +703,15 @@ export default function ReportsPage() {
               </ResponsiveContainer>
             </div>
           </DashboardCard>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <DashboardCard title="Department-wise patient distribution (unique patients with bookings)">
+          <div className="report-chart-section" data-report-chart-id={REPORT_CHART_IDS.deptPatientPie}>
+            <DashboardCard
+              title="Department-wise patient distribution (unique patients with bookings)"
+              actions={reportChartToolbar(REPORT_CHART_IDS.deptPatientPie)}
+            >
             <div className="report-chart-host h-72">
               {departmentPatientPie.length === 0 ? (
                 pieFallback
@@ -515,8 +744,13 @@ export default function ReportsPage() {
               )}
             </div>
           </DashboardCard>
+          </div>
 
-          <DashboardCard title="Appointment status — completed vs cancelled vs no-show (stacked)">
+          <div className="report-chart-section" data-report-chart-id={REPORT_CHART_IDS.apptOutcomes}>
+            <DashboardCard
+              title="Appointment status — completed vs cancelled vs no-show (stacked)"
+              actions={reportChartToolbar(REPORT_CHART_IDS.apptOutcomes)}
+            >
             <div className="report-chart-host h-72">
               {appointmentOutcomes.completed + appointmentOutcomes.cancelled + appointmentOutcomes.noShow === 0 ? (
                 pieFallback
@@ -536,10 +770,15 @@ export default function ReportsPage() {
               )}
             </div>
           </DashboardCard>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <DashboardCard title="Doctor workload — appointments this month">
+          <div className="report-chart-section" data-report-chart-id={REPORT_CHART_IDS.doctorWorkload}>
+            <DashboardCard
+              title="Doctor workload — appointments this month"
+              actions={reportChartToolbar(REPORT_CHART_IDS.doctorWorkload)}
+            >
             <div className="report-chart-host h-72">
               {doctorWorkloadMonth.length === 0 ? (
                 pieFallback
@@ -560,8 +799,13 @@ export default function ReportsPage() {
               )}
             </div>
           </DashboardCard>
+          </div>
 
-          <DashboardCard title="Revenue summary (simulated ₹ thousands by department)">
+          <div className="report-chart-section" data-report-chart-id={REPORT_CHART_IDS.revenueSim}>
+            <DashboardCard
+              title="Revenue summary (simulated ₹ thousands by department)"
+              actions={reportChartToolbar(REPORT_CHART_IDS.revenueSim)}
+            >
             <div className="report-chart-host h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={revenueByDepartment} margin={{ top: 8, right: 8, left: 0, bottom: 40 }}>
@@ -574,13 +818,22 @@ export default function ReportsPage() {
               </ResponsiveContainer>
             </div>
           </DashboardCard>
+          </div>
         </div>
 
-        <DrugRecallSummaryCard />
+        <div className="report-chart-section" data-report-chart-id={REPORT_CHART_IDS.drugRecall}>
+          <DrugRecallSummaryCard
+            cardActions={<ReportChartPrintButton chartId={REPORT_CHART_IDS.drugRecall} onPrint={printSingleReportChart} />}
+          />
+        </div>
       </div>
 
       <div className="report-print-charts grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <DashboardCard title="OPD queue — token status">
+        <div className="report-chart-section" data-report-chart-id={REPORT_CHART_IDS.opdTokenPie}>
+          <DashboardCard
+            title="OPD queue — token status"
+            actions={reportChartToolbar(REPORT_CHART_IDS.opdTokenPie)}
+          >
           <div className="report-chart-host h-72">
             {opdStatusPie.length === 0 ? (
               pieFallback
@@ -613,8 +866,13 @@ export default function ReportsPage() {
             )}
           </div>
         </DashboardCard>
+        </div>
 
-        <DashboardCard title="Beds — status mix">
+        <div className="report-chart-section" data-report-chart-id={REPORT_CHART_IDS.bedStatusPie}>
+          <DashboardCard
+            title="Beds — status mix"
+            actions={reportChartToolbar(REPORT_CHART_IDS.bedStatusPie)}
+          >
           <div className="report-chart-host h-72">
             {beds.length === 0 ? (
               pieFallback
@@ -647,10 +905,15 @@ export default function ReportsPage() {
             )}
           </div>
         </DashboardCard>
+        </div>
       </div>
 
       <div className="report-print-charts grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <DashboardCard title="Operational volume (snapshot)">
+        <div className="report-chart-section" data-report-chart-id={REPORT_CHART_IDS.volumeSnap}>
+          <DashboardCard
+            title="Operational volume (snapshot)"
+            actions={reportChartToolbar(REPORT_CHART_IDS.volumeSnap)}
+          >
           <div className="report-chart-host h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={volumeBarData} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
@@ -662,8 +925,13 @@ export default function ReportsPage() {
             </ResponsiveContainer>
           </div>
         </DashboardCard>
+        </div>
 
-        <DashboardCard title="Appointments — by status">
+        <div className="report-chart-section" data-report-chart-id={REPORT_CHART_IDS.apptStatusBar}>
+          <DashboardCard
+            title="Appointments — by status"
+            actions={reportChartToolbar(REPORT_CHART_IDS.apptStatusBar)}
+          >
           <div className="report-chart-host h-72">
             {appointmentsByStatus.length === 0 ? (
               pieFallback
@@ -683,10 +951,15 @@ export default function ReportsPage() {
             )}
           </div>
         </DashboardCard>
+        </div>
       </div>
 
       <div className="report-print-charts">
-      <DashboardCard title="Beds by ward (stacked)">
+      <div className="report-chart-section" data-report-chart-id={REPORT_CHART_IDS.bedWardStack}>
+        <DashboardCard
+          title="Beds by ward (stacked)"
+          actions={reportChartToolbar(REPORT_CHART_IDS.bedWardStack)}
+        >
         <div className="report-chart-host h-80">
           {wardStackData.length === 0 ? (
             pieFallback
@@ -706,6 +979,7 @@ export default function ReportsPage() {
           )}
         </div>
       </DashboardCard>
+      </div>
       </div>
 
       <MedicarePrintPageFooter />

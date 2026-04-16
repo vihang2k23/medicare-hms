@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from 'react'
+import { useCallback, useState, useRef, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
-import { BedDouble, ChevronDown, LogOut, Menu, Moon, PanelLeftClose, Sun } from 'lucide-react'
+import { BedDouble, ChevronDown, Keyboard, LogOut, Menu, Moon, PanelLeftClose, RotateCcw, Sun, X } from 'lucide-react'
 import { logout, login } from '../features/auth/authSlice'
 import type { AuthUser } from '../features/auth/authSlice'
 import { getDefaultDashboard } from '../shared/config/roles'
@@ -13,6 +13,8 @@ import type { RootState } from '../app/store'
 import { notify } from '../shared/lib/notify'
 import MediCareLogo, { MediCareWordmark } from '../shared/ui/brand/MediCareLogo'
 import { ALL_DEMO_LOGIN_ENTRIES, demoEntryToAuthUser, type DemoLoginEntry } from '../shared/config/demoAccounts'
+import { APPOINTMENTS_STORAGE_KEY } from '../features/appointments/appointmentsStorage'
+import { PRESCRIPTIONS_STORAGE_KEY } from '../features/prescriptions/prescriptionsStorage'
 
 // Navbar defines the Navbar UI surface and its primary interaction flow.
 /** Human-readable role for the menu (neutral copy, no loud badge colors). */
@@ -21,6 +23,12 @@ const ROLE_DISPLAY: Record<AuthUser['role'], string> = {
   doctor: 'Doctor',
   receptionist: 'Receptionist',
   nurse: 'Nurse',
+}
+
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false
+  const tag = target.tagName.toLowerCase()
+  return tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable
 }
 
 // Navbar renders the navbar UI.
@@ -32,6 +40,7 @@ export default function Navbar() {
   const sidebarOpen = useSelector((state: RootState) => state.ui.sidebarOpen)
   const bedSimulationRunning = useSelector((state: RootState) => state.beds.bedSimulationRunning)
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [shortcutsOpen, setShortcutsOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -49,8 +58,74 @@ export default function Navbar() {
     setTimeout(() => navigate(getDefaultDashboard(u.role)), 0)
   }
 
+  const runShortcut = useCallback((key: 'n' | 'q' | 'b') => {
+    const role = user?.role
+    if (!role) return
+    let path: string | null = null
+
+    if (key === 'n') {
+      if (role === 'admin') path = '/admin/patients/new'
+      if (role === 'receptionist') path = '/receptionist/registration'
+    } else if (key === 'q') {
+      if (role === 'admin') path = '/admin/opd-queue'
+      if (role === 'receptionist') path = '/receptionist/queue'
+    } else if (key === 'b') {
+      if (role === 'admin') path = '/admin/beds'
+      if (role === 'nurse') path = '/nurse/beds'
+    }
+
+    if (!path) {
+      notify.error('This shortcut is not available for your role.')
+      return
+    }
+    setDropdownOpen(false)
+    setShortcutsOpen(false)
+    navigate(path)
+  }, [navigate, user?.role])
+
+  const handleResetDemoData = () => {
+    if (user?.role !== 'admin') return
+    const ok = window.confirm(
+      'Reset demo data in this browser? This clears local appointment/prescription cache and reloads seeded defaults.',
+    )
+    if (!ok) return
+    try {
+      localStorage.removeItem(APPOINTMENTS_STORAGE_KEY)
+      localStorage.removeItem(PRESCRIPTIONS_STORAGE_KEY)
+      notify.success('Demo data reset. Reloading…')
+      setTimeout(() => window.location.reload(), 250)
+    } catch {
+      notify.error('Could not reset demo cache in this browser.')
+    }
+  }
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!isAuthenticated) return
+      const key = e.key.toLowerCase()
+      if ((e.metaKey || e.ctrlKey) && key === 'k') {
+        e.preventDefault()
+        setDropdownOpen(false)
+        setShortcutsOpen((o) => !o)
+        return
+      }
+      if (key === 'escape') {
+        setShortcutsOpen(false)
+        return
+      }
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey || isEditableTarget(e.target)) return
+      if (key === 'n' || key === 'q' || key === 'b') {
+        e.preventDefault()
+        runShortcut(key)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [isAuthenticated, runShortcut])
+
   return (
-    <header className="sticky top-0 z-50 h-16 flex-shrink-0 flex items-center justify-between px-3 sm:px-4 lg:px-8 bg-white/80 dark:bg-slate-950/85 backdrop-blur-xl border-b border-slate-200/70 dark:border-slate-800/80 shadow-[0_1px_0_0_rgb(15_23_42_/_0.06)] dark:shadow-[0_1px_0_0_rgb(0_0_0_/_0.35)] supports-[padding:max(0px)]:pt-[env(safe-area-inset-top,0px)]">
+    <>
+      <header className="sticky top-0 z-50 h-16 flex-shrink-0 flex items-center justify-between px-3 sm:px-4 lg:px-8 bg-white/80 dark:bg-slate-950/85 backdrop-blur-xl border-b border-slate-200/70 dark:border-slate-800/80 shadow-[0_1px_0_0_rgb(15_23_42_/_0.06)] dark:shadow-[0_1px_0_0_rgb(0_0_0_/_0.35)] supports-[padding:max(0px)]:pt-[env(safe-area-inset-top,0px)]">
       {/* Left: menu toggler + brand */}
       <div className="flex items-center gap-4">
         {isAuthenticated && (
@@ -91,6 +166,18 @@ export default function Navbar() {
 
         {isAuthenticated ? (
           <>
+            <button
+              type="button"
+              onClick={() => {
+                setDropdownOpen(false)
+                setShortcutsOpen(true)
+              }}
+              className="p-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100/90 dark:text-white dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 touch-manipulation"
+              aria-label="Open keyboard shortcuts"
+              title="Keyboard shortcuts (Ctrl/Cmd + K)"
+            >
+              <Keyboard className="h-5 w-5" aria-hidden />
+            </button>
             {(user?.role === 'admin' || user?.role === 'nurse') && (
               <button
                 type="button"
@@ -178,6 +265,32 @@ export default function Navbar() {
                       </button>
                     ))}
                   </div>
+                  <div className="my-1 h-px bg-slate-200/80 dark:bg-slate-700/80" />
+                  <div className="px-1.5 pb-1.5 space-y-1">
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setDropdownOpen(false)
+                        setShortcutsOpen(true)
+                      }}
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 dark:text-white hover:bg-slate-100/90 dark:hover:bg-slate-800/80"
+                    >
+                      <Keyboard className="h-4 w-4" aria-hidden />
+                      Keyboard shortcuts (Ctrl/Cmd + K)
+                    </button>
+                    {user?.role === 'admin' && (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={handleResetDemoData}
+                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-amber-700 dark:text-amber-200 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                      >
+                        <RotateCcw className="h-4 w-4" aria-hidden />
+                        Reset demo data (reseed)
+                      </button>
+                    )}
+                  </div>
                   <div className="border-t border-slate-200/80 p-1.5 dark:border-slate-700/80">
                     <button
                       type="button"
@@ -200,6 +313,74 @@ export default function Navbar() {
           </>
         ) : <></>}
       </div>
-    </header>
+      </header>
+
+      {shortcutsOpen && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label="Close shortcuts"
+            className="absolute inset-0 bg-black/50 backdrop-blur-[1px]"
+            onClick={() => setShortcutsOpen(false)}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="keyboard-shortcuts-title"
+            className="relative z-10 w-full max-w-md rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-xl ring-1 ring-slate-200/60 dark:ring-slate-700/60"
+          >
+            <div className="flex items-center justify-between p-4 border-b border-slate-200/80 dark:border-slate-700/80">
+              <h2 id="keyboard-shortcuts-title" className="text-sm font-bold text-slate-900 dark:text-white">
+                Keyboard shortcuts
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShortcutsOpen(false)}
+                className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-white dark:hover:bg-slate-800"
+                aria-label="Close shortcuts"
+              >
+                <X className="h-4 w-4" aria-hidden />
+              </button>
+            </div>
+            <div className="p-4 space-y-2 text-sm">
+              <p className="text-slate-600 dark:text-white">Use shortcuts from anywhere outside form fields.</p>
+              <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-slate-700 dark:text-white">
+                <span className="font-mono text-xs px-2 py-1 rounded bg-slate-100 dark:bg-slate-800">Ctrl/Cmd + K</span>
+                <span>Open this shortcuts panel</span>
+                <span className="font-mono text-xs px-2 py-1 rounded bg-slate-100 dark:bg-slate-800">N</span>
+                <span>New patient / registration</span>
+                <span className="font-mono text-xs px-2 py-1 rounded bg-slate-100 dark:bg-slate-800">Q</span>
+                <span>Queue page</span>
+                <span className="font-mono text-xs px-2 py-1 rounded bg-slate-100 dark:bg-slate-800">B</span>
+                <span>Bed management</span>
+              </div>
+              <div className="pt-2 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => runShortcut('n')}
+                  className="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white"
+                >
+                  Go: N
+                </button>
+                <button
+                  type="button"
+                  onClick={() => runShortcut('q')}
+                  className="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white"
+                >
+                  Go: Q
+                </button>
+                <button
+                  type="button"
+                  onClick={() => runShortcut('b')}
+                  className="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white"
+                >
+                  Go: B
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }

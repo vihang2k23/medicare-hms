@@ -219,15 +219,48 @@
     -webkit-print-color-adjust: exact !important;
     box-sizing: border-box !important;
   }
+  html.report-print-route .medicare-print-fixed-header__top,
+  html.appointments-print-route .medicare-print-fixed-header__top,
+  html.prescription-print-route .medicare-print-fixed-header__top {
+    display: flex;
+    align-items: center;
+    gap: 2.5mm;
+    margin: 0 0 1.5mm;
+  }
+  html.report-print-route .medicare-print-fixed-header__logo-wrap,
+  html.appointments-print-route .medicare-print-fixed-header__logo-wrap,
+  html.prescription-print-route .medicare-print-fixed-header__logo-wrap {
+    flex-shrink: 0;
+    padding: 1mm;
+    border-radius: 2mm;
+    border: 0.35mm solid #0ea5e9;
+    background: #fff !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+  html.report-print-route .medicare-print-fixed-header__brand-col,
+  html.appointments-print-route .medicare-print-fixed-header__brand-col,
+  html.prescription-print-route .medicare-print-fixed-header__brand-col {
+    min-width: 0;
+  }
   html.report-print-route .medicare-print-fixed-header__brand,
   html.appointments-print-route .medicare-print-fixed-header__brand,
   html.prescription-print-route .medicare-print-fixed-header__brand {
-    margin: 0 0 1mm;
-    font-size: 7.5pt;
+    margin: 0;
+    font-size: 8.5pt;
     font-weight: 700;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.06em;
+    color: #0f172a !important;
+  }
+  html.report-print-route .medicare-print-fixed-header__product,
+  html.appointments-print-route .medicare-print-fixed-header__product,
+  html.prescription-print-route .medicare-print-fixed-header__product {
+    margin: 0.5mm 0 0;
+    font-size: 6.5pt;
+    font-weight: 600;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #475569 !important;
+    color: #64748b !important;
   }
   html.report-print-route .medicare-print-fixed-header__title,
   html.appointments-print-route .medicare-print-fixed-header__title,
@@ -270,6 +303,34 @@
     -webkit-print-color-adjust: exact !important;
     box-sizing: border-box !important;
   }
+  html.report-print-route .medicare-print-fixed-footer__brand,
+  html.appointments-print-route .medicare-print-fixed-footer__brand,
+  html.prescription-print-route .medicare-print-fixed-footer__brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2mm;
+    margin: 0 0 1.5mm;
+  }
+  html.report-print-route .medicare-print-fixed-footer__logo-wrap,
+  html.appointments-print-route .medicare-print-fixed-footer__logo-wrap,
+  html.prescription-print-route .medicare-print-fixed-footer__logo-wrap {
+    flex-shrink: 0;
+    padding: 0.6mm;
+    border-radius: 1.5mm;
+    border: 0.3mm solid #94a3b8;
+    background: #fff !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+  html.report-print-route .medicare-print-fixed-footer__name,
+  html.appointments-print-route .medicare-print-fixed-footer__name,
+  html.prescription-print-route .medicare-print-fixed-footer__name {
+    font-size: 7.5pt;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #0f172a !important;
+  }
   html.report-print-route .medicare-print-fixed-footer__line,
   html.appointments-print-route .medicare-print-fixed-footer__line,
   html.prescription-print-route .medicare-print-fixed-footer__line {
@@ -295,6 +356,10 @@
     display: none !important;
   }
   .no-print-report {
+    display: none !important;
+  }
+  /* Single-chart print from Reports: hide everything marked when html.report-print-single-mode */
+  html.report-print-route.report-print-single-mode .report-print-chart-hidden-print {
     display: none !important;
   }
   .no-print-rx {
