@@ -70,7 +70,7 @@ export default function VitalsTrendCharts({ rows }: { rows: VitalRecord[] }) {
     <div className="space-y-6 print:break-inside-avoid">
       {latest && (
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-3 flex items-center gap-2">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-3 flex items-center gap-2">
             <Activity className="h-3.5 w-3.5 text-orange-500" aria-hidden />
             Latest reading
           </p>
@@ -81,32 +81,32 @@ export default function VitalsTrendCharts({ rows }: { rows: VitalRecord[] }) {
                 <p className="font-mono text-lg font-bold text-slate-900 dark:text-white tabular-nums">
                   {latest.systolic}/{latest.diastolic}
                 </p>
-                <p className="text-[10px] text-slate-500 dark:text-white">mmHg</p>
+                <p className="text-[10px] text-slate-600 dark:text-slate-400">mmHg</p>
               </div>
             )}
             {latest.pulse != null && (
               <div className="rounded-xl border border-orange-200/70 dark:border-orange-900/40 bg-gradient-to-br from-orange-50/90 to-white dark:from-orange-950/30 dark:to-slate-900/50 px-3 py-2.5 shadow-sm shadow-orange-100/40 dark:shadow-none">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-orange-600/90 dark:text-white">Pulse</p>
                 <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">{latest.pulse}</p>
-                <p className="text-[10px] text-slate-500 dark:text-white">bpm</p>
+                <p className="text-[10px] text-slate-600 dark:text-slate-400">bpm</p>
               </div>
             )}
             {latest.tempC != null && (
               <div className="rounded-xl border border-emerald-200/70 dark:border-emerald-900/40 bg-gradient-to-br from-emerald-50/90 to-white dark:from-emerald-950/30 dark:to-slate-900/50 px-3 py-2.5 shadow-sm shadow-emerald-100/40 dark:shadow-none">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600/90 dark:text-white">Temp</p>
                 <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">{latest.tempC.toFixed(1)}</p>
-                <p className="text-[10px] text-slate-500 dark:text-white">°C</p>
+                <p className="text-[10px] text-slate-600 dark:text-slate-400">°C</p>
               </div>
             )}
             {latest.spo2 != null && (
               <div className="rounded-xl border border-sky-200/70 dark:border-sky-900/40 bg-gradient-to-br from-sky-50/90 to-white dark:from-sky-950/30 dark:to-slate-900/50 px-3 py-2.5 shadow-sm shadow-sky-100/40 dark:shadow-none">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-sky-600/90 dark:text-white">SpO₂</p>
                 <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">{latest.spo2}%</p>
-                <p className="text-[10px] text-slate-500 dark:text-white">saturation</p>
+                <p className="text-[10px] text-slate-600 dark:text-slate-400">saturation</p>
               </div>
             )}
           </div>
-          <p className="text-xs text-slate-500 dark:text-white mt-3">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-3">
             {format(latest.recordedAt, 'PPp')}
             {latest.recordedBy ? ` · ${latest.recordedBy}` : ''}
           </p>
@@ -119,11 +119,11 @@ export default function VitalsTrendCharts({ rows }: { rows: VitalRecord[] }) {
           Trends over time
         </h3>
         {data.length < 2 ? (
-          <p className="text-sm text-slate-500 dark:text-white leading-relaxed">
+          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
             Add at least two vitals entries on different times to unlock line charts.
           </p>
         ) : (
-          <p className="text-xs text-slate-500 dark:text-white leading-relaxed">
+          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
             Chronological order. Each chart needs two or more readings for that measurement.
           </p>
         )}
@@ -243,7 +243,7 @@ export default function VitalsTrendCharts({ rows }: { rows: VitalRecord[] }) {
       )}
 
       {data.length >= 2 && bpN < 2 && pulseN < 2 && spo2N < 2 && tempN < 2 && (
-        <p className="text-sm text-slate-500 dark:text-white rounded-xl border border-dashed border-slate-200 dark:border-slate-700 px-4 py-3 bg-slate-50/50 dark:bg-slate-900/30">
+        <p className="text-sm text-slate-600 dark:text-slate-400 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 px-4 py-3 bg-slate-50/50 dark:bg-slate-900/30">
           Repeat the same type of measurement on another visit (for example BP twice) to see a trend line.
         </p>
       )}

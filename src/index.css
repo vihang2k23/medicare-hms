@@ -56,6 +56,30 @@
   input[type='reset']:disabled {
     cursor: not-allowed;
   }
+
+  /* Lucide icons use stroke=currentColor; Windows high-contrast / forced-colors can hide low-contrast strokes. */
+  @media (forced-colors: active) {
+    svg.lucide {
+      stroke: CanvasText;
+      forced-color-adjust: auto;
+    }
+  }
+
+  /*
+   * Native date inputs: Chromium paints the calendar affordance very light on white fields.
+   * Darken in light mode; invert tint in dark mode.
+   */
+  input[type='date']::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 1;
+  }
+  :root:not(.dark) input[type='date']::-webkit-calendar-picker-indicator {
+    filter: brightness(0.35);
+  }
+  html.dark input[type='date']::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(1.15);
+    opacity: 0.9;
+  }
 }
 
 /* Recharts tick labels / legend — axis props often set a gray stroke; force white text in dark mode. */

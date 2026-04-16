@@ -89,7 +89,7 @@ function BookAppointmentModalOpen({
             <h2 id="book-apt-title" className="text-lg font-bold text-slate-900 dark:text-white">
               Book appointment
             </h2>
-            <p className="text-xs text-slate-500 dark:text-white mt-1">
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
               {doctor.name} · {dayLabel}
             </p>
             <p className="text-sm font-mono text-sky-700 dark:text-white mt-1">
@@ -243,7 +243,7 @@ function ManageAppointmentModalContent({
               Appointment
             </h2>
             <p className="text-sm font-medium text-slate-800 dark:text-white mt-1">{appointment.patientName}</p>
-            <p className="text-xs text-slate-500 dark:text-white">
+            <p className="text-xs text-slate-600 dark:text-slate-400">
               {format(parse(appointment.date, 'yyyy-MM-dd', new Date()), 'EEE d MMM yyyy')} ·{' '}
               <span className="font-mono">
                 {appointment.slotStart} – {appointment.slotEnd}
@@ -256,7 +256,7 @@ function ManageAppointmentModalContent({
               </p>
             ) : null}
             {appointment.notes ? (
-              <p className="text-xs text-slate-500 dark:text-white mt-1">
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                 <span className="font-semibold">Notes:</span> {appointment.notes}
               </p>
             ) : null}
@@ -271,7 +271,7 @@ function ManageAppointmentModalContent({
           </button>
         </div>
         <div className="p-5 space-y-4 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] min-h-0 flex-1 touch-pan-y">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white">Reschedule</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Reschedule</p>
           <div>
             <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">New date</label>
             <input

@@ -114,6 +114,9 @@ export function getDefaultDashboard(role: Role): string {
 const SHARED_PATHS = ['/access-denied']
 
 export function canAccessPath(role: Role, pathname: string): boolean {
+  if (pathname === '/' || pathname === '') {
+    return true
+  }
   if (SHARED_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))) return true
   const allowed = ROLE_ROUTES[role]
   if (!allowed) return false

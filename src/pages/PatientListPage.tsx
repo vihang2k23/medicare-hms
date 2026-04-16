@@ -23,7 +23,7 @@ const PAGE_SIZE = 10
 const BLOOD_OPTIONS = ['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const
 
 const selectClass =
-  'w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-slate-800 dark:text-white text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/35 focus:border-sky-400/40 transition-[box-shadow,border-color]'
+  'w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-slate-800 dark:text-white text-sm shadow-sm [color-scheme:light] dark:[color-scheme:dark] placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/35 focus:border-sky-400/40 transition-[box-shadow,border-color]'
 
 /** Match API values like "A +" or "o+" to filter option "A+", "O+". */
 function normalizeBloodGroup(bg: string): string {
@@ -263,9 +263,9 @@ export default function PatientListPage() {
               <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                 Patients
               </h1>
-              <p className="text-slate-600 dark:text-white text-sm mt-2 max-w-xl leading-relaxed">
+              <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-xl leading-relaxed">
                 Search, filter, and manage records. Data syncs with JSON Server when{' '}
-                <code className="text-xs font-mono text-sky-700 dark:text-white">npm run server</code> is running.
+                <code className="text-xs font-mono text-sky-700 dark:text-sky-300">npm run server</code> is running.
               </p>
             </div>
           </div>
@@ -302,17 +302,17 @@ export default function PatientListPage() {
       {!loading && patients.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/50 px-4 py-3 ring-1 ring-slate-200/40 dark:ring-slate-700/40">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white">Total</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Total</p>
             <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums mt-0.5">{patients.length}</p>
           </div>
           <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/50 px-4 py-3 ring-1 ring-slate-200/40 dark:ring-slate-700/40">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white">Showing</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Showing</p>
             <p className="text-2xl font-bold text-sky-700 dark:text-white tabular-nums mt-0.5">{filtered.length}</p>
           </div>
           <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/50 px-4 py-3 ring-1 ring-slate-200/40 dark:ring-slate-700/40 col-span-2 sm:col-span-2 flex items-center justify-between gap-2">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white">Filters</p>
-              <p className="text-sm text-slate-600 dark:text-white mt-0.5">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Filters</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
                 {activeFilters ? 'Refining list' : 'None applied'}
               </p>
             </div>
@@ -406,7 +406,7 @@ export default function PatientListPage() {
           <div>
             <label
               htmlFor="patient-age-min"
-              className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5"
+              className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 mb-1.5"
             >
               Min age
             </label>
@@ -425,7 +425,7 @@ export default function PatientListPage() {
           <div>
             <label
               htmlFor="patient-age-max"
-              className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5"
+              className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 mb-1.5"
             >
               Max age
             </label>
@@ -444,7 +444,7 @@ export default function PatientListPage() {
           <div>
             <label
               htmlFor="patient-reg-from"
-              className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5"
+              className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 mb-1.5"
             >
               Registered from
             </label>
@@ -459,7 +459,7 @@ export default function PatientListPage() {
           <div>
             <label
               htmlFor="patient-reg-to"
-              className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5"
+              className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 mb-1.5"
             >
               Registered to
             </label>
@@ -488,12 +488,12 @@ export default function PatientListPage() {
               className="w-full"
             />
             {departmentOptions.length === 0 && (
-              <p className="text-[11px] text-slate-400 dark:text-white mt-1">Book appointments to enable this filter.</p>
+              <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Book appointments to enable this filter.</p>
             )}
           </div>
         </div>
         {!loading && patients.length > 0 && (
-          <p className="text-xs text-slate-500 dark:text-white mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
             Showing{' '}
             <span className="font-semibold text-slate-700 dark:text-white tabular-nums">
               {filtered.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1}
@@ -504,7 +504,7 @@ export default function PatientListPage() {
             </span>{' '}
             of <span className="font-semibold tabular-nums">{filtered.length}</span>
             {filtered.length !== patients.length && (
-              <span className="text-slate-400 dark:text-white"> (from {patients.length} total)</span>
+              <span className="text-slate-600 dark:text-slate-400"> (from {patients.length} total)</span>
             )}
           </p>
         )}
@@ -514,7 +514,7 @@ export default function PatientListPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center gap-3 py-16">
             <Loader2 className="h-10 w-10 animate-spin text-sky-500" aria-hidden />
-            <p className="text-sm text-slate-500 dark:text-white">Loading patients…</p>
+            <p className="text-sm text-slate-600 dark:text-slate-400">Loading patients…</p>
           </div>
         ) : patients.length === 0 ? (
           <div className="flex flex-col items-center text-center py-14 px-4">
@@ -522,7 +522,7 @@ export default function PatientListPage() {
               <Users className="h-8 w-8 text-slate-400" aria-hidden />
             </div>
             <p className="text-slate-700 dark:text-white font-semibold">No patients yet</p>
-            <p className="text-sm text-slate-500 dark:text-white mt-1 max-w-sm">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-sm">
               Register your first patient to populate this list.
             </p>
             <Link
@@ -539,7 +539,7 @@ export default function PatientListPage() {
               <SearchX className="h-8 w-8 text-slate-400" aria-hidden />
             </div>
             <p className="text-slate-700 dark:text-white font-semibold">No matches</p>
-            <p className="text-sm text-slate-500 dark:text-white mt-1 max-w-sm">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-sm">
               Try clearing filters or adjusting your search.
             </p>
             <button

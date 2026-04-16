@@ -222,7 +222,7 @@ export default function PatientRegistrationForm({
     <div className="max-w-2xl mx-auto">
       {/* Progress */}
       <div className="mb-8">
-        <div className="flex gap-3 sm:gap-0 sm:justify-between text-xs font-medium text-slate-500 dark:text-white mb-2 overflow-x-auto pb-1 -mx-1 px-1 scroll-pl-1">
+        <div className="flex gap-3 sm:gap-0 sm:justify-between text-xs font-medium text-slate-600 dark:text-slate-400 mb-2 overflow-x-auto pb-1 -mx-1 px-1 scroll-pl-1">
           {STEPS.map((label, i) => (
             <span
               key={label}
@@ -406,12 +406,12 @@ export default function PatientRegistrationForm({
         {step === 4 && (
           <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/45 backdrop-blur-sm p-6 sm:p-7 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40 space-y-3 text-sm">
             <h2 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Review & submit</h2>
-            <p className="text-slate-500 dark:text-white text-xs mb-4">
+            <p className="text-slate-600 dark:text-slate-400 text-xs mb-4">
               Nothing is saved until you click <strong className="text-slate-700 dark:text-white">{isEdit ? 'Save changes' : 'Register patient'}</strong> below.
             </p>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-600 dark:text-white">
               <dt className="font-medium text-slate-800 dark:text-white">Patient ID</dt>
-              <dd className="text-slate-500 font-mono text-xs">{isEdit ? initialRecord!.id : 'Assigned on save'}</dd>
+              <dd className="text-slate-600 dark:text-slate-400 font-mono text-xs">{isEdit ? initialRecord!.id : 'Assigned on save'}</dd>
               <dt className="font-medium text-slate-800 dark:text-white">Name</dt>
               <dd>{watch('fullName')}</dd>
               <dt className="font-medium text-slate-800 dark:text-white">DOB</dt>

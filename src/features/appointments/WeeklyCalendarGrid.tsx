@@ -37,14 +37,14 @@ export default function WeeklyCalendarGrid({
               className="rounded-xl border border-slate-200/90 dark:border-slate-700/90 bg-white/80 dark:bg-slate-900/40 flex flex-col min-h-[220px] ring-1 ring-slate-200/40 dark:ring-slate-700/40"
             >
               <div className="text-center py-2.5 px-2 border-b border-slate-200/80 dark:border-slate-700/80 bg-slate-50/80 dark:bg-slate-800/50 rounded-t-xl">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                   {dayLabel}
                 </p>
                 <p className="text-sm font-bold text-slate-900 dark:text-white">{dateLabel}</p>
               </div>
               <div className="flex flex-col gap-1.5 p-2 flex-1">
                 {slots.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center flex-1 text-slate-400 dark:text-white py-6">
+                  <div className="flex flex-col items-center justify-center flex-1 text-slate-600 dark:text-slate-400 py-6">
                     <CalendarOff className="h-6 w-6 mb-1 opacity-60" aria-hidden />
                     <span className="text-[11px]">No slots</span>
                   </div>

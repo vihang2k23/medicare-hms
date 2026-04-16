@@ -137,7 +137,7 @@ function VitalsEntryPage() {
       {loading ? (
         <div className="flex flex-col items-center justify-center gap-3 py-20 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30">
           <Loader2 className="h-10 w-10 animate-spin text-orange-500" aria-hidden />
-          <p className="text-sm text-slate-500 dark:text-white">Loading patients…</p>
+          <p className="text-sm text-slate-600 dark:text-slate-400">Loading patients…</p>
         </div>
       ) : (
         <DashboardCard title="Patients">
@@ -151,7 +151,7 @@ function VitalsEntryPage() {
                 className={`${fieldInput} pl-10`}
               />
             </div>
-            <p className="text-xs text-slate-500 dark:text-white">
+            <p className="text-xs text-slate-600 dark:text-slate-400">
               {totalFiltered} patient{totalFiltered === 1 ? '' : 's'}
               {query.trim()
                 ? ` ${totalFiltered === 1 ? 'matches' : 'match'} your search.`
@@ -163,7 +163,7 @@ function VitalsEntryPage() {
             <div className="space-y-3">
             <div className="max-h-[min(28rem,52vh)] overflow-auto rounded-xl border border-slate-200/90 dark:border-slate-700/90 bg-white dark:bg-slate-950/20 ring-1 ring-slate-200/40 dark:ring-slate-800/50">
               {totalFiltered === 0 ? (
-                <p className="py-10 text-center text-sm text-slate-500 dark:text-white">No patients match your search.</p>
+                <p className="py-10 text-center text-sm text-slate-600 dark:text-slate-400">No patients match your search.</p>
               ) : (
                 <table className="w-full text-sm text-left min-w-[720px]">
                   <thead className="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-200/90 dark:border-slate-700/90 text-slate-600 dark:text-white">
@@ -265,30 +265,30 @@ function VitalsEntryPage() {
                               <td colSpan={6} className="px-4 py-4 text-sm border-b border-slate-200/80 dark:border-slate-800">
                                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl">
                                   <div>
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">Phone</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Phone</p>
                                     <p className="text-slate-800 dark:text-white">{p.phone || '—'}</p>
                                   </div>
                                   <div>
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">Email</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Email</p>
                                     <p className="text-slate-800 dark:text-white truncate" title={p.email}>
                                       {p.email || '—'}
                                     </p>
                                   </div>
                                   <div>
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">DOB / Gender</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">DOB / Gender</p>
                                     <p className="text-slate-800 dark:text-white">
                                       {p.dob} · <span className="capitalize">{p.gender}</span>
                                     </p>
                                   </div>
                                   <div className="sm:col-span-2 lg:col-span-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">Address</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Address</p>
                                     <p className="text-slate-800 dark:text-white leading-relaxed">
                                       {[p.address, p.city, p.state, p.pin].filter(Boolean).join(', ') || '—'}
                                     </p>
                                   </div>
                                   {last && (
                                     <div className="sm:col-span-2 lg:col-span-3 rounded-lg border border-slate-200/80 dark:border-slate-700 bg-white/60 dark:bg-slate-950/30 px-3 py-2">
-                                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">
+                                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
                                         Last reading snapshot
                                       </p>
                                       <p className="text-xs text-slate-700 dark:text-white tabular-nums">

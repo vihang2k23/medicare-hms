@@ -129,7 +129,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
           <button
             type="button"
             onClick={onRemove}
-            className="p-2 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-white transition-colors"
+            className="p-2 rounded-xl text-slate-600 hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-950/40 dark:hover:text-red-200 transition-colors"
             aria-label="Remove medicine line"
           >
             <Trash2 className="h-4 w-4" />
@@ -138,11 +138,11 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
       </div>
 
       <div className="relative">
-        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">
+        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
           Drug (catalog)
         </label>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" aria-hidden />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600 dark:text-slate-400" aria-hidden />
           <input
             role="combobox"
             aria-expanded={open}
@@ -185,8 +185,8 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
                     onClick={() => void applyHit(hit)}
                   >
                     <span className="font-medium text-slate-900 dark:text-white">{label}</span>
-                    {sub && <span className="block text-xs text-slate-500 dark:text-white mt-0.5">{sub}</span>}
-                    {hint && <span className="block text-[11px] text-slate-400 dark:text-white mt-0.5 leading-snug">{hint}</span>}
+                    {sub && <span className="block text-xs text-slate-600 dark:text-slate-400 mt-0.5">{sub}</span>}
+                    {hint && <span className="block text-[11px] text-slate-600 dark:text-slate-400 mt-0.5 leading-snug">{hint}</span>}
                   </button>
                 </li>
               )
@@ -197,7 +197,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
             Dosage
           </label>
           <input
@@ -208,7 +208,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
           />
         </div>
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
             Frequency
           </label>
           <input
@@ -219,7 +219,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
           />
         </div>
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
             Duration
           </label>
           <input
@@ -231,7 +231,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
         </div>
       </div>
       <div>
-        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">
+        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
           Instructions
         </label>
         <input
@@ -252,7 +252,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
           {recallLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <AlertTriangle className="h-3.5 w-3.5" />}
           Check recalls
         </button>
-        <span className="text-[11px] text-slate-500 dark:text-white">Sample scenarios for common drugs.</span>
+        <span className="text-[11px] text-slate-600 dark:text-slate-400">Sample scenarios for common drugs.</span>
       </div>
 
       {line.recallAlerts && line.recallAlerts.length > 0 && (

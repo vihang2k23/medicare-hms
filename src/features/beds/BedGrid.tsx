@@ -217,13 +217,13 @@ export default function BedGrid({
               <Activity className="h-5 w-5 text-teal-600 dark:text-white shrink-0" aria-hidden />
               Ward summary
             </h2>
-            <p className="text-xs text-slate-500 dark:text-white max-w-md leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-400 max-w-md leading-relaxed">
               Live counts by ward — drag an <strong className="text-slate-600 dark:text-white">available</strong> bed
               onto another ward to transfer it.
             </p>
           </div>
           {Object.keys(wardSummary).length === 0 ? (
-            <p className="text-slate-500 dark:text-white text-sm">No ward data.</p>
+            <p className="text-slate-600 dark:text-slate-400 text-sm">No ward data.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               {Object.entries(wardSummary).map(([wardId, c]) => {
@@ -240,7 +240,7 @@ export default function BedGrid({
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                           {wardId}
                         </p>
                         <p className="text-lg font-bold text-slate-900 dark:text-white">{wardName}</p>
@@ -271,7 +271,7 @@ export default function BedGrid({
                         <span className="ml-auto font-bold tabular-nums">{c.maintenance}</span>
                       </div>
                     </div>
-                    <p className="mt-3 text-[11px] text-slate-500 dark:text-white">
+                    <p className="mt-3 text-[11px] text-slate-600 dark:text-slate-400">
                       Total beds: <strong className="text-slate-700 dark:text-white">{total}</strong>
                     </p>
                   </div>
@@ -318,7 +318,7 @@ export default function BedGrid({
                   <BedDouble className="h-4 w-4 text-teal-600 dark:text-white shrink-0" aria-hidden />
                   <span className="truncate">
                     {wardName}
-                    <span className="text-slate-400 dark:text-white font-mono text-xs font-normal ml-1.5">
+                    <span className="text-slate-600 dark:text-slate-400 font-mono text-xs font-normal ml-1.5">
                       {wardId}
                     </span>
                   </span>
@@ -417,7 +417,7 @@ export default function BedGrid({
                 <p id="bed-panel-title" className="text-lg font-bold text-slate-900 dark:text-white">
                   {activeBed.wardName} · Bed {activeBed.bedNumber}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-white mt-0.5">
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                   {STATUS_STYLES[activeBed.status].label}
                   {activeBed.occupantName && (
                     <>
@@ -450,7 +450,7 @@ export default function BedGrid({
               )}
 
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-2">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
                   Bed status
                 </p>
                 <div className="grid grid-cols-2 gap-2">
@@ -484,7 +484,7 @@ export default function BedGrid({
 
               {(activeBed.status === 'available' || activeBed.status === 'reserved') && (
                 <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-slate-50/80 dark:bg-slate-800/40 p-4 space-y-3">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white flex items-center gap-1.5">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
                     <UserPlus className="h-3.5 w-3.5" aria-hidden />
                     Admit / assign
                   </p>
@@ -534,7 +534,7 @@ export default function BedGrid({
               )}
 
               {activeBed.status === 'maintenance' && (
-                <p className="text-xs text-slate-500 dark:text-white flex items-center gap-2">
+                <p className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2">
                   <Wrench className="h-4 w-4 shrink-0" aria-hidden />
                   Mark available when the bed is ready for patients again.
                 </p>

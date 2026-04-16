@@ -171,7 +171,7 @@ export default function PatientProfilePage() {
   if (patient === undefined) {
     return (
       <div className="p-6">
-        <p className="text-slate-500 dark:text-white">Loading…</p>
+        <p className="text-slate-600 dark:text-slate-400">Loading…</p>
       </div>
     )
   }
@@ -247,7 +247,7 @@ export default function PatientProfilePage() {
             className={`shrink-0 px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 -mb-px transition-colors ${
               tab === id
                 ? 'border-sky-600 text-sky-600 dark:text-white dark:border-sky-400'
-                : 'border-transparent text-slate-500 dark:text-white hover:text-slate-700 dark:hover:text-white'
+                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white'
             }`}
           >
             {label}
@@ -259,39 +259,39 @@ export default function PatientProfilePage() {
         {tab === 'overview' && (
           <div className="space-y-10 text-sm">
             <section>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-4">
                 Demographics
               </h3>
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                 <div>
-                  <dt className="text-slate-500 dark:text-white">Date of birth</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Date of birth</dt>
                   <dd className="text-slate-800 dark:text-white font-medium">{patient.dob}</dd>
                 </div>
                 <div>
-                  <dt className="text-slate-500 dark:text-white">Gender</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Gender</dt>
                   <dd className="text-slate-800 dark:text-white font-medium capitalize">{patient.gender}</dd>
                 </div>
                 <div>
-                  <dt className="text-slate-500 dark:text-white">Blood group</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Blood group</dt>
                   <dd className="text-slate-800 dark:text-white font-medium">{patient.bloodGroup}</dd>
                 </div>
                 <div>
-                  <dt className="text-slate-500 dark:text-white">Phone</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Phone</dt>
                   <dd className="text-slate-800 dark:text-white font-medium">{patient.phone}</dd>
                 </div>
                 <div>
-                  <dt className="text-slate-500 dark:text-white">Email</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Email</dt>
                   <dd className="text-slate-800 dark:text-white font-medium break-all">{patient.email}</dd>
                 </div>
                 <div className="sm:col-span-2">
-                  <dt className="text-slate-500 dark:text-white">Address</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Address</dt>
                   <dd className="text-slate-800 dark:text-white font-medium">
                     {patient.address}, {patient.city}, {patient.state} {patient.pin}
                   </dd>
                 </div>
                 {patient.photo && (
                   <div className="sm:col-span-2">
-                    <dt className="text-slate-500 dark:text-white mb-2">Photo</dt>
+                    <dt className="text-slate-600 dark:text-slate-400 mb-2">Photo</dt>
                     <dd>
                       <img
                         src={patient.photo}
@@ -305,7 +305,7 @@ export default function PatientProfilePage() {
             </section>
 
             <section>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-4">
                 Medical history
               </h3>
               <div className="space-y-4">
@@ -329,20 +329,20 @@ export default function PatientProfilePage() {
             </section>
 
             <section>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-4">
                 Emergency contact
               </h3>
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <dt className="text-slate-500 dark:text-white">Contact name</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Contact name</dt>
                   <dd className="text-slate-800 dark:text-white font-medium">{patient.emergencyName}</dd>
                 </div>
                 <div>
-                  <dt className="text-slate-500 dark:text-white">Relationship</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Relationship</dt>
                   <dd className="text-slate-800 dark:text-white font-medium">{patient.emergencyRelationship}</dd>
                 </div>
                 <div>
-                  <dt className="text-slate-500 dark:text-white">Phone</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Phone</dt>
                   <dd className="text-slate-800 dark:text-white font-medium">{patient.emergencyPhone}</dd>
                 </div>
               </dl>
@@ -379,7 +379,7 @@ export default function PatientProfilePage() {
                           {a.doctorName} · {a.department}
                         </p>
                         {a.reason && (
-                          <p className="text-xs text-slate-500 dark:text-white mt-1">Reason: {a.reason}</p>
+                          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Reason: {a.reason}</p>
                         )}
                       </div>
                       <span
@@ -425,9 +425,9 @@ export default function PatientProfilePage() {
                         </p>
                         <p className="text-sm text-slate-600 dark:text-white mt-0.5">{rx.doctorName}</p>
                         {rx.diagnosis && (
-                          <p className="text-xs text-slate-500 dark:text-white mt-1">Dx: {rx.diagnosis}</p>
+                          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Dx: {rx.diagnosis}</p>
                         )}
-                        <p className="text-xs text-slate-500 dark:text-white mt-1">
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                           {rx.medicines.length} medicine line{rx.medicines.length === 1 ? '' : 's'}
                         </p>
                       </div>
@@ -473,7 +473,7 @@ export default function PatientProfilePage() {
               )}
             </div>
             {vitals === null ? (
-              <p className="text-sm text-slate-500 dark:text-white">Loading vitals…</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400">Loading vitals…</p>
             ) : (
               <>
                 <VitalsTrendCharts rows={vitals} />
@@ -498,26 +498,26 @@ export default function PatientProfilePage() {
             </div>
 
             {billingRows.length === 0 ? (
-              <p className="text-sm text-slate-500 dark:text-white">
+              <p className="text-sm text-slate-600 dark:text-slate-400">
                 No billable visits or prescriptions yet — complete a visit or add a prescription to see sample charges.
               </p>
             ) : (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="rounded-xl border border-slate-200 dark:border-slate-600 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white">Total charges</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Total charges</p>
                     <p className="text-xl font-bold text-slate-900 dark:text-white mt-1 tabular-nums">
                       {money.format(billingSummary.total)}
                     </p>
                   </div>
                   <div className="rounded-xl border border-slate-200 dark:border-slate-600 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white">Recorded paid</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Recorded paid</p>
                     <p className="text-xl font-bold text-emerald-700 dark:text-white mt-1 tabular-nums">
                       {money.format(billingSummary.paid)}
                     </p>
                   </div>
                   <div className="rounded-xl border border-slate-200 dark:border-slate-600 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white">Outstanding (est.)</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Outstanding (est.)</p>
                     <p className="text-xl font-bold text-amber-700 dark:text-white mt-1 tabular-nums">
                       {money.format(billingSummary.outstanding)}
                     </p>
@@ -527,7 +527,7 @@ export default function PatientProfilePage() {
                 <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-600">
                   <table className="min-w-full text-sm">
                     <thead>
-                      <tr className="bg-slate-50 dark:bg-slate-800/80 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white">
+                      <tr className="bg-slate-50 dark:bg-slate-800/80 text-left text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
                         <th className="px-4 py-3">Type</th>
                         <th className="px-4 py-3">Description</th>
                         <th className="px-4 py-3">Date</th>

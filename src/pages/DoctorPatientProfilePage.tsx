@@ -146,7 +146,7 @@ function DoctorPatientProfileLoaded({ patientId }: { patientId: string }) {
   if (patient === undefined) {
     return (
       <div className="p-6">
-        <p className="text-slate-500 dark:text-white">Loading…</p>
+        <p className="text-slate-600 dark:text-slate-400">Loading…</p>
       </div>
     )
   }
@@ -219,7 +219,7 @@ function DoctorPatientProfileLoaded({ patientId }: { patientId: string }) {
             className={`shrink-0 px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 -mb-px transition-colors ${
               tab === id
                 ? 'border-emerald-600 text-emerald-600 dark:text-white dark:border-emerald-400'
-                : 'border-transparent text-slate-500 dark:text-white hover:text-slate-700 dark:hover:text-white'
+                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white'
             }`}
           >
             {label}
@@ -231,34 +231,34 @@ function DoctorPatientProfileLoaded({ patientId }: { patientId: string }) {
         {tab === 'overview' && (
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
             <div>
-              <dt className="text-slate-500 dark:text-white">Date of birth</dt>
+              <dt className="text-slate-600 dark:text-slate-400">Date of birth</dt>
               <dd className="text-slate-800 dark:text-white font-medium">{patient.dob}</dd>
             </div>
             <div>
-              <dt className="text-slate-500 dark:text-white">Gender</dt>
+              <dt className="text-slate-600 dark:text-slate-400">Gender</dt>
               <dd className="text-slate-800 dark:text-white font-medium capitalize">{patient.gender}</dd>
             </div>
             <div>
-              <dt className="text-slate-500 dark:text-white">Blood group</dt>
+              <dt className="text-slate-600 dark:text-slate-400">Blood group</dt>
               <dd className="text-slate-800 dark:text-white font-medium">{patient.bloodGroup}</dd>
             </div>
             <div>
-              <dt className="text-slate-500 dark:text-white">Phone</dt>
+              <dt className="text-slate-600 dark:text-slate-400">Phone</dt>
               <dd className="text-slate-800 dark:text-white font-medium">{patient.phone}</dd>
             </div>
             <div>
-              <dt className="text-slate-500 dark:text-white">Email</dt>
+              <dt className="text-slate-600 dark:text-slate-400">Email</dt>
               <dd className="text-slate-800 dark:text-white font-medium break-all">{patient.email}</dd>
             </div>
             <div className="sm:col-span-2">
-              <dt className="text-slate-500 dark:text-white">Address</dt>
+              <dt className="text-slate-600 dark:text-slate-400">Address</dt>
               <dd className="text-slate-800 dark:text-white font-medium">
                 {patient.address}, {patient.city}, {patient.state} {patient.pin}
               </dd>
             </div>
             {patient.photo && (
               <div className="sm:col-span-2">
-                <dt className="text-slate-500 dark:text-white mb-2">Photo</dt>
+                <dt className="text-slate-600 dark:text-slate-400 mb-2">Photo</dt>
                 <dd>
                   <img
                     src={patient.photo}
@@ -295,15 +295,15 @@ function DoctorPatientProfileLoaded({ patientId }: { patientId: string }) {
         {tab === 'emergency' && (
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div>
-              <dt className="text-slate-500 dark:text-white">Contact name</dt>
+              <dt className="text-slate-600 dark:text-slate-400">Contact name</dt>
               <dd className="text-slate-800 dark:text-white font-medium">{patient.emergencyName}</dd>
             </div>
             <div>
-              <dt className="text-slate-500 dark:text-white">Relationship</dt>
+              <dt className="text-slate-600 dark:text-slate-400">Relationship</dt>
               <dd className="text-slate-800 dark:text-white font-medium">{patient.emergencyRelationship}</dd>
             </div>
             <div>
-              <dt className="text-slate-500 dark:text-white">Phone</dt>
+              <dt className="text-slate-600 dark:text-slate-400">Phone</dt>
               <dd className="text-slate-800 dark:text-white font-medium">{patient.emergencyPhone}</dd>
             </div>
           </dl>
@@ -331,7 +331,7 @@ function DoctorPatientProfileLoaded({ patientId }: { patientId: string }) {
               )}
             </div>
             {vitals === null ? (
-              <p className="text-sm text-slate-500 dark:text-white">Loading vitals…</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400">Loading vitals…</p>
             ) : (
               <>
                 <VitalsTrendCharts rows={vitals} />
@@ -358,12 +358,12 @@ function DoctorPatientProfileLoaded({ patientId }: { patientId: string }) {
                     <span className="text-slate-800 dark:text-white">
                       {a.date} · {a.slotStart}–{a.slotEnd}
                     </span>
-                    <span className="text-xs font-medium text-slate-500 dark:text-white capitalize">{a.status}</span>
+                    <span className="text-xs font-medium text-slate-600 dark:text-slate-400 capitalize">{a.status}</span>
                   </li>
                 ))}
               </ul>
               {myAppointments.length > 8 && (
-                <p className="text-xs text-slate-500 dark:text-white mt-2">Showing 8 most recent.</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-2">Showing 8 most recent.</p>
               )}
             </section>
           )}
@@ -385,7 +385,7 @@ function DoctorPatientProfileLoaded({ patientId }: { patientId: string }) {
                       </span>
                       <span className="text-xs capitalize text-emerald-700 dark:text-white">{rx.status}</span>
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-white mt-1">
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                       {rx.medicines.length} medicine{rx.medicines.length === 1 ? '' : 's'}
                     </p>
                   </li>

@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronDown, Loader2, Search, X } from 'lucide-react'
+import { LUCIDE_STROKE_FIELD } from './lucideChrome'
 
 /**
  * Positions a dropdown below an anchor using fixed coordinates (viewport pixels from
@@ -131,12 +132,16 @@ export function SearchableIdPicker<T>({
   return (
     <div ref={wrapRef} className={`relative z-[80] ${className}`}>
       {label && (
-        <label htmlFor={id} className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5">
+        <label htmlFor={id} className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 mb-1.5">
           {label}
         </label>
       )}
       <div ref={anchorRef} className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" aria-hidden />
+        <Search
+          className={`absolute left-3 top-1/2 -translate-y-1/2 h-[18px] w-[18px] pointer-events-none z-10 ${LUCIDE_STROKE_FIELD}`}
+          strokeWidth={2.5}
+          aria-hidden
+        />
         <input
           id={id}
           name={name}
@@ -156,14 +161,16 @@ export function SearchableIdPicker<T>({
             setOpen(true)
             setQ('')
           }}
-          className={`relative z-10 w-full pl-10 pr-20 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-2 ${ring} disabled:opacity-60`}
+          className={`relative z-10 w-full pl-10 pr-20 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-sm text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 [color-scheme:light] dark:[color-scheme:dark] shadow-sm focus:outline-none focus:ring-2 ${ring} disabled:opacity-60`}
         />
         <div className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex items-center gap-0.5">
-          {loading && <Loader2 className="h-4 w-4 animate-spin text-slate-400" aria-hidden />}
+          {loading && (
+            <Loader2 className={`h-4 w-4 animate-spin ${LUCIDE_STROKE_FIELD}`} strokeWidth={2.5} aria-hidden />
+          )}
           {allowClear && selectedId && !loading && (
             <button
               type="button"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="p-1.5 rounded-lg text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
               aria-label="Clear selection"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
@@ -172,12 +179,12 @@ export function SearchableIdPicker<T>({
                 setOpen(false)
               }}
             >
-              <X className="h-4 w-4" />
+              <X className={`h-4 w-4 ${LUCIDE_STROKE_FIELD}`} strokeWidth={2.5} />
             </button>
           )}
           <button
             type="button"
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white"
+            className="p-1.5 rounded-lg text-slate-900 hover:bg-slate-100/90 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
             aria-label={open ? 'Close list' : 'Open list'}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
@@ -185,7 +192,10 @@ export function SearchableIdPicker<T>({
               if (!open) setQ('')
             }}
           >
-            <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+            <ChevronDown
+              className={`h-5 w-5 ${LUCIDE_STROKE_FIELD} transition-transform ${open ? 'rotate-180' : ''}`}
+              strokeWidth={2.75}
+            />
           </button>
         </div>
         {open &&
@@ -201,7 +211,7 @@ export function SearchableIdPicker<T>({
               role="listbox"
             >
               {filtered.length === 0 ? (
-                <li className="px-3 py-3 text-sm text-slate-500 dark:text-white">No matches.</li>
+                <li className="px-3 py-3 text-sm text-slate-600 dark:text-slate-400">No matches.</li>
               ) : (
                 filtered.map((item) => {
                   const iid = getId(item)
@@ -302,12 +312,16 @@ export function SearchFilterCombobox<T>({
   return (
     <div ref={wrapRef} className={`relative z-[80] ${className}`}>
       {label && (
-        <label htmlFor={id} className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5">
+        <label htmlFor={id} className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 mb-1.5">
           {label}
         </label>
       )}
       <div ref={anchorRef} className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" aria-hidden />
+        <Search
+          className={`absolute left-3 top-1/2 -translate-y-1/2 h-[18px] w-[18px] pointer-events-none z-10 ${LUCIDE_STROKE_FIELD}`}
+          strokeWidth={2.5}
+          aria-hidden
+        />
         <input
           id={id}
           type="search"
@@ -322,10 +336,14 @@ export function SearchFilterCombobox<T>({
           }}
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
-          className={`relative z-10 w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-2 ${ring} disabled:opacity-60`}
+          className={`relative z-10 w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-sm text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 [color-scheme:light] dark:[color-scheme:dark] shadow-sm focus:outline-none focus:ring-2 ${ring} disabled:opacity-60`}
         />
         {loading && (
-          <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 z-20 h-4 w-4 animate-spin text-slate-400" aria-hidden />
+          <Loader2
+            className={`absolute right-3 top-1/2 -translate-y-1/2 z-20 h-4 w-4 animate-spin ${LUCIDE_STROKE_FIELD}`}
+            strokeWidth={2.5}
+            aria-hidden
+          />
         )}
         {open &&
           !disabled &&
@@ -340,12 +358,12 @@ export function SearchFilterCombobox<T>({
               role="listbox"
             >
               {!value.trim() && (
-                <li className="px-3 py-2 text-xs text-slate-500 dark:text-white border-b border-slate-100 dark:border-slate-800">
+                <li className="px-3 py-2 text-xs text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800">
                   {emptyText}
                 </li>
               )}
               {filtered.length === 0 ? (
-                <li className="px-3 py-3 text-sm text-slate-500 dark:text-white">{noResultsText}</li>
+                <li className="px-3 py-3 text-sm text-slate-600 dark:text-slate-400">{noResultsText}</li>
               ) : (
                 filtered.map((item) => (
                   <li key={getKey(item)}>
@@ -368,7 +386,7 @@ export function SearchFilterCombobox<T>({
             document.body,
           )}
       </div>
-      {hint && <p className="text-xs text-slate-500 dark:text-white mt-1.5">{hint}</p>}
+      {hint && <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-snug">{hint}</p>}
     </div>
   )
 }

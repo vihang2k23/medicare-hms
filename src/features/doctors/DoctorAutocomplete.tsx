@@ -216,7 +216,7 @@ export default function DoctorAutocomplete({
   return (
     <div className="relative" ref={searchRef}>
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" aria-hidden />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 dark:text-slate-400" aria-hidden />
         <input
           type="text"
           value={query}
@@ -231,7 +231,7 @@ export default function DoctorAutocomplete({
             <button
               type="button"
               onClick={handleClear}
-              className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-white"
+              className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
               title="Clear"
             >
               <X className="w-4 h-4" />
@@ -252,7 +252,7 @@ export default function DoctorAutocomplete({
             <div className="flex items-center justify-between gap-2">
               <div>
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white">NPI Registry</h3>
-                <p className="text-xs text-slate-500 dark:text-white mt-0.5">
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                   {suggestions.length} match{suggestions.length !== 1 ? 'es' : ''}
                 </p>
               </div>

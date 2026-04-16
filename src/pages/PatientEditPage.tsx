@@ -47,7 +47,7 @@ function PatientEditLoaded({ patientId }: { patientId: string }) {
   }, [patientId])
 
   if (patient === undefined) {
-    return <p className="text-slate-500 dark:text-white">Loading…</p>
+    return <p className="text-slate-600 dark:text-slate-400">Loading…</p>
   }
 
   if (error || !patient) {
@@ -73,7 +73,7 @@ function PatientEditLoaded({ patientId }: { patientId: string }) {
           ← Profile
         </Link>
         <h1 className="text-2xl font-semibold text-slate-800 dark:text-white mt-2">Edit patient</h1>
-        <p className="text-slate-500 dark:text-white text-sm mt-1 font-mono">{patient.id}</p>
+        <p className="text-slate-600 dark:text-slate-400 text-sm mt-1 font-mono">{patient.id}</p>
       </div>
       <PatientRegistrationForm
         initialRecord={patient}

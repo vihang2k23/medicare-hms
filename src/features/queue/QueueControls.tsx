@@ -68,7 +68,7 @@ export default function QueueControls({
 
   return (
     <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/50 backdrop-blur-sm p-5 space-y-5 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
-      <h3 className="text-xs font-bold text-slate-500 dark:text-white uppercase tracking-[0.14em]">Issue token</h3>
+      <h3 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-[0.14em]">Issue token</h3>
       <div>
         <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">Patient name</label>
         <input
@@ -78,7 +78,7 @@ export default function QueueControls({
           className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white/90 dark:bg-slate-950/50 text-slate-800 dark:text-white text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30"
         />
       </div>
-      <p className="text-[11px] text-slate-500 dark:text-white">
+      <p className="text-[11px] text-slate-600 dark:text-slate-400">
         Tokens are issued for <strong className="text-slate-600 dark:text-white">{OPD_DEPARTMENTS[0]}</strong>.
         Doctor is picked from the appointment schedule when their department matches (including NPI-imported doctors).
       </p>
@@ -92,8 +92,8 @@ export default function QueueControls({
       </button>
 
       <div className="border-t border-slate-200/80 dark:border-slate-700/80 pt-5 space-y-3">
-        <h3 className="text-xs font-bold text-slate-500 dark:text-white uppercase tracking-[0.14em]">Desk actions</h3>
-        <p className="text-xs text-slate-500 dark:text-white">
+        <h3 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-[0.14em]">Desk actions</h3>
+        <p className="text-xs text-slate-600 dark:text-slate-400">
           Active token:{' '}
           <span className="font-mono text-slate-700 dark:text-white">
             {currentToken != null ? formatOpdTokenLabel(currentToken) : 'None'}
@@ -168,11 +168,11 @@ export default function QueueControls({
       </div>
 
       <div className="border-t border-slate-200/80 dark:border-slate-700/80 pt-5 space-y-3">
-        <h3 className="text-xs font-bold text-slate-500 dark:text-white uppercase tracking-[0.14em] flex items-center gap-2">
+        <h3 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-[0.14em] flex items-center gap-2">
           <Timer className="h-3.5 w-3.5 text-violet-500" aria-hidden />
           Auto-advance (simulation)
         </h3>
-        <p className="text-xs text-slate-500 dark:text-white leading-relaxed">
+        <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
           Fires &ldquo;Call next&rdquo; every {simulationIntervalMs / 1000}s while running. Starts only when someone is
           waiting; stops automatically when the queue has no waiting or in-consultation patients.
         </p>

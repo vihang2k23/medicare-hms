@@ -137,7 +137,7 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
             <h2 id="vitals-record-modal-title" className="text-lg font-bold text-slate-900 dark:text-white mt-0.5">
               Enter vitals
             </h2>
-            <p className="text-xs text-slate-500 dark:text-white mt-1 truncate">
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 truncate">
               {patient.fullName}{' '}
               <span className="font-mono text-sky-600 dark:text-white">({patient.id})</span>
             </p>
@@ -154,13 +154,13 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
 
         <div className="overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] px-5 py-5 space-y-5 flex-1 min-h-0 touch-pan-y">
           <div className="rounded-xl border border-slate-200/90 dark:border-slate-700/90 bg-slate-50/60 dark:bg-slate-800/25 p-4 space-y-3">
-            <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white">
+            <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
               <Heart className="h-3.5 w-3.5 text-rose-500 shrink-0" strokeWidth={2.5} aria-hidden />
               Blood pressure
             </p>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-semibold text-slate-500 dark:text-white mb-1">Systolic</label>
+                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Systolic</label>
                 <input
                   inputMode="numeric"
                   value={sys}
@@ -170,7 +170,7 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-slate-500 dark:text-white mb-1">Diastolic</label>
+                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Diastolic</label>
                 <input
                   inputMode="numeric"
                   value={dia}
@@ -183,7 +183,7 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
           </div>
 
           <div className="rounded-xl border border-slate-200/90 dark:border-slate-700/90 bg-slate-50/60 dark:bg-slate-800/25 p-4 space-y-3">
-            <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white">
+            <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
               <span className="flex items-center gap-1.5">
                 <Wind className="h-3.5 w-3.5 text-sky-500 shrink-0" strokeWidth={2.5} aria-hidden />
                 <Thermometer className="h-3.5 w-3.5 text-emerald-500 shrink-0" strokeWidth={2.5} aria-hidden />
@@ -192,7 +192,7 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[11px] font-semibold text-slate-500 dark:text-white mb-1">Pulse</label>
+                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Pulse</label>
                 <input
                   inputMode="numeric"
                   value={pulse}
@@ -202,7 +202,7 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-slate-500 dark:text-white mb-1">Temp °C</label>
+                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Temp °C</label>
                 <input
                   inputMode="decimal"
                   value={temp}
@@ -212,7 +212,7 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-slate-500 dark:text-white mb-1">SpO₂ %</label>
+                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">SpO₂ %</label>
                 <input
                   inputMode="numeric"
                   value={spo2}
@@ -225,7 +225,7 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-slate-500 dark:text-white mb-1">Notes</label>
+            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Notes</label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}

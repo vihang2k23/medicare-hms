@@ -1,13 +1,13 @@
 import { Link, useLocation } from 'react-router-dom'
-import { PanelLeftClose, PanelRightClose } from 'lucide-react'
 import { useAuth } from '../shared/hooks/useAuth'
 import { ROLE_CONFIG } from '../shared/config/roles'
 import { getNavIcon } from '../shared/config/navIcons'
 import type { SidebarAccent } from '../shared/config/roles'
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from '../app/store'
-import { setSidebarOpen, toggleSidebar } from '../features/ui/uiSlice'
+import { setSidebarOpen } from '../features/ui/uiSlice'
 import MediCareLogo from '../shared/ui/brand/MediCareLogo'
+import { LUCIDE_STROKE_CHROME, LUCIDE_STROKE_SIDEBAR_ACTIVE } from '../shared/ui/lucideChrome'
 
 // Sidebar defines the Sidebar UI surface and its primary interaction flow.
 const ACCENT: Record<
@@ -16,27 +16,27 @@ const ACCENT: Record<
 > = {
   blue: {
     activeBg: 'bg-sky-50 dark:bg-sky-500/10',
-    activeBorder: 'border-sky-500 text-sky-600 dark:text-white',
+    activeBorder: 'border-sky-500 text-sky-800 dark:text-sky-100',
     hoverBg: 'hover:bg-slate-100 dark:hover:bg-slate-800/80',
-    iconBg: 'bg-sky-100 dark:bg-sky-500/20 text-sky-600 dark:text-white',
+    iconBg: 'bg-sky-100 dark:bg-sky-500/25 text-sky-900 dark:text-sky-100',
   },
   green: {
     activeBg: 'bg-emerald-50 dark:bg-emerald-500/10',
-    activeBorder: 'border-emerald-500 text-emerald-600 dark:text-white',
+    activeBorder: 'border-emerald-500 text-emerald-800 dark:text-emerald-100',
     hoverBg: 'hover:bg-slate-100 dark:hover:bg-slate-800/80',
-    iconBg: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-white',
+    iconBg: 'bg-emerald-100 dark:bg-emerald-500/25 text-emerald-900 dark:text-emerald-100',
   },
   purple: {
     activeBg: 'bg-violet-50 dark:bg-violet-500/10',
-    activeBorder: 'border-violet-500 text-violet-600 dark:text-white',
+    activeBorder: 'border-violet-500 text-violet-800 dark:text-violet-100',
     hoverBg: 'hover:bg-slate-100 dark:hover:bg-slate-800/80',
-    iconBg: 'bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-white',
+    iconBg: 'bg-violet-100 dark:bg-violet-500/25 text-violet-900 dark:text-violet-100',
   },
   orange: {
     activeBg: 'bg-orange-50 dark:bg-orange-500/10',
-    activeBorder: 'border-orange-500 text-orange-600 dark:text-white',
+    activeBorder: 'border-orange-500 text-orange-800 dark:text-orange-100',
     hoverBg: 'hover:bg-slate-100 dark:hover:bg-slate-800/80',
-    iconBg: 'bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-white',
+    iconBg: 'bg-orange-100 dark:bg-orange-500/25 text-orange-900 dark:text-orange-100',
   },
 }
 
@@ -104,23 +104,12 @@ export default function Sidebar() {
               </span>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => dispatch(toggleSidebar())}
-            className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100/90 dark:text-white dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 shrink-0"
-            aria-label="Toggle sidebar"
-          >
-            {sidebarOpen ? (
-              <PanelLeftClose className="h-4 w-4" aria-hidden />
-            ) : (
-              <PanelRightClose className="h-4 w-4" aria-hidden />
-            )}
-          </button>
+         
         </div>
 
         {/* Vertical menu */}
         <nav className="flex-1 overflow-y-auto py-5 px-3">
-          <p className="px-3 mb-3 text-[10px] font-bold text-slate-400 dark:text-white uppercase tracking-[0.2em]">
+          <p className="px-3 mb-3 text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-[0.2em]">
             Main
           </p>
           <ul className="space-y-1">
@@ -132,18 +121,24 @@ export default function Sidebar() {
                   <Link
                     to={path}
                     onClick={closeOnMobileNav}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 touch-manipulation ${
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-800 transition-all duration-200 touch-manipulation ${
                       isActive
-                        ? `${styles.activeBg} ${styles.activeBorder} shadow-sm ring-1 ring-slate-200/60 dark:ring-slate-600/40 font-semibold`
-                        : `text-slate-600 dark:text-white ${styles.hoverBg} hover:text-slate-900 dark:hover:text-white`
+                        ? `${styles.activeBg} ${styles.activeBorder} shadow-sm ring-1 ring-slate-200/60 dark:ring-slate-600/40 font-semibold dark:text-slate-100`
+                        : `dark:text-slate-200 ${styles.hoverBg} hover:text-slate-950 dark:hover:text-white`
                     }`}
                   >
                     <span
                       className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                        isActive ? styles.iconBg : 'bg-slate-100/90 dark:bg-slate-800/80 text-slate-500 dark:text-white'
+                        isActive
+                          ? styles.iconBg
+                          : 'bg-slate-200/90 dark:bg-slate-800/90 text-slate-900 dark:text-slate-200 ring-1 ring-slate-300/70 dark:ring-slate-600/50'
                       }`}
                     >
-                      <Icon className="h-[18px] w-[18px]" aria-hidden />
+                      <Icon
+                        className={`h-[18px] w-[18px] shrink-0 ${isActive ? LUCIDE_STROKE_SIDEBAR_ACTIVE[config.accent] : LUCIDE_STROKE_CHROME}`}
+                        strokeWidth={2.5}
+                        aria-hidden
+                      />
                     </span>
                     <span className="text-sm truncate">{label}</span>
                   </Link>

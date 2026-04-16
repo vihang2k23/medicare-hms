@@ -93,7 +93,7 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
               {name}
             </h2>
             <p className="text-xs font-mono text-sky-600 dark:text-white mt-1">NPI {raw.number}</p>
-            <p className="text-xs text-slate-500 dark:text-white mt-1">{raw.enumeration_type}</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">{raw.enumeration_type}</p>
           </div>
           <button
             type="button"
@@ -106,37 +106,37 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
         </div>
         <div className="p-5 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] min-h-0 flex-1 space-y-5 text-sm touch-pan-y">
           <section>
-            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-2">
+            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
               Credentials &amp; demographics
             </h3>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-700 dark:text-white">
               {b.credential && (
                 <>
-                  <dt className="text-slate-500 dark:text-white">Credential</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Credential</dt>
                   <dd>{b.credential}</dd>
                 </>
               )}
               {b.sex && (
                 <>
-                  <dt className="text-slate-500 dark:text-white">Sex</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Sex</dt>
                   <dd>{b.sex}</dd>
                 </>
               )}
               {b.enumeration_date && (
                 <>
-                  <dt className="text-slate-500 dark:text-white">Enumeration date</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Enumeration date</dt>
                   <dd>{b.enumeration_date}</dd>
                 </>
               )}
               {b.last_updated && (
                 <>
-                  <dt className="text-slate-500 dark:text-white">Last updated</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Last updated</dt>
                   <dd>{b.last_updated}</dd>
                 </>
               )}
               {b.sole_proprietor && (
                 <>
-                  <dt className="text-slate-500 dark:text-white">Sole proprietor</dt>
+                  <dt className="text-slate-600 dark:text-slate-400">Sole proprietor</dt>
                   <dd>{b.sole_proprietor}</dd>
                 </>
               )}
@@ -144,7 +144,7 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
           </section>
 
           <section>
-            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-2">
+            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
               Taxonomy (specialty)
             </h3>
             <ul className="space-y-2">
@@ -154,7 +154,7 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
                   className="rounded-lg border border-slate-200/80 dark:border-slate-700/80 px-3 py-2 text-slate-700 dark:text-white"
                 >
                   <span className="font-medium">{t.desc ?? t.code}</span>
-                  <span className="text-xs text-slate-500 dark:text-white ml-2 font-mono">{t.code}</span>
+                  <span className="text-xs text-slate-600 dark:text-slate-400 ml-2 font-mono">{t.code}</span>
                   {t.primary && (
                     <span className="ml-2 text-[10px] font-bold uppercase text-emerald-600 dark:text-white">
                       Primary
@@ -169,7 +169,7 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
           </section>
 
           <section>
-            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-2">
+            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
               Addresses
             </h3>
             <ul className="space-y-3">
@@ -178,7 +178,7 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
                   key={i}
                   className="rounded-lg bg-slate-50 dark:bg-slate-800/50 px-3 py-2 text-slate-700 dark:text-white"
                 >
-                  <p className="text-xs font-semibold text-slate-500 dark:text-white mb-1">
+                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                     {a.address_purpose ?? 'Address'}
                   </p>
                   <p>{[a.address_1, a.address_2].filter(Boolean).join(', ')}</p>
@@ -194,7 +194,7 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
 
           {(raw.endpoints?.length ?? 0) > 0 && (
             <section>
-              <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-2">
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
                 Affiliated organizations &amp; endpoints
               </h3>
               <ul className="space-y-2 text-xs text-slate-600 dark:text-white">
@@ -213,7 +213,7 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
 
           {(raw.other_names?.length ?? 0) > 0 && (
             <section>
-              <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-2">
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
                 Other names
               </h3>
               <ul className="list-disc list-inside text-slate-600 dark:text-white text-xs space-y-1">
@@ -463,7 +463,7 @@ export default function DoctorDirectoryPage() {
       {tab === 'search' && (
         <div className="space-y-6">
           <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/45 p-5 ring-1 ring-slate-200/40 dark:ring-slate-700/40 space-y-5">
-            <p className="text-xs text-slate-500 dark:text-white">
+            <p className="text-xs text-slate-600 dark:text-slate-400">
               Match the CMS NPI Registry search form. You need at least one real criterion (for example NPI, name,
               organization, taxonomy text, city, or ZIP). <strong className="font-medium text-slate-600 dark:text-white">State alone is not allowed</strong>;{' '}
               <strong className="font-medium text-slate-600 dark:text-white">United States cannot be the only</strong> filter.
@@ -473,7 +473,7 @@ export default function DoctorDirectoryPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   NPI number
                 </label>
                 <input
@@ -531,10 +531,10 @@ export default function DoctorDirectoryPage() {
             </div>
 
             <div className="space-y-3">
-              <p className="text-[11px] font-semibold text-slate-500 dark:text-white">For individuals</p>
+              <p className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">For individuals</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
+                  <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                     Provider first name
                   </label>
                   <input
@@ -545,7 +545,7 @@ export default function DoctorDirectoryPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
+                  <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                     Provider last name
                   </label>
                   <input
@@ -559,10 +559,10 @@ export default function DoctorDirectoryPage() {
             </div>
 
             <div className="space-y-3">
-              <p className="text-[11px] font-semibold text-slate-500 dark:text-white">For organizations</p>
+              <p className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">For organizations</p>
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
+                  <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                     Organization name (LBN, DBA, former LBN, or other name)
                   </label>
                   <input
@@ -574,7 +574,7 @@ export default function DoctorDirectoryPage() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
+                    <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                       Authorized official first name
                     </label>
                     <input
@@ -585,7 +585,7 @@ export default function DoctorDirectoryPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
+                    <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                       Authorized official last name
                     </label>
                     <input
@@ -601,7 +601,7 @@ export default function DoctorDirectoryPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">City</label>
+                <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">City</label>
                 <input
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
@@ -646,7 +646,7 @@ export default function DoctorDirectoryPage() {
                   />
                 ) : (
                   <>
-                    <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
+                    <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                       State / region
                     </label>
                     <input
@@ -663,7 +663,7 @@ export default function DoctorDirectoryPage() {
                 )}
               </div>
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   Postal code
                 </label>
                 <input
@@ -691,7 +691,7 @@ export default function DoctorDirectoryPage() {
               </div>
             </div>
 
-            <p className="text-xs text-slate-500 dark:text-white max-w-3xl leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed">
               <strong className="font-medium text-slate-600 dark:text-white">Note:</strong> The NPI Registry limits
               searches to the first 2100 results. If you cannot find the NPI you need, refine your criteria.
             </p>
@@ -747,7 +747,7 @@ export default function DoctorDirectoryPage() {
                       </div>
                     </div>
                     {(p.city || p.state) && (
-                      <p className="text-xs text-slate-500 dark:text-white flex items-center gap-1.5">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
                         {[p.addressLine1, [p.city, p.state].filter(Boolean).join(', '), p.postalCode]
                           .filter(Boolean)
@@ -755,7 +755,7 @@ export default function DoctorDirectoryPage() {
                       </p>
                     )}
                     {p.phone && (
-                      <p className="text-xs text-slate-500 dark:text-white flex items-center gap-1.5">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
                         <Phone className="h-3.5 w-3.5 shrink-0" aria-hidden />
                         {p.phone}
                       </p>
@@ -809,7 +809,7 @@ export default function DoctorDirectoryPage() {
           )}
 
           {!loading && providers.length === 0 && page === 0 && totalCount === 0 && (
-            <p className="text-slate-500 dark:text-white text-sm text-center py-12 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl">
+            <p className="text-slate-600 dark:text-slate-400 text-sm text-center py-12 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl">
               Run a search to load providers from the NPI Registry.
             </p>
           )}
@@ -844,7 +844,7 @@ export default function DoctorDirectoryPage() {
             ) : internalList.length === 0 ? (
               <div className="p-10 text-center space-y-4">
                 <CalendarClock className="h-10 w-10 mx-auto text-slate-300 dark:text-white" aria-hidden />
-                <p className="text-slate-500 dark:text-white text-sm">
+                <p className="text-slate-600 dark:text-slate-400 text-sm">
                   No doctors in HMS yet. Add one manually or import from the registry.
                 </p>
                 <button
@@ -942,7 +942,7 @@ export default function DoctorDirectoryPage() {
 
       {profileRaw && <NpiProfileModal raw={profileRaw} onClose={() => setProfileRaw(null)} />}
 
-      <p className="text-[11px] text-slate-400 dark:text-white max-w-3xl leading-relaxed">
+      <p className="text-[11px] text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed">
         <Building2 className="inline h-3.5 w-3.5 mr-1 align-text-bottom opacity-70" aria-hidden />
         Issuance of an NPI does not verify licensure or credentials.
       </p>

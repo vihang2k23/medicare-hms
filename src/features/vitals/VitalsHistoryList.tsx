@@ -58,7 +58,7 @@ function VitalsHistoryListInner({ rows, emptyLabel }: Omit<VitalsHistoryListProp
   if (rows.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/40 dark:bg-slate-900/30 px-4 py-8 text-center">
-        <p className="text-sm text-slate-500 dark:text-white">{emptyLabel ?? 'No vitals recorded yet.'}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-400">{emptyLabel ?? 'No vitals recorded yet.'}</p>
       </div>
     )
   }
@@ -118,19 +118,19 @@ function VitalsHistoryListInner({ rows, emptyLabel }: Omit<VitalsHistoryListProp
                       <td colSpan={7} className="px-4 py-4 text-sm border-b border-slate-200/80 dark:border-slate-800">
                         <div className="grid gap-3 sm:grid-cols-3 max-w-3xl">
                           <div>
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">Entry id</p>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Entry id</p>
                             <p className="font-mono text-xs text-slate-700 dark:text-white break-all">{v.id}</p>
                           </div>
                           <div>
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">Patient id</p>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Patient id</p>
                             <p className="font-mono text-xs text-slate-700 dark:text-white">{v.patientId}</p>
                           </div>
                           <div>
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">Recorded by</p>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Recorded by</p>
                             <p className="text-slate-800 dark:text-white break-words">{v.recordedBy ?? '—'}</p>
                           </div>
                           <div className="sm:col-span-3">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1">Notes</p>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Notes</p>
                             <p className="text-slate-800 dark:text-white whitespace-pre-wrap leading-relaxed">
                               {v.notes?.trim() ? v.notes : '—'}
                             </p>

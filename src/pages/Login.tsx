@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { ArrowRight, ClipboardList, HeartPulse, ShieldCheck, Stethoscope, type LucideIcon } from 'lucide-react'
 import { login } from '../features/auth/authSlice'
 import type { AuthUser } from '../features/auth/authSlice'
@@ -9,6 +9,7 @@ import { DEMO_DOCTOR_USERS, DEMO_STAFF_USERS, demoEntryToAuthUser } from '../sha
 import { DEFAULT_SCHEDULE_DOCTORS } from '../features/appointments/appointmentsSlice'
 import Navbar from '../layouts/Navbar'
 import { notify } from '../shared/lib/notify'
+import { useAuth } from '../shared/hooks/useAuth'
 import { SearchableIdPicker } from '../shared/ui/SearchWithDropdown'
 import type { ScheduleDoctor } from '../features/appointments/types'
 import MediCareLogo, { MediCareWordmark } from '../shared/ui/brand/MediCareLogo'
@@ -32,12 +33,17 @@ const roleIcons: Record<AuthUser['role'], LucideIcon> = {
 export default function Login() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const { user, isAuthenticated } = useAuth()
   const [selectedDoctorId, setSelectedDoctorId] = useState(() => DEMO_DOCTOR_USERS[0]?.id ?? '')
+
+  if (isAuthenticated && user) {
+    return <Navigate to={getDefaultDashboard(user.role)} replace />
+  }
 
   const handleLogin = (user: (typeof DEMO_STAFF_USERS)[0] | (typeof DEMO_DOCTOR_USERS)[0]) => {
     dispatch(login(demoEntryToAuthUser(user)))
     notify.success(`Welcome, ${user.name}`)
-    navigate(getDefaultDashboard(user.role))
+    navigate(getDefaultDashboard(user.role), { replace: true })
   }
 
   const handleDoctorContinue = () => {
@@ -51,7 +57,7 @@ export default function Login() {
 
   return (
     <div className="min-h-dvh flex flex-col app-surface-gradient">
-      <Navbar />
+      <Navbar showSidebarToggle={false} />
       <div className="relative flex-1 flex items-center justify-center p-4 sm:p-6 md:p-10 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] overflow-hidden">
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
           <div className="absolute -top-20 right-[10%] h-64 w-64 rounded-full bg-sky-400/25 blur-3xl dark:bg-sky-500/20" />
@@ -103,7 +109,7 @@ export default function Login() {
                       <div className="font-bold text-slate-900 dark:text-white text-base tracking-tight">
                         {roleLabels[user.role]}
                       </div>
-                      <div className="text-slate-500 dark:text-white text-sm mt-1 font-medium">{user.name}</div>
+                      <div className="text-slate-600 dark:text-slate-400 text-sm mt-1 font-medium">{user.name}</div>
                       <div className="mt-4 text-sky-600 dark:text-white text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5">
                         Continue
                         <ArrowRight className="h-4 w-4" aria-hidden />
@@ -124,7 +130,7 @@ export default function Login() {
                     <div className="font-bold text-slate-900 dark:text-white text-base tracking-tight">
                       {roleLabels.doctor}
                     </div>
-                    <p className="text-slate-500 dark:text-white text-sm mt-1 font-medium">
+                    <p className="text-slate-600 dark:text-slate-400 text-sm mt-1 font-medium">
                       Select your name, then continue
                     </p>
                   </div>
@@ -163,7 +169,7 @@ export default function Login() {
           </div>
           </div>
 
-          <p className="text-center text-xs font-medium text-slate-500 dark:text-white mt-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+          <p className="text-center text-xs font-medium text-slate-600 dark:text-slate-400 mt-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
             <span className="inline-flex items-center gap-1.5">
               <span className="h-1 w-1 rounded-full bg-sky-500" aria-hidden />
               MediCare HMS

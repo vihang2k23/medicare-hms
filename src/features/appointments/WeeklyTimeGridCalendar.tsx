@@ -93,7 +93,7 @@ export default function WeeklyTimeGridCalendar({
             <tr>
               <th
                 scope="col"
-                className="sticky left-0 z-30 w-16 sm:w-20 px-2 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white bg-slate-100/95 dark:bg-slate-800/95 backdrop-blur-sm border-b border-r border-slate-200/90 dark:border-slate-700/90"
+                className="sticky left-0 z-30 w-16 sm:w-20 px-2 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 bg-slate-100/95 dark:bg-slate-800/95 backdrop-blur-sm border-b border-r border-slate-200/90 dark:border-slate-700/90"
               >
                 Time
               </th>
@@ -105,7 +105,7 @@ export default function WeeklyTimeGridCalendar({
                     scope="col"
                     className="px-1 py-3 text-center border-b border-slate-200/90 dark:border-slate-700/90 bg-slate-50/90 dark:bg-slate-800/60"
                   >
-                    <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white">
+                    <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                       {format(day, 'EEE')}
                     </span>
                     <span className="block text-sm font-bold text-slate-900 dark:text-white">
@@ -217,7 +217,7 @@ export default function WeeklyTimeGridCalendar({
                             >
                               {drag && (
                                 <span
-                                  className="no-print-appt absolute top-1 right-1 text-slate-400 dark:text-white pointer-events-none"
+                                  className="no-print-appt absolute top-1 right-1 text-slate-600 dark:text-slate-400 pointer-events-none"
                                   title="Drag to reschedule"
                                 >
                                   <GripVertical className="h-3.5 w-3.5" aria-hidden />
@@ -243,7 +243,7 @@ export default function WeeklyTimeGridCalendar({
         </table>
       </div>
 
-      <p className="no-print-appt px-4 py-2 text-[11px] text-slate-500 dark:text-white border-t border-slate-200/80 dark:border-slate-700/80">
+      <p className="no-print-appt px-4 py-2 text-[11px] text-slate-600 dark:text-slate-400 border-t border-slate-200/80 dark:border-slate-700/80">
         Status colors: scheduled (blue), confirmed (green), in progress (amber), completed (gray). Drag a card
         onto an empty slot to reschedule. Click a card for details.
       </p>

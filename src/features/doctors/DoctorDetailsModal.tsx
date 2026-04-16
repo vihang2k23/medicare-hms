@@ -57,7 +57,7 @@ export default function DoctorDetailsModal({
             <div className="flex items-start gap-2">
               <Briefcase className="h-4 w-4 mt-0.5 text-sky-600 shrink-0" />
               <div>
-                <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-white">Specialty</p>
+                <p className="text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400">Specialty</p>
                 <p>{d.specialty}</p>
               </div>
             </div>
@@ -66,7 +66,7 @@ export default function DoctorDetailsModal({
             <div className="flex items-start gap-2">
               <MapPin className="h-4 w-4 mt-0.5 text-sky-600 shrink-0" />
               <div>
-                <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-white">Practice address</p>
+                <p className="text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400">Practice address</p>
                 <p>
                   {[d.address, d.address2].filter(Boolean).join(', ')}
                   {(d.city || d.state || d.postalCode) && (
@@ -83,7 +83,7 @@ export default function DoctorDetailsModal({
             <div className="flex items-start gap-2">
               <Phone className="h-4 w-4 mt-0.5 text-sky-600 shrink-0" />
               <div>
-                <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-white">Phone</p>
+                <p className="text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400">Phone</p>
                 <p>{d.contact}</p>
               </div>
             </div>
@@ -92,7 +92,7 @@ export default function DoctorDetailsModal({
             <div className="flex items-start gap-2">
               <User className="h-4 w-4 mt-0.5 text-sky-600 shrink-0" />
               <div>
-                <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-white">Sex</p>
+                <p className="text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400">Sex</p>
                 <p className="capitalize">{d.gender}</p>
               </div>
             </div>

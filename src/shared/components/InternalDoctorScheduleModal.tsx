@@ -215,7 +215,7 @@ export default function InternalDoctorScheduleModal({
               >
                 {isEdit ? 'Edit schedule' : 'Add manual doctor'}
               </h2>
-              <p className="text-xs text-slate-500 dark:text-white mt-1">
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                 Set weekly hours, slot length, and lunch break. Used for appointment booking and the OPD queue.
               </p>
             </div>
@@ -232,7 +232,7 @@ export default function InternalDoctorScheduleModal({
           <div className="p-5 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] min-h-0 flex-1 space-y-4 text-sm touch-pan-y">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="sm:col-span-2">
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   Name
                 </label>
                 <input
@@ -242,7 +242,7 @@ export default function InternalDoctorScheduleModal({
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   Department
                 </label>
                 <input
@@ -253,7 +253,7 @@ export default function InternalDoctorScheduleModal({
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   NPI (optional)
                 </label>
                 <input
@@ -265,7 +265,7 @@ export default function InternalDoctorScheduleModal({
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   Phone
                 </label>
                 <input
@@ -277,7 +277,7 @@ export default function InternalDoctorScheduleModal({
             </div>
 
             <div>
-              <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-2">Working days</p>
+              <p className="text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-2">Working days</p>
               <div className="flex flex-wrap gap-2">
                 {WEEKDAYS.map((d) => (
                   <button
@@ -298,7 +298,7 @@ export default function InternalDoctorScheduleModal({
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   Day start
                 </label>
                 <input
@@ -309,7 +309,7 @@ export default function InternalDoctorScheduleModal({
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   Day end
                 </label>
                 <input
@@ -350,7 +350,7 @@ export default function InternalDoctorScheduleModal({
             {hasLunch && (
               <div className="grid grid-cols-2 gap-3 pl-6">
                 <div>
-                  <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
+                  <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                     Lunch start
                   </label>
                   <input
@@ -361,7 +361,7 @@ export default function InternalDoctorScheduleModal({
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-white mb-1">
+                  <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                     Lunch end
                   </label>
                   <input

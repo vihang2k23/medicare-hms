@@ -41,7 +41,7 @@ function ModalShell({
                 {title}
               </h3>
               {description && (
-                <p className="text-xs text-slate-500 dark:text-white mt-1 leading-relaxed">{description}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">{description}</p>
               )}
             </div>
             <button
@@ -134,7 +134,7 @@ export default function WardManagementPanel() {
               <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight mt-0.5">
                 Manage wards
               </h2>
-              <p className="text-xs text-slate-500 dark:text-white mt-1 leading-relaxed max-w-xl">
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed max-w-xl">
                 <Shield className="h-3.5 w-3.5 inline-block mr-1 -mt-0.5 text-teal-600/80 dark:text-white" aria-hidden />
                 Administrator only. New wards include one empty bed. Removing a ward deletes all beds in it.
               </p>
@@ -158,7 +158,7 @@ export default function WardManagementPanel() {
             <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-950/40 px-6 py-10 text-center">
               <Layers className="h-10 w-10 mx-auto text-slate-300 dark:text-white mb-3" aria-hidden />
               <p className="text-sm font-medium text-slate-700 dark:text-white">No wards yet</p>
-              <p className="text-xs text-slate-500 dark:text-white mt-1">Use Add ward to create your first ward.</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Use Add ward to create your first ward.</p>
             </div>
           ) : (
             <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -176,7 +176,7 @@ export default function WardManagementPanel() {
                     <div className="pl-3 min-w-0">
                       <p className="font-semibold text-slate-900 dark:text-white leading-snug truncate pr-2">{w.name}</p>
                       <div className="flex flex-wrap items-center gap-2 mt-2">
-                        <span className="text-[10px] font-mono font-medium text-slate-500 dark:text-white bg-slate-100/90 dark:bg-slate-800/80 px-2 py-0.5 rounded-md">
+                        <span className="text-[10px] font-mono font-medium text-slate-600 dark:text-slate-400 bg-slate-100/90 dark:bg-slate-800/80 px-2 py-0.5 rounded-md">
                           {w.id}
                         </span>
                         <span className="text-[11px] font-semibold tabular-nums text-teal-700 dark:text-white bg-teal-500/10 px-2 py-0.5 rounded-md">
@@ -234,7 +234,7 @@ export default function WardManagementPanel() {
             </>
           }
         >
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5">
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
             Ward name
           </label>
           <input
@@ -274,10 +274,10 @@ export default function WardManagementPanel() {
             </>
           }
         >
-          <p className="text-[11px] font-mono text-slate-500 dark:text-white mb-3 px-2 py-1.5 rounded-lg bg-slate-100/80 dark:bg-slate-800/60 w-fit">
+          <p className="text-[11px] font-mono text-slate-600 dark:text-slate-400 mb-3 px-2 py-1.5 rounded-lg bg-slate-100/80 dark:bg-slate-800/60 w-fit">
             {editId}
           </p>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-white mb-1.5">
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
             Ward name
           </label>
           <input

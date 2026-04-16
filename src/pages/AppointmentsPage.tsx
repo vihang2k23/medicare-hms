@@ -229,7 +229,7 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
           {lockedDoctorId ? (
             <p className="text-sm text-slate-600 dark:text-white">
               <span className="font-medium text-slate-800 dark:text-white">{doctor.name}</span>
-              <span className="text-slate-400 mx-1">·</span>
+              <span className="text-slate-600 dark:text-slate-400 mx-1">·</span>
               {doctor.department}
             </p>
           ) : (
@@ -294,7 +294,7 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
       />
 
       {variant !== 'doctor' && (
-        <p className="no-print-appt text-xs text-slate-500 dark:text-white">
+        <p className="no-print-appt text-xs text-slate-600 dark:text-slate-400">
           Data stored in this browser. Use <code className="font-mono text-[11px]">npm run server</code> for the patient
           list API.
         </p>

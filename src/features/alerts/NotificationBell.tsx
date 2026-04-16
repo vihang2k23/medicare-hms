@@ -5,6 +5,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { Bell, X } from 'lucide-react'
 import type { AppDispatch, RootState } from '../../app/store'
 import { removeAlert } from './alertSlice'
+import { LUCIDE_STROKE_CHROME } from '../../shared/ui/lucideChrome'
 
 // NotificationBell defines the Notification Bell UI surface and its primary interaction flow.
 export interface NotificationBellProps {
@@ -50,12 +51,12 @@ export default function NotificationBell({ onOpen }: NotificationBellProps) {
             return next
           })
         }}
-        className="relative p-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100/90 dark:text-white dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 touch-manipulation"
+        className="relative p-2.5 rounded-xl text-slate-900 hover:text-slate-950 hover:bg-slate-100/90 dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 touch-manipulation"
         aria-label="Alerts"
         aria-expanded={open}
         aria-haspopup="dialog"
       >
-        <Bell className="h-5 w-5 pointer-events-none" aria-hidden />
+        <Bell className={`h-5 w-5 pointer-events-none ${LUCIDE_STROKE_CHROME}`} strokeWidth={2.5} aria-hidden />
         {count > 0 && (
           <span className="pointer-events-none absolute top-1.5 right-1.5 h-4 min-w-4 px-1 flex items-center justify-center bg-red-500 text-white text-xs font-medium rounded-full tabular-nums">
             {count > 99 ? '99+' : count}
@@ -74,10 +75,10 @@ export default function NotificationBell({ onOpen }: NotificationBellProps) {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-white"
+              className="p-1.5 rounded-lg text-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-200"
               aria-label="Close notifications"
             >
-              <X className="h-4 w-4" aria-hidden />
+              <X className={`h-4 w-4 ${LUCIDE_STROKE_CHROME}`} strokeWidth={2.5} aria-hidden />
             </button>
           </div>
           <div className="overflow-y-auto overscroll-contain px-2 py-2 min-h-0 flex-1">
