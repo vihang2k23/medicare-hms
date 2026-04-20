@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useMergeSearchParams } from '../shared/hooks/useMergeSearchParams'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../app/store'
 import type { Appointment } from '../features/appointments/types'
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react'
 import { fetchPatients, softDeletePatient } from '../shared/api/patientsApi'
 import { notify } from '../shared/lib/notify'
+import { FieldError, FormInput } from '../shared/ui/form'
 import DashboardCard from '../shared/ui/DashboardCard'
 import { SearchFilterCombobox, SearchableIdPicker } from '../shared/ui/SearchWithDropdown'
 import { filterLabeledOption } from '../shared/ui/labeledOptionFilter'
@@ -21,9 +23,6 @@ import { filterLabeledOption } from '../shared/ui/labeledOptionFilter'
 const PAGE_SIZE = 10
 
 const BLOOD_OPTIONS = ['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const
-
-const selectClass =
-  'w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-slate-800 dark:text-white text-sm shadow-sm [color-scheme:light] dark:[color-scheme:dark] placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/35 focus:border-sky-400/40 transition-[box-shadow,border-color]'
 
 /** Match API values like "A +" or "o+" to filter option "A+", "O+". */
 function normalizeBloodGroup(bg: string): string {
@@ -105,15 +104,15 @@ export default function PatientListPage() {
   const [patients, setPatients] = useState<PatientRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [bloodFilter, setBloodFilter] = useState<string>('')
-  const [genderFilter, setGenderFilter] = useState<string>('')
-  const [ageMin, setAgeMin] = useState('')
-  const [ageMax, setAgeMax] = useState('')
-  const [regFrom, setRegFrom] = useState('')
-  const [regTo, setRegTo] = useState('')
-  const [departmentFilter, setDepartmentFilter] = useState('')
-  const [page, setPage] = useState(1)
+  const { searchParams, merge } = useMergeSearchParams()
+  const searchQuery = searchParams.get('q') ?? ''
+  const bloodFilter = searchParams.get('blood') ?? ''
+  const genderFilter = searchParams.get('gender') ?? ''
+  const ageMin = searchParams.get('ageMin') ?? ''
+  const ageMax = searchParams.get('ageMax') ?? ''
+  const regFrom = searchParams.get('regFrom') ?? ''
+  const regTo = searchParams.get('regTo') ?? ''
+  const departmentFilter = searchParams.get('dept') ?? ''
   const location = useLocation()
   const registeredId = (location.state as { registeredId?: string } | null)?.registeredId
 
@@ -127,7 +126,6 @@ export default function PatientListPage() {
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Could not load patients. Is JSON Server running? (`npm run server`)'
       setLoadError(msg)
-      notify.error(msg)
       setPatients([])
     } finally {
       setLoading(false)
@@ -212,12 +210,9 @@ export default function PatientListPage() {
     appointments,
   ])
 
-  useEffect(() => {
-    setPage(1)
-  }, [searchQuery, bloodFilter, genderFilter, ageMin, ageMax, regFrom, regTo, departmentFilter])
-
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
-  const safePage = Math.min(page, totalPages)
+  const pageRaw = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1)
+  const safePage = Math.min(pageRaw, totalPages)
   const pageSlice = useMemo(() => {
     const start = (safePage - 1) * PAGE_SIZE
     return filtered.slice(start, start + PAGE_SIZE)
@@ -233,6 +228,21 @@ export default function PatientListPage() {
       regTo.trim() ||
       departmentFilter,
   )
+
+  const ageRangeFilterError = useMemo(() => {
+    if (!ageMin.trim() || !ageMax.trim()) return null
+    const lo = Number(ageMin)
+    const hi = Number(ageMax)
+    if (!Number.isFinite(lo) || !Number.isFinite(hi)) return null
+    if (lo > hi) return 'Min age cannot be greater than max age.'
+    return null
+  }, [ageMin, ageMax])
+
+  const regRangeFilterError = useMemo(() => {
+    if (!regFrom.trim() || !regTo.trim()) return null
+    if (regFrom > regTo) return '"Registered from" must be on or before "registered to".'
+    return null
+  }, [regFrom, regTo])
 
   const deactivate = async (p: PatientRecord) => {
     if (!window.confirm(`Soft-delete (deactivate) patient ${p.fullName} (${p.id})? They will be hidden from this list.`)) {
@@ -279,12 +289,6 @@ export default function PatientListPage() {
         </div>
       </div>
 
-      {loadError && (
-        <div className="rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 px-5 py-4 text-sm font-medium text-amber-950 dark:text-white ring-1 ring-amber-200/50 dark:ring-amber-500/20">
-          {loadError}
-        </div>
-      )}
-
       {registeredId && (
         <div className="rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 px-5 py-4 text-sm font-medium text-emerald-900 dark:text-white ring-1 ring-emerald-200/50 dark:ring-emerald-500/20 flex flex-wrap items-center gap-2">
           <span>Patient registered successfully.</span>
@@ -320,14 +324,18 @@ export default function PatientListPage() {
               <button
                 type="button"
                 onClick={() => {
-                  setSearchQuery('')
-                  setBloodFilter('')
-                  setGenderFilter('')
-                  setAgeMin('')
-                  setAgeMax('')
-                  setRegFrom('')
-                  setRegTo('')
-                  setDepartmentFilter('')
+                  setLoadError(null)
+                  merge({
+                    q: null,
+                    blood: null,
+                    gender: null,
+                    ageMin: null,
+                    ageMax: null,
+                    regFrom: null,
+                    regTo: null,
+                    dept: null,
+                    page: null,
+                  })
                 }}
                 className="shrink-0 text-xs font-semibold text-sky-600 dark:text-white hover:underline"
               >
@@ -345,7 +353,10 @@ export default function PatientListPage() {
               id="patient-registry-search"
               label="Search"
               value={searchQuery}
-              onChange={setSearchQuery}
+              onChange={(v) => {
+                if (loadError) setLoadError(null)
+                merge({ q: v.trim() ? v : null, page: null })
+              }}
               suggestions={patients}
               getKey={(p) => p.id}
               filterItem={(p, q) => patientMatchesSearch(p, q)}
@@ -360,11 +371,17 @@ export default function PatientListPage() {
                   </span>
                 </span>
               )}
-              onPick={(p) => setSearchQuery(p.id)}
+              onPick={(p) => {
+                if (loadError) setLoadError(null)
+                merge({ q: p.id, page: null })
+              }}
               placeholder="Name, phone, email, or patient ID"
               accent="sky"
               hint="Pick a suggestion or keep typing to narrow the table."
             />
+            <FieldError id="patient-list-load-err" className="!mt-1">
+              {loadError}
+            </FieldError>
           </div>
           <div>
             <SearchableIdPicker<{ id: string; label: string }>
@@ -372,7 +389,7 @@ export default function PatientListPage() {
               label="Blood group"
               items={bloodFilterItems}
               selectedId={bloodFilter}
-              onSelectId={setBloodFilter}
+              onSelectId={(id) => merge({ blood: id || null, page: null })}
               getId={(o) => o.id}
               getLabel={(o) => o.label}
               filterItem={filterLabeledOption}
@@ -389,7 +406,7 @@ export default function PatientListPage() {
               label="Gender"
               items={genderFilterItems}
               selectedId={genderFilter}
-              onSelectId={setGenderFilter}
+              onSelectId={(id) => merge({ gender: id || null, page: null })}
               getId={(o) => o.id}
               getLabel={(o) => o.label}
               filterItem={filterLabeledOption}
@@ -410,7 +427,7 @@ export default function PatientListPage() {
             >
               Min age
             </label>
-            <input
+            <FormInput
               id="patient-age-min"
               type="number"
               min={0}
@@ -418,8 +435,10 @@ export default function PatientListPage() {
               inputMode="numeric"
               placeholder="Any"
               value={ageMin}
-              onChange={(e) => setAgeMin(e.target.value)}
-              className={selectClass}
+              onChange={(e) => merge({ ageMin: e.target.value.trim() || null, page: null })}
+              invalid={!!ageRangeFilterError}
+              aria-invalid={ageRangeFilterError ? true : undefined}
+              aria-describedby={ageRangeFilterError ? 'patient-list-age-range-err' : undefined}
             />
           </div>
           <div>
@@ -429,7 +448,7 @@ export default function PatientListPage() {
             >
               Max age
             </label>
-            <input
+            <FormInput
               id="patient-age-max"
               type="number"
               min={0}
@@ -437,9 +456,14 @@ export default function PatientListPage() {
               inputMode="numeric"
               placeholder="Any"
               value={ageMax}
-              onChange={(e) => setAgeMax(e.target.value)}
-              className={selectClass}
+              onChange={(e) => merge({ ageMax: e.target.value.trim() || null, page: null })}
+              invalid={!!ageRangeFilterError}
+              aria-invalid={ageRangeFilterError ? true : undefined}
+              aria-describedby={ageRangeFilterError ? 'patient-list-age-range-err' : undefined}
             />
+            <FieldError id="patient-list-age-range-err" className="!mt-1">
+              {ageRangeFilterError}
+            </FieldError>
           </div>
           <div>
             <label
@@ -448,12 +472,14 @@ export default function PatientListPage() {
             >
               Registered from
             </label>
-            <input
+            <FormInput
               id="patient-reg-from"
               type="date"
               value={regFrom}
-              onChange={(e) => setRegFrom(e.target.value)}
-              className={selectClass}
+              onChange={(e) => merge({ regFrom: e.target.value || null, page: null })}
+              invalid={!!regRangeFilterError}
+              aria-invalid={regRangeFilterError ? true : undefined}
+              aria-describedby={regRangeFilterError ? 'patient-list-reg-range-err' : undefined}
             />
           </div>
           <div>
@@ -463,13 +489,18 @@ export default function PatientListPage() {
             >
               Registered to
             </label>
-            <input
+            <FormInput
               id="patient-reg-to"
               type="date"
               value={regTo}
-              onChange={(e) => setRegTo(e.target.value)}
-              className={selectClass}
+              onChange={(e) => merge({ regTo: e.target.value || null, page: null })}
+              invalid={!!regRangeFilterError}
+              aria-invalid={regRangeFilterError ? true : undefined}
+              aria-describedby={regRangeFilterError ? 'patient-list-reg-range-err' : undefined}
             />
+            <FieldError id="patient-list-reg-range-err" className="!mt-1">
+              {regRangeFilterError}
+            </FieldError>
           </div>
           <div className="sm:col-span-2 xl:col-span-2">
             <SearchableIdPicker<{ id: string; label: string }>
@@ -477,7 +508,7 @@ export default function PatientListPage() {
               label="Department (from appointments)"
               items={departmentFilterItems}
               selectedId={departmentFilter}
-              onSelectId={setDepartmentFilter}
+              onSelectId={(id) => merge({ dept: id || null, page: null })}
               getId={(o) => o.id}
               getLabel={(o) => o.label}
               filterItem={filterLabeledOption}
@@ -545,9 +576,18 @@ export default function PatientListPage() {
             <button
               type="button"
               onClick={() => {
-                setSearchQuery('')
-                setBloodFilter('')
-                setGenderFilter('')
+                setLoadError(null)
+                merge({
+                  q: null,
+                  blood: null,
+                  gender: null,
+                  ageMin: null,
+                  ageMax: null,
+                  regFrom: null,
+                  regTo: null,
+                  dept: null,
+                  page: null,
+                })
               }}
               className="mt-5 text-sm font-semibold text-sky-600 dark:text-white hover:underline"
             >
@@ -637,7 +677,7 @@ export default function PatientListPage() {
                 <button
                   type="button"
                   disabled={safePage <= 1}
-                  onClick={() => setPage((pg) => Math.max(1, pg - 1))}
+                  onClick={() => merge({ page: safePage <= 2 ? null : String(safePage - 1) })}
                   className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-white hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
                 >
                   <ChevronLeft className="h-4 w-4" aria-hidden />
@@ -649,7 +689,7 @@ export default function PatientListPage() {
                 <button
                   type="button"
                   disabled={safePage >= totalPages}
-                  onClick={() => setPage((pg) => Math.min(totalPages, pg + 1))}
+                  onClick={() => merge({ page: String(safePage + 1) })}
                   className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-white hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
                 >
                   Next

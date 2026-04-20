@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Plus } from 'lucide-react'
 import { useAuth } from '../../shared/hooks/useAuth'
@@ -10,6 +10,7 @@ import type { AppDispatch } from '../../app/store'
 import { addPrescription, newMedicineLine } from './prescriptionsSlice'
 import type { PrescriptionMedicineLine } from './types'
 import MedicineLineEditor from './MedicineLineEditor'
+import { FieldError, FIELD_LABEL_CLASS, FormInput, FormTextarea } from '../../shared/ui/form'
 import { SearchableIdPicker } from '../../shared/ui/SearchWithDropdown'
 import type { ScheduleDoctor } from '../appointments/types'
 
@@ -37,6 +38,31 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
   const [notes, setNotes] = useState('')
   const [medicines, setMedicines] = useState<PrescriptionMedicineLine[]>(() => [newMedicineLine()])
   const [submitting, setSubmitting] = useState(false)
+  const [patientErr, setPatientErr] = useState<string | null>(null)
+  const [prescriberErr, setPrescriberErr] = useState<string | null>(null)
+  const [medicinesErr, setMedicinesErr] = useState<string | null>(null)
+
+  const hasValidMedicineLine = useMemo(
+    () =>
+      medicines.some((m) => m.drugName.trim().length > 0 && m.dosage.trim().length > 0 && m.frequency.trim().length > 0),
+    [medicines],
+  )
+
+  useEffect(() => {
+    if (patientId) setPatientErr(null)
+  }, [patientId])
+
+  useEffect(() => {
+    if (variant !== 'admin') {
+      setPrescriberErr(null)
+      return
+    }
+    if (prescriberDoctorId && doctors.some((d) => d.id === prescriberDoctorId)) setPrescriberErr(null)
+  }, [prescriberDoctorId, doctors, variant])
+
+  useEffect(() => {
+    if (hasValidMedicineLine) setMedicinesErr(null)
+  }, [hasValidMedicineLine])
 
   const load = useCallback(async () => {
     setLoadingPatients(true)
@@ -81,20 +107,23 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
 
   const submit = () => {
     if (!user) return
+    setPatientErr(null)
+    setPrescriberErr(null)
+    setMedicinesErr(null)
     const patient = patients.find((p) => p.id === patientId)
     if (!patient) {
-      notify.error('Select a patient.')
+      setPatientErr('Select a patient.')
       return
     }
     if (variant === 'admin') {
       if (!prescriberDoctorId || !doctors.some((d) => d.id === prescriberDoctorId)) {
-        notify.error('Select the prescribing physician.')
+        setPrescriberErr('Select the prescribing physician.')
         return
       }
     }
     const lines = medicines.filter((m) => m.drugName.trim() && m.dosage.trim() && m.frequency.trim())
     if (lines.length === 0) {
-      notify.error('Add at least one medicine with drug name, dosage, and frequency.')
+      setMedicinesErr('Add at least one medicine with drug name, dosage, and frequency.')
       return
     }
 
@@ -158,7 +187,10 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
                 label="Prescribing physician"
                 items={doctors}
                 selectedId={prescriberDoctorId}
-                onSelectId={setPrescriberDoctorId}
+                onSelectId={(id) => {
+                  setPrescriberDoctorId(id)
+                  setPrescriberErr(null)
+                }}
                 getId={(d) => d.id}
                 getLabel={(d) => `${d.name} · ${d.department}`}
                 filterItem={(d, q) => {
@@ -172,6 +204,7 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
                 allowClear={false}
               />
             )}
+            <FieldError>{prescriberErr}</FieldError>
             <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1.5">
               This name appears on the prescription, history, and printable PDF.
             </p>
@@ -183,7 +216,11 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
             label="Patient"
             items={patients}
             selectedId={patientId}
-            onSelectId={setPatientId}
+            onSelectId={(id) => {
+              setPatientId(id)
+              if (!id) setPatientErr('Select a patient.')
+              else setPatientErr(null)
+            }}
             getId={(p) => p.id}
             getLabel={(p) => `${p.fullName} (${p.id})`}
             filterItem={(p, q) => {
@@ -202,27 +239,24 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
             loading={loadingPatients}
             disabled={loadingPatients && patients.length === 0}
           />
+          <FieldError>{patientErr}</FieldError>
         </div>
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
-            Diagnosis / indication (optional)
-          </label>
-          <input
+          <label className={FIELD_LABEL_CLASS}>Diagnosis / indication (optional)</label>
+          <FormInput
             value={diagnosis}
             onChange={(e) => setDiagnosis(e.target.value)}
             placeholder="e.g. Acute URI, Hypertension follow-up"
-            className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+            className="!py-2.5"
           />
         </div>
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
-            Notes (optional)
-          </label>
-          <textarea
+          <label className={FIELD_LABEL_CLASS}>Notes (optional)</label>
+          <FormTextarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
-            className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm resize-none"
+            className="resize-none !min-h-0"
           />
         </div>
       </div>
@@ -248,6 +282,7 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
             canRemove={medicines.length > 1}
           />
         ))}
+        <FieldError>{medicinesErr}</FieldError>
       </div>
 
       <button

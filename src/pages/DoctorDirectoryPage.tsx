@@ -28,7 +28,12 @@ import {
   findInternalDoctorByNpi,
 } from '../shared/api/internalDoctorsApi'
 import type { NpiProviderCard, NpiRawResult, NpiSearchParams } from '../shared/lib/npiRegistryApi'
-import { npiCardToInternalRecord, searchNpiRegistry } from '../shared/lib/npiRegistryApi'
+import {
+  hasMinimumNpiSearchCriteria,
+  npiCardToInternalRecord,
+  NPI_SEARCH_MINIMUM_CRITERIA_MESSAGE,
+  searchNpiRegistry,
+} from '../shared/lib/npiRegistryApi'
 import {
   formatInternalDoctorScheduleSummary,
   internalRecordToScheduleDoctor,
@@ -40,9 +45,11 @@ import {
   setImportedScheduleDoctors,
 } from '../features/appointments/appointmentsSlice'
 import { notify } from '../shared/lib/notify'
+import { useMergeSearchParams } from '../shared/hooks/useMergeSearchParams'
 import { useModalScrollLock } from '../shared/hooks/useModalScrollLock'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../shared/ui/modalOverlayClasses'
 import InternalDoctorScheduleModal from '../shared/components/InternalDoctorScheduleModal'
+import { FieldError, FormInput } from '../shared/ui/form'
 import { SearchableIdPicker } from '../shared/ui/SearchWithDropdown'
 import { filterLabeledOption } from '../shared/ui/labeledOptionFilter'
 
@@ -237,7 +244,8 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
 // DoctorDirectoryPage renders the doctor directory page UI.
 export default function DoctorDirectoryPage() {
   const dispatch = useDispatch<AppDispatch>()
-  const [tab, setTab] = useState<'search' | 'internal'>('search')
+  const { searchParams, merge } = useMergeSearchParams()
+  const tab: 'search' | 'internal' = searchParams.get('tab') === 'internal' ? 'internal' : 'search'
 
   const [npiNumber, setNpiNumber] = useState('')
   const [enumerationType, setEnumerationType] = useState<NpiSearchParams['enumerationType']>('')
@@ -253,9 +261,15 @@ export default function DoctorDirectoryPage() {
   const [postalCode, setPostalCode] = useState('')
   const [addressPurpose, setAddressPurpose] = useState<NpiSearchParams['addressPurpose']>('')
   const [loading, setLoading] = useState(false)
+  const [npiSearchErr, setNpiSearchErr] = useState<string | null>(null)
   const [providers, setProviders] = useState<NpiProviderCard[]>([])
   const [totalCount, setTotalCount] = useState(0)
-  const [page, setPage] = useState(0)
+  const page = (() => {
+    const p = searchParams.get('page')
+    if (p == null || p === '') return 0
+    const n = parseInt(p, 10)
+    return Number.isFinite(n) && n >= 0 ? n : 0
+  })()
   const [profileRaw, setProfileRaw] = useState<NpiRawResult | null>(null)
   const [importingNpi, setImportingNpi] = useState<string | null>(null)
 
@@ -296,6 +310,24 @@ export default function DoctorDirectoryPage() {
     })()
   }, [])
 
+  useEffect(() => {
+    setNpiSearchErr(null)
+  }, [
+    npiNumber,
+    enumerationType,
+    taxonomyDescription,
+    providerFirstName,
+    providerLastName,
+    organizationName,
+    authorizedOfficialFirstName,
+    authorizedOfficialLastName,
+    city,
+    state,
+    countryCode,
+    postalCode,
+    addressPurpose,
+  ])
+
   const clearNpiSearchForm = () => {
     setNpiNumber('')
     setEnumerationType('')
@@ -312,35 +344,46 @@ export default function DoctorDirectoryPage() {
     setAddressPurpose('')
     setProviders([])
     setTotalCount(0)
-    setPage(0)
+    setNpiSearchErr(null)
+    merge({ page: null })
   }
 
   const runSearch = async (pageIndex: number) => {
+    setNpiSearchErr(null)
+    const skip = pageIndex * PAGE_SIZE
+    const params: NpiSearchParams = {
+      npiNumber: npiNumber || undefined,
+      enumerationType: enumerationType || undefined,
+      taxonomyDescription: taxonomyDescription || undefined,
+      providerFirstName: providerFirstName || undefined,
+      providerLastName: providerLastName || undefined,
+      organizationName: organizationName || undefined,
+      authorizedOfficialFirstName: authorizedOfficialFirstName || undefined,
+      authorizedOfficialLastName: authorizedOfficialLastName || undefined,
+      city: city || undefined,
+      state: state || undefined,
+      countryCode: countryCode || undefined,
+      postalCode: postalCode || undefined,
+      addressPurpose: addressPurpose || undefined,
+      limit: PAGE_SIZE,
+      skip,
+    }
+    if (!hasMinimumNpiSearchCriteria(params)) {
+      setNpiSearchErr(NPI_SEARCH_MINIMUM_CRITERIA_MESSAGE)
+      setProviders([])
+      setTotalCount(0)
+      merge({ page: null })
+      return
+    }
     setLoading(true)
     try {
-      const skip = pageIndex * PAGE_SIZE
-      const { resultCount, providers: list } = await searchNpiRegistry({
-        npiNumber: npiNumber || undefined,
-        enumerationType: enumerationType || undefined,
-        taxonomyDescription: taxonomyDescription || undefined,
-        providerFirstName: providerFirstName || undefined,
-        providerLastName: providerLastName || undefined,
-        organizationName: organizationName || undefined,
-        authorizedOfficialFirstName: authorizedOfficialFirstName || undefined,
-        authorizedOfficialLastName: authorizedOfficialLastName || undefined,
-        city: city || undefined,
-        state: state || undefined,
-        countryCode: countryCode || undefined,
-        postalCode: postalCode || undefined,
-        addressPurpose: addressPurpose || undefined,
-        limit: PAGE_SIZE,
-        skip,
-      })
+      const { resultCount, providers: list } = await searchNpiRegistry(params)
+      setNpiSearchErr(null)
       setProviders(list)
       setTotalCount(resultCount)
-      setPage(pageIndex)
+      merge({ page: pageIndex === 0 ? null : String(pageIndex) })
     } catch (e) {
-      notify.error(e instanceof Error ? e.message : 'NPI search failed')
+      setNpiSearchErr(e instanceof Error ? e.message : 'NPI search failed')
       setProviders([])
       setTotalCount(0)
     } finally {
@@ -436,7 +479,7 @@ export default function DoctorDirectoryPage() {
       <div className="flex flex-wrap gap-2 p-1 rounded-2xl bg-slate-100/90 dark:bg-slate-800/50 ring-1 ring-slate-200/60 dark:ring-slate-700/60 w-full sm:w-fit">
         <button
           type="button"
-          onClick={() => setTab('search')}
+          onClick={() => merge({ tab: null })}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
             tab === 'search'
               ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
@@ -448,7 +491,7 @@ export default function DoctorDirectoryPage() {
         </button>
         <button
           type="button"
-          onClick={() => setTab('internal')}
+          onClick={() => merge({ tab: 'internal' })}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
             tab === 'internal'
               ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
@@ -476,12 +519,12 @@ export default function DoctorDirectoryPage() {
                 <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   NPI number
                 </label>
-                <input
+                <FormInput
                   value={npiNumber}
                   onChange={(e) => setNpiNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
                   placeholder="10-digit NPI"
                   inputMode="numeric"
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm font-mono"
+                  className="!py-2.5 font-mono"
                 />
               </div>
               <div>
@@ -520,11 +563,11 @@ export default function DoctorDirectoryPage() {
                   allowClear={false}
                 />
                 {taxonomySelectValue === TAXONOMY_SELECT_CUSTOM ? (
-                  <input
+                  <FormInput
                     value={taxonomyDescription}
                     onChange={(e) => setTaxonomyDescription(e.target.value)}
                     placeholder="Custom taxonomy description (CMS text match)"
-                    className="w-full mt-2 px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+                    className="!py-2.5 mt-2"
                   />
                 ) : null}
               </div>
@@ -537,22 +580,22 @@ export default function DoctorDirectoryPage() {
                   <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                     Provider first name
                   </label>
-                  <input
+                  <FormInput
                     value={providerFirstName}
                     onChange={(e) => setProviderFirstName(e.target.value)}
                     placeholder="First name"
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+                    className="!py-2.5"
                   />
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                     Provider last name
                   </label>
-                  <input
+                  <FormInput
                     value={providerLastName}
                     onChange={(e) => setProviderLastName(e.target.value)}
                     placeholder="Last name"
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+                    className="!py-2.5"
                   />
                 </div>
               </div>
@@ -565,11 +608,11 @@ export default function DoctorDirectoryPage() {
                   <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                     Organization name (LBN, DBA, former LBN, or other name)
                   </label>
-                  <input
+                  <FormInput
                     value={organizationName}
                     onChange={(e) => setOrganizationName(e.target.value)}
                     placeholder="Organization name"
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+                    className="!py-2.5"
                   />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -577,22 +620,22 @@ export default function DoctorDirectoryPage() {
                     <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                       Authorized official first name
                     </label>
-                    <input
+                    <FormInput
                       value={authorizedOfficialFirstName}
                       onChange={(e) => setAuthorizedOfficialFirstName(e.target.value)}
                       placeholder="First name"
-                      className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+                      className="!py-2.5"
                     />
                   </div>
                   <div>
                     <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                       Authorized official last name
                     </label>
-                    <input
+                    <FormInput
                       value={authorizedOfficialLastName}
                       onChange={(e) => setAuthorizedOfficialLastName(e.target.value)}
                       placeholder="Last name"
-                      className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+                      className="!py-2.5"
                     />
                   </div>
                 </div>
@@ -602,11 +645,11 @@ export default function DoctorDirectoryPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">City</label>
-                <input
+                <FormInput
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   placeholder="City"
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+                  className="!py-2.5"
                 />
               </div>
               <div>
@@ -649,7 +692,7 @@ export default function DoctorDirectoryPage() {
                     <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                       State / region
                     </label>
-                    <input
+                    <FormInput
                       value={state}
                       onChange={(e) => setState(e.target.value)}
                       placeholder={
@@ -657,7 +700,7 @@ export default function DoctorDirectoryPage() {
                           ? 'Subdivision code or name (none in list for this country)'
                           : 'Optional — pick a country for a subdivision list'
                       }
-                      className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+                      className="!py-2.5"
                     />
                   </>
                 )}
@@ -666,11 +709,11 @@ export default function DoctorDirectoryPage() {
                 <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   Postal code
                 </label>
-                <input
+                <FormInput
                   value={postalCode}
                   onChange={(e) => setPostalCode(e.target.value)}
                   placeholder="ZIP / postal code"
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+                  className="!py-2.5"
                 />
               </div>
               <div>
@@ -695,6 +738,8 @@ export default function DoctorDirectoryPage() {
               <strong className="font-medium text-slate-600 dark:text-white">Note:</strong> The NPI Registry limits
               searches to the first 2100 results. If you cannot find the NPI you need, refine your criteria.
             </p>
+
+            <FieldError className="!mt-0">{npiSearchErr}</FieldError>
 
             <div className="flex flex-wrap gap-3 pt-1">
               <button

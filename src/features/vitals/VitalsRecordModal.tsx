@@ -7,6 +7,7 @@ import { ModalPortal } from '../../shared/ui/ModalPortal'
 import { createVital } from '../../shared/api/vitalsApi'
 import type { PatientRecord } from '../../shared/types/patient'
 import { notify } from '../../shared/lib/notify'
+import { FieldError, FormInput, FormTextarea } from '../../shared/ui/form'
 
 // VitalsRecordModal defines the Vitals Record Modal UI surface and its primary interaction flow.
 function parseOptInt(raw: string): number | undefined {
@@ -22,9 +23,6 @@ function parseOptFloat(raw: string): number | undefined {
   const n = Number(t)
   return Number.isFinite(n) ? n : undefined
 }
-
-const fieldInput =
-  'w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white shadow-sm shadow-slate-200/20 dark:shadow-none focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400/50 transition-[box-shadow,border-color]'
 
 export interface VitalsRecordModalProps {
   open: boolean
@@ -45,6 +43,7 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
   const [spo2, setSpo2] = useState('')
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
+  const [validationErr, setValidationErr] = useState<string | null>(null)
 
   useEffect(() => {
     if (!open) return
@@ -54,6 +53,7 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
     setTemp('')
     setSpo2('')
     setNotes('')
+    setValidationErr(null)
   }, [open, patient?.id])
 
   useEffect(() => {
@@ -89,9 +89,10 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
       spo2N != null ||
       notes.trim().length > 0
     if (!hasAny) {
-      notify.error('Enter at least one vital sign or a note.')
+      setValidationErr('Enter at least one vital sign or a note.')
       return
     }
+    setValidationErr(null)
 
     setSaving(true)
     try {
@@ -161,22 +162,30 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Systolic</label>
-                <input
+                <FormInput
                   inputMode="numeric"
                   value={sys}
-                  onChange={(e) => setSys(e.target.value)}
+                  onChange={(e) => {
+                    setSys(e.target.value)
+                    setValidationErr(null)
+                  }}
                   placeholder="mmHg"
-                  className={fieldInput}
+                  variant="orange"
+                  className="!py-2.5"
                 />
               </div>
               <div>
                 <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Diastolic</label>
-                <input
+                <FormInput
                   inputMode="numeric"
                   value={dia}
-                  onChange={(e) => setDia(e.target.value)}
+                  onChange={(e) => {
+                    setDia(e.target.value)
+                    setValidationErr(null)
+                  }}
                   placeholder="mmHg"
-                  className={fieldInput}
+                  variant="orange"
+                  className="!py-2.5"
                 />
               </div>
             </div>
@@ -193,32 +202,44 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Pulse</label>
-                <input
+                <FormInput
                   inputMode="numeric"
                   value={pulse}
-                  onChange={(e) => setPulse(e.target.value)}
+                  onChange={(e) => {
+                    setPulse(e.target.value)
+                    setValidationErr(null)
+                  }}
                   placeholder="bpm"
-                  className={fieldInput}
+                  variant="orange"
+                  className="!py-2.5"
                 />
               </div>
               <div>
                 <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Temp °C</label>
-                <input
+                <FormInput
                   inputMode="decimal"
                   value={temp}
-                  onChange={(e) => setTemp(e.target.value)}
+                  onChange={(e) => {
+                    setTemp(e.target.value)
+                    setValidationErr(null)
+                  }}
                   placeholder="36.8"
-                  className={fieldInput}
+                  variant="orange"
+                  className="!py-2.5"
                 />
               </div>
               <div>
                 <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">SpO₂ %</label>
-                <input
+                <FormInput
                   inputMode="numeric"
                   value={spo2}
-                  onChange={(e) => setSpo2(e.target.value)}
+                  onChange={(e) => {
+                    setSpo2(e.target.value)
+                    setValidationErr(null)
+                  }}
                   placeholder="98"
-                  className={fieldInput}
+                  variant="orange"
+                  className="!py-2.5"
                 />
               </div>
             </div>
@@ -226,13 +247,18 @@ export default function VitalsRecordModal({ open, patient, onClose, onSaved }: V
 
           <div>
             <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Notes</label>
-            <textarea
+            <FormTextarea
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              onChange={(e) => {
+                setNotes(e.target.value)
+                setValidationErr(null)
+              }}
               rows={4}
               placeholder="Optional context for the care team"
-              className={`${fieldInput} resize-y min-h-[6rem]`}
+              variant="orange"
+              className="resize-y !min-h-[6rem]"
             />
+            <FieldError>{validationErr}</FieldError>
           </div>
         </div>
 

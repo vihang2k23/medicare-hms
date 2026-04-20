@@ -17,6 +17,7 @@ import type { AppDispatch, RootState } from '../../app/store'
 import { notify } from '../../shared/lib/notify'
 import { useModalScrollLock } from '../../shared/hooks/useModalScrollLock'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../shared/ui/modalOverlayClasses'
+import { FieldError, FormInput } from '../../shared/ui/form'
 import { ModalPortal } from '../../shared/ui/ModalPortal'
 import type { Bed, BedStatus, WardDefinition } from './bedSlice'
 import {
@@ -110,6 +111,9 @@ export default function BedGrid({
   const [activeBedId, setActiveBedId] = useState<string | null>(null)
   const [assignName, setAssignName] = useState('')
   const [assignId, setAssignId] = useState('')
+  const [assignNameErr, setAssignNameErr] = useState<string | null>(null)
+  const [assignNameBlurred, setAssignNameBlurred] = useState(false)
+  const [removeBedConfirmOpen, setRemoveBedConfirmOpen] = useState(false)
   const [draggingBedId, setDraggingBedId] = useState<string | null>(null)
   const [dropTargetWardId, setDropTargetWardId] = useState<string | null>(null)
 
@@ -119,15 +123,21 @@ export default function BedGrid({
   useModalScrollLock(!!activeBedId)
 
   const openBed = (bed: Bed) => {
+    setRemoveBedConfirmOpen(false)
     setActiveBedId(bed.id)
     setAssignName('')
     setAssignId('')
+    setAssignNameErr(null)
+    setAssignNameBlurred(false)
   }
 
   const closePanel = () => {
+    setRemoveBedConfirmOpen(false)
     setActiveBedId(null)
     setAssignName('')
     setAssignId('')
+    setAssignNameErr(null)
+    setAssignNameBlurred(false)
   }
 
   const endDragSession = () => {
@@ -145,9 +155,11 @@ export default function BedGrid({
     if (!activeBed) return
     const name = assignName.trim()
     if (!name) {
-      notify.error('Enter a patient name to assign')
+      setAssignNameBlurred(true)
+      setAssignNameErr('Enter a patient name to assign.')
       return
     }
+    setAssignNameErr(null)
     dispatch(
       assignPatientToBed({
         bedId: activeBed.id,
@@ -166,9 +178,11 @@ export default function BedGrid({
     closePanel()
   }
 
-  const removeThisBed = () => {
-    if (!activeBed || activeBed.status !== 'available') return
-    if (!window.confirm(`Remove empty bed ${activeBed.bedNumber} from ${activeBed.wardName}?`)) return
+  const confirmRemoveBed = () => {
+    if (!activeBed || activeBed.status !== 'available') {
+      setRemoveBedConfirmOpen(false)
+      return
+    }
     dispatch(removeBed({ bedId: activeBed.id }))
     notify.success('Bed removed')
     closePanel()
@@ -474,7 +488,7 @@ export default function BedGrid({
               {activeBed.status === 'available' && (
                 <button
                   type="button"
-                  onClick={removeThisBed}
+                  onClick={() => setRemoveBedConfirmOpen(true)}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-red-200/90 dark:border-red-900/55 text-red-800 dark:text-white text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-950/35 transition-colors"
                 >
                   <Trash2 className="h-4 w-4" aria-hidden />
@@ -492,22 +506,33 @@ export default function BedGrid({
                     <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">
                       Patient name
                     </label>
-                    <input
+                    <FormInput
                       value={assignName}
-                      onChange={(e) => setAssignName(e.target.value)}
+                      invalid={!!assignNameErr}
+                      onChange={(e) => {
+                        const v = e.target.value
+                        setAssignName(v)
+                        if (v.trim()) setAssignNameErr(null)
+                        else if (assignNameBlurred) setAssignNameErr('Enter a patient name to assign.')
+                      }}
+                      onBlur={() => {
+                        setAssignNameBlurred(true)
+                        if (!assignName.trim()) setAssignNameErr('Enter a patient name to assign.')
+                      }}
                       placeholder="Full name"
-                      className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white/90 dark:bg-slate-950/50 text-sm"
+                      className="bg-white/90 dark:bg-slate-950/50 !py-2.5"
                     />
+                    <FieldError>{assignNameErr}</FieldError>
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">
                       Patient ID (optional)
                     </label>
-                    <input
+                    <FormInput
                       value={assignId}
                       onChange={(e) => setAssignId(e.target.value)}
                       placeholder="Registry ID"
-                      className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white/90 dark:bg-slate-950/50 text-sm font-mono"
+                      className="bg-white/90 dark:bg-slate-950/50 !py-2.5 font-mono"
                     />
                   </div>
                   <button
@@ -543,6 +568,75 @@ export default function BedGrid({
             </div>
           </div>
         </div>
+        </ModalPortal>
+      )}
+
+      {removeBedConfirmOpen && activeBed && (
+        <ModalPortal>
+          <div
+            className={modalFixedRoot('z-[60]')}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="remove-bed-confirm-title"
+          >
+            <div className={modalFixedInner}>
+              <button
+                type="button"
+                className={modalBackdropDim}
+                aria-label="Close confirmation"
+                onClick={() => setRemoveBedConfirmOpen(false)}
+              />
+              <div
+                className="relative z-10 w-full max-w-sm rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl shadow-slate-900/25 ring-1 ring-slate-200/60 dark:ring-slate-700/60 overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80">
+                  <div>
+                    <h2 id="remove-bed-confirm-title" className="text-lg font-bold text-slate-900 dark:text-white">
+                      Remove this bed?
+                    </h2>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                      This only removes the bed from the current session layout.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setRemoveBedConfirmOpen(false)}
+                    className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+                    aria-label="Close"
+                  >
+                    <X className="h-5 w-5" aria-hidden />
+                  </button>
+                </div>
+                <div className="p-5">
+                  <div className="rounded-xl border border-red-200/80 dark:border-red-900/50 bg-red-50/50 dark:bg-red-950/25 px-4 py-3 text-sm text-slate-700 dark:text-white leading-relaxed">
+                    <p>
+                      Remove empty bed{' '}
+                      <span className="font-semibold text-slate-900 dark:text-white">{activeBed.bedNumber}</span> from{' '}
+                      <span className="font-semibold text-slate-900 dark:text-white">{activeBed.wardName}</span>?
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap justify-end gap-2 p-5 border-t border-slate-200/80 dark:border-slate-700/80 bg-slate-50/90 dark:bg-slate-950/50">
+                  <button
+                    type="button"
+                    onClick={() => setRemoveBedConfirmOpen(false)}
+                    className="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-white hover:bg-slate-200/70 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmRemoveBed}
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-red-600 hover:bg-red-500 text-white shadow-md shadow-red-600/20"
+                  >
+                    <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
+                    Remove bed
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </ModalPortal>
       )}
     </div>

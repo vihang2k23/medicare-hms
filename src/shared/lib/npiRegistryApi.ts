@@ -245,6 +245,10 @@ export function npiCardToInternalRecord(card: NpiProviderCard): import('../types
   }
 }
 
+/** CMS NPI Registry minimum rules — use for inline form errors (not toast). */
+export const NPI_SEARCH_MINIMUM_CRITERIA_MESSAGE =
+  'Enter at least one search criterion (e.g. NPI, name, organization, taxonomy, city, ZIP, postal code, or a non-US country alone). State alone is not allowed; United States cannot be the only filter.'
+
 export function hasMinimumNpiSearchCriteria(p: NpiSearchParams): boolean {
   const n = (p.npiNumber ?? '').replace(/\D/g, '')
   if (n.length >= 2) return true
@@ -272,9 +276,7 @@ export function searchNpiRegistry(params: NpiSearchParams): Promise<{
   providers: NpiProviderCard[]
 }> {
   if (!hasMinimumNpiSearchCriteria(params)) {
-    throw new Error(
-      'Enter at least one search criterion (e.g. NPI, name, organization, taxonomy, city, ZIP, postal code, or a non-US country alone). State alone is not allowed; United States cannot be the only filter.',
-    )
+    throw new Error(NPI_SEARCH_MINIMUM_CRITERIA_MESSAGE)
   }
 
   const limit = Math.min(200, Math.max(1, params.limit ?? 20))

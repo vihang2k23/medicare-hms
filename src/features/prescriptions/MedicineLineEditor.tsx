@@ -8,6 +8,7 @@ import {
   searchDrugLabels,
 } from '../../shared/lib/drugCatalog'
 import { notify } from '../../shared/lib/notify'
+import { FieldError, FIELD_LABEL_CLASS, FormInput } from '../../shared/ui/form'
 
 interface MedicineLineEditorProps {
   line: PrescriptionMedicineLine
@@ -25,9 +26,14 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
   const [loading, setLoading] = useState(false)
   const [hits, setHits] = useState<OpenFdaLabelHit[]>([])
   const [recallLoading, setRecallLoading] = useState(false)
+  const [recallErr, setRecallErr] = useState<string | null>(null)
 
   useEffect(() => {
     setQuery(line.drugName)
+  }, [line.drugName])
+
+  useEffect(() => {
+    if (line.drugName.trim()) setRecallErr(null)
   }, [line.drugName])
 
   useEffect(() => {
@@ -93,9 +99,10 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
     if (line.drugName.trim()) terms.push(line.drugName.trim())
     const uniq = [...new Set(terms.map((t) => t.trim()).filter(Boolean))]
     if (uniq.length === 0) {
-      notify.error('Enter or select a drug first.')
+      setRecallErr('Enter or select a drug first.')
       return
     }
+    setRecallErr(null)
     setRecallLoading(true)
     try {
       const alerts = await fetchRecallAlertsForTerms(uniq.slice(0, 6))
@@ -138,12 +145,10 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
       </div>
 
       <div className="relative">
-        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
-          Drug (catalog)
-        </label>
+        <label className={FIELD_LABEL_CLASS}>Drug (catalog)</label>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600 dark:text-slate-400" aria-hidden />
-          <input
+          <FormInput
             role="combobox"
             aria-expanded={open}
             aria-controls={listId}
@@ -152,11 +157,12 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
             onChange={(e) => {
               setQuery(e.target.value)
               onChange({ ...line, drugName: e.target.value })
+              setRecallErr(null)
               setOpen(true)
             }}
             onFocus={() => setOpen(true)}
             placeholder="Search catalog (e.g. metformin, paracetamol)…"
-            className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+            className="!pl-10 !pr-10"
           />
           {loading && (
             <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-sky-500" />
@@ -197,49 +203,42 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
-            Dosage
-          </label>
-          <input
+          <label className={FIELD_LABEL_CLASS}>Dosage</label>
+          <FormInput
             value={line.dosage}
             onChange={(e) => onChange({ ...line, dosage: e.target.value })}
             placeholder="e.g. 500 mg"
-            className="w-full px-3 py-2 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+            className="!py-2"
           />
         </div>
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
-            Frequency
-          </label>
-          <input
+          <label className={FIELD_LABEL_CLASS}>Frequency</label>
+          <FormInput
             value={line.frequency}
             onChange={(e) => onChange({ ...line, frequency: e.target.value })}
             placeholder="e.g. Twice daily"
-            className="w-full px-3 py-2 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+            className="!py-2"
           />
         </div>
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
-            Duration
-          </label>
-          <input
+          <label className={FIELD_LABEL_CLASS}>Duration</label>
+          <FormInput
             value={line.duration ?? ''}
             onChange={(e) => onChange({ ...line, duration: e.target.value })}
             placeholder="e.g. 7 days"
-            className="w-full px-3 py-2 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+            className="!py-2"
           />
         </div>
       </div>
       <div>
-        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
-          Instructions
-        </label>
-        <input
+        <label className={FIELD_LABEL_CLASS}>Instructions</label>
+        <FormInput
           value={line.instructions ?? ''}
           onChange={(e) => onChange({ ...line, instructions: e.target.value })}
           placeholder="e.g. Take with food"
-          className="w-full px-3 py-2 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+          className="!py-2"
         />
+        <FieldError>{recallErr}</FieldError>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">

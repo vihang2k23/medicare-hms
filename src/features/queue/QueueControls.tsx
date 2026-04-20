@@ -4,6 +4,7 @@ import { Timer } from 'lucide-react'
 import { store, type AppDispatch, type RootState } from '../../app/store'
 import { notify } from '../../shared/lib/notify'
 import { OPD_DEPARTMENTS } from '../../shared/config/departments'
+import { FieldError, FormInput } from '../../shared/ui/form'
 import { SearchableIdPicker } from '../../shared/ui/SearchWithDropdown'
 import { filterLabeledOption } from '../../shared/ui/labeledOptionFilter'
 import {
@@ -47,10 +48,19 @@ export default function QueueControls({
   const canStartSimulation = canStartQueueSimulation(queue)
   const callNextEnabled = canCallNext(queue)
   const [patientName, setPatientName] = useState('')
+  const [patientNameErr, setPatientNameErr] = useState<string | null>(null)
+  const [patientNameBlurred, setPatientNameBlurred] = useState(false)
+  const [simulationErr, setSimulationErr] = useState<string | null>(null)
+  const simulationErrShown = canStartSimulation ? null : simulationErr
 
   const issue = () => {
     const name = patientName.trim()
-    if (!name) return
+    if (!name) {
+      setPatientNameBlurred(true)
+      setPatientNameErr('Enter a patient name.')
+      return
+    }
+    setPatientNameErr(null)
     dispatch(
       issueToken({
         patientName: name,
@@ -59,6 +69,7 @@ export default function QueueControls({
       }),
     )
     setPatientName('')
+    setPatientNameBlurred(false)
     const q = store.getState().queue.queue
     const last = q[q.length - 1]
     if (last) {
@@ -71,12 +82,23 @@ export default function QueueControls({
       <h3 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-[0.14em]">Issue token</h3>
       <div>
         <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">Patient name</label>
-        <input
+        <FormInput
           value={patientName}
-          onChange={(e) => setPatientName(e.target.value)}
+          invalid={!!patientNameErr}
+          onChange={(e) => {
+            const v = e.target.value
+            setPatientName(v)
+            if (v.trim()) setPatientNameErr(null)
+            else if (patientNameBlurred) setPatientNameErr('Enter a patient name.')
+          }}
+          onBlur={() => {
+            setPatientNameBlurred(true)
+            if (!patientName.trim()) setPatientNameErr('Enter a patient name.')
+          }}
           placeholder="Walk-in or registered name"
-          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white/90 dark:bg-slate-950/50 text-slate-800 dark:text-white text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+          className="bg-white/90 dark:bg-slate-950/50"
         />
+        <FieldError>{patientNameErr}</FieldError>
       </div>
       <p className="text-[11px] text-slate-600 dark:text-slate-400">
         Tokens are issued for <strong className="text-slate-600 dark:text-white">{OPD_DEPARTMENTS[0]}</strong>.
@@ -179,10 +201,13 @@ export default function QueueControls({
         <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 items-stretch sm:items-center">
           <SearchableIdPicker
             id="queue-sim-interval"
-            label="Interval"
+            // label="Interval"
             items={SIM_INTERVAL_ITEMS}
             selectedId={String(simulationIntervalMs)}
-            onSelectId={(id) => onSimulationIntervalChange?.(Number(id))}
+            onSelectId={(id) => {
+              onSimulationIntervalChange?.(Number(id))
+              setSimulationErr(null)
+            }}
             getId={(x) => x.id}
             getLabel={(x) => x.label}
             filterItem={filterLabeledOption}
@@ -202,9 +227,10 @@ export default function QueueControls({
                 return
               }
               if (!canStartSimulation) {
-                notify.error('Issue at least one token (waiting) before starting simulation.')
+                setSimulationErr('Issue at least one token (waiting) before starting simulation.')
                 return
               }
+              setSimulationErr(null)
               dispatch(setSimulationRunning(true))
               notify.success('Simulation on — calling next automatically')
             }}
@@ -223,6 +249,7 @@ export default function QueueControls({
             {simulationRunning ? 'Stop simulation' : 'Start simulation'}
           </button>
         </div>
+        <FieldError>{simulationErrShown}</FieldError>
       </div>
     </div>
   )

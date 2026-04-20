@@ -1,5 +1,4 @@
 import {
-// DoctorAutocomplete defines the Doctor Autocomplete UI surface and its primary interaction flow.
   useCallback,
   useEffect,
   useMemo,
@@ -17,8 +16,11 @@ import { notify } from '../../shared/lib/notify'
 import { internalRecordToScheduleDoctor } from '../../shared/types/internalDoctor'
 import { addImportedScheduleDoctor } from '../appointments/appointmentsSlice'
 import { clearDoctorSearch, searchDoctors, type SearchDoctorsArgs } from './doctorSlice'
+import { FieldError, FormInput } from '../../shared/ui/form'
 import DoctorDetailsModal from './DoctorDetailsModal'
 import { providerCardToAutocompleteDoctor, type AutocompleteDoctor } from './npiAutocompleteMap'
+
+// DoctorAutocomplete defines the doctor autocomplete UI surface and its primary interaction flow.
 
 export interface DoctorFormPopulateFields {
   firstName: string
@@ -80,6 +82,7 @@ export default function DoctorAutocomplete({
   const loading = status === 'loading'
 
   const [query, setQuery] = useState('')
+  const [searchErr, setSearchErr] = useState<string | null>(null)
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [adding, setAdding] = useState(false)
   const [isUserTyping, setIsUserTyping] = useState(true)
@@ -90,6 +93,7 @@ export default function DoctorAutocomplete({
   useEffect(() => {
     if (clearTrigger !== undefined) {
       setQuery('')
+      setSearchErr(null)
       setShowSuggestions(false)
       setIsUserTyping(true)
       dispatch(clearDoctorSearch())
@@ -109,6 +113,7 @@ export default function DoctorAutocomplete({
   const runSearch = useCallback(
     async (searchQuery: string) => {
       if (searchQuery.trim().length < 2 || !isUserTyping) {
+        setSearchErr(null)
         setShowSuggestions(false)
         return
       }
@@ -125,9 +130,10 @@ export default function DoctorAutocomplete({
 
       try {
         await dispatch(searchDoctors(searchParams)).unwrap()
+        setSearchErr(null)
         setShowSuggestions(true)
       } catch (err) {
-        notify.error(err instanceof Error ? err.message : 'NPI search failed.')
+        setSearchErr(err instanceof Error ? err.message : 'NPI search failed.')
         setShowSuggestions(false)
       }
     },
@@ -147,6 +153,7 @@ export default function DoctorAutocomplete({
 
   const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setIsUserTyping(true)
+    setSearchErr(null)
     setQuery(e.target.value)
   }, [])
 
@@ -168,6 +175,7 @@ export default function DoctorAutocomplete({
 
   const handleClear = useCallback(() => {
     setIsUserTyping(true)
+    setSearchErr(null)
     setQuery('')
     setShowSuggestions(false)
     dispatch(clearDoctorSearch())
@@ -217,14 +225,17 @@ export default function DoctorAutocomplete({
     <div className="relative" ref={searchRef}>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 dark:text-slate-400" aria-hidden />
-        <input
+        <FormInput
           type="text"
           value={query}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
           placeholder="Search by name (at least 2 characters)…"
-          className="w-full pl-10 pr-12 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500"
+          className="!pl-10 !pr-12 !py-3"
           autoComplete="off"
+          invalid={!!searchErr}
+          aria-invalid={searchErr ? true : undefined}
+          aria-describedby={searchErr ? 'doctor-autocomplete-search-err' : undefined}
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
           {query ? (
@@ -245,6 +256,10 @@ export default function DoctorAutocomplete({
           ) : null}
         </div>
       </div>
+
+      <FieldError id="doctor-autocomplete-search-err" className="!mt-1">
+        {searchErr}
+      </FieldError>
 
       {showSuggestions && suggestions.length > 0 ? (
         <div className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl shadow-xl max-h-96 overflow-y-auto">

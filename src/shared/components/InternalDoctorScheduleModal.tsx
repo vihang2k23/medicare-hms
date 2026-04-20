@@ -8,6 +8,7 @@ import { defaultImportedSchedule } from '../lib/npiRegistryApi'
 import { notify } from '../lib/notify'
 import { useModalScrollLock } from '../hooks/useModalScrollLock'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../ui/modalOverlayClasses'
+import { FieldError, FormInput } from '../ui/form'
 import { SearchableIdPicker } from '../ui/SearchWithDropdown'
 import { filterLabeledOption } from '../ui/labeledOptionFilter'
 import {
@@ -55,6 +56,7 @@ export default function InternalDoctorScheduleModal({
   const [lunchStart, setLunchStart] = useState('13:00')
   const [lunchEnd, setLunchEnd] = useState('14:00')
   const [saving, setSaving] = useState(false)
+  const [formErr, setFormErr] = useState<string | null>(null)
 
   useEffect(() => {
     if (!open) return
@@ -71,6 +73,7 @@ export default function InternalDoctorScheduleModal({
       setHasLunch(has)
       setLunchStart(record.lunchBreakStart ?? '13:00')
       setLunchEnd(record.lunchBreakEnd ?? '14:00')
+      setFormErr(null)
     } else {
       const d = defaultImportedSchedule()
       setName('')
@@ -84,6 +87,7 @@ export default function InternalDoctorScheduleModal({
       setHasLunch(true)
       setLunchStart(d.lunchBreakStart ?? '13:00')
       setLunchEnd(d.lunchBreakEnd ?? '14:00')
+      setFormErr(null)
     }
   }, [open, record])
 
@@ -97,6 +101,7 @@ export default function InternalDoctorScheduleModal({
   }, [open, onClose])
 
   const toggleDay = (d: number) => {
+    setFormErr(null)
     setWorkingDays((prev) => {
       const next = new Set(prev)
       if (next.has(d)) next.delete(d)
@@ -124,9 +129,10 @@ export default function InternalDoctorScheduleModal({
   const handleSubmit = async () => {
     const err = validate()
     if (err) {
-      notify.error(err)
+      setFormErr(err)
       return
     }
+    setFormErr(null)
     const daysArr = [...workingDays].sort((a, b) => a - b)
     const lunchS = hasLunch ? lunchStart.trim() : ''
     const lunchE = hasLunch ? lunchEnd.trim() : ''
@@ -149,7 +155,7 @@ export default function InternalDoctorScheduleModal({
         if (rec.npi.length === 10) {
           const existing = await findInternalDoctorByNpi(rec.npi)
           if (existing) {
-            notify.error(`NPI ${rec.npi} is already in the directory.`)
+            setFormErr(`NPI ${rec.npi} is already in the directory.`)
             return
           }
         }
@@ -164,7 +170,7 @@ export default function InternalDoctorScheduleModal({
         if (nextNpi.length === 10) {
           const existing = await findInternalDoctorByNpi(nextNpi)
           if (existing && existing.id !== base.id) {
-            notify.error(`NPI ${nextNpi} is already used by another provider.`)
+            setFormErr(`NPI ${nextNpi} is already used by another provider.`)
             return
           }
         }
@@ -188,7 +194,9 @@ export default function InternalDoctorScheduleModal({
       onSaved()
       onClose()
     } catch (e) {
-      notify.error(e instanceof Error ? e.message : 'Save failed')
+      const msg = e instanceof Error ? e.message : 'Save failed'
+      setFormErr(msg)
+      notify.error(msg)
     } finally {
       setSaving(false)
     }
@@ -235,43 +243,55 @@ export default function InternalDoctorScheduleModal({
                 <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   Name
                 </label>
-                <input
+                <FormInput
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white"
+                  onChange={(e) => {
+                    setFormErr(null)
+                    setName(e.target.value)
+                  }}
+                  className="!py-2"
                 />
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   Department
                 </label>
-                <input
+                <FormInput
                   value={department}
-                  onChange={(e) => setDepartment(e.target.value)}
+                  onChange={(e) => {
+                    setFormErr(null)
+                    setDepartment(e.target.value)
+                  }}
                   placeholder="e.g. General OPD, Cardiology"
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white"
+                  className="!py-2"
                 />
               </div>
               <div>
                 <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   NPI (optional)
                 </label>
-                <input
+                <FormInput
                   value={npiInput}
-                  onChange={(e) => setNpiInput(e.target.value)}
+                  onChange={(e) => {
+                    setFormErr(null)
+                    setNpiInput(e.target.value)
+                  }}
                   readOnly={record?.source === 'npi' || record?.id.startsWith('npi-')}
                   disabled={record?.source === 'npi' || record?.id.startsWith('npi-')}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white disabled:opacity-60"
+                  className="!py-2 disabled:opacity-60"
                 />
               </div>
               <div>
                 <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   Phone
                 </label>
-                <input
+                <FormInput
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white"
+                  onChange={(e) => {
+                    setFormErr(null)
+                    setPhone(e.target.value)
+                  }}
+                  className="!py-2"
                 />
               </div>
             </div>
@@ -301,22 +321,28 @@ export default function InternalDoctorScheduleModal({
                 <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   Day start
                 </label>
-                <input
+                <FormInput
                   type="time"
                   value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white"
+                  onChange={(e) => {
+                    setFormErr(null)
+                    setStartTime(e.target.value)
+                  }}
+                  className="!py-2"
                 />
               </div>
               <div>
                 <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   Day end
                 </label>
-                <input
+                <FormInput
                   type="time"
                   value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white"
+                  onChange={(e) => {
+                    setFormErr(null)
+                    setEndTime(e.target.value)
+                  }}
+                  className="!py-2"
                 />
               </div>
             </div>
@@ -327,7 +353,10 @@ export default function InternalDoctorScheduleModal({
                 label="Slot length"
                 items={SLOT_ITEMS}
                 selectedId={String(slotDurationMinutes)}
-                onSelectId={(id) => setSlotDurationMinutes(Number(id) as 15 | 20 | 30)}
+                onSelectId={(id) => {
+                  setFormErr(null)
+                  setSlotDurationMinutes(Number(id) as 15 | 20 | 30)
+                }}
                 getId={(x) => x.id}
                 getLabel={(x) => x.label}
                 filterItem={filterLabeledOption}
@@ -342,7 +371,10 @@ export default function InternalDoctorScheduleModal({
               <input
                 type="checkbox"
                 checked={hasLunch}
-                onChange={(e) => setHasLunch(e.target.checked)}
+                onChange={(e) => {
+                  setFormErr(null)
+                  setHasLunch(e.target.checked)
+                }}
                 className="rounded border-slate-300 text-sky-600 focus:ring-sky-500"
               />
               <span className="text-slate-700 dark:text-white font-medium">Lunch break (no bookable slots)</span>
@@ -353,45 +385,54 @@ export default function InternalDoctorScheduleModal({
                   <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                     Lunch start
                   </label>
-                  <input
+                  <FormInput
                     type="time"
                     value={lunchStart}
-                    onChange={(e) => setLunchStart(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white"
+                    onChange={(e) => {
+                      setFormErr(null)
+                      setLunchStart(e.target.value)
+                    }}
+                    className="!py-2"
                   />
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
                     Lunch end
                   </label>
-                  <input
+                  <FormInput
                     type="time"
                     value={lunchEnd}
-                    onChange={(e) => setLunchEnd(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-slate-900 dark:text-white"
+                    onChange={(e) => {
+                      setFormErr(null)
+                      setLunchEnd(e.target.value)
+                    }}
+                    className="!py-2"
                   />
                 </div>
               </div>
             )}
           </div>
 
-          <div className="flex shrink-0 justify-end gap-2 p-5 border-t border-slate-200/80 dark:border-slate-700/80 bg-slate-50/80 dark:bg-slate-800/40">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-white"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              disabled={saving}
-              onClick={() => void handleSubmit()}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-600 text-white text-sm font-semibold hover:bg-sky-500 disabled:opacity-50"
-            >
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              {isEdit ? 'Save changes' : 'Add doctor'}
-            </button>
+          <div className="flex shrink-0 flex-col gap-2 p-5 border-t border-slate-200/80 dark:border-slate-700/80 bg-slate-50/80 dark:bg-slate-800/40">
+            <FieldError className="!mt-0">{formErr}</FieldError>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => void handleSubmit()}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-600 text-white text-sm font-semibold hover:bg-sky-500 disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {isEdit ? 'Save changes' : 'Add doctor'}
+              </button>
+            </div>
           </div>
         </div>
       </div>

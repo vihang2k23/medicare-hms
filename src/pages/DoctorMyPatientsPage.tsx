@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useMergeSearchParams } from '../shared/hooks/useMergeSearchParams'
 import { useSelector } from 'react-redux'
 import { Calendar, ChevronLeft, ChevronRight, FileText, Search, Users } from 'lucide-react'
 import type { RootState } from '../app/store'
 import { useAuth } from '../shared/hooks/useAuth'
 import { fetchPatients } from '../shared/api/patientsApi'
 import type { PatientRecord } from '../shared/types/patient'
-import { notify } from '../shared/lib/notify'
+import { FieldError, FormInput } from '../shared/ui/form'
 import { aggregateMyPatients, type MyPatientRowMeta } from '../shared/lib/myPatientsForDoctor'
 
 // DoctorMyPatientsPage defines the Doctor My Patients Page UI surface and its primary interaction flow.
@@ -41,8 +42,8 @@ export default function DoctorMyPatientsPage() {
   const [apiPatients, setApiPatients] = useState<PatientRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [page, setPage] = useState(1)
+  const { searchParams, merge } = useMergeSearchParams()
+  const searchQuery = searchParams.get('q') ?? ''
 
   const metaById = useMemo(
     () => aggregateMyPatients(user?.id, appointments, prescriptions),
@@ -59,7 +60,6 @@ export default function DoctorMyPatientsPage() {
       const msg =
         e instanceof Error ? e.message : 'Could not load patients. Is JSON Server running? (`npm run server`)'
       setLoadError(msg)
-      notify.error(msg)
       setApiPatients([])
     } finally {
       setLoading(false)
@@ -96,12 +96,9 @@ export default function DoctorMyPatientsPage() {
     })
   }, [rows, searchQuery])
 
-  useEffect(() => {
-    setPage(1)
-  }, [searchQuery])
-
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
-  const safePage = Math.min(page, totalPages)
+  const pageRaw = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1)
+  const safePage = Math.min(pageRaw, totalPages)
   const pageSlice = useMemo(() => {
     const start = (safePage - 1) * PAGE_SIZE
     return filtered.slice(start, start + PAGE_SIZE)
@@ -121,27 +118,30 @@ export default function DoctorMyPatientsPage() {
         </p>
       </div>
 
-      {loadError && (
-        <div className="rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 px-5 py-4 text-sm font-medium text-amber-950 dark:text-white ring-1 ring-amber-200/50 dark:ring-amber-500/20">
-          {loadError}
-        </div>
-      )}
-
       <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/90 dark:bg-slate-900/50 p-4 sm:p-5 ring-1 ring-slate-200/40 dark:ring-slate-700/40 space-y-4">
         <div className="relative">
           <Search
             className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none"
             aria-hidden
           />
-          <input
+          <FormInput
             type="search"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              if (loadError) setLoadError(null)
+              merge({ q: e.target.value.trim() ? e.target.value : null, page: null })
+            }}
             placeholder="Search by name, id, or phone…"
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-950/60 text-slate-800 dark:text-white text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/35 focus:border-emerald-400/40"
+            className="!pl-10 !pr-4 focus:!ring-emerald-500/35 focus:!border-emerald-400/40"
             aria-label="Search patients"
+            invalid={!!loadError}
+            aria-invalid={loadError ? true : undefined}
+            aria-describedby={loadError ? 'doctor-my-patients-load-err' : undefined}
           />
         </div>
+        <FieldError id="doctor-my-patients-load-err" className="!mt-0">
+          {loadError}
+        </FieldError>
 
         {loading ? (
           <p className="text-sm text-slate-500 dark:text-white py-8 text-center">Loading patients…</p>
@@ -268,7 +268,7 @@ export default function DoctorMyPatientsPage() {
                   <button
                     type="button"
                     disabled={safePage <= 1}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    onClick={() => merge({ page: safePage <= 2 ? null : String(safePage - 1) })}
                     className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 text-sm font-medium text-slate-700 dark:text-white disabled:opacity-40"
                   >
                     <ChevronLeft className="h-4 w-4" aria-hidden />
@@ -277,7 +277,7 @@ export default function DoctorMyPatientsPage() {
                   <button
                     type="button"
                     disabled={safePage >= totalPages}
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    onClick={() => merge({ page: String(safePage + 1) })}
                     className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 text-sm font-medium text-slate-700 dark:text-white disabled:opacity-40"
                   >
                     Next

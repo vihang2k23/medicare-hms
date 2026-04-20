@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMergeSearchParams } from '../shared/hooks/useMergeSearchParams'
 import { addWeeks, format, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight, CalendarDays, Printer } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -32,8 +33,15 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
   const appointments = useSelector((s: RootState) => s.appointments.appointments)
 
   const lockedDoctorId = variant === 'doctor' ? scheduleDoctorIdForAuthUser(user?.id) : null
-  const [weekStart, setWeekStart] = useState(() => startOfWeekMonday(new Date()))
-  const [pickedDoctorId, setPickedDoctorId] = useState('')
+  const { searchParams, merge } = useMergeSearchParams()
+  const weekStart = useMemo(() => {
+    const w = searchParams.get('week')
+    if (!w) return startOfWeekMonday(new Date())
+    const d = parseISO(w)
+    if (Number.isNaN(d.getTime())) return startOfWeekMonday(new Date())
+    return startOfWeekMonday(d)
+  }, [searchParams])
+  const pickedDoctorId = lockedDoctorId ? '' : (searchParams.get('doctor') ?? '')
   const doctorId = lockedDoctorId ?? (pickedDoctorId || doctors[0]?.id || '')
 
   useEffect(() => {
@@ -175,7 +183,9 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
         <div className="flex flex-wrap items-center gap-2 min-w-0">
           <button
             type="button"
-            onClick={() => setWeekStart((w) => addWeeks(w, -1))}
+            onClick={() =>
+              merge({ week: format(startOfWeekMonday(addWeeks(weekStart, -1)), 'yyyy-MM-dd') })
+            }
             className="p-2 rounded-xl border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
             aria-label="Previous week"
           >
@@ -183,14 +193,16 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
           </button>
           <button
             type="button"
-            onClick={() => setWeekStart(startOfWeekMonday(new Date()))}
+            onClick={() => merge({ week: format(startOfWeekMonday(new Date()), 'yyyy-MM-dd') })}
             className="px-3 py-2 rounded-xl text-sm font-semibold text-sky-700 dark:text-white bg-sky-500/10 hover:bg-sky-500/20"
           >
             Today
           </button>
           <button
             type="button"
-            onClick={() => setWeekStart((w) => addWeeks(w, 1))}
+            onClick={() =>
+              merge({ week: format(startOfWeekMonday(addWeeks(weekStart, 1)), 'yyyy-MM-dd') })
+            }
             className="p-2 rounded-xl border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
             aria-label="Next week"
           >
@@ -203,7 +215,7 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
               onChange={(e) => {
                 const v = e.target.value
                 if (!v) return
-                setWeekStart(startOfWeekMonday(parseISO(v)))
+                merge({ week: format(startOfWeekMonday(parseISO(v)), 'yyyy-MM-dd') })
               }}
               className="absolute inset-0 z-[1] h-full w-full cursor-pointer opacity-0"
               aria-label="Choose week to show in the schedule"
@@ -239,7 +251,7 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
                 label="Doctor"
                 items={doctors}
                 selectedId={doctorId}
-                onSelectId={setPickedDoctorId}
+                onSelectId={(id) => merge({ doctor: id || null })}
                 getId={(d) => d.id}
                 getLabel={(d) => `${d.name} · ${d.department}`}
                 filterItem={(d, query) => {

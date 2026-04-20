@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from 'react-router-dom'
+import { FieldError, FormInput, FormTextarea } from '../../shared/ui/form'
 import { SearchableIdPicker } from '../../shared/ui/SearchWithDropdown'
 import { filterLabeledOption } from '../../shared/ui/labeledOptionFilter'
 import {
@@ -55,12 +56,6 @@ const BLOOD_PICKER = [
 
 const stepSchemas = [step1Schema, step2Schema, step3Schema, step4Schema] as const
 
-function inputClass(error?: boolean) {
-  return `w-full px-3.5 py-2.5 rounded-xl border text-slate-800 dark:text-white bg-white/90 dark:bg-slate-900/40 shadow-sm ${
-    error ? 'border-red-500 ring-2 ring-red-500/20' : 'border-slate-200/90 dark:border-slate-600/80'
-  } focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500/50 transition-shadow`
-}
-
 interface PatientRegistrationFormProps {
   onSuccess?: () => void
   /** Where to navigate after successful save */
@@ -92,7 +87,8 @@ export default function PatientRegistrationForm({
   const form = useForm<PatientFormValues>({
     resolver: zodResolver(patientRegistrationSchema),
     defaultValues: initialRecord ? patientRecordToFormValues(initialRecord) : defaultValues,
-    mode: 'onTouched',
+    mode: 'onChange',
+    reValidateMode: 'onChange',
   })
 
   const {
@@ -252,13 +248,13 @@ export default function PatientRegistrationForm({
             <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Personal information</h2>
             <div>
               <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Full name</label>
-              <input {...register('fullName')} className={inputClass(!!errors.fullName)} />
-              {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>}
+              <FormInput {...register('fullName')} invalid={!!errors.fullName} variant="soft" />
+              <FieldError>{errors.fullName?.message}</FieldError>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Date of birth</label>
-              <input type="date" {...register('dob')} className={inputClass(!!errors.dob)} />
-              {errors.dob && <p className="text-red-500 text-sm mt-1">{errors.dob.message}</p>}
+              <FormInput type="date" {...register('dob')} invalid={!!errors.dob} variant="soft" />
+              <FieldError>{errors.dob?.message}</FieldError>
             </div>
             <div>
               <Controller
@@ -283,7 +279,7 @@ export default function PatientRegistrationForm({
                   />
                 )}
               />
-              {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender.message}</p>}
+              <FieldError>{errors.gender?.message}</FieldError>
             </div>
             <div>
               <Controller
@@ -308,7 +304,7 @@ export default function PatientRegistrationForm({
                   />
                 )}
               />
-              {errors.bloodGroup && <p className="text-red-500 text-sm mt-1">{errors.bloodGroup.message}</p>}
+              <FieldError>{errors.bloodGroup?.message}</FieldError>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Photo (optional)</label>
@@ -325,34 +321,34 @@ export default function PatientRegistrationForm({
             <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Contact & address</h2>
             <div>
               <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Phone</label>
-              <input {...register('phone')} className={inputClass(!!errors.phone)} />
-              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
+              <FormInput {...register('phone')} invalid={!!errors.phone} variant="soft" />
+              <FieldError>{errors.phone?.message}</FieldError>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Email</label>
-              <input type="email" {...register('email')} className={inputClass(!!errors.email)} />
-              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+              <FormInput type="email" {...register('email')} invalid={!!errors.email} variant="soft" />
+              <FieldError>{errors.email?.message}</FieldError>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Address</label>
-              <textarea {...register('address')} rows={2} className={inputClass(!!errors.address)} />
-              {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>}
+              <FormTextarea {...register('address')} rows={2} invalid={!!errors.address} variant="soft" />
+              <FieldError>{errors.address?.message}</FieldError>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">City</label>
-                <input {...register('city')} className={inputClass(!!errors.city)} />
-                {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city.message}</p>}
+                <FormInput {...register('city')} invalid={!!errors.city} variant="soft" />
+                <FieldError>{errors.city?.message}</FieldError>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">State</label>
-                <input {...register('state')} className={inputClass(!!errors.state)} />
-                {errors.state && <p className="text-red-500 text-sm mt-1">{errors.state.message}</p>}
+                <FormInput {...register('state')} invalid={!!errors.state} variant="soft" />
+                <FieldError>{errors.state?.message}</FieldError>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">PIN / ZIP</label>
-                <input {...register('pin')} className={inputClass(!!errors.pin)} />
-                {errors.pin && <p className="text-red-500 text-sm mt-1">{errors.pin.message}</p>}
+                <FormInput {...register('pin')} invalid={!!errors.pin} variant="soft" />
+                <FieldError>{errors.pin?.message}</FieldError>
               </div>
             </div>
           </div>
@@ -363,19 +359,19 @@ export default function PatientRegistrationForm({
             <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Medical history</h2>
             <div>
               <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Known allergies</label>
-              <textarea {...register('allergies')} rows={2} className={inputClass()} placeholder="None if not applicable" />
+              <FormTextarea {...register('allergies')} rows={2} variant="soft" placeholder="None if not applicable" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Chronic conditions</label>
-              <textarea {...register('chronicConditions')} rows={2} className={inputClass()} />
+              <FormTextarea {...register('chronicConditions')} rows={2} variant="soft" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Past surgeries</label>
-              <textarea {...register('pastSurgeries')} rows={2} className={inputClass()} />
+              <FormTextarea {...register('pastSurgeries')} rows={2} variant="soft" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Current medications</label>
-              <textarea {...register('currentMedications')} rows={2} className={inputClass()} />
+              <FormTextarea {...register('currentMedications')} rows={2} variant="soft" />
             </div>
           </div>
         )}
@@ -385,20 +381,18 @@ export default function PatientRegistrationForm({
             <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Emergency contact</h2>
             <div>
               <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Full name</label>
-              <input {...register('emergencyName')} className={inputClass(!!errors.emergencyName)} />
-              {errors.emergencyName && <p className="text-red-500 text-sm mt-1">{errors.emergencyName.message}</p>}
+              <FormInput {...register('emergencyName')} invalid={!!errors.emergencyName} variant="soft" />
+              <FieldError>{errors.emergencyName?.message}</FieldError>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Relationship</label>
-              <input {...register('emergencyRelationship')} className={inputClass(!!errors.emergencyRelationship)} />
-              {errors.emergencyRelationship && (
-                <p className="text-red-500 text-sm mt-1">{errors.emergencyRelationship.message}</p>
-              )}
+              <FormInput {...register('emergencyRelationship')} invalid={!!errors.emergencyRelationship} variant="soft" />
+              <FieldError>{errors.emergencyRelationship?.message}</FieldError>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Phone</label>
-              <input {...register('emergencyPhone')} className={inputClass(!!errors.emergencyPhone)} />
-              {errors.emergencyPhone && <p className="text-red-500 text-sm mt-1">{errors.emergencyPhone.message}</p>}
+              <FormInput {...register('emergencyPhone')} invalid={!!errors.emergencyPhone} variant="soft" />
+              <FieldError>{errors.emergencyPhone?.message}</FieldError>
             </div>
           </div>
         )}
@@ -436,7 +430,11 @@ export default function PatientRegistrationForm({
           </div>
         )}
 
-        {submitError && <p className="text-red-600 dark:text-white text-sm">{submitError}</p>}
+        {submitError && (
+          <FieldError className="!mt-0 mb-3" placement="above">
+            {submitError}
+          </FieldError>
+        )}
 
         <div className="flex flex-wrap gap-3 justify-between">
           {step === 0 && exitTo ? (

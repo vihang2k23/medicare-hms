@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { useMergeSearchParams } from '../shared/hooks/useMergeSearchParams'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-// PrescriptionsPage defines the Prescriptions Page UI surface and its primary interaction flow.
   Calendar,
   ChevronDown,
   ChevronUp,
@@ -20,6 +20,9 @@ import { removePrescription, updatePrescriptionStatus } from '../features/prescr
 import type { Prescription, PrescriptionStatus } from '../features/prescriptions/types'
 import PrescriptionForm from '../features/prescriptions/PrescriptionForm'
 import { notify } from '../shared/lib/notify'
+import { FormInput } from '../shared/ui/form'
+
+// PrescriptionsPage defines the prescriptions page UI surface and its primary interaction flow.
 
 export type PrescriptionsVariant = 'admin' | 'doctor'
 
@@ -274,11 +277,14 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
   const { user } = useAuth()
   const dispatch = useDispatch<AppDispatch>()
   const all = useSelector((s: RootState) => s.prescriptions.prescriptions)
-  const [searchParams, setSearchParams] = useSearchParams()
+  const { searchParams, merge } = useMergeSearchParams()
   const patientPrefill = searchParams.get('patient')
-  const [tab, setTab] = useState<'new' | 'history'>(() => (patientPrefill ? 'new' : 'history'))
-  const [q, setQ] = useState('')
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const q = searchParams.get('q') ?? ''
+  const statusRaw = (searchParams.get('status') ?? '') as StatusFilter
+  const statusFilter: StatusFilter = STATUS_FILTERS.some((f) => f.id === statusRaw) ? statusRaw : 'all'
+  const urlTab = searchParams.get('tab')
+  const tab: 'new' | 'history' =
+    urlTab === 'new' || urlTab === 'history' ? urlTab : patientPrefill ? 'new' : 'history'
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   const roleScoped = useMemo(() => {
@@ -350,7 +356,7 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
       <div className="flex flex-wrap gap-2 p-1 rounded-2xl bg-slate-100/90 dark:bg-slate-800/50 ring-1 ring-slate-200/60 dark:ring-slate-700/60 w-full sm:w-fit">
         <button
           type="button"
-          onClick={() => setTab('new')}
+          onClick={() => merge({ tab: 'new' })}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
             tab === 'new'
               ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
@@ -362,7 +368,7 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
         </button>
         <button
           type="button"
-          onClick={() => setTab('history')}
+          onClick={() => merge({ tab: 'history' })}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
             tab === 'history'
               ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
@@ -381,10 +387,7 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
         <PrescriptionForm
           variant={variant}
           initialPatientId={patientPrefill}
-          onSaved={() => {
-            setSearchParams({})
-            setTab('history')
-          }}
+          onSaved={() => merge({ patient: null, tab: 'history' })}
         />
       )}
 
@@ -417,17 +420,17 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
                 className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600 dark:text-slate-400 pointer-events-none"
                 aria-hidden
               />
-              <input
+              <FormInput
                 value={q}
-                onChange={(e) => setQ(e.target.value)}
+                onChange={(e) => merge({ q: e.target.value.trim() ? e.target.value : null })}
                 placeholder="Search by patient name, patient ID, or prescriber…"
                 aria-label="Search prescriptions"
-                className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50/80 dark:bg-slate-950/40 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500/50"
+                className="!pl-10 !pr-10 !py-3 bg-slate-50/80 dark:bg-slate-950/40"
               />
               {q.trim() !== '' && (
                 <button
                   type="button"
-                  onClick={() => setQ('')}
+                  onClick={() => merge({ q: null })}
                   className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-200/60 dark:hover:bg-slate-800"
                   aria-label="Clear search"
                 >
@@ -455,7 +458,7 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
                     <button
                       key={id}
                       type="button"
-                      onClick={() => setStatusFilter(id)}
+                      onClick={() => merge({ status: id === 'all' ? null : id })}
                       className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-colors ${
                         active
                           ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm'
@@ -499,10 +502,7 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
               </p>
               <button
                 type="button"
-                onClick={() => {
-                  setQ('')
-                  setStatusFilter('all')
-                }}
+                onClick={() => merge({ q: null, status: null })}
                 className="mt-4 px-4 py-2 rounded-xl text-sm font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700"
               >
                 Reset filters

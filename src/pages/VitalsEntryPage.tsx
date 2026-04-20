@@ -1,15 +1,16 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useMergeSearchParams } from '../shared/hooks/useMergeSearchParams'
 import { Activity, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Loader2, Search } from 'lucide-react'
 import { fetchPatients } from '../shared/api/patientsApi'
 import { fetchAllVitals } from '../shared/api/vitalsApi'
 import type { PatientRecord } from '../shared/types/patient'
 import type { VitalRecord } from '../shared/types/vitals'
-import { notify } from '../shared/lib/notify'
 import DashboardCard from '../shared/ui/DashboardCard'
 import { SearchableIdPicker } from '../shared/ui/SearchWithDropdown'
 import { filterLabeledOption } from '../shared/ui/labeledOptionFilter'
 import VitalsRecordModal from '../features/vitals/VitalsRecordModal'
+import { FieldError, FormInput } from '../shared/ui/form'
 
 // VitalsEntryPage defines the Vitals Entry Page UI surface and its primary interaction flow.
 function patientInitials(name: string): string {
@@ -19,9 +20,6 @@ function patientInitials(name: string): string {
   return `${parts[0]![0] ?? ''}${parts[parts.length - 1]![0] ?? ''}`.toUpperCase() || '?'
 }
 
-const fieldInput =
-  'w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white shadow-sm shadow-slate-200/20 dark:shadow-none focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400/50 transition-[box-shadow,border-color]'
-
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50] as const
 const PAGE_SIZE_ITEMS = PAGE_SIZE_OPTIONS.map((n) => ({ id: String(n), label: String(n) }))
 
@@ -30,15 +28,20 @@ function VitalsEntryPage() {
   const [patients, setPatients] = useState<PatientRecord[]>([])
   const [vitalsByPatient, setVitalsByPatient] = useState<Record<string, VitalRecord[]>>({})
   const [loading, setLoading] = useState(true)
-  const [query, setQuery] = useState('')
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const { searchParams, merge } = useMergeSearchParams()
+  const query = searchParams.get('q') ?? ''
+  const pageSizeRaw = searchParams.get('size')
+  const pageSize: (typeof PAGE_SIZE_OPTIONS)[number] = PAGE_SIZE_OPTIONS.includes(Number(pageSizeRaw) as (typeof PAGE_SIZE_OPTIONS)[number])
+    ? (Number(pageSizeRaw) as (typeof PAGE_SIZE_OPTIONS)[number])
+    : 10
   const [entryModalOpen, setEntryModalOpen] = useState(false)
   const [modalPatient, setModalPatient] = useState<PatientRecord | null>(null)
   const [patientDetailId, setPatientDetailId] = useState<string | null>(null)
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState<(typeof PAGE_SIZE_OPTIONS)[number]>(10)
 
   const loadAll = useCallback(async () => {
     setLoading(true)
+    setLoadError(null)
     try {
       const [plist, vlist] = await Promise.all([fetchPatients(), fetchAllVitals()])
       setPatients(plist)
@@ -52,7 +55,7 @@ function VitalsEntryPage() {
       }
       setVitalsByPatient(map)
     } catch (e) {
-      notify.error(e instanceof Error ? e.message : 'Could not load data — is JSON Server running?')
+      setLoadError(e instanceof Error ? e.message : 'Could not load data — is JSON Server running?')
       setPatients([])
       setVitalsByPatient({})
     } finally {
@@ -77,26 +80,20 @@ function VitalsEntryPage() {
 
   const totalFiltered = filteredPatients.length
   const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize))
+  const pageRaw = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1)
+  const safePage = Math.min(pageRaw, totalPages)
 
   const paginatedPatients = useMemo(() => {
-    const start = (page - 1) * pageSize
+    const start = (safePage - 1) * pageSize
     return filteredPatients.slice(start, start + pageSize)
-  }, [filteredPatients, page, pageSize])
+  }, [filteredPatients, safePage, pageSize])
 
-  const rangeStart = totalFiltered === 0 ? 0 : (page - 1) * pageSize + 1
-  const rangeEnd = Math.min(page * pageSize, totalFiltered)
-
-  useEffect(() => {
-    setPage(1)
-  }, [query])
-
-  useEffect(() => {
-    setPage((p) => Math.min(Math.max(1, p), totalPages))
-  }, [totalPages])
+  const rangeStart = totalFiltered === 0 ? 0 : (safePage - 1) * pageSize + 1
+  const rangeEnd = Math.min(safePage * pageSize, totalFiltered)
 
   useEffect(() => {
     setPatientDetailId(null)
-  }, [page, pageSize])
+  }, [safePage, pageSize])
 
   const refreshAfterSave = async () => {
     void loadAll()
@@ -144,13 +141,23 @@ function VitalsEntryPage() {
           <div className="space-y-4">
             <div className="relative max-w-xl">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
-              <input
+              <FormInput
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => {
+                  if (loadError) setLoadError(null)
+                  merge({ q: e.target.value.trim() ? e.target.value : null, page: null })
+                }}
                 placeholder="Search by name, patient ID, or phone"
-                className={`${fieldInput} pl-10`}
+                variant="orange"
+                className="!pl-10"
+                invalid={!!loadError}
+                aria-invalid={loadError ? true : undefined}
+                aria-describedby={loadError ? 'vitals-entry-load-err' : undefined}
               />
             </div>
+            <FieldError id="vitals-entry-load-err" className="!mt-1 max-w-xl">
+              {loadError}
+            </FieldError>
             <p className="text-xs text-slate-600 dark:text-slate-400">
               {totalFiltered} patient{totalFiltered === 1 ? '' : 's'}
               {query.trim()
@@ -325,10 +332,7 @@ function VitalsEntryPage() {
                     label="Rows per page"
                     items={PAGE_SIZE_ITEMS}
                     selectedId={String(pageSize)}
-                    onSelectId={(id) => {
-                      setPageSize(Number(id) as (typeof PAGE_SIZE_OPTIONS)[number])
-                      setPage(1)
-                    }}
+                    onSelectId={(id) => merge({ size: id === '10' ? null : id, page: null })}
                     getId={(o) => o.id}
                     getLabel={(o) => o.label}
                     filterItem={filterLabeledOption}
@@ -341,8 +345,8 @@ function VitalsEntryPage() {
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
-                      disabled={page <= 1}
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={safePage <= 1}
+                      onClick={() => merge({ page: safePage <= 2 ? null : String(safePage - 1) })}
                       className="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-600 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-white hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none"
                       aria-label="Previous page"
                     >
@@ -350,12 +354,12 @@ function VitalsEntryPage() {
                       Prev
                     </button>
                     <span className="text-xs font-medium text-slate-600 dark:text-white tabular-nums px-2 min-w-[6.5rem] text-center">
-                      Page {page} / {totalPages}
+                      Page {safePage} / {totalPages}
                     </span>
                     <button
                       type="button"
-                      disabled={page >= totalPages}
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={safePage >= totalPages}
+                      onClick={() => merge({ page: String(safePage + 1) })}
                       className="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-600 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-white hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none"
                       aria-label="Next page"
                     >

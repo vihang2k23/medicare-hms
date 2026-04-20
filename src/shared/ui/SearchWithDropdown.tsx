@@ -1,6 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronDown, Loader2, Search, X } from 'lucide-react'
+import { cn } from '../lib/cn'
+import { FIELD_CONTROL_CORE, FIELD_LABEL_CLASS, SEARCH_FIELD_FOCUS, type SearchFieldAccent } from './form/fieldStyles'
 import { LUCIDE_STROKE_FIELD } from './lucideChrome'
 
 /**
@@ -44,14 +46,7 @@ function useFixedMenuBelowAnchor(
 }
 
 // SearchWithDropdown defines the Search With Dropdown UI surface and its primary interaction flow.
-export type SearchAccent = 'sky' | 'orange' | 'violet' | 'emerald'
-
-const accentInput: Record<SearchAccent, string> = {
-  sky: 'focus:ring-sky-500/35 focus:border-sky-400/50',
-  orange: 'focus:ring-orange-500/35 focus:border-orange-400/50',
-  violet: 'focus:ring-violet-500/35 focus:border-violet-400/50',
-  emerald: 'focus:ring-emerald-500/35 focus:border-emerald-400/50',
-}
+export type SearchAccent = SearchFieldAccent
 
 export interface SearchableIdPickerProps<T> {
   id?: string
@@ -127,12 +122,12 @@ export function SearchableIdPicker<T>({
     setOpen(false)
   }
 
-  const ring = accentInput[accent]
+  const ring = SEARCH_FIELD_FOCUS[accent]
 
   return (
     <div ref={wrapRef} className={`relative z-[80] ${className}`}>
       {label && (
-        <label htmlFor={id} className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 mb-1.5">
+        <label htmlFor={id} className={FIELD_LABEL_CLASS}>
           {label}
         </label>
       )}
@@ -161,7 +156,12 @@ export function SearchableIdPicker<T>({
             setOpen(true)
             setQ('')
           }}
-          className={`relative z-10 w-full pl-10 pr-20 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-sm text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 [color-scheme:light] dark:[color-scheme:dark] shadow-sm focus:outline-none focus:ring-2 ${ring} disabled:opacity-60`}
+          className={cn(
+            FIELD_CONTROL_CORE,
+            'relative z-10 py-2.5 pl-10 pr-20',
+            ring,
+            'disabled:opacity-60',
+          )}
         />
         <div className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex items-center gap-0.5">
           {loading && (
@@ -290,7 +290,7 @@ export function SearchFilterCombobox<T>({
   const anchorRef = useRef<HTMLDivElement>(null)
   const menuPanelRef = useRef<HTMLUListElement>(null)
   const [open, setOpen] = useState(false)
-  const ring = accentInput[accent]
+  const ring = SEARCH_FIELD_FOCUS[accent]
   const menuStyle = useFixedMenuBelowAnchor(open && !disabled && !loading, anchorRef)
 
   const filtered = useMemo(() => {
@@ -312,7 +312,7 @@ export function SearchFilterCombobox<T>({
   return (
     <div ref={wrapRef} className={`relative z-[80] ${className}`}>
       {label && (
-        <label htmlFor={id} className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 mb-1.5">
+        <label htmlFor={id} className={FIELD_LABEL_CLASS}>
           {label}
         </label>
       )}
@@ -336,7 +336,7 @@ export function SearchFilterCombobox<T>({
           }}
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
-          className={`relative z-10 w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-sm text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 [color-scheme:light] dark:[color-scheme:dark] shadow-sm focus:outline-none focus:ring-2 ${ring} disabled:opacity-60`}
+          className={cn(FIELD_CONTROL_CORE, 'relative z-10 py-2.5 pl-10 pr-10', ring, 'disabled:opacity-60')}
         />
         {loading && (
           <Loader2

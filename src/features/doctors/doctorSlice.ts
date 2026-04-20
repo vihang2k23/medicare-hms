@@ -1,6 +1,10 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import type { NpiProviderCard } from '../../shared/lib/npiRegistryApi'
-import { hasMinimumNpiSearchCriteria, searchNpiRegistry } from '../../shared/lib/npiRegistryApi'
+import {
+  hasMinimumNpiSearchCriteria,
+  NPI_SEARCH_MINIMUM_CRITERIA_MESSAGE,
+  searchNpiRegistry,
+} from '../../shared/lib/npiRegistryApi'
 
 export interface SearchDoctorsArgs {
   firstName?: string
@@ -59,9 +63,7 @@ export const searchDoctors = createAsyncThunk(
     }
 
     if (!hasMinimumNpiSearchCriteria(params)) {
-      throw new Error(
-        'That combination is not enough for the NPI Registry (for example, state alone or only “United States” is not allowed). Add NPI, name, organization, taxonomy, city, or postal code.',
-      )
+      throw new Error(NPI_SEARCH_MINIMUM_CRITERIA_MESSAGE)
     }
 
     return searchNpiRegistry(params)

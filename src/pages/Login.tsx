@@ -9,6 +9,7 @@ import { DEMO_DOCTOR_USERS, DEMO_STAFF_USERS, demoEntryToAuthUser } from '../sha
 import { DEFAULT_SCHEDULE_DOCTORS } from '../features/appointments/appointmentsSlice'
 import Navbar from '../layouts/Navbar'
 import { notify } from '../shared/lib/notify'
+import { FieldError } from '../shared/ui/form'
 import { useAuth } from '../shared/hooks/useAuth'
 import { SearchableIdPicker } from '../shared/ui/SearchWithDropdown'
 import type { ScheduleDoctor } from '../features/appointments/types'
@@ -35,6 +36,7 @@ export default function Login() {
   const navigate = useNavigate()
   const { user, isAuthenticated } = useAuth()
   const [selectedDoctorId, setSelectedDoctorId] = useState(() => DEMO_DOCTOR_USERS[0]?.id ?? '')
+  const [doctorSelectErr, setDoctorSelectErr] = useState<string | null>(null)
 
   if (isAuthenticated && user) {
     return <Navigate to={getDefaultDashboard(user.role)} replace />
@@ -49,9 +51,10 @@ export default function Login() {
   const handleDoctorContinue = () => {
     const doc = DEMO_DOCTOR_USERS.find((d) => d.id === selectedDoctorId)
     if (!doc) {
-      notify.error('Select a doctor.')
+      setDoctorSelectErr('Select a doctor from the list.')
       return
     }
+    setDoctorSelectErr(null)
     handleLogin(doc)
   }
 
@@ -135,26 +138,32 @@ export default function Login() {
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-1 flex-col sm:flex-row gap-3 sm:items-center sm:justify-end min-w-0">
+                <div className="flex flex-1 flex-col sm:flex-row gap-3 sm:items-start sm:justify-end min-w-0">
                   <span className="sr-only">Doctor name</span>
-                  <SearchableIdPicker<ScheduleDoctor>
-                    id="login-doctor-select"
-                    items={DEFAULT_SCHEDULE_DOCTORS}
-                    selectedId={selectedDoctorId}
-                    onSelectId={setSelectedDoctorId}
-                    getId={(d) => d.id}
-                    getLabel={(d) => `${d.name} · ${d.department}`}
-                    filterItem={(d, q) => {
-                      const t = q.trim().toLowerCase()
-                      if (!t) return true
-                      return d.name.toLowerCase().includes(t) || d.department.toLowerCase().includes(t)
-                    }}
-                    placeholder="Search by name or department…"
-                    emptyLabel="Choose doctor"
-                    accent="sky"
-                    allowClear={false}
-                    className="w-full sm:max-w-md"
-                  />
+                  <div className="flex min-w-0 w-full flex-col sm:max-w-md">
+                    <SearchableIdPicker<ScheduleDoctor>
+                      id="login-doctor-select"
+                      items={DEFAULT_SCHEDULE_DOCTORS}
+                      selectedId={selectedDoctorId}
+                      onSelectId={(id) => {
+                        setSelectedDoctorId(id)
+                        if (id) setDoctorSelectErr(null)
+                      }}
+                      getId={(d) => d.id}
+                      getLabel={(d) => `${d.name} · ${d.department}`}
+                      filterItem={(d, q) => {
+                        const t = q.trim().toLowerCase()
+                        if (!t) return true
+                        return d.name.toLowerCase().includes(t) || d.department.toLowerCase().includes(t)
+                      }}
+                      placeholder="Search by name or department…"
+                      emptyLabel="Choose doctor"
+                      accent="sky"
+                      allowClear={false}
+                      className="w-full"
+                    />
+                    <FieldError>{doctorSelectErr}</FieldError>
+                  </div>
                   <button
                     type="button"
                     onClick={handleDoctorContinue}

@@ -7,6 +7,7 @@ import { notify } from '../../shared/lib/notify'
 import { useModalScrollLock } from '../../shared/hooks/useModalScrollLock'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../shared/ui/modalOverlayClasses'
 import { ModalPortal } from '../../shared/ui/ModalPortal'
+import { FieldError, FormInput, FormTextarea } from '../../shared/ui/form'
 import { SearchableIdPicker } from '../../shared/ui/SearchWithDropdown'
 import { filterLabeledOption } from '../../shared/ui/labeledOptionFilter'
 import type { Appointment, ScheduleDoctor } from './types'
@@ -43,6 +44,7 @@ function BookAppointmentModalOpen({
   const [reason, setReason] = useState('')
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(true)
+  const [patientErr, setPatientErr] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -66,9 +68,10 @@ function BookAppointmentModalOpen({
 
   const submit = () => {
     if (!selected) {
-      notify.error('Select a patient')
+      setPatientErr('Select a patient.')
       return
     }
+    setPatientErr(null)
     onConfirm(selected, reason.trim(), notes.trim())
     onClose()
   }
@@ -112,7 +115,11 @@ function BookAppointmentModalOpen({
               label="Patient"
               items={patients}
               selectedId={patientId}
-              onSelectId={setPatientId}
+              onSelectId={(id) => {
+                setPatientId(id)
+                if (!id) setPatientErr('Select a patient.')
+                else setPatientErr(null)
+              }}
               getId={(p) => p.id}
               getLabel={(p) => `${p.fullName} (${p.id})`}
               filterItem={(p, q) => {
@@ -127,23 +134,24 @@ function BookAppointmentModalOpen({
               loading={loading}
               disabled={loading && patients.length === 0}
             />
+            <FieldError>{patientErr}</FieldError>
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">Reason</label>
-            <input
+            <FormInput
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="e.g. Follow-up, new complaint"
-              className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+              className="!py-2.5"
             />
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">Notes</label>
-            <textarea
+            <FormTextarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
-              className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm resize-none"
+              className="resize-none !min-h-0 !py-2.5"
             />
           </div>
           <div className="flex gap-2 pt-2">
@@ -203,6 +211,7 @@ function ManageAppointmentModalContent({
 }: Omit<ManageModalProps, 'open' | 'appointment'> & { appointment: Appointment }) {
   const [newDate, setNewDate] = useState(appointment.date)
   const [newSlot, setNewSlot] = useState(`${appointment.slotStart}|${appointment.slotEnd}`)
+  const [slotErr, setSlotErr] = useState<string | null>(null)
 
   const slotOptions = useMemo(() => {
     if (!newDate) return []
@@ -221,9 +230,10 @@ function ManageAppointmentModalContent({
   const applyReschedule = () => {
     const [start, end] = newSlot.split('|')
     if (!start || !end) {
-      notify.error('Choose a time slot')
+      setSlotErr('Choose a time slot.')
       return
     }
+    setSlotErr(null)
     onReschedule(newDate, start, end)
     onClose()
   }
@@ -274,14 +284,15 @@ function ManageAppointmentModalContent({
           <p className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Reschedule</p>
           <div>
             <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">New date</label>
-            <input
+            <FormInput
               type="date"
               value={newDate}
               onChange={(e) => {
                 setNewDate(e.target.value)
                 setNewSlot('')
+                setSlotErr(null)
               }}
-              className="w-full px-3 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-950/50 text-sm"
+              className="!py-2.5"
             />
           </div>
           <div>
@@ -290,7 +301,11 @@ function ManageAppointmentModalContent({
               label="New slot"
               items={slotPickerRows}
               selectedId={newSlot}
-              onSelectId={setNewSlot}
+              onSelectId={(id) => {
+                setNewSlot(id)
+                if (!id) setSlotErr('Choose a time slot.')
+                else setSlotErr(null)
+              }}
               getId={(o) => o.id}
               getLabel={(o) => o.label}
               filterItem={filterLabeledOption}
@@ -299,6 +314,7 @@ function ManageAppointmentModalContent({
               accent="violet"
               allowClear={false}
             />
+            <FieldError>{slotErr}</FieldError>
           </div>
           <button
             type="button"

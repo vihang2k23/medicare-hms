@@ -7,10 +7,10 @@ import { Building2, Layers, Pencil, Plus, Shield, Trash2, X } from 'lucide-react
 import type { AppDispatch, RootState } from '../../app/store'
 import { notify } from '../../shared/lib/notify'
 import { addWard, removeWard, updateWard } from './bedSlice'
+import { FieldError, FormInput } from '../../shared/ui/form'
 
 // WardManagementPanel defines the Ward Management Panel UI surface and its primary interaction flow.
-const inputClass =
-  'w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-950/60 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500/35 focus:border-teal-400/40 transition-[box-shadow,border-color]'
+const wardInputClass = '!focus:ring-teal-500/35 !focus:border-teal-400/40'
 
 function ModalShell({
   title,
@@ -77,6 +77,10 @@ export default function WardManagementPanel() {
   const [editId, setEditId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const [removeId, setRemoveId] = useState<string | null>(null)
+  const [addNameErr, setAddNameErr] = useState<string | null>(null)
+  const [editNameErr, setEditNameErr] = useState<string | null>(null)
+  const [addNameBlurred, setAddNameBlurred] = useState(false)
+  const [editNameBlurred, setEditNameBlurred] = useState(false)
 
   useModalScrollLock(addOpen || editId != null || removeId != null)
 
@@ -85,9 +89,10 @@ export default function WardManagementPanel() {
   const submitAdd = () => {
     const name = addName.trim()
     if (!name) {
-      notify.error('Enter a ward name')
+      setAddNameErr('Enter a ward name.')
       return
     }
+    setAddNameErr(null)
     dispatch(addWard({ name }))
     notify.success(`Ward “${name}” added with one available bed`)
     setAddName('')
@@ -97,15 +102,18 @@ export default function WardManagementPanel() {
   const openEdit = (wardId: string, name: string) => {
     setEditId(wardId)
     setEditName(name)
+    setEditNameErr(null)
+    setEditNameBlurred(false)
   }
 
   const submitEdit = () => {
     if (!editId) return
     const name = editName.trim()
     if (!name) {
-      notify.error('Enter a ward name')
+      setEditNameErr('Enter a ward name.')
       return
     }
+    setEditNameErr(null)
     dispatch(updateWard({ wardId: editId, name }))
     notify.success('Ward updated')
     setEditId(null)
@@ -144,6 +152,8 @@ export default function WardManagementPanel() {
             type="button"
             onClick={() => {
               setAddName('')
+              setAddNameErr(null)
+              setAddNameBlurred(false)
               setAddOpen(true)
             }}
             className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold shadow-lg shadow-teal-600/20 transition-colors shrink-0 w-full sm:w-auto"
@@ -214,7 +224,11 @@ export default function WardManagementPanel() {
         <ModalShell
           title="Add ward"
           description="Creates a new ward with one available bed. You can manage beds in the grid below."
-          onClose={() => setAddOpen(false)}
+          onClose={() => {
+            setAddOpen(false)
+            setAddNameErr(null)
+            setAddNameBlurred(false)
+          }}
           footer={
             <>
               <button
@@ -237,16 +251,27 @@ export default function WardManagementPanel() {
           <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
             Ward name
           </label>
-          <input
+          <FormInput
             value={addName}
-            onChange={(e) => setAddName(e.target.value)}
+            invalid={!!addNameErr}
+            onChange={(e) => {
+              const v = e.target.value
+              setAddName(v)
+              if (v.trim()) setAddNameErr(null)
+              else if (addNameBlurred) setAddNameErr('Enter a ward name.')
+            }}
+            onBlur={() => {
+              setAddNameBlurred(true)
+              if (!addName.trim()) setAddNameErr('Enter a ward name.')
+            }}
             placeholder="e.g. Maternity Ward"
-            className={inputClass}
+            className={wardInputClass}
             autoFocus
             onKeyDown={(e) => {
               if (e.key === 'Enter') submitAdd()
             }}
           />
+          <FieldError>{addNameErr}</FieldError>
         </ModalShell>
       )}
 
@@ -254,12 +279,20 @@ export default function WardManagementPanel() {
         <ModalShell
           title="Rename ward"
           description="Updates the display name on all beds in this ward."
-          onClose={() => setEditId(null)}
+          onClose={() => {
+            setEditId(null)
+            setEditNameErr(null)
+            setEditNameBlurred(false)
+          }}
           footer={
             <>
               <button
                 type="button"
-                onClick={() => setEditId(null)}
+                onClick={() => {
+                  setEditId(null)
+                  setEditNameErr(null)
+                  setEditNameBlurred(false)
+                }}
                 className="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-white hover:bg-slate-200/70 dark:hover:bg-slate-800 transition-colors"
               >
                 Cancel
@@ -280,15 +313,26 @@ export default function WardManagementPanel() {
           <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
             Ward name
           </label>
-          <input
+          <FormInput
             value={editName}
-            onChange={(e) => setEditName(e.target.value)}
-            className={inputClass}
+            invalid={!!editNameErr}
+            onChange={(e) => {
+              const v = e.target.value
+              setEditName(v)
+              if (v.trim()) setEditNameErr(null)
+              else if (editNameBlurred) setEditNameErr('Enter a ward name.')
+            }}
+            onBlur={() => {
+              setEditNameBlurred(true)
+              if (!editName.trim()) setEditNameErr('Enter a ward name.')
+            }}
+            className={wardInputClass}
             autoFocus
             onKeyDown={(e) => {
               if (e.key === 'Enter') submitEdit()
             }}
           />
+          <FieldError>{editNameErr}</FieldError>
         </ModalShell>
       )}
 
