@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { UserPen } from 'lucide-react'
 import type { PatientRecord } from '../shared/types/patient'
 import { fetchPatientById } from '../shared/api/patientsApi'
 import PatientRegistrationForm from '../features/patients/PatientRegistrationForm'
@@ -72,7 +73,12 @@ function PatientEditLoaded({ patientId }: { patientId: string }) {
         >
           ← Profile
         </Link>
-        <h1 className="text-2xl font-semibold text-slate-800 dark:text-white mt-2">Edit patient</h1>
+        <h1 className="text-2xl font-semibold text-slate-800 dark:text-white mt-2 flex items-center gap-3 flex-wrap">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-500/15 dark:bg-sky-400/20 ring-1 ring-sky-500/25 dark:ring-sky-400/30">
+            <UserPen className="h-5 w-5 text-sky-600 dark:text-sky-300" aria-hidden />
+          </span>
+          Edit patient
+        </h1>
         <p className="text-slate-600 dark:text-slate-400 text-sm mt-1 font-mono">{patient.id}</p>
       </div>
       <PatientRegistrationForm

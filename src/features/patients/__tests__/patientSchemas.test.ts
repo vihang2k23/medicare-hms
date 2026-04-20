@@ -56,6 +56,19 @@ describe('step1Schema', () => {
     })
     expect(r.success).toBe(false)
   })
+
+  it('rejects future date of birth', () => {
+    const r = step1Schema.safeParse({
+      fullName: 'Jane Doe',
+      dob: '2099-12-31',
+      gender: 'male',
+      bloodGroup: 'A+',
+    })
+    expect(r.success).toBe(false)
+    if (!r.success) {
+      expect(r.error.flatten().fieldErrors.dob?.join('')).toMatch(/future/i)
+    }
+  })
 })
 
 describe('step2Schema', () => {

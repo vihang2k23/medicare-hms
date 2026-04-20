@@ -1,7 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import { Calendar, ExternalLink, FileText, Receipt } from 'lucide-react'
+import {
+  Activity,
+  Calendar,
+  ExternalLink,
+  FileText,
+  Pencil,
+  Pill,
+  Receipt,
+  UserRound,
+} from 'lucide-react'
 import { format } from 'date-fns'
 import type { RootState } from '../app/store'
 import type { PatientRecord } from '../shared/types/patient'
@@ -223,8 +232,9 @@ export default function PatientProfilePage() {
           </Link>
           <Link
             to={`/admin/patients/${encodeURIComponent(patient.id)}/edit`}
-            className="inline-flex justify-center px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-sm font-medium"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-sm font-medium"
           >
+            <Pencil className="h-4 w-4 shrink-0" aria-hidden />
             Edit
           </Link>
         </div>
@@ -233,23 +243,24 @@ export default function PatientProfilePage() {
       <div className="border-b border-slate-200 dark:border-slate-700 flex gap-1 overflow-x-auto overflow-y-hidden -mx-1 px-1">
         {(
           [
-            ['overview', 'Overview'],
-            ['appointments', 'Appointments'],
-            ['prescriptions', 'Prescriptions'],
-            ['vitals', 'Vitals'],
-            ['billing', 'Billing'],
+            ['overview', 'Overview', UserRound],
+            ['appointments', 'Appointments', Calendar],
+            ['prescriptions', 'Prescriptions', Pill],
+            ['vitals', 'Vitals', Activity],
+            ['billing', 'Billing', Receipt],
           ] as const
-        ).map(([id, label]) => (
+        ).map(([id, label, TabIcon]) => (
           <button
             key={id}
             type="button"
             onClick={() => setTabInUrl(id)}
-            className={`shrink-0 px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 -mb-px transition-colors ${
+            className={`inline-flex shrink-0 items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 -mb-px transition-colors ${
               tab === id
                 ? 'border-sky-600 text-sky-600 dark:text-white dark:border-sky-400'
                 : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white'
             }`}
           >
+            <TabIcon className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
             {label}
           </button>
         ))}

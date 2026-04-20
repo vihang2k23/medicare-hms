@@ -48,6 +48,7 @@ function renderForm() {
 describe('PatientRegistrationForm', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    localStorage.clear()
   })
 
   it('shows validation errors when Next is pressed with empty step 1', async () => {

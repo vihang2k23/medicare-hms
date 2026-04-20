@@ -6,10 +6,18 @@ import type { RootState } from '../app/store'
 import type { Appointment } from '../features/appointments/types'
 import type { PatientRecord } from '../shared/types/patient'
 import {
+  Building2,
+  Cake,
+  Calendar,
   ChevronLeft,
   ChevronRight,
+  Droplet,
+  Filter,
+  ListFilter,
   Loader2,
+  PersonStanding,
   SearchX,
+  UserCheck,
   UserPlus,
   Users,
 } from 'lucide-react'
@@ -19,6 +27,8 @@ import { FieldError, FormInput } from '../shared/ui/form'
 import DashboardCard from '../shared/ui/DashboardCard'
 import { SearchFilterCombobox, SearchableIdPicker } from '../shared/ui/SearchWithDropdown'
 import { filterLabeledOption } from '../shared/ui/labeledOptionFilter'
+import { isoDateLocalToday } from '../features/patients/patientSchemas'
+import { LUCIDE_STROKE_FIELD } from '../shared/ui/lucideChrome'
 
 const PAGE_SIZE = 10
 
@@ -244,6 +254,23 @@ export default function PatientListPage() {
     return null
   }, [regFrom, regTo])
 
+  const todayStr = useMemo(() => isoDateLocalToday(), [])
+
+  /** "From" cannot be after "to" or after today. */
+  const regFromMax = useMemo(() => {
+    if (!regTo.trim()) return todayStr
+    return regTo < todayStr ? regTo : todayStr
+  }, [regTo, todayStr])
+
+  const regToMin = regFrom.trim() || undefined
+
+  useEffect(() => {
+    if (!regFrom.trim() || !regTo.trim()) return
+    if (regFrom > regTo) {
+      merge({ regTo: regFrom, page: null })
+    }
+  }, [regFrom, regTo, merge])
+
   const deactivate = async (p: PatientRecord) => {
     if (!window.confirm(`Soft-delete (deactivate) patient ${p.fullName} (${p.id})? They will be hidden from this list.`)) {
       return
@@ -305,20 +332,35 @@ export default function PatientListPage() {
       {/* Quick stats */}
       {!loading && patients.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/50 px-4 py-3 ring-1 ring-slate-200/40 dark:ring-slate-700/40">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Total</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums mt-0.5">{patients.length}</p>
+          <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/50 px-4 py-3 ring-1 ring-slate-200/40 dark:ring-slate-700/40 flex gap-3 items-start">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 ring-1 ring-slate-200/80 dark:ring-slate-600/60">
+              <Users className="h-5 w-5" aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Total</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums mt-0.5">{patients.length}</p>
+            </div>
           </div>
-          <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/50 px-4 py-3 ring-1 ring-slate-200/40 dark:ring-slate-700/40">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Showing</p>
-            <p className="text-2xl font-bold text-sky-700 dark:text-white tabular-nums mt-0.5">{filtered.length}</p>
+          <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/50 px-4 py-3 ring-1 ring-slate-200/40 dark:ring-slate-700/40 flex gap-3 items-start">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 ring-1 ring-sky-200/70 dark:ring-sky-900/50">
+              <UserCheck className="h-5 w-5" aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Showing</p>
+              <p className="text-2xl font-bold text-sky-700 dark:text-white tabular-nums mt-0.5">{filtered.length}</p>
+            </div>
           </div>
-          <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/50 px-4 py-3 ring-1 ring-slate-200/40 dark:ring-slate-700/40 col-span-2 sm:col-span-2 flex items-center justify-between gap-2">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Filters</p>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
-                {activeFilters ? 'Refining list' : 'None applied'}
-              </p>
+          <div className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/50 px-4 py-3 ring-1 ring-slate-200/40 dark:ring-slate-700/40 col-span-2 sm:col-span-2 flex items-center justify-between gap-3">
+            <div className="flex gap-3 items-start min-w-0">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-50 dark:bg-violet-950/35 text-violet-600 dark:text-violet-300 ring-1 ring-violet-200/70 dark:ring-violet-900/45">
+                <Filter className="h-5 w-5" aria-hidden />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Filters</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+                  {activeFilters ? 'Refining list' : 'None applied'}
+                </p>
+              </div>
             </div>
             {activeFilters && (
               <button
@@ -346,7 +388,15 @@ export default function PatientListPage() {
         </div>
       )}
 
-      <DashboardCard title="Search & filters" className="relative z-20">
+      <DashboardCard
+        title={
+          <span className="inline-flex items-center gap-2">
+            <ListFilter className="h-4 w-4 text-sky-600 dark:text-sky-400 shrink-0" aria-hidden />
+            Search &amp; filters
+          </span>
+        }
+        className="relative z-20"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 items-start">
           <div className="lg:col-span-2 min-w-0 w-full">
             <SearchFilterCombobox<PatientRecord>
@@ -387,6 +437,7 @@ export default function PatientListPage() {
             <SearchableIdPicker<{ id: string; label: string }>
               id="patient-blood-filter"
               label="Blood group"
+              inputLeadingIcon={Droplet}
               items={bloodFilterItems}
               selectedId={bloodFilter}
               onSelectId={(id) => merge({ blood: id || null, page: null })}
@@ -404,6 +455,7 @@ export default function PatientListPage() {
             <SearchableIdPicker<{ id: string; label: string }>
               id="patient-gender-filter"
               label="Gender"
+              inputLeadingIcon={PersonStanding}
               items={genderFilterItems}
               selectedId={genderFilter}
               onSelectId={(id) => merge({ gender: id || null, page: null })}
@@ -427,19 +479,27 @@ export default function PatientListPage() {
             >
               Min age
             </label>
-            <FormInput
-              id="patient-age-min"
-              type="number"
-              min={0}
-              max={130}
-              inputMode="numeric"
-              placeholder="Any"
-              value={ageMin}
-              onChange={(e) => merge({ ageMin: e.target.value.trim() || null, page: null })}
-              invalid={!!ageRangeFilterError}
-              aria-invalid={ageRangeFilterError ? true : undefined}
-              aria-describedby={ageRangeFilterError ? 'patient-list-age-range-err' : undefined}
-            />
+            <div className="relative">
+              <Cake
+                className={`absolute left-3 top-1/2 z-20 h-[18px] w-[18px] -translate-y-1/2 pointer-events-none ${LUCIDE_STROKE_FIELD}`}
+                strokeWidth={2.5}
+                aria-hidden
+              />
+              <FormInput
+                id="patient-age-min"
+                type="number"
+                min={0}
+                max={130}
+                inputMode="numeric"
+                placeholder="Any"
+                value={ageMin}
+                onChange={(e) => merge({ ageMin: e.target.value.trim() || null, page: null })}
+                invalid={!!ageRangeFilterError}
+                aria-invalid={ageRangeFilterError ? true : undefined}
+                aria-describedby={ageRangeFilterError ? 'patient-list-age-range-err' : undefined}
+                className="relative z-10 pl-10"
+              />
+            </div>
           </div>
           <div>
             <label
@@ -448,19 +508,27 @@ export default function PatientListPage() {
             >
               Max age
             </label>
-            <FormInput
-              id="patient-age-max"
-              type="number"
-              min={0}
-              max={130}
-              inputMode="numeric"
-              placeholder="Any"
-              value={ageMax}
-              onChange={(e) => merge({ ageMax: e.target.value.trim() || null, page: null })}
-              invalid={!!ageRangeFilterError}
-              aria-invalid={ageRangeFilterError ? true : undefined}
-              aria-describedby={ageRangeFilterError ? 'patient-list-age-range-err' : undefined}
-            />
+            <div className="relative">
+              <Cake
+                className={`absolute left-3 top-1/2 z-20 h-[18px] w-[18px] -translate-y-1/2 pointer-events-none ${LUCIDE_STROKE_FIELD}`}
+                strokeWidth={2.5}
+                aria-hidden
+              />
+              <FormInput
+                id="patient-age-max"
+                type="number"
+                min={0}
+                max={130}
+                inputMode="numeric"
+                placeholder="Any"
+                value={ageMax}
+                onChange={(e) => merge({ ageMax: e.target.value.trim() || null, page: null })}
+                invalid={!!ageRangeFilterError}
+                aria-invalid={ageRangeFilterError ? true : undefined}
+                aria-describedby={ageRangeFilterError ? 'patient-list-age-range-err' : undefined}
+                className="relative z-10 pl-10"
+              />
+            </div>
             <FieldError id="patient-list-age-range-err" className="!mt-1">
               {ageRangeFilterError}
             </FieldError>
@@ -472,15 +540,34 @@ export default function PatientListPage() {
             >
               Registered from
             </label>
-            <FormInput
-              id="patient-reg-from"
-              type="date"
-              value={regFrom}
-              onChange={(e) => merge({ regFrom: e.target.value || null, page: null })}
-              invalid={!!regRangeFilterError}
-              aria-invalid={regRangeFilterError ? true : undefined}
-              aria-describedby={regRangeFilterError ? 'patient-list-reg-range-err' : undefined}
-            />
+            <div className="relative">
+              <Calendar
+                className={`absolute left-3 top-1/2 z-20 h-[18px] w-[18px] -translate-y-1/2 pointer-events-none ${LUCIDE_STROKE_FIELD}`}
+                strokeWidth={2.5}
+                aria-hidden
+              />
+              <FormInput
+                id="patient-reg-from"
+                type="date"
+                max={regFromMax}
+                value={regFrom}
+                onChange={(e) => {
+                  if (loadError) setLoadError(null)
+                  const v = e.target.value
+                  if (!v) {
+                    merge({ regFrom: null, page: null })
+                    return
+                  }
+                  const patch: Record<string, string | null> = { regFrom: v, page: null }
+                  if (regTo && v > regTo) patch.regTo = v
+                  merge(patch)
+                }}
+                invalid={!!regRangeFilterError}
+                aria-invalid={regRangeFilterError ? true : undefined}
+                aria-describedby={regRangeFilterError ? 'patient-list-reg-range-err' : undefined}
+                className="relative z-10 pl-10 min-h-[42px]"
+              />
+            </div>
           </div>
           <div>
             <label
@@ -489,15 +576,35 @@ export default function PatientListPage() {
             >
               Registered to
             </label>
-            <FormInput
-              id="patient-reg-to"
-              type="date"
-              value={regTo}
-              onChange={(e) => merge({ regTo: e.target.value || null, page: null })}
-              invalid={!!regRangeFilterError}
-              aria-invalid={regRangeFilterError ? true : undefined}
-              aria-describedby={regRangeFilterError ? 'patient-list-reg-range-err' : undefined}
-            />
+            <div className="relative">
+              <Calendar
+                className={`absolute left-3 top-1/2 z-20 h-[18px] w-[18px] -translate-y-1/2 pointer-events-none ${LUCIDE_STROKE_FIELD}`}
+                strokeWidth={2.5}
+                aria-hidden
+              />
+              <FormInput
+                id="patient-reg-to"
+                type="date"
+                min={regToMin}
+                max={todayStr}
+                value={regTo}
+                onChange={(e) => {
+                  if (loadError) setLoadError(null)
+                  const v = e.target.value
+                  if (!v) {
+                    merge({ regTo: null, page: null })
+                    return
+                  }
+                  const patch: Record<string, string | null> = { regTo: v, page: null }
+                  if (regFrom && v < regFrom) patch.regFrom = v
+                  merge(patch)
+                }}
+                invalid={!!regRangeFilterError}
+                aria-invalid={regRangeFilterError ? true : undefined}
+                aria-describedby={regRangeFilterError ? 'patient-list-reg-range-err' : undefined}
+                className="relative z-10 pl-10 min-h-[42px]"
+              />
+            </div>
             <FieldError id="patient-list-reg-range-err" className="!mt-1">
               {regRangeFilterError}
             </FieldError>
@@ -506,6 +613,7 @@ export default function PatientListPage() {
             <SearchableIdPicker<{ id: string; label: string }>
               id="patient-dept-filter"
               label="Department (from appointments)"
+              inputLeadingIcon={Building2}
               items={departmentFilterItems}
               selectedId={departmentFilter}
               onSelectId={(id) => merge({ dept: id || null, page: null })}

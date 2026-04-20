@@ -1,9 +1,23 @@
 import { z } from 'zod'
 import type { PatientRecord } from '../../shared/types/patient'
 
+/** Local `YYYY-MM-DD` for browser date inputs — no future DOB. */
+export function isoDateLocalToday(): string {
+  const d = new Date()
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
 export const step1Schema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-  dob: z.string().min(1, 'Date of birth is required'),
+  dob: z
+    .string()
+    .min(1, 'Date of birth is required')
+    .refine((s) => /^\d{4}-\d{2}-\d{2}$/.test(s) && s <= isoDateLocalToday(), {
+      message: 'Date of birth cannot be in the future',
+    }),
   gender: z.enum(['male', 'female', 'other'], { message: 'Select gender' }),
   bloodGroup: z.string().min(1, 'Blood group is required'),
   photo: z.string().optional().nullable(),

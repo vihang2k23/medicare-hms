@@ -1,11 +1,20 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from 'react-router-dom'
-import { FieldError, FormInput, FormTextarea } from '../../shared/ui/form'
+import {
+  ClipboardCheck,
+  HeartPulse,
+  ImagePlus,
+  MapPin,
+  Phone,
+  User,
+} from 'lucide-react'
+import { FieldError, FieldLabel, FormInput, FormTextarea } from '../../shared/ui/form'
 import { SearchableIdPicker } from '../../shared/ui/SearchWithDropdown'
 import { filterLabeledOption } from '../../shared/ui/labeledOptionFilter'
 import {
+  isoDateLocalToday,
   patientRegistrationSchema,
   step1Schema,
   step2Schema,
@@ -43,6 +52,8 @@ const defaultValues: PatientFormValues = {
 
 const STEPS = ['Personal', 'Contact', 'Medical', 'Emergency', 'Review'] as const
 
+const STEP_ICONS = [User, MapPin, HeartPulse, Phone, ClipboardCheck] as const
+
 const GENDER_PICKER = [
   { id: 'male', label: 'Male' },
   { id: 'female', label: 'Female' },
@@ -55,6 +66,8 @@ const BLOOD_PICKER = [
 ]
 
 const stepSchemas = [step1Schema, step2Schema, step3Schema, step4Schema] as const
+
+const FORM_STORAGE_KEY = 'medicare_hms_patient_registration_form'
 
 interface PatientRegistrationFormProps {
   onSuccess?: () => void
@@ -79,14 +92,47 @@ export default function PatientRegistrationForm({
   initialRecord = null,
 }: PatientRegistrationFormProps) {
   const navigate = useNavigate()
-  const [step, setStep] = useState(0)
+
+  // Load persisted step
+  const getInitialStep = () => {
+    if (initialRecord) return 0
+    try {
+      const stored = localStorage.getItem(FORM_STORAGE_KEY)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        return parsed.step || 0
+      }
+    } catch {
+      // Ignore parse errors
+    }
+    return 0
+  }
+
+  const [step, setStep] = useState(getInitialStep)
+  const stepRef = useRef(step)
+  stepRef.current = step
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const isEdit = !!initialRecord
 
+  // Load persisted data if no initialRecord
+  const getInitialData = () => {
+    if (initialRecord) return patientRecordToFormValues(initialRecord)
+    try {
+      const stored = localStorage.getItem(FORM_STORAGE_KEY)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        return { ...defaultValues, ...parsed.data }
+      }
+    } catch {
+      // Ignore parse errors
+    }
+    return defaultValues
+  }
+
   const form = useForm<PatientFormValues>({
     resolver: zodResolver(patientRegistrationSchema),
-    defaultValues: initialRecord ? patientRecordToFormValues(initialRecord) : defaultValues,
+    defaultValues: getInitialData(),
     mode: 'onChange',
     reValidateMode: 'onChange',
   })
@@ -108,6 +154,28 @@ export default function PatientRegistrationForm({
       setStep(0)
     }
   }, [initialRecord, reset])
+
+  // Persist form data and step to localStorage (subscribe so typing is saved; step via ref)
+  useEffect(() => {
+    if (isEdit) return
+    const persist = () => {
+      try {
+        localStorage.setItem(
+          FORM_STORAGE_KEY,
+          JSON.stringify({
+            data: form.getValues(),
+            step: stepRef.current,
+            timestamp: Date.now(),
+          }),
+        )
+      } catch {
+        /* quota / private mode */
+      }
+    }
+    persist()
+    const sub = watch(() => persist())
+    return () => sub.unsubscribe()
+  }, [watch, isEdit, form])
 
   const next = async () => {
     setSubmitError(null)
@@ -186,6 +254,7 @@ export default function PatientRegistrationForm({
         isActive: true,
       }
       await createPatient(record)
+      localStorage.removeItem(FORM_STORAGE_KEY)
       onSuccess?.()
       notify.success(`Patient registered · ${id}`)
       navigate(redirectTo, { replace: false, state: { registeredId: id } })
@@ -219,14 +288,22 @@ export default function PatientRegistrationForm({
       {/* Progress */}
       <div className="mb-8">
         <div className="flex gap-3 sm:gap-0 sm:justify-between text-xs font-medium text-slate-600 dark:text-slate-400 mb-2 overflow-x-auto pb-1 -mx-1 px-1 scroll-pl-1">
-          {STEPS.map((label, i) => (
-            <span
-              key={label}
-              className={`shrink-0 whitespace-nowrap ${i <= step ? 'text-sky-600 dark:text-white' : ''}`}
-            >
-              {label}
-            </span>
-          ))}
+          {STEPS.map((label, i) => {
+            const Icon = STEP_ICONS[i]!
+            const active = i <= step
+            return (
+              <span
+                key={label}
+                className={`inline-flex items-center gap-1 shrink-0 whitespace-nowrap ${active ? 'text-sky-600 dark:text-white' : ''}`}
+              >
+                <Icon
+                  className={`h-3.5 w-3.5 shrink-0 ${active ? 'text-sky-600 dark:text-sky-400' : 'text-slate-400 dark:text-slate-500'}`}
+                  aria-hidden
+                />
+                {label}
+              </span>
+            )
+          })}
         </div>
         <div className="h-2.5 rounded-full bg-slate-200/80 dark:bg-slate-800 overflow-hidden ring-1 ring-slate-200/50 dark:ring-slate-700/50">
           <div
@@ -245,15 +322,34 @@ export default function PatientRegistrationForm({
       >
         {step === 0 && (
           <div className="space-y-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/45 backdrop-blur-sm p-6 sm:p-7 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
-            <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Personal information</h2>
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+              <User className="h-5 w-5 text-sky-600 dark:text-sky-400 shrink-0" aria-hidden />
+              Personal information
+            </h2>
             <div>
-              <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Full name</label>
-              <FormInput {...register('fullName')} invalid={!!errors.fullName} variant="soft" />
+              <FieldLabel htmlFor="patient-reg-fullName" className="block mb-1" required>
+                Full name
+              </FieldLabel>
+              <FormInput
+                id="patient-reg-fullName"
+                {...register('fullName')}
+                invalid={!!errors.fullName}
+                variant="soft"
+              />
               <FieldError>{errors.fullName?.message}</FieldError>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Date of birth</label>
-              <FormInput type="date" {...register('dob')} invalid={!!errors.dob} variant="soft" />
+              <FieldLabel htmlFor="patient-reg-dob" className="block mb-1" required>
+                Date of birth
+              </FieldLabel>
+              <FormInput
+                id="patient-reg-dob"
+                type="date"
+                max={isoDateLocalToday()}
+                {...register('dob')}
+                invalid={!!errors.dob}
+                variant="soft"
+              />
               <FieldError>{errors.dob?.message}</FieldError>
             </div>
             <div>
@@ -265,6 +361,7 @@ export default function PatientRegistrationForm({
                     id="patient-reg-gender"
                     name="gender"
                     label="Gender"
+                    labelRequired
                     items={GENDER_PICKER}
                     selectedId={field.value}
                     onSelectId={field.onChange}
@@ -290,6 +387,7 @@ export default function PatientRegistrationForm({
                     id="patient-reg-bloodGroup"
                     name="bloodGroup"
                     label="Blood group"
+                    labelRequired
                     items={BLOOD_PICKER}
                     selectedId={field.value}
                     onSelectId={field.onChange}
@@ -307,7 +405,12 @@ export default function PatientRegistrationForm({
               <FieldError>{errors.bloodGroup?.message}</FieldError>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Photo (optional)</label>
+              <FieldLabel className="block mb-1">
+                <span className="inline-flex items-center gap-1.5">
+                  <ImagePlus className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400 shrink-0" aria-hidden />
+                  Photo (optional)
+                </span>
+              </FieldLabel>
               <input type="file" accept="image/*" onChange={handlePhoto} className="text-sm text-slate-600 dark:text-white" />
               {photoPreview && (
                 <img src={photoPreview} alt="" className="mt-2 h-24 w-24 object-cover rounded-lg border border-slate-200 dark:border-slate-600" />
@@ -318,36 +421,57 @@ export default function PatientRegistrationForm({
 
         {step === 1 && (
           <div className="space-y-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/45 backdrop-blur-sm p-6 sm:p-7 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
-            <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Contact & address</h2>
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-sky-600 dark:text-sky-400 shrink-0" aria-hidden />
+              Contact & address
+            </h2>
             <div>
-              <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Phone</label>
-              <FormInput {...register('phone')} invalid={!!errors.phone} variant="soft" />
+              <FieldLabel htmlFor="patient-reg-phone" className="block mb-1" required>
+                Phone
+              </FieldLabel>
+              <FormInput id="patient-reg-phone" {...register('phone')} invalid={!!errors.phone} variant="soft" />
               <FieldError>{errors.phone?.message}</FieldError>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Email</label>
-              <FormInput type="email" {...register('email')} invalid={!!errors.email} variant="soft" />
+              <FieldLabel htmlFor="patient-reg-email" className="block mb-1" required>
+                Email
+              </FieldLabel>
+              <FormInput
+                id="patient-reg-email"
+                type="email"
+                {...register('email')}
+                invalid={!!errors.email}
+                variant="soft"
+              />
               <FieldError>{errors.email?.message}</FieldError>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Address</label>
-              <FormTextarea {...register('address')} rows={2} invalid={!!errors.address} variant="soft" />
+              <FieldLabel htmlFor="patient-reg-address" className="block mb-1" required>
+                Address
+              </FieldLabel>
+              <FormTextarea id="patient-reg-address" {...register('address')} rows={2} invalid={!!errors.address} variant="soft" />
               <FieldError>{errors.address?.message}</FieldError>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">City</label>
-                <FormInput {...register('city')} invalid={!!errors.city} variant="soft" />
+                <FieldLabel htmlFor="patient-reg-city" className="block mb-1" required>
+                  City
+                </FieldLabel>
+                <FormInput id="patient-reg-city" {...register('city')} invalid={!!errors.city} variant="soft" />
                 <FieldError>{errors.city?.message}</FieldError>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">State</label>
-                <FormInput {...register('state')} invalid={!!errors.state} variant="soft" />
+                <FieldLabel htmlFor="patient-reg-state" className="block mb-1" required>
+                  State
+                </FieldLabel>
+                <FormInput id="patient-reg-state" {...register('state')} invalid={!!errors.state} variant="soft" />
                 <FieldError>{errors.state?.message}</FieldError>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">PIN / ZIP</label>
-                <FormInput {...register('pin')} invalid={!!errors.pin} variant="soft" />
+                <FieldLabel htmlFor="patient-reg-pin" className="block mb-1" required>
+                  PIN / ZIP
+                </FieldLabel>
+                <FormInput id="patient-reg-pin" {...register('pin')} invalid={!!errors.pin} variant="soft" />
                 <FieldError>{errors.pin?.message}</FieldError>
               </div>
             </div>
@@ -356,42 +480,83 @@ export default function PatientRegistrationForm({
 
         {step === 2 && (
           <div className="space-y-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/45 backdrop-blur-sm p-6 sm:p-7 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
-            <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Medical history</h2>
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+              <HeartPulse className="h-5 w-5 text-sky-600 dark:text-sky-400 shrink-0" aria-hidden />
+              Medical history
+            </h2>
             <div>
-              <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Known allergies</label>
-              <FormTextarea {...register('allergies')} rows={2} variant="soft" placeholder="None if not applicable" />
+              <FieldLabel htmlFor="patient-reg-allergies" className="block mb-1">
+                Known allergies
+              </FieldLabel>
+              <FormTextarea
+                id="patient-reg-allergies"
+                {...register('allergies')}
+                rows={2}
+                variant="soft"
+                placeholder="None if not applicable"
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Chronic conditions</label>
-              <FormTextarea {...register('chronicConditions')} rows={2} variant="soft" />
+              <FieldLabel htmlFor="patient-reg-chronic" className="block mb-1">
+                Chronic conditions
+              </FieldLabel>
+              <FormTextarea id="patient-reg-chronic" {...register('chronicConditions')} rows={2} variant="soft" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Past surgeries</label>
-              <FormTextarea {...register('pastSurgeries')} rows={2} variant="soft" />
+              <FieldLabel htmlFor="patient-reg-surgeries" className="block mb-1">
+                Past surgeries
+              </FieldLabel>
+              <FormTextarea id="patient-reg-surgeries" {...register('pastSurgeries')} rows={2} variant="soft" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Current medications</label>
-              <FormTextarea {...register('currentMedications')} rows={2} variant="soft" />
+              <FieldLabel htmlFor="patient-reg-meds" className="block mb-1">
+                Current medications
+              </FieldLabel>
+              <FormTextarea id="patient-reg-meds" {...register('currentMedications')} rows={2} variant="soft" />
             </div>
           </div>
         )}
 
         {step === 3 && (
           <div className="space-y-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/45 backdrop-blur-sm p-6 sm:p-7 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40">
-            <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Emergency contact</h2>
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+              <Phone className="h-5 w-5 text-sky-600 dark:text-sky-400 shrink-0" aria-hidden />
+              Emergency contact
+            </h2>
             <div>
-              <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Full name</label>
-              <FormInput {...register('emergencyName')} invalid={!!errors.emergencyName} variant="soft" />
+              <FieldLabel htmlFor="patient-reg-emergency-name" className="block mb-1" required>
+                Full name
+              </FieldLabel>
+              <FormInput
+                id="patient-reg-emergency-name"
+                {...register('emergencyName')}
+                invalid={!!errors.emergencyName}
+                variant="soft"
+              />
               <FieldError>{errors.emergencyName?.message}</FieldError>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Relationship</label>
-              <FormInput {...register('emergencyRelationship')} invalid={!!errors.emergencyRelationship} variant="soft" />
+              <FieldLabel htmlFor="patient-reg-emergency-rel" className="block mb-1" required>
+                Relationship
+              </FieldLabel>
+              <FormInput
+                id="patient-reg-emergency-rel"
+                {...register('emergencyRelationship')}
+                invalid={!!errors.emergencyRelationship}
+                variant="soft"
+              />
               <FieldError>{errors.emergencyRelationship?.message}</FieldError>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-600 dark:text-white mb-1">Phone</label>
-              <FormInput {...register('emergencyPhone')} invalid={!!errors.emergencyPhone} variant="soft" />
+              <FieldLabel htmlFor="patient-reg-emergency-phone" className="block mb-1" required>
+                Phone
+              </FieldLabel>
+              <FormInput
+                id="patient-reg-emergency-phone"
+                {...register('emergencyPhone')}
+                invalid={!!errors.emergencyPhone}
+                variant="soft"
+              />
               <FieldError>{errors.emergencyPhone?.message}</FieldError>
             </div>
           </div>
@@ -399,7 +564,10 @@ export default function PatientRegistrationForm({
 
         {step === 4 && (
           <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/45 backdrop-blur-sm p-6 sm:p-7 shadow-sm shadow-slate-200/30 dark:shadow-none ring-1 ring-slate-200/40 dark:ring-slate-700/40 space-y-3 text-sm">
-            <h2 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Review & submit</h2>
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+              <ClipboardCheck className="h-5 w-5 text-sky-600 dark:text-sky-400 shrink-0" aria-hidden />
+              Review & submit
+            </h2>
             <p className="text-slate-600 dark:text-slate-400 text-xs mb-4">
               Nothing is saved until you click <strong className="text-slate-700 dark:text-white">{isEdit ? 'Save changes' : 'Register patient'}</strong> below.
             </p>

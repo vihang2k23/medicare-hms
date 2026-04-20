@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { ChevronDown, Loader2, Search, X } from 'lucide-react'
+import { ChevronDown, Loader2, Search, X, type LucideIcon } from 'lucide-react'
 import { cn } from '../lib/cn'
 import { FIELD_CONTROL_CORE, FIELD_LABEL_CLASS, SEARCH_FIELD_FOCUS, type SearchFieldAccent } from './form/fieldStyles'
 import { LUCIDE_STROKE_FIELD } from './lucideChrome'
@@ -50,7 +50,7 @@ export type SearchAccent = SearchFieldAccent
 
 export interface SearchableIdPickerProps<T> {
   id?: string
-  label?: string
+  label?: ReactNode
   items: readonly T[]
   selectedId: string
   onSelectId: (id: string) => void
@@ -67,6 +67,10 @@ export interface SearchableIdPickerProps<T> {
   className?: string
   /** Optional native name for forms and tests (e.g. react-hook-form). */
   name?: string
+  /** Appends a required-field asterisk to the label. */
+  labelRequired?: boolean
+  /** Icon inside the input on the left (defaults to Search). */
+  inputLeadingIcon?: LucideIcon
 }
 
 /** Pick one item by id: search narrows a dropdown list (replaces long &lt;select&gt;s). */
@@ -88,6 +92,8 @@ export function SearchableIdPicker<T>({
   maxVisible = 14,
   className = '',
   name,
+  labelRequired,
+  inputLeadingIcon,
 }: SearchableIdPickerProps<T>) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const anchorRef = useRef<HTMLDivElement>(null)
@@ -123,17 +129,26 @@ export function SearchableIdPicker<T>({
   }
 
   const ring = SEARCH_FIELD_FOCUS[accent]
+  const LeadingIcon = inputLeadingIcon ?? Search
 
   return (
     <div ref={wrapRef} className={`relative z-[80] ${className}`}>
       {label && (
         <label htmlFor={id} className={FIELD_LABEL_CLASS}>
           {label}
+          {labelRequired ? (
+            <>
+              <span className="text-red-600 dark:text-red-400 ml-0.5 font-semibold" aria-hidden>
+                *
+              </span>
+              <span className="sr-only"> (required)</span>
+            </>
+          ) : null}
         </label>
       )}
       <div ref={anchorRef} className="relative">
-        <Search
-          className={`absolute left-3 top-1/2 -translate-y-1/2 h-[18px] w-[18px] pointer-events-none z-10 ${LUCIDE_STROKE_FIELD}`}
+        <LeadingIcon
+          className={`absolute left-3 top-1/2 z-20 -translate-y-1/2 h-[18px] w-[18px] pointer-events-none ${LUCIDE_STROKE_FIELD}`}
           strokeWidth={2.5}
           aria-hidden
         />
@@ -246,7 +261,7 @@ export function SearchableIdPicker<T>({
 
 export interface SearchFilterComboboxProps<T> {
   id?: string
-  label?: string
+  label?: ReactNode
   value: string
   onChange: (next: string) => void
   suggestions: readonly T[]
@@ -263,6 +278,8 @@ export interface SearchFilterComboboxProps<T> {
   maxVisible?: number
   className?: string
   hint?: string
+  /** Icon inside the input on the left (defaults to Search). */
+  inputLeadingIcon?: LucideIcon
 }
 
 /** Free-text search with optional picks from a dropdown (filters tables/lists). */
@@ -285,6 +302,7 @@ export function SearchFilterCombobox<T>({
   maxVisible = 10,
   className = '',
   hint,
+  inputLeadingIcon,
 }: SearchFilterComboboxProps<T>) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const anchorRef = useRef<HTMLDivElement>(null)
@@ -298,6 +316,8 @@ export function SearchFilterCombobox<T>({
     if (!t) return suggestions.slice(0, maxVisible)
     return suggestions.filter((s) => filterItem(s, value)).slice(0, maxVisible)
   }, [suggestions, value, filterItem, maxVisible])
+
+  const LeadingIcon = inputLeadingIcon ?? Search
 
   useEffect(() => {
     function onDown(e: MouseEvent) {
@@ -317,8 +337,8 @@ export function SearchFilterCombobox<T>({
         </label>
       )}
       <div ref={anchorRef} className="relative">
-        <Search
-          className={`absolute left-3 top-1/2 -translate-y-1/2 h-[18px] w-[18px] pointer-events-none z-10 ${LUCIDE_STROKE_FIELD}`}
+        <LeadingIcon
+          className={`absolute left-3 top-1/2 z-20 -translate-y-1/2 h-[18px] w-[18px] pointer-events-none ${LUCIDE_STROKE_FIELD}`}
           strokeWidth={2.5}
           aria-hidden
         />

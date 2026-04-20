@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 // DashboardCard defines the Dashboard Card UI surface and its primary interaction flow.
 interface DashboardCardProps {
-  title?: string
+  title?: ReactNode
   /** Shown on the right side of the title row (e.g. print chart). */
   actions?: ReactNode
   children: ReactNode

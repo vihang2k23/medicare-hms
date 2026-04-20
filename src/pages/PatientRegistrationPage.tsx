@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { UserPlus } from 'lucide-react'
 import PatientRegistrationForm from '../features/patients/PatientRegistrationForm'
 
 // PatientRegistrationPage defines the Patient Registration Page UI surface and its primary interaction flow.
@@ -17,7 +18,10 @@ export default function PatientRegistrationPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
         <div className="min-w-0">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-600 dark:text-white mb-2">Intake</p>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-3 flex-wrap">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-500/15 dark:bg-sky-400/20 ring-1 ring-sky-500/25 dark:ring-sky-400/30">
+              <UserPlus className="h-6 w-6 text-sky-600 dark:text-sky-300" aria-hidden />
+            </span>
             Patient registration
           </h1>
           <p className="text-slate-600 dark:text-white text-sm mt-2 max-w-xl leading-relaxed">
