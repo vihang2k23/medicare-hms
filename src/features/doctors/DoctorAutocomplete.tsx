@@ -9,16 +9,16 @@ import {
 } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Briefcase, Eye, MapPin, Search, User, X } from 'lucide-react'
-import type { AppDispatch, RootState } from '../../app/store'
-import { createInternalDoctor, findInternalDoctorByNpi } from '../../shared/api/internalDoctorsApi'
-import { npiCardToInternalRecord } from '../../shared/lib/npiRegistryApi'
-import { notify } from '../../shared/lib/notify'
-import { internalRecordToScheduleDoctor } from '../../shared/types/internalDoctor'
+import type { AppDispatch, RootState } from '../../store'
+import { createInternalDoctor, findInternalDoctorByNpi } from '../../services/internalDoctorsApi'
+import { npiCardToInternalRecord } from '../../utils/npiRegistryApi'
+import { notify } from '../../utils/notify'
+import { internalRecordToScheduleDoctor } from '../../types/internalDoctor'
 import { addImportedScheduleDoctor } from '../appointments/appointmentsSlice'
 import { clearDoctorSearch, searchDoctors, type SearchDoctorsArgs } from './doctorSlice'
-import { FieldError, FormInput } from '../../shared/ui/form'
+import { FieldError, FormInput } from '../../components/ui/form'
 import DoctorDetailsModal from './DoctorDetailsModal'
-import { providerCardToAutocompleteDoctor, type AutocompleteDoctor } from './npiAutocompleteMap'
+import { providerCardToAutocompleteDoctor, type AutocompleteDoctor } from '../../domains/doctors/npiAutocompleteMap'
 
 // DoctorAutocomplete defines the doctor autocomplete UI surface and its primary interaction flow.
 

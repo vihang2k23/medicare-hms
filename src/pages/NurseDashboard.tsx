@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../shared/hooks/useAuth'
-import DashboardCard from '../shared/ui/DashboardCard'
-import { BedGrid } from '../features/beds'
+import { useAuth } from '../hooks/useAuth'
+import DashboardCard from '../components/ui/DashboardCard'
+import { BedGrid } from '../domains/beds'
 import { useSelector } from 'react-redux'
-import type { RootState } from '../app/store'
-import { fetchPatients } from '../shared/api/patientsApi'
-import { fetchAllVitals } from '../shared/api/vitalsApi'
-import type { PatientRecord } from '../shared/types/patient'
-import type { VitalRecord } from '../shared/types/vitals'
+import type { RootState } from '../store'
+import { fetchPatients } from '../services/patientsApi'
+import { fetchAllVitals } from '../services/vitalsApi'
+import type { PatientRecord } from '../types/patient'
+import type { VitalRecord } from '../types/vitals'
 
 // NurseDashboard defines the Nurse Dashboard UI surface and its primary interaction flow.
 const VITALS_STALE_MS = 24 * 60 * 60 * 1000

@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux'
-import type { RootState } from '../app/store'
+import type { RootState } from '../store'
 
 // Dashboard defines the Dashboard UI surface and its primary interaction flow.
 // Dashboard renders the dashboard UI.

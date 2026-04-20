@@ -1,4 +1,4 @@
-import BedGrid from '../features/beds/BedGrid'
+import BedGrid from '../domains/beds/BedGrid'
 
 // AdminBedsPage defines the Admin Beds Page UI surface and its primary interaction flow.
 /** Admin route for ward summary and interactive grid management. */

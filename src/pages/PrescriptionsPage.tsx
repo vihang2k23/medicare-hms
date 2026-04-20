@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useMergeSearchParams } from '../shared/hooks/useMergeSearchParams'
+import { useMergeSearchParams } from '../hooks/useMergeSearchParams'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   Calendar,
@@ -17,14 +17,14 @@ import {
   X,
   XCircle,
 } from 'lucide-react'
-import type { AppDispatch, RootState } from '../app/store'
-import { useAuth } from '../shared/hooks/useAuth'
-import { removePrescription, updatePrescriptionStatus } from '../features/prescriptions/prescriptionsSlice'
-import type { Prescription, PrescriptionStatus } from '../features/prescriptions/types'
-import PrescriptionForm from '../features/prescriptions/PrescriptionForm'
-import { notify } from '../shared/lib/notify'
-import { FormInput } from '../shared/ui/form'
-import ConfirmDialog from '../shared/ui/ConfirmDialog'
+import type { AppDispatch, RootState } from '../store'
+import { useAuth } from '../hooks/useAuth'
+import { removePrescription, updatePrescriptionStatus } from '../domains/prescriptions/prescriptionsSlice'
+import type { Prescription, PrescriptionStatus } from '../domains/prescriptions/types'
+import PrescriptionForm from '../domains/prescriptions/PrescriptionForm'
+import { notify } from '../utils/notify'
+import { FormInput } from '../components/ui/form'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
 
 // PrescriptionsPage defines the prescriptions page UI surface and its primary interaction flow.
 

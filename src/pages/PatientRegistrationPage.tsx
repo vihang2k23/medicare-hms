@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { UserPlus } from 'lucide-react'
-import PatientRegistrationForm from '../features/patients/PatientRegistrationForm'
+import PatientRegistrationForm from '../domains/patients/PatientRegistrationForm'
 
 // PatientRegistrationPage defines the Patient Registration Page UI surface and its primary interaction flow.
 const headerBackBtnClass =

@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { CircleCheckBig, CornerDownRight, ListX, PhoneForwarded, Timer } from 'lucide-react'
-import { store, type AppDispatch, type RootState } from '../../app/store'
-import { notify } from '../../shared/lib/notify'
-import { OPD_DEPARTMENTS } from '../../shared/config/departments'
-import { FieldError, FormInput } from '../../shared/ui/form'
-import { SearchableIdPicker } from '../../shared/ui/SearchWithDropdown'
-import { filterLabeledOption } from '../../shared/ui/labeledOptionFilter'
+import { store, type AppDispatch, type RootState } from '../../store'
+import { notify } from '../../utils/notify'
+import { OPD_DEPARTMENTS } from '../../config/departments'
+import { FieldError, FormInput } from '../../components/ui/form'
+import { SearchableIdPicker } from '../../components/ui/SearchWithDropdown'
+import { filterLabeledOption } from '../../components/ui/labeledOptionFilter'
 import {
   callNext,
   completeCurrent,
@@ -15,9 +15,9 @@ import {
   resetQueue,
   setSimulationRunning,
   skipCurrent,
-} from './queueSlice'
-import { canCallNext, canStartQueueSimulation } from './queueSimulation'
-import ConfirmDialog from '../../shared/ui/ConfirmDialog'
+} from '../../domains/queue/queueSlice'
+import { canCallNext, canStartQueueSimulation } from '../../domains/queue/queueSimulation'
+import ConfirmDialog from '../../components/ui/ConfirmDialog'
 
 const SIM_INTERVALS = [
   { label: '30 seconds (recommended)', ms: 30000 },

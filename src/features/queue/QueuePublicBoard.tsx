@@ -1,19 +1,17 @@
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { Building2, ChevronRight, Tv } from 'lucide-react'
-import type { RootState } from '../../app/store'
-import { OPD_DEPARTMENTS, type OpdDepartment } from '../../shared/config/departments'
-import { formatOpdTokenLabel } from './queueSlice'
-import type { OpdQueueToken } from './opdQueueTypes'
+import type { RootState } from '../../store'
+import { OPD_DEPARTMENTS, type OpdDepartment } from '../../config/departments'
+import { formatOpdTokenLabel } from '../../domains/queue/queueSlice'
+import type { OpdQueueToken } from '../../domains/queue/opdQueueTypes'
 
 // QueuePublicBoard defines the Queue Public Board UI surface and its primary interaction flow.
 // QueuePublicBoard renders the queue public board UI.
 export default function QueuePublicBoard() {
   // Read the full queue from Redux so the public board can derive live display values.
   const queue = useSelector((s: RootState) => s.queue.queue)
-  console.log(queue);
   const currentToken = useSelector((s: RootState) => s.queue.currentToken)
-  console.log(currentToken);
 
   // Precompute all board values in one place to avoid recomputing on each render section.
   const { serving, nextFive, deptCounts } = useMemo(() => {

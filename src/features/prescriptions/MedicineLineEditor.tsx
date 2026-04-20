@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { AlertTriangle, Loader2, Pill, Search, Trash2 } from 'lucide-react'
-import type { OpenFdaLabelHit, PrescriptionMedicineLine } from './types'
+import type { OpenFdaLabelHit, PrescriptionMedicineLine } from '../../domains/prescriptions/types'
 import {
 // MedicineLineEditor defines the Medicine Line Editor UI surface and its primary interaction flow.
   fetchRecallAlertsForLabelHit,
   fetchRecallAlertsForTerms,
   searchDrugLabels,
-} from '../../shared/lib/drugCatalog'
-import { notify } from '../../shared/lib/notify'
-import { FieldError, FIELD_LABEL_CLASS, FormInput } from '../../shared/ui/form'
+} from '../../utils/drugCatalog'
+import { notify } from '../../utils/notify'
+import { FieldError, FIELD_LABEL_CLASS, FormInput } from '../../components/ui/form'
 
 interface MedicineLineEditorProps {
   line: PrescriptionMedicineLine

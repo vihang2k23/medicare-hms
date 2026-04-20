@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ShieldX } from 'lucide-react'
-import { useAuth } from '../shared/hooks/useAuth'
-import { getDefaultDashboard } from '../shared/config/roles'
+import { useAuth } from '../hooks/useAuth'
+import { getDefaultDashboard } from '../config/roles'
 
 // AccessDenied defines the Access Denied UI surface and its primary interaction flow.
 // AccessDenied renders the access denied UI.

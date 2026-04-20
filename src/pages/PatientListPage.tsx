@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState, type KeyboardEvent } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useMergeSearchParams } from '../shared/hooks/useMergeSearchParams'
+import { useMergeSearchParams } from '../hooks/useMergeSearchParams'
 import { useSelector } from 'react-redux'
-import type { RootState } from '../app/store'
-import type { Appointment } from '../features/appointments/types'
-import type { PatientRecord } from '../shared/types/patient'
+import type { RootState } from '../store'
+import type { Appointment } from '../domains/appointments/types'
+import type { PatientRecord } from '../types/patient'
 import {
   Building2,
   Cake,
@@ -24,15 +24,15 @@ import {
   UserX,
   Users,
 } from 'lucide-react'
-import { fetchPatients, softDeletePatient } from '../shared/api/patientsApi'
-import { notify } from '../shared/lib/notify'
-import { FieldError, FormInput } from '../shared/ui/form'
-import DashboardCard from '../shared/ui/DashboardCard'
-import { SearchFilterCombobox, SearchableIdPicker } from '../shared/ui/SearchWithDropdown'
-import { filterLabeledOption } from '../shared/ui/labeledOptionFilter'
-import { isoDateLocalToday } from '../features/patients/patientSchemas'
-import { LUCIDE_STROKE_FIELD } from '../shared/ui/lucideChrome'
-import ConfirmDialog from '../shared/ui/ConfirmDialog'
+import { fetchPatients, softDeletePatient } from '../services/patientsApi'
+import { notify } from '../utils/notify'
+import { FieldError, FormInput } from '../components/ui/form'
+import DashboardCard from '../components/ui/DashboardCard'
+import { SearchFilterCombobox, SearchableIdPicker } from '../components/ui/SearchWithDropdown'
+import { filterLabeledOption } from '../components/ui/labeledOptionFilter'
+import { isoDateLocalToday } from '../domains/patients/patientSchemas'
+import { LUCIDE_STROKE_FIELD } from '../components/ui/lucideChrome'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
 
 const PAGE_SIZE = 10
 

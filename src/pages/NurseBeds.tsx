@@ -1,4 +1,4 @@
-import BedGrid from '../features/beds/BedGrid'
+import BedGrid from '../domains/beds/BedGrid'
 
 // NurseBeds defines the Nurse Beds UI surface and its primary interaction flow.
 // NurseBeds renders the nurse beds UI.

@@ -10,9 +10,9 @@ import {
   Phone,
   User,
 } from 'lucide-react'
-import { FieldError, FieldLabel, FormInput, FormTextarea } from '../../shared/ui/form'
-import { SearchableIdPicker } from '../../shared/ui/SearchWithDropdown'
-import { filterLabeledOption } from '../../shared/ui/labeledOptionFilter'
+import { FieldError, FieldLabel, FormInput, FormTextarea } from '../../components/ui/form'
+import { SearchableIdPicker } from '../../components/ui/SearchWithDropdown'
+import { filterLabeledOption } from '../../components/ui/labeledOptionFilter'
 import {
   isoDateLocalToday,
   patientRegistrationSchema,
@@ -24,10 +24,10 @@ import {
   patientRecordToFormValues,
   type PatientFormValues,
 } from './patientSchemas'
-import type { PatientRecord } from '../../shared/types/patient'
-import { createPatient, updatePatient } from '../../shared/api/patientsApi'
-import { notify } from '../../shared/lib/notify'
-import { generatePatientId } from './patientId'
+import type { PatientRecord } from '../../types/patient'
+import { createPatient, updatePatient } from '../../services/patientsApi'
+import { notify } from '../../utils/notify'
+import { generatePatientId } from '../../domains/patients/patientId'
 
 const defaultValues: PatientFormValues = {
   fullName: '',

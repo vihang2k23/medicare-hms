@@ -1,16 +1,16 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { Activity, ArrowLeft, Loader2, User } from 'lucide-react'
-import { fetchPatientById } from '../shared/api/patientsApi'
-import { fetchVitalsByPatientId } from '../shared/api/vitalsApi'
-import type { PatientRecord } from '../shared/types/patient'
-import type { VitalRecord } from '../shared/types/vitals'
-import { notify } from '../shared/lib/notify'
-import VitalsHistoryList from '../features/vitals/VitalsHistoryList'
-import VitalsRecordModal from '../features/vitals/VitalsRecordModal'
+import { fetchPatientById } from '../services/patientsApi'
+import { fetchVitalsByPatientId } from '../services/vitalsApi'
+import type { PatientRecord } from '../types/patient'
+import type { VitalRecord } from '../types/vitals'
+import { notify } from '../utils/notify'
+import VitalsHistoryList from '../domains/vitals/VitalsHistoryList'
+import VitalsRecordModal from '../domains/vitals/VitalsRecordModal'
 
 // VitalsPatientDetailPage defines the Vitals Patient Detail Page UI surface and its primary interaction flow.
-const VitalsTrendCharts = lazy(() => import('../features/vitals/VitalsTrendCharts'))
+const VitalsTrendCharts = lazy(() => import('../domains/vitals/VitalsTrendCharts'))
 
 function patientInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean)

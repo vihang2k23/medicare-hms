@@ -17,12 +17,12 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import type { RootState } from '../app/store'
-import DashboardCard from '../shared/ui/DashboardCard'
-import StatCard from '../shared/ui/StatCard'
-import { formatOpdTokenLabel } from '../features/queue/queueSlice'
-import { OPD_DEPARTMENTS } from '../shared/config/departments'
-import DrugRecallSummaryCard from '../features/reports/DrugRecallSummaryCard'
+import type { RootState } from '../store'
+import DashboardCard from '../components/ui/DashboardCard'
+import StatCard from '../components/ui/StatCard'
+import { formatOpdTokenLabel } from '../domains/queue/queueSlice'
+import { OPD_DEPARTMENTS } from '../config/departments'
+import DrugRecallSummaryCard from '../domains/reports/DrugRecallSummaryCard'
 import {
   buildAppointmentOutcomeCounts,
   buildDepartmentPatientDistribution,
@@ -30,10 +30,10 @@ import {
   buildPatientsPerDayFromAppointments,
   buildSimulatedBedOccupancySeries,
   buildSimulatedRevenueByDepartment,
-} from '../features/reports/reportsAnalyticsData'
-import { fetchAllPatients } from '../shared/api/patientsApi'
-import { downloadCsv } from '../shared/lib/csvExport'
-import { MedicarePrintPageFooter, MedicarePrintPageHeader } from '../shared/ui/print/MedicarePrintChrome'
+} from '../domains/reports/reportsAnalyticsData'
+import { fetchAllPatients } from '../services/patientsApi'
+import { downloadCsv } from '../utils/csvExport'
+import { MedicarePrintPageFooter, MedicarePrintPageHeader } from '../components/ui/print/MedicarePrintChrome'
 import { BedDouble, Calendar, Download, FileText, ListOrdered, Printer, Stethoscope, Users } from 'lucide-react'
 
 const BED_STATUS_COLORS = {

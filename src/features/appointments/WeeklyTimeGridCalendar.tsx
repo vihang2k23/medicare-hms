@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import { GripVertical } from 'lucide-react'
-import MediCareLogo from '../../shared/ui/brand/MediCareLogo'
+import MediCareLogo from '../../components/ui/brand/MediCareLogo'
 import type { Appointment, AppointmentStatus, ScheduleDoctor } from './types'
-import { appointmentStatusClasses } from './appointmentStatusStyles'
+import { appointmentStatusClasses } from '../../domains/appointments/appointmentStatusStyles'
 import { eachDayOfWeek, findSlotByStart, weekSlotStartLabels } from './slotUtils'
 
 // WeeklyTimeGridCalendar defines the Weekly Time Grid Calendar UI surface and its primary interaction flow.

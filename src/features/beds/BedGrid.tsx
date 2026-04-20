@@ -13,13 +13,13 @@ import {
   Wrench,
   X,
 } from 'lucide-react'
-import type { AppDispatch, RootState } from '../../app/store'
-import { notify } from '../../shared/lib/notify'
-import { useModalScrollLock } from '../../shared/hooks/useModalScrollLock'
-import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../shared/ui/modalOverlayClasses'
-import { FieldError, FormInput } from '../../shared/ui/form'
-import { ModalPortal } from '../../shared/ui/ModalPortal'
-import type { Bed, BedStatus, WardDefinition } from './bedSlice'
+import type { AppDispatch, RootState } from '../../store'
+import { notify } from '../../utils/notify'
+import { useModalScrollLock } from '../../hooks/useModalScrollLock'
+import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../components/ui/modalOverlayClasses'
+import { FieldError, FormInput } from '../../components/ui/form'
+import { ModalPortal } from '../../components/ui/ModalPortal'
+import type { Bed, BedStatus, WardDefinition } from '../../domains/beds/bedSlice'
 import {
   addBedToWard,
   assignPatientToBed,
@@ -27,7 +27,7 @@ import {
   removeBed,
   transferBedToWard,
   updateBedStatus,
-} from './bedSlice'
+} from '../../domains/beds/bedSlice'
 import WardManagementPanel from './WardManagementPanel'
 
 const BED_DRAG_MIME = 'application/x-medicare-bed-id'

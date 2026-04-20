@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import type { RootState } from '../app/store'
-import { getDefaultDashboard } from '../shared/config/roles'
+import type { RootState } from '../store'
+import { getDefaultDashboard } from '../config/roles'
 
 // RedirectToDefault defines the Redirect To Default UI surface and its primary interaction flow.
 // RedirectToDefault renders the redirect to default UI.

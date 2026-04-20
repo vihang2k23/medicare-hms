@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useMergeSearchParams } from '../shared/hooks/useMergeSearchParams'
+import { useMergeSearchParams } from '../hooks/useMergeSearchParams'
 import { useSelector } from 'react-redux'
 import { Calendar, ChevronLeft, ChevronRight, FileText, Search, Users } from 'lucide-react'
-import type { RootState } from '../app/store'
-import { useAuth } from '../shared/hooks/useAuth'
-import { fetchPatients } from '../shared/api/patientsApi'
-import type { PatientRecord } from '../shared/types/patient'
-import { FieldError, FormInput } from '../shared/ui/form'
-import { aggregateMyPatients, type MyPatientRowMeta } from '../shared/lib/myPatientsForDoctor'
+import type { RootState } from '../store'
+import { useAuth } from '../hooks/useAuth'
+import { fetchPatients } from '../services/patientsApi'
+import type { PatientRecord } from '../types/patient'
+import { FieldError, FormInput } from '../components/ui/form'
+import { aggregateMyPatients, type MyPatientRowMeta } from '../utils/myPatientsForDoctor'
 
 // DoctorMyPatientsPage defines the Doctor My Patients Page UI surface and its primary interaction flow.
 const PAGE_SIZE = 10

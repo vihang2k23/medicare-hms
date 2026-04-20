@@ -16,44 +16,44 @@ import {
   Users,
   X,
 } from 'lucide-react'
-import type { AppDispatch } from '../app/store'
-import { NPI_ADDRESS_PURPOSE_OPTIONS } from '../shared/config/npiAddressPurpose'
-import { NPI_COUNTRY_OPTIONS } from '../shared/config/npiCountries'
-import { getNpiRegionOptionsForCountry } from '../shared/config/npiRegionOptions'
-import { NPI_TAXONOMY_FILTERS } from '../shared/config/npiTaxonomies'
-import { NPI_TYPE_OPTIONS } from '../shared/config/npiTypeOptions'
+import type { AppDispatch } from '../store'
+import { NPI_ADDRESS_PURPOSE_OPTIONS } from '../config/npiAddressPurpose'
+import { NPI_COUNTRY_OPTIONS } from '../config/npiCountries'
+import { getNpiRegionOptionsForCountry } from '../config/npiRegionOptions'
+import { NPI_TAXONOMY_FILTERS } from '../config/npiTaxonomies'
+import { NPI_TYPE_OPTIONS } from '../config/npiTypeOptions'
 import {
   createInternalDoctor,
   deleteInternalDoctor,
   fetchInternalDoctors,
   findInternalDoctorByNpi,
-} from '../shared/api/internalDoctorsApi'
-import type { NpiProviderCard, NpiRawResult, NpiSearchParams } from '../shared/lib/npiRegistryApi'
+} from '../services/internalDoctorsApi'
+import type { NpiProviderCard, NpiRawResult, NpiSearchParams } from '../utils/npiRegistryApi'
 import {
   hasMinimumNpiSearchCriteria,
   npiCardToInternalRecord,
   NPI_SEARCH_MINIMUM_CRITERIA_MESSAGE,
   searchNpiRegistry,
-} from '../shared/lib/npiRegistryApi'
+} from '../utils/npiRegistryApi'
 import {
   formatInternalDoctorScheduleSummary,
   internalRecordToScheduleDoctor,
   type InternalDoctorRecord,
-} from '../shared/types/internalDoctor'
+} from '../types/internalDoctor'
 import {
   addImportedScheduleDoctor,
   removeImportedScheduleDoctor,
   setImportedScheduleDoctors,
-} from '../features/appointments/appointmentsSlice'
-import { notify } from '../shared/lib/notify'
-import { useMergeSearchParams, type QueryParamPatch } from '../shared/hooks/useMergeSearchParams'
-import { useModalScrollLock } from '../shared/hooks/useModalScrollLock'
-import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../shared/ui/modalOverlayClasses'
-import InternalDoctorScheduleModal from '../shared/components/InternalDoctorScheduleModal'
-import { FieldError, FormInput } from '../shared/ui/form'
-import { SearchableIdPicker } from '../shared/ui/SearchWithDropdown'
-import { filterLabeledOption } from '../shared/ui/labeledOptionFilter'
-import ConfirmDialog from '../shared/ui/ConfirmDialog'
+} from '../domains/appointments/appointmentsSlice'
+import { notify } from '../utils/notify'
+import { useMergeSearchParams, type QueryParamPatch } from '../hooks/useMergeSearchParams'
+import { useModalScrollLock } from '../hooks/useModalScrollLock'
+import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../components/ui/modalOverlayClasses'
+import InternalDoctorScheduleModal from '../components/InternalDoctorScheduleModal'
+import { FieldError, FormInput } from '../components/ui/form'
+import { SearchableIdPicker } from '../components/ui/SearchWithDropdown'
+import { filterLabeledOption } from '../components/ui/labeledOptionFilter'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
 
 const PAGE_SIZE = 12
 const MAX_SKIP = 1000

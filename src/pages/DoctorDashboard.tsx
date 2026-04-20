@@ -1,16 +1,16 @@
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { useAuth } from '../shared/hooks/useAuth'
-import type { RootState } from '../app/store'
-import DashboardCard from '../shared/ui/DashboardCard'
-import StatCard from '../shared/ui/StatCard'
+import { useAuth } from '../hooks/useAuth'
+import type { RootState } from '../store'
+import DashboardCard from '../components/ui/DashboardCard'
+import StatCard from '../components/ui/StatCard'
 import {
 // DoctorDashboard defines the Doctor Dashboard UI surface and its primary interaction flow.
   doctorAppointmentsToday,
   formatLocalDate,
   pickNextDoctorAppointment,
   startOfLocalDayMs,
-} from '../shared/lib/dashboardMetrics'
+} from '../utils/dashboardMetrics'
 import { Calendar, FileText } from 'lucide-react'
 
 function statusLabel(status: string): string {

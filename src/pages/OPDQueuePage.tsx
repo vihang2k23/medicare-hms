@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import QueueBoard from '../features/queue/QueueBoard'
-import QueuePublicBoard from '../features/queue/QueuePublicBoard'
-import QueueAnalytics from '../features/queue/QueueAnalytics'
-import QueueControls from '../features/queue/QueueControls'
-import { useQueueAutoAdvance } from '../features/queue/useQueueAutoAdvance'
+import QueueBoard from '../domains/queue/QueueBoard'
+import QueuePublicBoard from '../domains/queue/QueuePublicBoard'
+import QueueAnalytics from '../domains/queue/QueueAnalytics'
+import QueueControls from '../domains/queue/QueueControls'
+import { useQueueAutoAdvance } from '../domains/queue/useQueueAutoAdvance'
 
 // OPDQueuePage defines the OPDQueue Page UI surface and its primary interaction flow.
 interface OPDQueuePageProps {

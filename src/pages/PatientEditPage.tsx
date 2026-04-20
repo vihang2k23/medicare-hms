@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { UserPen } from 'lucide-react'
-import type { PatientRecord } from '../shared/types/patient'
-import { fetchPatientById } from '../shared/api/patientsApi'
-import PatientRegistrationForm from '../features/patients/PatientRegistrationForm'
+import type { PatientRecord } from '../types/patient'
+import { fetchPatientById } from '../services/patientsApi'
+import PatientRegistrationForm from '../domains/patients/PatientRegistrationForm'
 
 // PatientEditPage defines the Patient Edit Page UI surface and its primary interaction flow.
 // PatientEditPage renders the patient edit page UI.

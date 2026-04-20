@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react'
-import { useAuth } from '../shared/hooks/useAuth'
-import DashboardCard from '../shared/ui/DashboardCard'
-import StatCard from '../shared/ui/StatCard'
-import QueueBoard from '../features/queue/QueueBoard'
+import { useAuth } from '../hooks/useAuth'
+import DashboardCard from '../components/ui/DashboardCard'
+import StatCard from '../components/ui/StatCard'
+import QueueBoard from '../domains/queue/QueueBoard'
 import { Link } from 'react-router-dom'
 import { Calendar, Ticket, UserPlus } from 'lucide-react'
 import { useSelector } from 'react-redux'
-import type { RootState } from '../app/store'
-import { formatOpdTokenLabel } from '../features/queue/queueSlice'
-import { fetchPatients } from '../shared/api/patientsApi'
-import { formatLocalDate, pendingAppointmentsToday, startOfLocalDayMs } from '../shared/lib/dashboardMetrics'
+import type { RootState } from '../store'
+import { formatOpdTokenLabel } from '../domains/queue/queueSlice'
+import { fetchPatients } from '../services/patientsApi'
+import { formatLocalDate, pendingAppointmentsToday, startOfLocalDayMs } from '../utils/dashboardMetrics'
 
 // ReceptionistDashboard defines the Receptionist Dashboard UI surface and its primary interaction flow.
 // ReceptionistDashboard renders the receptionist dashboard UI.

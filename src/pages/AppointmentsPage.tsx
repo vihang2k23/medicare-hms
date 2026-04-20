@@ -1,24 +1,24 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useMergeSearchParams } from '../shared/hooks/useMergeSearchParams'
+import { useMergeSearchParams } from '../hooks/useMergeSearchParams'
 import { addWeeks, format, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight, CalendarDays, Printer } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
-import type { AppDispatch, RootState } from '../app/store'
-import { useAuth } from '../shared/hooks/useAuth'
+import type { AppDispatch, RootState } from '../store'
+import { useAuth } from '../hooks/useAuth'
 import {
   bookAppointment,
   cancelAppointment,
   findSchedulingConflict,
   rescheduleAppointment,
-} from '../features/appointments/appointmentsSlice'
-import WeeklyTimeGridCalendar from '../features/appointments/WeeklyTimeGridCalendar'
-import { BookAppointmentModal, ManageAppointmentModal } from '../features/appointments/AppointmentDialogs'
-import { isDateInWeek, startOfWeekMonday } from '../features/appointments/slotUtils'
-import type { Appointment, ScheduleDoctor } from '../features/appointments/types'
-import { notify } from '../shared/lib/notify'
-import type { PatientRecord } from '../shared/types/patient'
-import { scheduleDoctorIdForAuthUser } from '../shared/config/doctorScheduleMap'
-import { SearchableIdPicker } from '../shared/ui/SearchWithDropdown'
+} from '../domains/appointments/appointmentsSlice'
+import WeeklyTimeGridCalendar from '../domains/appointments/WeeklyTimeGridCalendar'
+import { BookAppointmentModal, ManageAppointmentModal } from '../domains/appointments/AppointmentDialogs'
+import { isDateInWeek, startOfWeekMonday } from '../domains/appointments/slotUtils'
+import type { Appointment, ScheduleDoctor } from '../domains/appointments/types'
+import { notify } from '../utils/notify'
+import type { PatientRecord } from '../types/patient'
+import { scheduleDoctorIdForAuthUser } from '../config/doctorScheduleMap'
+import { SearchableIdPicker } from '../components/ui/SearchWithDropdown'
 
 export type AppointmentsVariant = 'admin' | 'receptionist' | 'doctor'
 

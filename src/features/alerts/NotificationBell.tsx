@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { formatDistanceToNow } from 'date-fns'
 import { Bell, X } from 'lucide-react'
-import type { AppDispatch, RootState } from '../../app/store'
-import { removeAlert } from './alertSlice'
-import { LUCIDE_STROKE_CHROME } from '../../shared/ui/lucideChrome'
+import type { AppDispatch, RootState } from '../../store'
+import { removeAlert } from '../../domains/alerts/alertSlice'
+import { LUCIDE_STROKE_CHROME } from '../../components/ui/lucideChrome'
 
 // NotificationBell defines the Notification Bell UI surface and its primary interaction flow.
 export interface NotificationBellProps {
