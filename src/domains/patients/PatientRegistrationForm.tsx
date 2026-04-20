@@ -108,7 +108,7 @@ export default function PatientRegistrationForm({
     return 0
   }
 
-  const [step, setStep] = useState(getInitialStep)
+  const [step, setStep] = useState<number>(getInitialStep)
   const stepRef = useRef(step)
   stepRef.current = step
   const [submitError, setSubmitError] = useState<string | null>(null)
