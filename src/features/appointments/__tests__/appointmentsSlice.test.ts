@@ -96,15 +96,42 @@ describe('appointmentsSlice', () => {
     expect(store.getState().appointments.appointments[0]!.date).toBe('2026-04-15')
   })
 
-  it('updateAppointmentStatus and cancelAppointment mutate the matching row', () => {
+  it('rescheduleAppointment is a no-op for completed appointments', () => {
+    const store = makeStore({
+      appointments: [{ ...baseApt, id: 'a1', createdAt: 1, status: 'completed' }],
+      doctors: DEFAULT_SCHEDULE_DOCTORS.map((d) => ({ ...d, source: 'seed' as const })),
+    })
+    store.dispatch(
+      rescheduleAppointment({ id: 'a1', date: '2026-04-16', slotStart: '11:00', slotEnd: '11:30' }),
+    )
+    expect(store.getState().appointments.appointments[0]!.date).toBe('2026-04-15')
+  })
+
+  it('updateAppointmentStatus mutates status', () => {
     const store = makeStore({
       appointments: [{ ...baseApt, id: 'a1', createdAt: 1, status: 'scheduled' }],
       doctors: DEFAULT_SCHEDULE_DOCTORS.map((d) => ({ ...d, source: 'seed' as const })),
     })
     store.dispatch(updateAppointmentStatus({ id: 'a1', status: 'completed' }))
     expect(store.getState().appointments.appointments[0]!.status).toBe('completed')
+  })
+
+  it('cancelAppointment sets cancelled for active appointments only', () => {
+    const store = makeStore({
+      appointments: [{ ...baseApt, id: 'a1', createdAt: 1, status: 'scheduled' }],
+      doctors: DEFAULT_SCHEDULE_DOCTORS.map((d) => ({ ...d, source: 'seed' as const })),
+    })
     store.dispatch(cancelAppointment('a1'))
     expect(store.getState().appointments.appointments[0]!.status).toBe('cancelled')
+  })
+
+  it('cancelAppointment does not change completed visits', () => {
+    const store = makeStore({
+      appointments: [{ ...baseApt, id: 'a1', createdAt: 1, status: 'completed' }],
+      doctors: DEFAULT_SCHEDULE_DOCTORS.map((d) => ({ ...d, source: 'seed' as const })),
+    })
+    store.dispatch(cancelAppointment('a1'))
+    expect(store.getState().appointments.appointments[0]!.status).toBe('completed')
   })
 
   it('setImportedScheduleDoctors keeps seed doctors and merges unique imports', () => {

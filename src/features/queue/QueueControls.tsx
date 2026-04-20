@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Timer } from 'lucide-react'
+import { CircleCheckBig, CornerDownRight, ListX, PhoneForwarded, Timer } from 'lucide-react'
 import { store, type AppDispatch, type RootState } from '../../app/store'
 import { notify } from '../../shared/lib/notify'
 import { OPD_DEPARTMENTS } from '../../shared/config/departments'
@@ -17,6 +17,7 @@ import {
   skipCurrent,
 } from './queueSlice'
 import { canCallNext, canStartQueueSimulation } from './queueSimulation'
+import ConfirmDialog from '../../shared/ui/ConfirmDialog'
 
 const SIM_INTERVALS = [
   { label: '30 seconds (recommended)', ms: 30000 },
@@ -52,6 +53,7 @@ export default function QueueControls({
   const [patientNameBlurred, setPatientNameBlurred] = useState(false)
   const [simulationErr, setSimulationErr] = useState<string | null>(null)
   const simulationErrShown = canStartSimulation ? null : simulationErr
+  const [clearQueueConfirmOpen, setClearQueueConfirmOpen] = useState(false)
 
   const issue = () => {
     const name = patientName.trim()
@@ -121,7 +123,7 @@ export default function QueueControls({
             {currentToken != null ? formatOpdTokenLabel(currentToken) : 'None'}
           </span>
         </p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 items-center">
           <button
             type="button"
             onClick={() => {
@@ -144,11 +146,12 @@ export default function QueueControls({
             title={
               !callNextEnabled
                 ? 'No one is waiting or in consultation — issue a token or wait for the queue to have patients'
-                : undefined
+                : 'Call next patient'
             }
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold shadow-md shadow-emerald-500/20 transition-all"
+            aria-label="Call next patient"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed text-white shadow-md shadow-emerald-500/20 transition-all"
           >
-            Call next
+            <PhoneForwarded className="h-5 w-5" aria-hidden />
           </button>
           <button
             type="button"
@@ -158,9 +161,11 @@ export default function QueueControls({
               notify.success('Visit marked complete')
             }}
             disabled={currentToken == null}
-            className="px-4 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 text-slate-700 dark:text-white text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-800/80 disabled:opacity-40 transition-colors"
+            aria-label="Mark current visit complete"
+            title="Complete current visit"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200/90 dark:border-slate-600 text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80 disabled:opacity-40 transition-colors"
           >
-            Complete current
+            <CircleCheckBig className="h-5 w-5" aria-hidden />
           </button>
           <button
             type="button"
@@ -170,21 +175,20 @@ export default function QueueControls({
               notify.success('Patient moved to the end of the queue.')
             }}
             disabled={currentToken == null}
-            className="px-4 py-2.5 rounded-xl border border-amber-200/90 dark:border-amber-800/80 text-amber-900 dark:text-white text-sm font-semibold hover:bg-amber-50/80 dark:hover:bg-amber-950/30 disabled:opacity-40 transition-colors"
+            aria-label="Skip patient and send to back of queue"
+            title="Skip & re-queue"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-amber-200/90 dark:border-amber-800/80 text-amber-900 dark:text-white hover:bg-amber-50/80 dark:hover:bg-amber-950/30 disabled:opacity-40 transition-colors"
           >
-            Skip &amp; re-queue
+            <CornerDownRight className="h-5 w-5" aria-hidden />
           </button>
           <button
             type="button"
-            onClick={() => {
-              if (window.confirm('Clear all tokens in this session?')) {
-                dispatch(resetQueue())
-                notify.success('Queue cleared')
-              }
-            }}
-            className="px-4 py-2.5 rounded-xl text-red-600 dark:text-white text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
+            onClick={() => setClearQueueConfirmOpen(true)}
+            aria-label="Clear all tokens"
+            title="Clear queue session"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-red-600 dark:text-white hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
           >
-            Reset queue
+            <ListX className="h-5 w-5" aria-hidden />
           </button>
         </div>
       </div>
@@ -251,6 +255,20 @@ export default function QueueControls({
         </div>
         <FieldError>{simulationErrShown}</FieldError>
       </div>
+
+      <ConfirmDialog
+        open={clearQueueConfirmOpen}
+        title="Clear queue session?"
+        description="Remove all waiting, in-consultation, and current tokens for this browser session?"
+        confirmLabel="Clear queue"
+        variant="danger"
+        onCancel={() => setClearQueueConfirmOpen(false)}
+        onConfirm={() => {
+          setClearQueueConfirmOpen(false)
+          dispatch(resetQueue())
+          notify.success('Queue cleared')
+        }}
+      />
     </div>
   )
 }

@@ -10,7 +10,7 @@ import { ModalPortal } from '../../shared/ui/ModalPortal'
 import { FieldError, FormInput, FormTextarea } from '../../shared/ui/form'
 import { SearchableIdPicker } from '../../shared/ui/SearchWithDropdown'
 import { filterLabeledOption } from '../../shared/ui/labeledOptionFilter'
-import type { Appointment, ScheduleDoctor } from './types'
+import type { Appointment, AppointmentStatus, ScheduleDoctor } from './types'
 import { generateDaySlots } from './slotUtils'
 
 // AppointmentDialogs defines the Appointment Dialogs UI surface and its primary interaction flow.
@@ -185,9 +185,21 @@ interface ManageModalProps {
   doctor: ScheduleDoctor
   onReschedule: (date: string, slotStart: string, slotEnd: string) => void
   onCancel: () => void
+  /** Doctors can reschedule their own bookings but cannot cancel visits from this UI. */
+  scheduleRole?: 'doctor' | 'staff'
 }
 
-export function ManageAppointmentModal({ open, onClose, appointment, doctor, onReschedule, onCancel }: ManageModalProps) {
+const FINAL_STATUSES: AppointmentStatus[] = ['completed', 'cancelled', 'no-show']
+
+export function ManageAppointmentModal({
+  open,
+  onClose,
+  appointment,
+  doctor,
+  onReschedule,
+  onCancel,
+  scheduleRole = 'staff',
+}: ManageModalProps) {
   useModalScrollLock(open)
   if (!open || !appointment) return null
   return (
@@ -198,6 +210,7 @@ export function ManageAppointmentModal({ open, onClose, appointment, doctor, onR
       doctor={doctor}
       onReschedule={onReschedule}
       onCancel={onCancel}
+      scheduleRole={scheduleRole}
     />
   )
 }
@@ -208,6 +221,7 @@ function ManageAppointmentModalContent({
   doctor,
   onReschedule,
   onCancel,
+  scheduleRole,
 }: Omit<ManageModalProps, 'open' | 'appointment'> & { appointment: Appointment }) {
   const [newDate, setNewDate] = useState(appointment.date)
   const [newSlot, setNewSlot] = useState(`${appointment.slotStart}|${appointment.slotEnd}`)
@@ -238,6 +252,10 @@ function ManageAppointmentModalContent({
     onClose()
   }
 
+  const isFinalStatus = FINAL_STATUSES.includes(appointment.status)
+  const canReschedule = !isFinalStatus
+  const showStaffCancel = scheduleRole === 'staff' && !isFinalStatus
+
   return (
     <ModalPortal>
     <div className={modalFixedRoot('z-50')} role="dialog" aria-modal="true" aria-labelledby="manage-apt-title">
@@ -248,7 +266,7 @@ function ManageAppointmentModalContent({
           onClick={(e) => e.stopPropagation()}
         >
         <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80">
-          <div>
+          <div className="min-w-0 flex-1 pr-2 text-left">
             <h2 id="manage-apt-title" className="text-lg font-bold text-slate-900 dark:text-white">
               Appointment
             </h2>
@@ -281,12 +299,22 @@ function ManageAppointmentModalContent({
           </button>
         </div>
         <div className="p-5 space-y-4 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] min-h-0 flex-1 touch-pan-y">
+          {isFinalStatus ? (
+            <p className="rounded-xl border border-slate-200/90 bg-slate-50 px-3 py-2.5 text-xs leading-relaxed text-slate-700 dark:border-slate-600 dark:bg-slate-800/60 dark:text-slate-200">
+              {appointment.status === 'completed'
+                ? 'This visit is marked completed — it stays on your schedule for the record and can’t be moved or cancelled here.'
+                : appointment.status === 'no-show'
+                  ? 'This slot is marked no-show. Contact reception if you need to book a new time.'
+                  : 'This appointment was cancelled. It stays visible as a record in the week grid.'}
+            </p>
+          ) : null}
           <p className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Reschedule</p>
           <div>
             <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">New date</label>
             <FormInput
               type="date"
               value={newDate}
+              disabled={!canReschedule}
               onChange={(e) => {
                 setNewDate(e.target.value)
                 setNewSlot('')
@@ -313,28 +341,30 @@ function ManageAppointmentModalContent({
               emptyLabel="Select slot"
               accent="violet"
               allowClear={false}
+              disabled={!canReschedule}
             />
             <FieldError>{slotErr}</FieldError>
           </div>
           <button
             type="button"
             onClick={applyReschedule}
-            disabled={appointment.status === 'cancelled'}
+            disabled={!canReschedule}
             className="w-full py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-violet-700 disabled:opacity-40 text-white text-sm font-semibold"
           >
             Save new time
           </button>
-          <button
-            type="button"
-            onClick={() => {
-              onCancel()
-              onClose()
-            }}
-            disabled={appointment.status === 'cancelled'}
-            className="w-full py-2.5 rounded-xl border border-red-200 dark:border-red-900/50 text-red-700 dark:text-white text-sm font-semibold"
-          >
-            Cancel appointment
-          </button>
+          {showStaffCancel ? (
+            <button
+              type="button"
+              onClick={() => {
+                onCancel()
+                onClose()
+              }}
+              className="w-full py-2.5 rounded-xl border border-red-200 dark:border-red-900/50 text-red-700 dark:text-white text-sm font-semibold"
+            >
+              Cancel appointment
+            </button>
+          ) : null}
         </div>
         </div>
       </div>

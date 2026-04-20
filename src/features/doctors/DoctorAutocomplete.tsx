@@ -232,6 +232,7 @@ export default function DoctorAutocomplete({
           onFocus={handleInputFocus}
           placeholder="Search by name (at least 2 characters)…"
           className="!pl-10 !pr-12 !py-3"
+          clearable={false}
           autoComplete="off"
           invalid={!!searchErr}
           aria-invalid={searchErr ? true : undefined}

@@ -16,6 +16,7 @@ import { LUCIDE_STROKE_CHROME } from '../shared/ui/lucideChrome'
 import { ALL_DEMO_LOGIN_ENTRIES, demoEntryToAuthUser, type DemoLoginEntry } from '../shared/config/demoAccounts'
 import { APPOINTMENTS_STORAGE_KEY } from '../features/appointments/appointmentsStorage'
 import { PRESCRIPTIONS_STORAGE_KEY } from '../features/prescriptions/prescriptionsStorage'
+import ConfirmDialog from '../shared/ui/ConfirmDialog'
 
 // Navbar defines the Navbar UI surface and its primary interaction flow.
 /** Human-readable role for the menu (neutral copy, no loud badge colors). */
@@ -82,6 +83,7 @@ export default function Navbar({ showSidebarToggle = true }: NavbarProps) {
   const bedSimulationRunning = useSelector((state: RootState) => state.beds.bedSimulationRunning)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [shortcutsOpen, setShortcutsOpen] = useState(false)
+  const [resetDemoOpen, setResetDemoOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -119,16 +121,14 @@ export default function Navbar({ showSidebarToggle = true }: NavbarProps) {
   const letterShortcuts = useMemo(() => roleShortcutRows(user?.role), [user?.role])
   const hasLetterShortcuts = letterShortcuts.length > 0
 
-  const handleResetDemoData = () => {
+  const executeResetDemoData = () => {
     if (user?.role !== 'admin') return
-    const ok = window.confirm(
-      'Reset demo data in this browser? This clears local appointment/prescription cache and reloads seeded defaults.',
-    )
-    if (!ok) return
     try {
       localStorage.removeItem(APPOINTMENTS_STORAGE_KEY)
       localStorage.removeItem(PRESCRIPTIONS_STORAGE_KEY)
       notify.success('Demo data reset. Reloading…')
+      setResetDemoOpen(false)
+      setDropdownOpen(false)
       setTimeout(() => window.location.reload(), 250)
     } catch {
       notify.error('Could not reset demo cache in this browser.')
@@ -335,7 +335,10 @@ export default function Navbar({ showSidebarToggle = true }: NavbarProps) {
                           <button
                             type="button"
                             role="menuitem"
-                            onClick={handleResetDemoData}
+                            onClick={() => {
+                              setDropdownOpen(false)
+                              setResetDemoOpen(true)
+                            }}
                             className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-amber-700 dark:text-amber-200 hover:bg-amber-50 dark:hover:bg-amber-950/30"
                           >
                             <RotateCcw className={`h-4 w-4 ${LUCIDE_STROKE_CHROME}`} strokeWidth={2.5} aria-hidden />
@@ -438,6 +441,16 @@ export default function Navbar({ showSidebarToggle = true }: NavbarProps) {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={resetDemoOpen}
+        title="Reset demo data?"
+        description="This clears local appointment and prescription cache in this browser and reloads seeded defaults."
+        confirmLabel="Reset & reload"
+        variant="danger"
+        onCancel={() => setResetDemoOpen(false)}
+        onConfirm={executeResetDemoData}
+      />
     </>
   )
 }

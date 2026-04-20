@@ -8,9 +8,10 @@ import {
   ChevronRight,
   Loader2,
   MapPin,
-  Pencil,
   Phone,
   Stethoscope,
+  FileText,
+  Trash2,
   UserPlus,
   Users,
   X,
@@ -45,13 +46,14 @@ import {
   setImportedScheduleDoctors,
 } from '../features/appointments/appointmentsSlice'
 import { notify } from '../shared/lib/notify'
-import { useMergeSearchParams } from '../shared/hooks/useMergeSearchParams'
+import { useMergeSearchParams, type QueryParamPatch } from '../shared/hooks/useMergeSearchParams'
 import { useModalScrollLock } from '../shared/hooks/useModalScrollLock'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../shared/ui/modalOverlayClasses'
 import InternalDoctorScheduleModal from '../shared/components/InternalDoctorScheduleModal'
 import { FieldError, FormInput } from '../shared/ui/form'
 import { SearchableIdPicker } from '../shared/ui/SearchWithDropdown'
 import { filterLabeledOption } from '../shared/ui/labeledOptionFilter'
+import ConfirmDialog from '../shared/ui/ConfirmDialog'
 
 const PAGE_SIZE = 12
 const MAX_SKIP = 1000
@@ -60,6 +62,138 @@ const NPI_TAXONOMY_PRESET_VALUES: ReadonlySet<string> = new Set(
   NPI_TAXONOMY_FILTERS.map((f) => f.value as string),
 )
 const TAXONOMY_SELECT_CUSTOM = '__custom__'
+
+/** NPI registry search filters — stored in the URL query for shareable links (`?npi=&city=` …). */
+const DQ = {
+  npi: 'npi',
+  etype: 'etype',
+  tax: 'tax',
+  pfn: 'pfn',
+  pln: 'pln',
+  org: 'org',
+  aofn: 'aofn',
+  aoln: 'aoln',
+  city: 'city',
+  state: 'state',
+  country: 'country',
+  zip: 'zip',
+  addr: 'addr',
+} as const
+
+type NpiFilterForm = {
+  npiNumber: string
+  enumerationType: string
+  taxonomyDescription: string
+  providerFirstName: string
+  providerLastName: string
+  organizationName: string
+  authorizedOfficialFirstName: string
+  authorizedOfficialLastName: string
+  city: string
+  state: string
+  countryCode: string
+  postalCode: string
+  addressPurpose: string
+}
+
+const EMPTY_NPI_FILTERS: NpiFilterForm = {
+  npiNumber: '',
+  enumerationType: '',
+  taxonomyDescription: '',
+  providerFirstName: '',
+  providerLastName: '',
+  organizationName: '',
+  authorizedOfficialFirstName: '',
+  authorizedOfficialLastName: '',
+  city: '',
+  state: '',
+  countryCode: '',
+  postalCode: '',
+  addressPurpose: '',
+}
+
+function readNpiFiltersFromQuery(sp: URLSearchParams): NpiFilterForm {
+  return {
+    npiNumber: sp.get(DQ.npi) ?? '',
+    enumerationType: sp.get(DQ.etype) ?? '',
+    taxonomyDescription: sp.get(DQ.tax) ?? '',
+    providerFirstName: sp.get(DQ.pfn) ?? '',
+    providerLastName: sp.get(DQ.pln) ?? '',
+    organizationName: sp.get(DQ.org) ?? '',
+    authorizedOfficialFirstName: sp.get(DQ.aofn) ?? '',
+    authorizedOfficialLastName: sp.get(DQ.aoln) ?? '',
+    city: sp.get(DQ.city) ?? '',
+    state: sp.get(DQ.state) ?? '',
+    countryCode: sp.get(DQ.country) ?? '',
+    postalCode: sp.get(DQ.zip) ?? '',
+    addressPurpose: sp.get(DQ.addr) ?? '',
+  }
+}
+
+function filtersToNpiApiParams(f: NpiFilterForm, pageIndex: number): NpiSearchParams {
+  return {
+    npiNumber: f.npiNumber.trim() || undefined,
+    enumerationType: (f.enumerationType.trim() || undefined) as NpiSearchParams['enumerationType'],
+    taxonomyDescription: f.taxonomyDescription.trim() || undefined,
+    providerFirstName: f.providerFirstName.trim() || undefined,
+    providerLastName: f.providerLastName.trim() || undefined,
+    organizationName: f.organizationName.trim() || undefined,
+    authorizedOfficialFirstName: f.authorizedOfficialFirstName.trim() || undefined,
+    authorizedOfficialLastName: f.authorizedOfficialLastName.trim() || undefined,
+    city: f.city.trim() || undefined,
+    state: f.state.trim() || undefined,
+    countryCode: f.countryCode.trim() || undefined,
+    postalCode: f.postalCode.trim() || undefined,
+    addressPurpose: (f.addressPurpose.trim() || undefined) as NpiSearchParams['addressPurpose'],
+    limit: PAGE_SIZE,
+    skip: pageIndex * PAGE_SIZE,
+  }
+}
+
+function mergeNpiFiltersToQuery(merge: (u: QueryParamPatch) => void, f: NpiFilterForm, pageIndex: number) {
+  merge({
+    [DQ.npi]: f.npiNumber.trim() || null,
+    [DQ.etype]: f.enumerationType.trim() || null,
+    [DQ.tax]: f.taxonomyDescription.trim() || null,
+    [DQ.pfn]: f.providerFirstName.trim() || null,
+    [DQ.pln]: f.providerLastName.trim() || null,
+    [DQ.org]: f.organizationName.trim() || null,
+    [DQ.aofn]: f.authorizedOfficialFirstName.trim() || null,
+    [DQ.aoln]: f.authorizedOfficialLastName.trim() || null,
+    [DQ.city]: f.city.trim() || null,
+    [DQ.state]: f.state.trim() || null,
+    [DQ.country]: f.countryCode.trim() || null,
+    [DQ.zip]: f.postalCode.trim() || null,
+    [DQ.addr]: f.addressPurpose.trim() || null,
+    page: pageIndex === 0 ? null : String(pageIndex),
+  })
+}
+
+function clearNpiFilterQueryKeys(merge: (u: QueryParamPatch) => void) {
+  merge({
+    [DQ.npi]: null,
+    [DQ.etype]: null,
+    [DQ.tax]: null,
+    [DQ.pfn]: null,
+    [DQ.pln]: null,
+    [DQ.org]: null,
+    [DQ.aofn]: null,
+    [DQ.aoln]: null,
+    [DQ.city]: null,
+    [DQ.state]: null,
+    [DQ.country]: null,
+    [DQ.zip]: null,
+    [DQ.addr]: null,
+    page: null,
+  })
+}
+
+function parseDoctorSearchPage(sp: URLSearchParams): number {
+  const p = sp.get('page')
+  if (p == null || p === '') return 0
+  const n = parseInt(p, 10)
+  return Number.isFinite(n) && n >= 0 ? n : 0
+}
 
 function canShowNpiProfile(r: InternalDoctorRecord): boolean {
   if (r.source === 'manual') return false
@@ -247,29 +381,30 @@ export default function DoctorDirectoryPage() {
   const { searchParams, merge } = useMergeSearchParams()
   const tab: 'search' | 'internal' = searchParams.get('tab') === 'internal' ? 'internal' : 'search'
 
-  const [npiNumber, setNpiNumber] = useState('')
-  const [enumerationType, setEnumerationType] = useState<NpiSearchParams['enumerationType']>('')
-  const [taxonomyDescription, setTaxonomyDescription] = useState('')
-  const [providerFirstName, setProviderFirstName] = useState('')
-  const [providerLastName, setProviderLastName] = useState('')
-  const [organizationName, setOrganizationName] = useState('')
-  const [authorizedOfficialFirstName, setAuthorizedOfficialFirstName] = useState('')
-  const [authorizedOfficialLastName, setAuthorizedOfficialLastName] = useState('')
-  const [city, setCity] = useState('')
-  const [state, setState] = useState('')
-  const [countryCode, setCountryCode] = useState('')
-  const [postalCode, setPostalCode] = useState('')
-  const [addressPurpose, setAddressPurpose] = useState<NpiSearchParams['addressPurpose']>('')
+  /** Same pattern as PatientListPage: filters live in the URL query only (no duplicate React state). */
+  const npiFilters: NpiFilterForm =
+    tab === 'search' ? readNpiFiltersFromQuery(searchParams) : EMPTY_NPI_FILTERS
+  const {
+    npiNumber,
+    enumerationType,
+    taxonomyDescription,
+    providerFirstName,
+    providerLastName,
+    organizationName,
+    authorizedOfficialFirstName,
+    authorizedOfficialLastName,
+    city,
+    state,
+    countryCode,
+    postalCode,
+    addressPurpose,
+  } = npiFilters
+
   const [loading, setLoading] = useState(false)
   const [npiSearchErr, setNpiSearchErr] = useState<string | null>(null)
   const [providers, setProviders] = useState<NpiProviderCard[]>([])
   const [totalCount, setTotalCount] = useState(0)
-  const page = (() => {
-    const p = searchParams.get('page')
-    if (p == null || p === '') return 0
-    const n = parseInt(p, 10)
-    return Number.isFinite(n) && n >= 0 ? n : 0
-  })()
+  const page = parseDoctorSearchPage(searchParams)
   const [profileRaw, setProfileRaw] = useState<NpiRawResult | null>(null)
   const [importingNpi, setImportingNpi] = useState<string | null>(null)
 
@@ -277,6 +412,18 @@ export default function DoctorDirectoryPage() {
   const [internalLoading, setInternalLoading] = useState(false)
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
   const [scheduleModalRecord, setScheduleModalRecord] = useState<InternalDoctorRecord | null>(null)
+  const [removeTarget, setRemoveTarget] = useState<InternalDoctorRecord | null>(null)
+  const [removeBusy, setRemoveBusy] = useState(false)
+
+  const patchNpiFilters = useCallback(
+    (patch: Partial<NpiFilterForm>) => {
+      setNpiSearchErr(null)
+      const base = tab === 'search' ? readNpiFiltersFromQuery(searchParams) : EMPTY_NPI_FILTERS
+      const next: NpiFilterForm = { ...base, ...patch }
+      mergeNpiFiltersToQuery(merge, next, 0)
+    },
+    [merge, searchParams, tab],
+  )
 
   const regionOptions = useMemo(() => getNpiRegionOptionsForCountry(countryCode), [countryCode])
   const stateIsSelect = regionOptions !== null && regionOptions.length > 1
@@ -310,69 +457,22 @@ export default function DoctorDirectoryPage() {
     })()
   }, [])
 
-  useEffect(() => {
-    setNpiSearchErr(null)
-  }, [
-    npiNumber,
-    enumerationType,
-    taxonomyDescription,
-    providerFirstName,
-    providerLastName,
-    organizationName,
-    authorizedOfficialFirstName,
-    authorizedOfficialLastName,
-    city,
-    state,
-    countryCode,
-    postalCode,
-    addressPurpose,
-  ])
-
   const clearNpiSearchForm = () => {
-    setNpiNumber('')
-    setEnumerationType('')
-    setTaxonomyDescription('')
-    setProviderFirstName('')
-    setProviderLastName('')
-    setOrganizationName('')
-    setAuthorizedOfficialFirstName('')
-    setAuthorizedOfficialLastName('')
-    setCity('')
-    setState('')
-    setCountryCode('')
-    setPostalCode('')
-    setAddressPurpose('')
     setProviders([])
     setTotalCount(0)
     setNpiSearchErr(null)
-    merge({ page: null })
+    clearNpiFilterQueryKeys(merge)
   }
 
   const runSearch = async (pageIndex: number) => {
     setNpiSearchErr(null)
-    const skip = pageIndex * PAGE_SIZE
-    const params: NpiSearchParams = {
-      npiNumber: npiNumber || undefined,
-      enumerationType: enumerationType || undefined,
-      taxonomyDescription: taxonomyDescription || undefined,
-      providerFirstName: providerFirstName || undefined,
-      providerLastName: providerLastName || undefined,
-      organizationName: organizationName || undefined,
-      authorizedOfficialFirstName: authorizedOfficialFirstName || undefined,
-      authorizedOfficialLastName: authorizedOfficialLastName || undefined,
-      city: city || undefined,
-      state: state || undefined,
-      countryCode: countryCode || undefined,
-      postalCode: postalCode || undefined,
-      addressPurpose: addressPurpose || undefined,
-      limit: PAGE_SIZE,
-      skip,
-    }
+    const f = readNpiFiltersFromQuery(searchParams)
+    const params = filtersToNpiApiParams(f, pageIndex)
     if (!hasMinimumNpiSearchCriteria(params)) {
       setNpiSearchErr(NPI_SEARCH_MINIMUM_CRITERIA_MESSAGE)
       setProviders([])
       setTotalCount(0)
-      merge({ page: null })
+      mergeNpiFiltersToQuery(merge, f, 0)
       return
     }
     setLoading(true)
@@ -381,7 +481,7 @@ export default function DoctorDirectoryPage() {
       setNpiSearchErr(null)
       setProviders(list)
       setTotalCount(resultCount)
-      merge({ page: pageIndex === 0 ? null : String(pageIndex) })
+      mergeNpiFiltersToQuery(merge, f, pageIndex)
     } catch (e) {
       setNpiSearchErr(e instanceof Error ? e.message : 'NPI search failed')
       setProviders([])
@@ -411,15 +511,19 @@ export default function DoctorDirectoryPage() {
     }
   }
 
-  const removeInternal = async (r: InternalDoctorRecord) => {
-    if (!window.confirm(`Remove ${r.name} from the internal directory?`)) return
+  const runRemoveInternal = async () => {
+    if (!removeTarget) return
+    setRemoveBusy(true)
     try {
-      await deleteInternalDoctor(r.id)
-      dispatch(removeImportedScheduleDoctor(r.id))
+      await deleteInternalDoctor(removeTarget.id)
+      dispatch(removeImportedScheduleDoctor(removeTarget.id))
       notify.success('Removed from HMS')
+      setRemoveTarget(null)
       void loadInternal()
     } catch (e) {
       notify.error(e instanceof Error ? e.message : 'Remove failed')
+    } finally {
+      setRemoveBusy(false)
     }
   }
 
@@ -521,7 +625,9 @@ export default function DoctorDirectoryPage() {
                 </label>
                 <FormInput
                   value={npiNumber}
-                  onChange={(e) => setNpiNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  onChange={(e) =>
+                    patchNpiFilters({ npiNumber: e.target.value.replace(/\D/g, '').slice(0, 10) })
+                  }
                   placeholder="10-digit NPI"
                   inputMode="numeric"
                   className="!py-2.5 font-mono"
@@ -533,14 +639,15 @@ export default function DoctorDirectoryPage() {
                   label="NPI type"
                   items={npiTypeItems}
                   selectedId={enumerationType ?? ''}
-                  onSelectId={(id) => setEnumerationType(id as NpiSearchParams['enumerationType'])}
+                  onSelectId={(id) =>
+                    patchNpiFilters({ enumerationType: id as NpiSearchParams['enumerationType'] })
+                  }
                   getId={(o) => o.id}
                   getLabel={(o) => o.label}
                   filterItem={filterLabeledOption}
                   placeholder="Search type…"
                   emptyLabel="NPI type"
                   accent="sky"
-                  allowClear={false}
                 />
               </div>
               <div className="sm:col-span-2 lg:col-span-1">
@@ -550,9 +657,9 @@ export default function DoctorDirectoryPage() {
                   items={taxonomyPickerItems}
                   selectedId={taxonomySelectValue}
                   onSelectId={(id) => {
-                    if (id === '') setTaxonomyDescription('')
-                    else if (id === TAXONOMY_SELECT_CUSTOM) setTaxonomyDescription('')
-                    else setTaxonomyDescription(id)
+                    if (id === '') patchNpiFilters({ taxonomyDescription: '' })
+                    else if (id === TAXONOMY_SELECT_CUSTOM) patchNpiFilters({ taxonomyDescription: '' })
+                    else patchNpiFilters({ taxonomyDescription: id })
                   }}
                   getId={(o) => o.id}
                   getLabel={(o) => o.label}
@@ -560,12 +667,11 @@ export default function DoctorDirectoryPage() {
                   placeholder="Search specialty…"
                   emptyLabel="Any specialty"
                   accent="sky"
-                  allowClear={false}
                 />
                 {taxonomySelectValue === TAXONOMY_SELECT_CUSTOM ? (
                   <FormInput
                     value={taxonomyDescription}
-                    onChange={(e) => setTaxonomyDescription(e.target.value)}
+                    onChange={(e) => patchNpiFilters({ taxonomyDescription: e.target.value })}
                     placeholder="Custom taxonomy description (CMS text match)"
                     className="!py-2.5 mt-2"
                   />
@@ -582,7 +688,7 @@ export default function DoctorDirectoryPage() {
                   </label>
                   <FormInput
                     value={providerFirstName}
-                    onChange={(e) => setProviderFirstName(e.target.value)}
+                    onChange={(e) => patchNpiFilters({ providerFirstName: e.target.value })}
                     placeholder="First name"
                     className="!py-2.5"
                   />
@@ -593,7 +699,7 @@ export default function DoctorDirectoryPage() {
                   </label>
                   <FormInput
                     value={providerLastName}
-                    onChange={(e) => setProviderLastName(e.target.value)}
+                    onChange={(e) => patchNpiFilters({ providerLastName: e.target.value })}
                     placeholder="Last name"
                     className="!py-2.5"
                   />
@@ -610,7 +716,7 @@ export default function DoctorDirectoryPage() {
                   </label>
                   <FormInput
                     value={organizationName}
-                    onChange={(e) => setOrganizationName(e.target.value)}
+                    onChange={(e) => patchNpiFilters({ organizationName: e.target.value })}
                     placeholder="Organization name"
                     className="!py-2.5"
                   />
@@ -622,7 +728,7 @@ export default function DoctorDirectoryPage() {
                     </label>
                     <FormInput
                       value={authorizedOfficialFirstName}
-                      onChange={(e) => setAuthorizedOfficialFirstName(e.target.value)}
+                      onChange={(e) => patchNpiFilters({ authorizedOfficialFirstName: e.target.value })}
                       placeholder="First name"
                       className="!py-2.5"
                     />
@@ -633,7 +739,7 @@ export default function DoctorDirectoryPage() {
                     </label>
                     <FormInput
                       value={authorizedOfficialLastName}
-                      onChange={(e) => setAuthorizedOfficialLastName(e.target.value)}
+                      onChange={(e) => patchNpiFilters({ authorizedOfficialLastName: e.target.value })}
                       placeholder="Last name"
                       className="!py-2.5"
                     />
@@ -647,7 +753,7 @@ export default function DoctorDirectoryPage() {
                 <label className="block text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">City</label>
                 <FormInput
                   value={city}
-                  onChange={(e) => setCity(e.target.value)}
+                  onChange={(e) => patchNpiFilters({ city: e.target.value })}
                   placeholder="City"
                   className="!py-2.5"
                 />
@@ -658,17 +764,13 @@ export default function DoctorDirectoryPage() {
                   label="Country"
                   items={countryPickerItems}
                   selectedId={countryCode}
-                  onSelectId={(id) => {
-                    setCountryCode(id)
-                    setState('')
-                  }}
+                  onSelectId={(id) => patchNpiFilters({ countryCode: id, state: '' })}
                   getId={(o) => o.id}
                   getLabel={(o) => o.label}
                   filterItem={filterLabeledOption}
                   placeholder="Search country…"
                   emptyLabel="Country"
                   accent="sky"
-                  allowClear={false}
                 />
               </div>
               <div>
@@ -678,14 +780,13 @@ export default function DoctorDirectoryPage() {
                     label="State / region"
                     items={statePickerItems}
                     selectedId={state}
-                    onSelectId={setState}
+                    onSelectId={(id) => patchNpiFilters({ state: id })}
                     getId={(o) => o.id}
                     getLabel={(o) => o.label}
                     filterItem={filterLabeledOption}
                     placeholder="Search state…"
                     emptyLabel="State / region"
                     accent="sky"
-                    allowClear={false}
                   />
                 ) : (
                   <>
@@ -694,7 +795,7 @@ export default function DoctorDirectoryPage() {
                     </label>
                     <FormInput
                       value={state}
-                      onChange={(e) => setState(e.target.value)}
+                      onChange={(e) => patchNpiFilters({ state: e.target.value })}
                       placeholder={
                         countryCode
                           ? 'Subdivision code or name (none in list for this country)'
@@ -711,7 +812,7 @@ export default function DoctorDirectoryPage() {
                 </label>
                 <FormInput
                   value={postalCode}
-                  onChange={(e) => setPostalCode(e.target.value)}
+                  onChange={(e) => patchNpiFilters({ postalCode: e.target.value })}
                   placeholder="ZIP / postal code"
                   className="!py-2.5"
                 />
@@ -722,14 +823,15 @@ export default function DoctorDirectoryPage() {
                   label="Address type"
                   items={addressPurposePickerItems}
                   selectedId={addressPurpose ?? ''}
-                  onSelectId={(id) => setAddressPurpose(id as NpiSearchParams['addressPurpose'])}
+                  onSelectId={(id) =>
+                    patchNpiFilters({ addressPurpose: id as NpiSearchParams['addressPurpose'] })
+                  }
                   getId={(o) => o.id}
                   getLabel={(o) => o.label}
                   filterItem={filterLabeledOption}
                   placeholder="Search address type…"
                   emptyLabel="Address type"
                   accent="sky"
-                  allowClear={false}
                 />
               </div>
             </div>
@@ -936,34 +1038,41 @@ export default function DoctorDirectoryPage() {
                           {[r.city, r.state].filter(Boolean).join(', ') || '—'}
                         </td>
                         <td className="px-4 py-3 text-slate-600 dark:text-white">{r.phone ?? '—'}</td>
-                        <td className="px-4 py-3 text-right space-x-2 whitespace-nowrap">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setScheduleModalRecord(r)
-                              setScheduleModalOpen(true)
-                            }}
-                            className="inline-flex items-center gap-1 text-violet-600 dark:text-white font-semibold text-xs hover:underline"
-                          >
-                            <Pencil className="h-3 w-3" />
-                            Edit schedule
-                          </button>
-                          {canShowNpiProfile(r) && (
+                        <td className="px-4 py-3 text-right whitespace-nowrap">
+                          <div className="inline-flex flex-wrap items-center justify-end gap-1">
                             <button
                               type="button"
-                              onClick={() => setProfileRaw(r.rawResult as NpiRawResult)}
-                              className="text-sky-600 dark:text-white font-semibold text-xs hover:underline"
+                              onClick={() => {
+                                setScheduleModalRecord(r)
+                                setScheduleModalOpen(true)
+                              }}
+                              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-violet-600 dark:text-white hover:bg-violet-50 dark:hover:bg-violet-950/40 transition-colors"
+                              title="Edit schedule"
+                              aria-label={`Edit schedule for ${r.name}`}
                             >
-                              Profile
+                              <CalendarClock className="h-4 w-4" aria-hidden />
                             </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => void removeInternal(r)}
-                            className="text-red-600 dark:text-white font-semibold text-xs hover:underline"
-                          >
-                            Remove
-                          </button>
+                            {canShowNpiProfile(r) && (
+                              <button
+                                type="button"
+                                onClick={() => setProfileRaw(r.rawResult as NpiRawResult)}
+                                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sky-600 dark:text-white hover:bg-sky-50 dark:hover:bg-sky-950/40 transition-colors"
+                                title="NPI profile"
+                                aria-label={`View NPI profile for ${r.name}`}
+                              >
+                                <FileText className="h-4 w-4" aria-hidden />
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setRemoveTarget(r)}
+                              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-600 dark:text-white hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                              title="Remove from directory"
+                              aria-label={`Remove ${r.name} from directory`}
+                            >
+                              <Trash2 className="h-4 w-4" aria-hidden />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -983,6 +1092,25 @@ export default function DoctorDirectoryPage() {
           setScheduleModalRecord(null)
         }}
         onSaved={() => void loadInternal()}
+      />
+
+      <ConfirmDialog
+        open={removeTarget !== null}
+        title="Remove from directory?"
+        description={
+          removeTarget ? (
+            <>
+              Remove{' '}
+              <span className="font-semibold text-slate-800 dark:text-white">{removeTarget.name}</span> from the internal
+              MediCare HMS directory?
+            </>
+          ) : null
+        }
+        confirmLabel="Remove"
+        variant="danger"
+        confirmLoading={removeBusy}
+        onCancel={() => !removeBusy && setRemoveTarget(null)}
+        onConfirm={() => void runRemoveInternal()}
       />
 
       {profileRaw && <NpiProfileModal raw={profileRaw} onClose={() => setProfileRaw(null)} />}

@@ -5,6 +5,10 @@ import { cn } from '../lib/cn'
 import { FIELD_CONTROL_CORE, FIELD_LABEL_CLASS, SEARCH_FIELD_FOCUS, type SearchFieldAccent } from './form/fieldStyles'
 import { LUCIDE_STROKE_FIELD } from './lucideChrome'
 
+/** Icon-only clear next to chevron (SearchableIdPicker) */
+const PICKER_CLEAR_ICON_CLASS =
+  'p-1.5 rounded-lg text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'
+
 /**
  * Positions a dropdown below an anchor using fixed coordinates (viewport pixels from
  * getBoundingClientRect). The list is portaled to document.body so "fixed" is not warped by
@@ -131,6 +135,19 @@ export function SearchableIdPicker<T>({
   const ring = SEARCH_FIELD_FOCUS[accent]
   const LeadingIcon = inputLeadingIcon ?? Search
 
+  const typingFilter = open && !!q.trim()
+  const showSelectionClear = allowClear && !!selectedId && !loading
+
+  const inputPadRight = (() => {
+    if (loading && typingFilter && showSelectionClear) return 'pr-40'
+    if (loading && (typingFilter || showSelectionClear)) return 'pr-32'
+    if (loading) return 'pr-20'
+    if (typingFilter && showSelectionClear) return 'pr-32'
+    if (typingFilter) return 'pr-28'
+    if (showSelectionClear) return 'pr-20'
+    return 'pr-14'
+  })()
+
   return (
     <div ref={wrapRef} className={`relative z-[80] ${className}`}>
       {label && (
@@ -171,21 +188,27 @@ export function SearchableIdPicker<T>({
             setOpen(true)
             setQ('')
           }}
-          className={cn(
-            FIELD_CONTROL_CORE,
-            'relative z-10 py-2.5 pl-10 pr-20',
-            ring,
-            'disabled:opacity-60',
-          )}
+          className={cn(FIELD_CONTROL_CORE, 'relative z-10 py-2.5 pl-10', inputPadRight, ring, 'disabled:opacity-60')}
         />
         <div className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex items-center gap-0.5">
           {loading && (
             <Loader2 className={`h-4 w-4 animate-spin ${LUCIDE_STROKE_FIELD}`} strokeWidth={2.5} aria-hidden />
           )}
-          {allowClear && selectedId && !loading && (
+          {typingFilter && !loading && (
             <button
               type="button"
-              className="p-1.5 rounded-lg text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+              className={PICKER_CLEAR_ICON_CLASS}
+              aria-label="Clear search text"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => setQ('')}
+            >
+              <X className={`h-4 w-4 ${LUCIDE_STROKE_FIELD}`} strokeWidth={2.5} aria-hidden />
+            </button>
+          )}
+          {showSelectionClear && (
+            <button
+              type="button"
+              className={PICKER_CLEAR_ICON_CLASS}
               aria-label="Clear selection"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
@@ -194,7 +217,7 @@ export function SearchableIdPicker<T>({
                 setOpen(false)
               }}
             >
-              <X className={`h-4 w-4 ${LUCIDE_STROKE_FIELD}`} strokeWidth={2.5} />
+              <X className={`h-4 w-4 ${LUCIDE_STROKE_FIELD}`} strokeWidth={2.5} aria-hidden />
             </button>
           )}
           <button
@@ -307,6 +330,7 @@ export function SearchFilterCombobox<T>({
   const wrapRef = useRef<HTMLDivElement>(null)
   const anchorRef = useRef<HTMLDivElement>(null)
   const menuPanelRef = useRef<HTMLUListElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const [open, setOpen] = useState(false)
   const ring = SEARCH_FIELD_FOCUS[accent]
   const menuStyle = useFixedMenuBelowAnchor(open && !disabled && !loading, anchorRef)
@@ -329,6 +353,8 @@ export function SearchFilterCombobox<T>({
     return () => document.removeEventListener('mousedown', onDown)
   }, [])
 
+  const showClearField = value.trim().length > 0 && !disabled && !loading
+
   return (
     <div ref={wrapRef} className={`relative z-[80] ${className}`}>
       {label && (
@@ -343,6 +369,7 @@ export function SearchFilterCombobox<T>({
           aria-hidden
         />
         <input
+          ref={inputRef}
           id={id}
           type="search"
           role="combobox"
@@ -356,15 +383,34 @@ export function SearchFilterCombobox<T>({
           }}
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
-          className={cn(FIELD_CONTROL_CORE, 'relative z-10 py-2.5 pl-10 pr-10', ring, 'disabled:opacity-60')}
+          className={cn(
+            FIELD_CONTROL_CORE,
+            'relative z-10 py-2.5 pl-10',
+            showClearField && loading ? 'pr-24' : showClearField ? 'pr-20' : loading ? 'pr-14' : 'pr-10',
+            ring,
+            'disabled:opacity-60',
+          )}
         />
-        {loading && (
-          <Loader2
-            className={`absolute right-3 top-1/2 -translate-y-1/2 z-20 h-4 w-4 animate-spin ${LUCIDE_STROKE_FIELD}`}
-            strokeWidth={2.5}
-            aria-hidden
-          />
-        )}
+        <div className="absolute right-2 top-1/2 z-20 flex items-center gap-0.5 -translate-y-1/2">
+          {showClearField && (
+            <button
+              type="button"
+              tabIndex={-1}
+              className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
+              aria-label="Clear"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                onChange('')
+                requestAnimationFrame(() => inputRef.current?.focus())
+              }}
+            >
+              <X className="h-4 w-4" strokeWidth={2} aria-hidden />
+            </button>
+          )}
+          {loading && (
+            <Loader2 className={`h-4 w-4 animate-spin ${LUCIDE_STROKE_FIELD}`} strokeWidth={2.5} aria-hidden />
+          )}
+        </div>
         {open &&
           !disabled &&
           !loading &&

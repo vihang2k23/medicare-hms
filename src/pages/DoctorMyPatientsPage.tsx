@@ -132,7 +132,7 @@ export default function DoctorMyPatientsPage() {
               merge({ q: e.target.value.trim() ? e.target.value : null, page: null })
             }}
             placeholder="Search by name, id, or phone…"
-            className="!pl-10 !pr-4 focus:!ring-emerald-500/35 focus:!border-emerald-400/40"
+            className="!pl-10 !pr-10 focus:!ring-emerald-500/35 focus:!border-emerald-400/40"
             aria-label="Search patients"
             invalid={!!loadError}
             aria-invalid={loadError ? true : undefined}

@@ -4,6 +4,7 @@ import { useMergeSearchParams } from '../shared/hooks/useMergeSearchParams'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   Calendar,
+  CheckCircle,
   ChevronDown,
   ChevronUp,
   FileText,
@@ -11,8 +12,10 @@ import {
   Printer,
   Search,
   Stethoscope,
+  Trash2,
   User,
   X,
+  XCircle,
 } from 'lucide-react'
 import type { AppDispatch, RootState } from '../app/store'
 import { useAuth } from '../shared/hooks/useAuth'
@@ -21,6 +24,7 @@ import type { Prescription, PrescriptionStatus } from '../features/prescriptions
 import PrescriptionForm from '../features/prescriptions/PrescriptionForm'
 import { notify } from '../shared/lib/notify'
 import { FormInput } from '../shared/ui/form'
+import ConfirmDialog from '../shared/ui/ConfirmDialog'
 
 // PrescriptionsPage defines the prescriptions page UI surface and its primary interaction flow.
 
@@ -81,7 +85,7 @@ function PrescriptionHistoryCard({
   onToggle,
   canManage,
   onStatus,
-  onDelete,
+  onRequestDelete,
   printBasePath,
 }: {
   rx: Prescription
@@ -89,7 +93,7 @@ function PrescriptionHistoryCard({
   onToggle: () => void
   canManage: boolean
   onStatus: (id: string, s: PrescriptionStatus) => void
-  onDelete: (id: string) => void
+  onRequestDelete: (id: string) => void
   printBasePath: string
 }) {
   const recallCount = rx.medicines.reduce((n, m) => n + (m.recallAlerts?.length ?? 0), 0)
@@ -240,27 +244,33 @@ function PrescriptionHistoryCard({
               <p className="text-[11px] text-slate-600 dark:text-slate-400 font-mono">Rx record id: {rx.id}</p>
 
               {canManage && rx.status === 'active' && (
-                <div className="flex flex-wrap gap-2 pt-1">
+                <div className="flex flex-wrap items-center gap-2 pt-1">
                   <button
                     type="button"
                     onClick={() => onStatus(rx.id, 'completed')}
-                    className="px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 transition-colors"
+                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 transition-colors"
+                    aria-label="Mark prescription completed"
+                    title="Mark completed"
                   >
-                    Mark completed
+                    <CheckCircle className="h-5 w-5" aria-hidden />
                   </button>
                   <button
                     type="button"
                     onClick={() => onStatus(rx.id, 'cancelled')}
-                    className="px-4 py-2 rounded-xl text-sm font-semibold border border-red-300 dark:border-red-800 text-red-700 dark:text-white hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-300 dark:border-red-800 text-red-700 dark:text-white hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                    aria-label="Cancel prescription"
+                    title="Cancel prescription"
                   >
-                    Cancel prescription
+                    <XCircle className="h-5 w-5" aria-hidden />
                   </button>
                   <button
                     type="button"
-                    onClick={() => onDelete(rx.id)}
-                    className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors ml-auto"
+                    onClick={() => onRequestDelete(rx.id)}
+                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors ml-auto"
+                    aria-label="Delete prescription record"
+                    title="Delete record"
                   >
-                    Delete record
+                    <Trash2 className="h-5 w-5" aria-hidden />
                   </button>
                 </div>
               )}
@@ -286,6 +296,8 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
   const tab: 'new' | 'history' =
     urlTab === 'new' || urlTab === 'history' ? urlTab : patientPrefill ? 'new' : 'history'
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [deleteBusy, setDeleteBusy] = useState(false)
 
   const roleScoped = useMemo(() => {
     return variant === 'admin' ? all : all.filter((r) => r.doctorId === user?.id)
@@ -323,11 +335,23 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
     notify.success(status === 'completed' ? 'Marked completed.' : 'Prescription cancelled.')
   }
 
-  const onDelete = (id: string) => {
-    if (!window.confirm('Remove this prescription record from history?')) return
-    dispatch(removePrescription(id))
-    notify.success('Removed.')
-    setExpandedId((e) => (e === id ? null : e))
+  const pendingDeleteRx = useMemo(
+    () => (deleteId ? roleScoped.find((r) => r.id === deleteId) ?? null : null),
+    [deleteId, roleScoped],
+  )
+
+  const confirmDeletePrescription = () => {
+    if (!deleteId) return
+    setDeleteBusy(true)
+    try {
+      dispatch(removePrescription(deleteId))
+      notify.success('Removed.')
+      const id = deleteId
+      setExpandedId((e) => (e === id ? null : e))
+      setDeleteId(null)
+    } finally {
+      setDeleteBusy(false)
+    }
   }
 
   const accent =
@@ -518,7 +542,7 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
                     onToggle={() => setExpandedId((id) => (id === rx.id ? null : rx.id))}
                     canManage={variant === 'admin' || rx.doctorId === user?.id}
                     onStatus={onStatus}
-                    onDelete={onDelete}
+                    onRequestDelete={setDeleteId}
                     printBasePath={printBasePath}
                   />
                 </li>
@@ -527,6 +551,27 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
           )}
         </section>
       )}
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        title="Delete prescription record?"
+        description={
+          pendingDeleteRx ? (
+            <>
+              Remove the local history entry for{' '}
+              <span className="font-semibold text-slate-800 dark:text-white">{pendingDeleteRx.patientName}</span>
+              <span className="font-mono text-xs block mt-2 text-slate-500">{pendingDeleteRx.id}</span>
+              <span className="block mt-3">This cannot be undone for the current session cache.</span>
+            </>
+          ) : null
+        }
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+        confirmLoading={deleteBusy}
+        onCancel={() => !deleteBusy && setDeleteId(null)}
+        onConfirm={confirmDeletePrescription}
+      />
     </div>
   )
 }

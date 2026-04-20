@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, type KeyboardEvent } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useMergeSearchParams } from '../shared/hooks/useMergeSearchParams'
 import { useSelector } from 'react-redux'
@@ -12,13 +12,16 @@ import {
   ChevronLeft,
   ChevronRight,
   Droplet,
+  Eye,
   Filter,
   ListFilter,
   Loader2,
+  Pencil,
   PersonStanding,
   SearchX,
   UserCheck,
   UserPlus,
+  UserX,
   Users,
 } from 'lucide-react'
 import { fetchPatients, softDeletePatient } from '../shared/api/patientsApi'
@@ -29,6 +32,7 @@ import { SearchFilterCombobox, SearchableIdPicker } from '../shared/ui/SearchWit
 import { filterLabeledOption } from '../shared/ui/labeledOptionFilter'
 import { isoDateLocalToday } from '../features/patients/patientSchemas'
 import { LUCIDE_STROKE_FIELD } from '../shared/ui/lucideChrome'
+import ConfirmDialog from '../shared/ui/ConfirmDialog'
 
 const PAGE_SIZE = 10
 
@@ -108,6 +112,23 @@ function regRangeEndMs(isoDate: string): number | null {
   return Number.isNaN(x) ? null : x
 }
 
+const AGE_FILTER_MAX = 130
+
+/** URL param value: empty, invalid, or negative → null; otherwise clamped 0…AGE_FILTER_MAX. */
+function sanitizeAgeFilterParam(raw: string): string | null {
+  const t = raw.trim()
+  if (!t) return null
+  const n = Number(t)
+  if (!Number.isFinite(n) || n < 0) return null
+  return String(Math.min(AGE_FILTER_MAX, Math.max(0, Math.floor(n))))
+}
+
+function blockNegativeNumberKeys(e: KeyboardEvent<HTMLInputElement>) {
+  if (e.key === '-' || e.key === '+' || e.key === 'e' || e.key === 'E') {
+    e.preventDefault()
+  }
+}
+
 // PatientListPage renders the patient list page UI.
 export default function PatientListPage() {
   const appointments = useSelector((s: RootState) => s.appointments.appointments)
@@ -125,6 +146,8 @@ export default function PatientListPage() {
   const departmentFilter = searchParams.get('dept') ?? ''
   const location = useLocation()
   const registeredId = (location.state as { registeredId?: string } | null)?.registeredId
+  const [deactivateTarget, setDeactivateTarget] = useState<PatientRecord | null>(null)
+  const [deactivateBusy, setDeactivateBusy] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -271,16 +294,18 @@ export default function PatientListPage() {
     }
   }, [regFrom, regTo, merge])
 
-  const deactivate = async (p: PatientRecord) => {
-    if (!window.confirm(`Soft-delete (deactivate) patient ${p.fullName} (${p.id})? They will be hidden from this list.`)) {
-      return
-    }
+  const confirmDeactivate = async () => {
+    if (!deactivateTarget) return
+    setDeactivateBusy(true)
     try {
-      await softDeletePatient(p.id)
-      notify.success(`${p.fullName} deactivated`)
+      await softDeletePatient(deactivateTarget.id)
+      notify.success(`${deactivateTarget.fullName} deactivated`)
+      setDeactivateTarget(null)
       await load()
     } catch (e) {
       notify.error(e instanceof Error ? e.message : 'Could not deactivate patient')
+    } finally {
+      setDeactivateBusy(false)
     }
   }
 
@@ -447,7 +472,6 @@ export default function PatientListPage() {
               placeholder="Search blood group…"
               emptyLabel="All groups"
               accent="sky"
-              allowClear={false}
               className="w-full"
             />
           </div>
@@ -465,7 +489,6 @@ export default function PatientListPage() {
               placeholder="Search gender…"
               emptyLabel="All"
               accent="sky"
-              allowClear={false}
               className="w-full"
             />
           </div>
@@ -489,11 +512,13 @@ export default function PatientListPage() {
                 id="patient-age-min"
                 type="number"
                 min={0}
-                max={130}
+                max={AGE_FILTER_MAX}
+                step={1}
                 inputMode="numeric"
                 placeholder="Any"
                 value={ageMin}
-                onChange={(e) => merge({ ageMin: e.target.value.trim() || null, page: null })}
+                onKeyDown={blockNegativeNumberKeys}
+                onChange={(e) => merge({ ageMin: sanitizeAgeFilterParam(e.target.value), page: null })}
                 invalid={!!ageRangeFilterError}
                 aria-invalid={ageRangeFilterError ? true : undefined}
                 aria-describedby={ageRangeFilterError ? 'patient-list-age-range-err' : undefined}
@@ -518,11 +543,13 @@ export default function PatientListPage() {
                 id="patient-age-max"
                 type="number"
                 min={0}
-                max={130}
+                max={AGE_FILTER_MAX}
+                step={1}
                 inputMode="numeric"
                 placeholder="Any"
                 value={ageMax}
-                onChange={(e) => merge({ ageMax: e.target.value.trim() || null, page: null })}
+                onKeyDown={blockNegativeNumberKeys}
+                onChange={(e) => merge({ ageMax: sanitizeAgeFilterParam(e.target.value), page: null })}
                 invalid={!!ageRangeFilterError}
                 aria-invalid={ageRangeFilterError ? true : undefined}
                 aria-describedby={ageRangeFilterError ? 'patient-list-age-range-err' : undefined}
@@ -623,7 +650,6 @@ export default function PatientListPage() {
               placeholder="Search department…"
               emptyLabel="All departments"
               accent="sky"
-              allowClear={false}
               className="w-full"
             />
             {departmentOptions.length === 0 && (
@@ -754,22 +780,28 @@ export default function PatientListPage() {
                           <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
                             <Link
                               to={`/admin/patients/${encodeURIComponent(p.id)}`}
-                              className="inline-flex px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-sky-500/10 text-sky-700 dark:text-white hover:bg-sky-500/20 transition-colors"
+                              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sky-500/10 text-sky-700 dark:text-white hover:bg-sky-500/20 transition-colors"
+                              aria-label={`View profile for ${p.fullName}`}
+                              title="View profile"
                             >
-                              View
+                              <Eye className="h-4 w-4" aria-hidden />
                             </Link>
                             <Link
                               to={`/admin/patients/${encodeURIComponent(p.id)}/edit`}
-                              className="inline-flex px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors"
+                              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors"
+                              aria-label={`Edit ${p.fullName}`}
+                              title="Edit patient"
                             >
-                              Edit
+                              <Pencil className="h-4 w-4" aria-hidden />
                             </Link>
                             <button
                               type="button"
-                              onClick={() => void deactivate(p)}
-                              className="inline-flex px-2.5 py-1.5 rounded-lg text-xs font-semibold text-red-600 dark:text-white hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                              onClick={() => setDeactivateTarget(p)}
+                              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-600 dark:text-white hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                              aria-label={`Deactivate ${p.fullName}`}
+                              title="Deactivate patient"
                             >
-                              Deactivate
+                              <UserX className="h-4 w-4" aria-hidden />
                             </button>
                           </div>
                         </td>
@@ -808,6 +840,26 @@ export default function PatientListPage() {
           </>
         )}
       </DashboardCard>
+
+      <ConfirmDialog
+        open={deactivateTarget !== null}
+        title="Deactivate patient?"
+        description={
+          deactivateTarget ? (
+            <>
+              <span className="font-semibold text-slate-800 dark:text-white">{deactivateTarget.fullName}</span>
+              <span className="font-mono text-xs block mt-2 text-slate-500 dark:text-slate-400">{deactivateTarget.id}</span>
+              <span className="block mt-3">They will be hidden from this list (soft-delete).</span>
+            </>
+          ) : null
+        }
+        confirmLabel="Deactivate"
+        cancelLabel="Cancel"
+        variant="danger"
+        confirmLoading={deactivateBusy}
+        onCancel={() => !deactivateBusy && setDeactivateTarget(null)}
+        onConfirm={confirmDeactivate}
+      />
     </div>
   )
 }

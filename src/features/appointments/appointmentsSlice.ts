@@ -109,7 +109,14 @@ const appointmentsSlice = createSlice({
       action: PayloadAction<{ id: string; date: string; slotStart: string; slotEnd: string }>,
     ) {
       const a = state.appointments.find((x) => x.id === action.payload.id)
-      if (!a || a.status === 'cancelled') return
+      if (
+        !a ||
+        a.status === 'cancelled' ||
+        a.status === 'completed' ||
+        a.status === 'no-show'
+      ) {
+        return
+      }
       a.date = action.payload.date
       a.slotStart = action.payload.slotStart
       a.slotEnd = action.payload.slotEnd
@@ -120,7 +127,15 @@ const appointmentsSlice = createSlice({
     },
     cancelAppointment(state, action: PayloadAction<string>) {
       const a = state.appointments.find((x) => x.id === action.payload)
-      if (a) a.status = 'cancelled'
+      if (
+        !a ||
+        a.status === 'cancelled' ||
+        a.status === 'completed' ||
+        a.status === 'no-show'
+      ) {
+        return
+      }
+      a.status = 'cancelled'
     },
     setImportedScheduleDoctors(state, action: PayloadAction<ScheduleDoctor[]>) {
       const isFromJsonServer = (d: ScheduleDoctor) =>

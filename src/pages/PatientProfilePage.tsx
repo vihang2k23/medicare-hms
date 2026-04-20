@@ -218,24 +218,27 @@ export default function PatientProfilePage() {
         <div className="flex flex-wrap gap-2 self-start">
           <Link
             to={`/admin/prescriptions?patient=${encodeURIComponent(patient.id)}`}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-white text-sm font-medium hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-white hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+            title="New prescription"
+            aria-label="New prescription"
           >
             <FileText className="h-4 w-4" aria-hidden />
-            New prescription
           </Link>
           <Link
             to={`/admin/appointments`}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-sky-200 dark:border-sky-800 text-sky-800 dark:text-white text-sm font-medium hover:bg-sky-50 dark:hover:bg-sky-950/40"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-sky-200 dark:border-sky-800 text-sky-800 dark:text-white hover:bg-sky-50 dark:hover:bg-sky-950/40"
+            title="Appointments"
+            aria-label="Open appointments"
           >
             <Calendar className="h-4 w-4" aria-hidden />
-            Appointments
           </Link>
           <Link
             to={`/admin/patients/${encodeURIComponent(patient.id)}/edit`}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-sm font-medium"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-600 hover:bg-sky-500 text-white"
+            title="Edit patient"
+            aria-label="Edit patient"
           >
             <Pencil className="h-4 w-4 shrink-0" aria-hidden />
-            Edit
           </Link>
         </div>
       </div>

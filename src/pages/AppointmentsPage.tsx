@@ -110,6 +110,10 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
 
   const applyReschedule = (date: string, slotStart: string, slotEnd: string) => {
     if (!activeApt || !manageDoctor) return
+    if (!['scheduled', 'confirmed', 'in-progress'].includes(activeApt.status)) {
+      notify.error('Completed or archived visits cannot be rescheduled.')
+      return
+    }
     const conflict = findSchedulingConflict(
       appointments,
       activeApt.doctorId,
@@ -131,6 +135,10 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
       if (!doctor) return false
       const apt = appointments.find((a) => a.id === appointmentId)
       if (!apt || apt.doctorId !== doctor.id) return false
+      if (!['scheduled', 'confirmed', 'in-progress'].includes(apt.status)) {
+        notify.error('Only upcoming active visits can be moved.')
+        return false
+      }
       if (apt.date === targetDate && apt.slotStart === slotStart) {
         notify.error('Already at this time.')
         return false
@@ -179,8 +187,8 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
         </p>
       </div>
 
-      <div className="no-print-appt flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/50 backdrop-blur-sm p-3 sm:p-4 ring-1 ring-slate-200/40 dark:ring-slate-700/40">
-        <div className="flex flex-wrap items-center gap-2 min-w-0">
+      <div className="no-print-appt flex flex-col gap-4 xl:flex-row xl:flex-nowrap xl:items-center xl:justify-between xl:gap-6 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-900/50 backdrop-blur-sm p-3 sm:p-4 ring-1 ring-slate-200/40 dark:ring-slate-700/40">
+        <div className="flex flex-wrap items-center gap-2 min-w-0 xl:shrink-0">
           <button
             type="button"
             onClick={() =>
@@ -228,7 +236,7 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
           </label>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 w-full sm:w-auto">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center w-full xl:min-w-0 xl:flex-1 xl:justify-end xl:gap-4">
           <button
             type="button"
             onClick={printSchedule}
@@ -245,10 +253,10 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
               {doctor.department}
             </p>
           ) : (
-            <div className="w-full sm:w-auto sm:min-w-[16rem] sm:max-w-md">
+            <div className="w-full sm:min-w-[16rem] sm:max-w-md xl:max-w-lg xl:flex-1">
               <SearchableIdPicker<ScheduleDoctor>
                 id="appt-doctor"
-                label="Doctor"
+              
                 items={doctors}
                 selectedId={doctorId}
                 onSelectId={(id) => merge({ doctor: id || null })}
@@ -296,6 +304,7 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
         onClose={() => setManageOpen(false)}
         appointment={activeApt}
         doctor={manageDoctor ?? doctor}
+        scheduleRole={variant === 'doctor' ? 'doctor' : 'staff'}
         onReschedule={applyReschedule}
         onCancel={() => {
           if (activeApt) {
