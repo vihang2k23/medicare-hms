@@ -28,6 +28,7 @@ import type { PatientRecord } from '../../types/patient'
 import { createPatient, updatePatient } from '../../services/patientsApi'
 import { notify } from '../../utils/notify'
 import { generatePatientId } from './patientId'
+import { PATIENT_REGISTRATION_FORM_STORAGE_KEY } from './patientRegistrationStorage'
 
 const defaultValues: PatientFormValues = {
   fullName: '',
@@ -67,8 +68,6 @@ const BLOOD_PICKER = [
 
 const stepSchemas = [step1Schema, step2Schema, step3Schema, step4Schema] as const
 
-const FORM_STORAGE_KEY = 'medicare_hms_patient_registration_form'
-
 interface PatientRegistrationFormProps {
   onSuccess?: () => void
   /** Where to navigate after successful save */
@@ -97,10 +96,12 @@ export default function PatientRegistrationForm({
   const getInitialStep = () => {
     if (initialRecord) return 0
     try {
-      const stored = localStorage.getItem(FORM_STORAGE_KEY)
+      const stored = localStorage.getItem(PATIENT_REGISTRATION_FORM_STORAGE_KEY)
       if (stored) {
-        const parsed = JSON.parse(stored)
-        return parsed.step || 0
+        const parsed = JSON.parse(stored) as { step?: number }
+        const s = parsed.step ?? 0
+        if (typeof s !== 'number' || s < 0 || s >= STEPS.length) return 0
+        return s
       }
     } catch {
       // Ignore parse errors
@@ -119,7 +120,7 @@ export default function PatientRegistrationForm({
   const getInitialData = () => {
     if (initialRecord) return patientRecordToFormValues(initialRecord)
     try {
-      const stored = localStorage.getItem(FORM_STORAGE_KEY)
+      const stored = localStorage.getItem(PATIENT_REGISTRATION_FORM_STORAGE_KEY)
       if (stored) {
         const parsed = JSON.parse(stored)
         return { ...defaultValues, ...parsed.data }
@@ -155,13 +156,15 @@ export default function PatientRegistrationForm({
     }
   }, [initialRecord, reset])
 
-  // Persist form data and step to localStorage (subscribe so typing is saved; step via ref)
+  // Persist form data and step to localStorage (subscribe so typing is saved; step via ref).
+  // `step` is in deps so Next/Back updates storage even when no field changes (otherwise refresh
+  // restores a stale step).
   useEffect(() => {
     if (isEdit) return
     const persist = () => {
       try {
         localStorage.setItem(
-          FORM_STORAGE_KEY,
+          PATIENT_REGISTRATION_FORM_STORAGE_KEY,
           JSON.stringify({
             data: form.getValues(),
             step: stepRef.current,
@@ -175,7 +178,7 @@ export default function PatientRegistrationForm({
     persist()
     const sub = watch(() => persist())
     return () => sub.unsubscribe()
-  }, [watch, isEdit, form])
+  }, [watch, isEdit, form, step])
 
   const next = async () => {
     setSubmitError(null)
@@ -254,7 +257,7 @@ export default function PatientRegistrationForm({
         isActive: true,
       }
       await createPatient(record)
-      localStorage.removeItem(FORM_STORAGE_KEY)
+      localStorage.removeItem(PATIENT_REGISTRATION_FORM_STORAGE_KEY)
       onSuccess?.()
       notify.success(`Patient registered · ${id}`)
       navigate(redirectTo, { replace: false, state: { registeredId: id } })

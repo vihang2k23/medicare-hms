@@ -31,6 +31,7 @@ import DashboardCard from '../components/ui/DashboardCard'
 import { SearchFilterCombobox, SearchableIdPicker } from '../components/ui/SearchWithDropdown'
 import { filterLabeledOption } from '../components/ui/labeledOptionFilter'
 import { isoDateLocalToday } from '../domains/patients/patientSchemas'
+import { clearPatientRegistrationDraft } from '../domains/patients/patientRegistrationStorage'
 import { LUCIDE_STROKE_FIELD } from '../components/ui/lucideChrome'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
 
@@ -131,6 +132,9 @@ function blockNegativeNumberKeys(e: KeyboardEvent<HTMLInputElement>) {
 
 // PatientListPage renders the patient list page UI.
 export default function PatientListPage() {
+  useEffect(() => {
+    clearPatientRegistrationDraft()
+  }, [])
   const appointments = useSelector((s: RootState) => s.appointments.appointments)
   const [patients, setPatients] = useState<PatientRecord[]>([])
   const [loading, setLoading] = useState(true)

@@ -371,7 +371,9 @@ export function SearchFilterCombobox<T>({
         <input
           ref={inputRef}
           id={id}
-          type="search"
+          type="text"
+          inputMode="search"
+          enterKeyHint="search"
           role="combobox"
           aria-expanded={open}
           autoComplete="off"

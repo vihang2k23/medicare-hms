@@ -10,10 +10,14 @@ import type { RootState } from '../store'
 import { formatOpdTokenLabel } from '../domains/queue/queueSlice'
 import { fetchPatients } from '../services/patientsApi'
 import { formatLocalDate, pendingAppointmentsToday, startOfLocalDayMs } from '../utils/dashboardMetrics'
+import { clearPatientRegistrationDraft } from '../domains/patients/patientRegistrationStorage'
 
 // ReceptionistDashboard defines the Receptionist Dashboard UI surface and its primary interaction flow.
 // ReceptionistDashboard renders the receptionist dashboard UI.
 export default function ReceptionistDashboard() {
+  useEffect(() => {
+    clearPatientRegistrationDraft()
+  }, [])
   const { user } = useAuth()
   const opdQueue = useSelector((s: RootState) => s.queue.queue)
   const currentToken = useSelector((s: RootState) => s.queue.currentToken)

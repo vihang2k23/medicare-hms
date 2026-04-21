@@ -125,7 +125,9 @@ export default function DoctorMyPatientsPage() {
             aria-hidden
           />
           <FormInput
-            type="search"
+            type="text"
+            inputMode="search"
+            enterKeyHint="search"
             value={searchQuery}
             onChange={(e) => {
               if (loadError) setLoadError(null)
