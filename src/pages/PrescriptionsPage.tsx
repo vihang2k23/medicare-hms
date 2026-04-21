@@ -446,10 +446,13 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
               />
               <FormInput
                 value={q}
+                clearable={false}
+                inputMode="search"
+                enterKeyHint="search"
                 onChange={(e) => merge({ q: e.target.value.trim() ? e.target.value : null })}
                 placeholder="Search by patient name, patient ID, or prescriber…"
                 aria-label="Search prescriptions"
-                className="!pl-10 !pr-10 !py-3 bg-slate-50/80 dark:bg-slate-950/40"
+                className="!pl-10 !py-3 bg-slate-50/80 dark:bg-slate-950/40 !pr-10"
               />
               {q.trim() !== '' && (
                 <button
