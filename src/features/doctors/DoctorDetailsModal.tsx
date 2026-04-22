@@ -1,7 +1,7 @@
 import { Briefcase, MapPin, Phone, User, X } from 'lucide-react'
 import { useModalScrollLock } from '../../hooks/useModalScrollLock'
-import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../components/ui/modalOverlayClasses'
-import { ModalPortal } from '../../components/ui/ModalPortal'
+import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../utils/helpers'
+import { ModalPortal } from '../../utils/helpers'
 import type { AutocompleteDoctor } from '../../domains/doctors/npiAutocompleteMap'
 
 // DoctorDetailsModal defines the Doctor Details Modal UI surface and its primary interaction flow.

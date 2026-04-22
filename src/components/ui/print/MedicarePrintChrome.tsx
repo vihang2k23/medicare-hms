@@ -1,5 +1,5 @@
 import MediCareLogo from '../brand/MediCareLogo'
-import { medicarePrintTimestamp } from '../../../utils/medicarePrintTimestamp'
+import { medicarePrintTimestamp } from '../../../utils/helpers'
 
 // MedicarePrintChrome defines the Medicare Print Chrome UI surface and its primary interaction flow.
 type MedicarePrintPageHeaderProps = {

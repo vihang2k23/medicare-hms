@@ -15,7 +15,7 @@ import WeeklyTimeGridCalendar from '../domains/appointments/WeeklyTimeGridCalend
 import { BookAppointmentModal, ManageAppointmentModal } from '../domains/appointments/AppointmentDialogs'
 import { isDateInWeek, startOfWeekMonday } from '../domains/appointments/slotUtils'
 import type { Appointment, ScheduleDoctor } from '../domains/appointments/types'
-import { notify } from '../utils/notify'
+import { notify } from '../utils/helpers'
 import type { PatientRecord } from '../types/patient'
 import { scheduleDoctorIdForAuthUser } from '../config/doctorScheduleMap'
 import { SearchableIdPicker } from '../components/ui/SearchWithDropdown'

@@ -108,7 +108,7 @@ const initialBeds: Bed[] = [
     occupantName: 'A. Menon',
   },
   { id: 'b2', wardId: wardGeneral.id, wardName: wardGeneral.name, bedNumber: '2', status: 'available' },
-  { id: 'b3', wardId: wardGeneral.id, wardName: wardGeneral.name, bedNumber: '3', status: 'reserved' },
+  { id: 'b3', wardId: wardGeneral.id, wardName: wardGeneral.name, bedNumber: '3', status: 'occupied', occupantName: 'B. Smith' },
   { id: 'b6', wardId: wardGeneral.id, wardName: wardGeneral.name, bedNumber: '4', status: 'maintenance' },
   { id: 'b4', wardId: wardIcu.id, wardName: wardIcu.name, bedNumber: '1', status: 'occupied', occupantName: 'R. Khan' },
   { id: 'b5', wardId: wardIcu.id, wardName: wardIcu.name, bedNumber: '2', status: 'available' },

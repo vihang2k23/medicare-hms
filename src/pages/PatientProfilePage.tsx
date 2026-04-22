@@ -21,9 +21,9 @@ import { fetchPatientById } from '../services/patientsApi'
 import { fetchVitalsByPatientId } from '../services/vitalsApi'
 import VitalsHistoryList from '../domains/vitals/VitalsHistoryList'
 import VitalsTrendCharts from '../domains/vitals/VitalsTrendCharts'
-import { downloadCsv } from '../utils/csvExport'
+import { downloadCsv } from '../utils/helpers'
 import { appointmentStatusClasses } from '../domains/appointments/appointmentStatusStyles'
-import { buildSimulatedBillingForPatient, billingTotals } from '../utils/patientBillingFromRecords'
+import { buildSimulatedBillingForPatient, billingTotals } from '../utils/business'
 import type { BillingRecordStatus } from '../types/billing'
 
 // PatientProfilePage defines the Patient Profile Page UI surface and its primary interaction flow.

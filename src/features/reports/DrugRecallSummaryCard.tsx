@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { AlertTriangle, Download, Loader2, RefreshCw } from 'lucide-react'
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import DashboardCard from '../../components/ui/DashboardCard'
-import { fetchRecallCountsByDrugClass } from '../../utils/openfdaEnforcementApi'
-import { downloadCsv } from '../../utils/csvExport'
+import { fetchRecallCountsByDrugClass } from '../../utils/api'
+import { downloadCsv } from '../../utils/helpers'
 
 // DrugRecallSummaryCard defines the Drug Recall Summary Card UI surface and its primary interaction flow.
 const BAR_COLORS = ['#7c3aed', '#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6', '#64748b', '#ec4899']

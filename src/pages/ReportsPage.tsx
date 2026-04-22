@@ -32,7 +32,7 @@ import {
   buildSimulatedRevenueByDepartment,
 } from '../domains/reports/reportsAnalyticsData'
 import { fetchAllPatients } from '../services/patientsApi'
-import { downloadCsv } from '../utils/csvExport'
+import { downloadCsv } from '../utils/helpers'
 import { MedicarePrintPageFooter, MedicarePrintPageHeader } from '../components/ui/print/MedicarePrintChrome'
 import { BedDouble, Calendar, Download, FileText, ListOrdered, Printer, Stethoscope, Users } from 'lucide-react'
 

@@ -1,6 +1,6 @@
 import { forwardRef, type InputHTMLAttributes, useCallback, useRef } from 'react'
 import { X } from 'lucide-react'
-import { cn } from '../../../utils/cn'
+import { cn } from '../../../utils/helpers'
 import { fieldInputClass, fieldInputOrangeClass, fieldInputSoftClass } from './fieldStyles'
 
 export type FormInputProps = InputHTMLAttributes<HTMLInputElement> & {

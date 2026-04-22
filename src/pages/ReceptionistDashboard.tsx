@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux'
 import type { RootState } from '../store'
 import { formatOpdTokenLabel } from '../domains/queue/queueSlice'
 import { fetchPatients } from '../services/patientsApi'
-import { formatLocalDate, pendingAppointmentsToday, startOfLocalDayMs } from '../utils/dashboardMetrics'
+import { formatLocalDate, pendingAppointmentsToday, startOfLocalDayMs } from '../utils/business'
 import { clearPatientRegistrationDraft } from '../domains/patients/patientRegistrationStorage'
 
 // ReceptionistDashboard defines the Receptionist Dashboard UI surface and its primary interaction flow.

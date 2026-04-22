@@ -11,9 +11,9 @@ import { fetchPatientById } from '../services/patientsApi'
 import { fetchVitalsByPatientId } from '../services/vitalsApi'
 import VitalsHistoryList from '../domains/vitals/VitalsHistoryList'
 import VitalsTrendCharts from '../domains/vitals/VitalsTrendCharts'
-import { downloadCsv } from '../utils/csvExport'
+import { downloadCsv } from '../utils/helpers'
 import { scheduleDoctorIdForAuthUser } from '../config/doctorScheduleMap'
-import { isPatientInDoctorCare } from '../utils/myPatientsForDoctor'
+import { isPatientInDoctorCare } from '../utils/business'
 import type { Appointment } from '../domains/appointments/types'
 
 // DoctorPatientProfilePage defines the Doctor Patient Profile Page UI surface and its primary interaction flow.

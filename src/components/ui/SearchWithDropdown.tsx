@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronDown, Loader2, Search, X, type LucideIcon } from 'lucide-react'
-import { cn } from '../../utils/cn'
+import { cn } from '../../utils/helpers'
 import { FIELD_CONTROL_CORE, FIELD_LABEL_CLASS, SEARCH_FIELD_FOCUS, type SearchFieldAccent } from './form/fieldStyles'
 import { LUCIDE_STROKE_FIELD } from './lucideChrome'
 

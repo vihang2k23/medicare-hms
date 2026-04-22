@@ -1,22 +1,21 @@
-import { Fragment, useCallback, useMemo, useState, useRef, useEffect } from 'react'
+import { Fragment, useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { BedDouble, ChevronDown, Keyboard, LogOut, Menu, Moon, PanelLeftClose, RotateCcw, Sun, X } from 'lucide-react'
-import { logout, login } from '../domains/auth/authSlice'
-import type { AuthUser } from '../domains/auth/authSlice'
-import { getDefaultDashboard } from '../config/roles'
-import { useAuth } from '../hooks/useAuth'
-import NotificationBell from '../domains/alerts/NotificationBell'
-import { setSidebarOpen, setTheme, toggleSidebar } from '../domains/ui/uiSlice'
-import { setBedSimulationRunning } from '../domains/beds/bedSlice'
-import type { RootState } from '../store'
-import { notify } from '../utils/helpers'
-import MediCareLogo, { MediCareWordmark } from '../components/ui/brand/MediCareLogo'
-import { LUCIDE_STROKE_CHROME } from '../utils/helpers'
-import { ALL_DEMO_LOGIN_ENTRIES, demoEntryToAuthUser, type DemoLoginEntry } from '../config/demoAccounts'
-import { APPOINTMENTS_STORAGE_KEY } from '../domains/appointments/appointmentsStorage'
-import { PRESCRIPTIONS_STORAGE_KEY } from '../domains/prescriptions/prescriptionsStorage'
-import ConfirmDialog from '../components/ui/ConfirmDialog'
+import { logout, login } from '../../domains/auth/authSlice'
+import type { AuthUser, NavbarProps, LetterShortcutKey, RoleShortcutRow, DemoLoginEntry } from '../../types'
+import { useAuth } from '../../hooks/useAuth'
+import NotificationBell from '../../domains/alerts/NotificationBell'
+import { setSidebarOpen, setTheme, toggleSidebar } from '../../domains/ui/uiSlice'
+import { setBedSimulationRunning } from '../../domains/beds/bedSlice'
+import type { RootState } from '../../store'
+import { notify, LUCIDE_STROKE_CHROME } from '../../utils/helpers'
+import MediCareLogo, { MediCareWordmark } from './brand/MediCareLogo'
+import { ALL_DEMO_LOGIN_ENTRIES, demoEntryToAuthUser } from '../../config/demoAccounts'
+import { APPOINTMENTS_STORAGE_KEY } from '../../domains/appointments/appointmentsStorage'
+import { PRESCRIPTIONS_STORAGE_KEY } from '../../domains/prescriptions/prescriptionsStorage'
+import ConfirmDialog from './ConfirmDialog'
+import { getDefaultDashboard } from '../../config/roles'
 
 // Navbar defines the Navbar UI surface and its primary interaction flow.
 /** Human-readable role for the menu (neutral copy, no loud badge colors). */
@@ -27,14 +26,6 @@ const ROLE_DISPLAY: Record<AuthUser['role'], string> = {
   nurse: 'Nurse',
 }
 
-type LetterShortcutKey = 'n' | 'q' | 'b'
-
-type RoleShortcutRow = {
-  key: LetterShortcutKey
-  keysLabel: string
-  label: string
-  path: string
-}
 
 /** Letter shortcuts available per role (must match `runShortcut` / global key listener). */
 function roleShortcutRows(role: AuthUser['role'] | null | undefined): RoleShortcutRow[] {
@@ -65,13 +56,6 @@ function isEditableTarget(target: EventTarget | null): boolean {
   return tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable
 }
 
-export type NavbarProps = {
-  /**
-   * When false, the sidebar burger is never shown (use on /login).
-   * When logged out, the burger is hidden regardless of this prop.
-   */
-  showSidebarToggle?: boolean
-}
 
 // Navbar renders the navbar UI.
 export default function Navbar({ showSidebarToggle = true }: NavbarProps) {

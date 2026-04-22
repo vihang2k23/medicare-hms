@@ -8,7 +8,7 @@ import type { PatientRecord } from '../types/patient'
 import type { VitalRecord } from '../types/vitals'
 import DashboardCard from '../components/ui/DashboardCard'
 import { SearchableIdPicker } from '../components/ui/SearchWithDropdown'
-import { filterLabeledOption } from '../components/ui/labeledOptionFilter'
+import { filterLabeledOption } from '../utils/helpers'
 import VitalsRecordModal from '../domains/vitals/VitalsRecordModal'
 import { FieldError, FormInput } from '../components/ui/form'
 

@@ -10,7 +10,7 @@ import {
   formatLocalDate,
   pickNextDoctorAppointment,
   startOfLocalDayMs,
-} from '../utils/dashboardMetrics'
+} from '../utils/business'
 import { Calendar, FileText } from 'lucide-react'
 
 function statusLabel(status: string): string {

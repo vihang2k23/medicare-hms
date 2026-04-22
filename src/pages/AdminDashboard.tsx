@@ -11,7 +11,7 @@ import {
   revenueSeriesLast7Days,
   startOfLocalDayMs,
   topDepartmentsByUniquePatients,
-} from '../utils/dashboardMetrics'
+} from '../utils/business'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../store'
 import { formatOpdTokenLabel } from '../domains/queue/queueSlice'

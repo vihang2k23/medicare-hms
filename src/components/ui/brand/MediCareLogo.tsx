@@ -1,5 +1,3 @@
-import { useId } from 'react'
-
 // MediCareLogo defines the Medi Care Logo UI surface and its primary interaction flow.
 type LogoSize = 'sm' | 'md' | 'lg' | 'xl'
 
@@ -12,46 +10,29 @@ const sizePx: Record<LogoSize, number> = {
 
 export interface MediCareLogoProps {
   size?: LogoSize
-  /** Extra classes on the SVG root */
+  /** Extra classes on the img root */
   className?: string
   /** Accessible label; set false to mark decorative */
   title?: string | false
 }
 
 /**
- * MediCare HMS mark — rounded tile + medical cross (inline SVG, no external asset).
+ * MediCare HMS mark — rounded tile + medical cross (SVG file, no inline markup).
  */
 export default function MediCareLogo({ size = 'md', className = '', title = false }: MediCareLogoProps) {
-  const rawId = useId()
-  const gid = `mc-logo-grad-${rawId.replace(/:/g, '')}`
   const px = sizePx[size]
   const label = title === false ? undefined : title ?? 'MediCare HMS'
 
   return (
-    <svg
+    <img
+      src="/logo.svg"
       width={px}
       height={px}
-      viewBox="0 0 40 40"
-      className={`shrink-0 ${className}`}
+      alt={label ?? ''}
       role={label ? 'img' : 'presentation'}
-      aria-label={label}
       aria-hidden={label ? undefined : true}
-    >
-      {label ? <title>{label}</title> : null}
-      <defs>
-        <linearGradient id={gid} x1="8" y1="4" x2="32" y2="36" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#38bdf8" />
-          <stop offset="0.45" stopColor="#0ea5e9" />
-          <stop offset="1" stopColor="#0284c7" />
-        </linearGradient>
-      </defs>
-      <rect width="40" height="40" rx="11" fill={`url(#${gid})`} />
-      <rect x="0" y="0" width="40" height="40" rx="11" fill="none" stroke="white" strokeOpacity="0.2" strokeWidth="1" />
-      <path
-        fill="white"
-        d="M18.25 11.5h3.5v7.25H29v3.5h-7.25V29.5h-3.5v-7.25H11v-3.5h7.25V11.5Z"
-      />
-    </svg>
+      className={`shrink-0 ${className}`}
+    />
   )
 }
 

@@ -4,19 +4,7 @@ import { ModalPortal } from './ModalPortal'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from './modalOverlayClasses'
 import { useModalScrollLock } from '../../hooks/useModalScrollLock'
 
-export type ConfirmDialogProps = {
-  open: boolean
-  title: string
-  description?: ReactNode
-  confirmLabel?: string
-  cancelLabel?: string
-  variant?: 'danger' | 'neutral'
-  confirmLoading?: boolean
-  confirmDisabled?: boolean
-  titleId?: string
-  onConfirm: () => void | Promise<void>
-  onCancel: () => void
-}
+import type { ConfirmDialogProps } from '../../types'
 
 export default function ConfirmDialog({
   open,

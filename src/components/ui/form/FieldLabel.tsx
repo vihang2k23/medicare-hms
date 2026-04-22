@@ -1,5 +1,5 @@
 import type { LabelHTMLAttributes, ReactNode } from 'react'
-import { cn } from '../../../utils/cn'
+import { cn } from '../../../utils/helpers'
 import { FIELD_LABEL_CLASS } from './fieldStyles'
 
 export type FieldLabelProps = LabelHTMLAttributes<HTMLLabelElement> & {

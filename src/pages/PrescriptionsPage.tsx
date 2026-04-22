@@ -22,7 +22,7 @@ import { useAuth } from '../hooks/useAuth'
 import { removePrescription, updatePrescriptionStatus } from '../domains/prescriptions/prescriptionsSlice'
 import type { Prescription, PrescriptionStatus } from '../domains/prescriptions/types'
 import PrescriptionForm from '../domains/prescriptions/PrescriptionForm'
-import { notify } from '../utils/notify'
+import { notify } from '../utils/helpers'
 import { FormInput } from '../components/ui/form'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
 

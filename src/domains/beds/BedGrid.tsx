@@ -14,11 +14,11 @@ import {
   X,
 } from 'lucide-react'
 import type { AppDispatch, RootState } from '../../store'
-import { notify } from '../../utils/notify'
+import { notify } from '../../utils/helpers'
 import { useModalScrollLock } from '../../hooks/useModalScrollLock'
-import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../components/ui/modalOverlayClasses'
+import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../utils/helpers'
 import { FieldError, FormInput } from '../../components/ui/form'
-import { ModalPortal } from '../../components/ui/ModalPortal'
+import { ModalPortal } from '../../utils/helpers'
 import type { Bed, BedStatus, WardDefinition } from './bedSlice'
 import {
   addBedToWard,

@@ -28,31 +28,29 @@ import {
   fetchInternalDoctors,
   findInternalDoctorByNpi,
 } from '../services/internalDoctorsApi'
-import type { NpiProviderCard, NpiRawResult, NpiSearchParams } from '../utils/npiRegistryApi'
+import type { NpiProviderCard, NpiRawResult, NpiSearchParams } from '../utils/api'
 import {
   hasMinimumNpiSearchCriteria,
-  npiCardToInternalRecord,
-  NPI_SEARCH_MINIMUM_CRITERIA_MESSAGE,
   searchNpiRegistry,
-} from '../utils/npiRegistryApi'
+} from '../utils/api'
 import {
   formatInternalDoctorScheduleSummary,
   internalRecordToScheduleDoctor,
   type InternalDoctorRecord,
-} from '../types/internalDoctor'
+} from '../types'
 import {
   addImportedScheduleDoctor,
   removeImportedScheduleDoctor,
   setImportedScheduleDoctors,
 } from '../domains/appointments/appointmentsSlice'
-import { notify } from '../utils/notify'
+import { notify } from '../utils/helpers'
 import { useMergeSearchParams, type QueryParamPatch } from '../hooks/useMergeSearchParams'
 import { useModalScrollLock } from '../hooks/useModalScrollLock'
-import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../components/ui/modalOverlayClasses'
+import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../utils/helpers'
 import InternalDoctorScheduleModal from '../components/InternalDoctorScheduleModal'
 import { FieldError, FormInput } from '../components/ui/form'
 import { SearchableIdPicker } from '../components/ui/SearchWithDropdown'
-import { filterLabeledOption } from '../components/ui/labeledOptionFilter'
+import { filterLabeledOption } from '../utils/helpers'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
 
 const PAGE_SIZE = 12

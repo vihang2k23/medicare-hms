@@ -1,4 +1,4 @@
-import { cn } from '../../../utils/cn'
+import { cn } from '../../../utils/helpers'
 
 /** Uppercase micro-label above fields */
 export const FIELD_LABEL_CLASS =

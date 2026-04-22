@@ -25,14 +25,14 @@ import {
   Users,
 } from 'lucide-react'
 import { fetchPatients, softDeletePatient } from '../services/patientsApi'
-import { notify } from '../utils/notify'
+import { notify } from '../utils/helpers'
 import { FieldError, FormInput } from '../components/ui/form'
 import DashboardCard from '../components/ui/DashboardCard'
 import { SearchFilterCombobox, SearchableIdPicker } from '../components/ui/SearchWithDropdown'
-import { filterLabeledOption } from '../components/ui/labeledOptionFilter'
+import { filterLabeledOption } from '../utils/helpers'
 import { isoDateLocalToday } from '../domains/patients/patientSchemas'
 import { clearPatientRegistrationDraft } from '../domains/patients/patientRegistrationStorage'
-import { LUCIDE_STROKE_FIELD } from '../components/ui/lucideChrome'
+import { LUCIDE_STROKE_FIELD } from '../utils/helpers'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
 
 const PAGE_SIZE = 10

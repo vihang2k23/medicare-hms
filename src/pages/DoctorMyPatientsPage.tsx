@@ -8,7 +8,7 @@ import { useAuth } from '../hooks/useAuth'
 import { fetchPatients } from '../services/patientsApi'
 import type { PatientRecord } from '../types/patient'
 import { FieldError, FormInput } from '../components/ui/form'
-import { aggregateMyPatients, type MyPatientRowMeta } from '../utils/myPatientsForDoctor'
+import { aggregateMyPatients, type MyPatientRowMeta } from '../utils/business'
 
 // DoctorMyPatientsPage defines the Doctor My Patients Page UI surface and its primary interaction flow.
 const PAGE_SIZE = 10

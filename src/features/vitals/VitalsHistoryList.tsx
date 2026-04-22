@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from 'lucide-react'
 import type { VitalRecord } from '../../types/vitals'
 import { SearchableIdPicker } from '../../components/ui/SearchWithDropdown'
-import { filterLabeledOption } from '../../components/ui/labeledOptionFilter'
+import { filterLabeledOption } from '../../utils/helpers'
 
 // VitalsHistoryList defines the Vitals History List UI surface and its primary interaction flow.
 function bp(v: VitalRecord): string {

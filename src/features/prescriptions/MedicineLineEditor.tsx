@@ -6,8 +6,8 @@ import {
   fetchRecallAlertsForLabelHit,
   fetchRecallAlertsForTerms,
   searchDrugLabels,
-} from '../../utils/drugCatalog'
-import { notify } from '../../utils/notify'
+} from '../../utils/api'
+import { notify } from '../../utils/helpers'
 import { FieldError, FIELD_LABEL_CLASS, FormInput } from '../../components/ui/form'
 
 interface MedicineLineEditorProps {

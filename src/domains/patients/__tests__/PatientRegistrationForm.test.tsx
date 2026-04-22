@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { createPatient, updatePatient } from '../../../services/patientsApi'
-import { notify } from '../../../utils/notify'
+import { notify } from '../../../utils/helpers'
 import type { PatientRecord } from '../../../types/patient'
 import PatientRegistrationForm from '../PatientRegistrationForm'
 

@@ -1,13 +1,6 @@
-import type { AuthUser } from '../domains/auth/authSlice'
-import type { Role } from './roles'
+import type { AuthUser } from '../types'
 import { DEFAULT_SCHEDULE_DOCTORS } from '../domains/appointments/appointmentsSlice'
-
-export interface DemoLoginEntry {
-  role: Role
-  name: string
-  id: string
-  avatar: string
-}
+import type { DemoLoginEntry } from '../types'
 
 /** Non-doctor demo accounts (one tap). */
 export const DEMO_STAFF_USERS: DemoLoginEntry[] = [

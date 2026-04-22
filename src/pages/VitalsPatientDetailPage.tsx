@@ -5,7 +5,7 @@ import { fetchPatientById } from '../services/patientsApi'
 import { fetchVitalsByPatientId } from '../services/vitalsApi'
 import type { PatientRecord } from '../types/patient'
 import type { VitalRecord } from '../types/vitals'
-import { notify } from '../utils/notify'
+import { notify } from '../utils/helpers'
 import VitalsHistoryList from '../domains/vitals/VitalsHistoryList'
 import VitalsRecordModal from '../domains/vitals/VitalsRecordModal'
 

@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { FieldError, FieldLabel, FormInput, FormTextarea } from '../../components/ui/form'
 import { SearchableIdPicker } from '../../components/ui/SearchWithDropdown'
-import { filterLabeledOption } from '../../components/ui/labeledOptionFilter'
+import { filterLabeledOption } from '../../utils/helpers'
 import {
   isoDateLocalToday,
   patientRegistrationSchema,
@@ -26,7 +26,7 @@ import {
 } from './patientSchemas'
 import type { PatientRecord } from '../../types/patient'
 import { createPatient, updatePatient } from '../../services/patientsApi'
-import { notify } from '../../utils/notify'
+import { notify } from '../../utils/helpers'
 import { generatePatientId } from './patientId'
 import { PATIENT_REGISTRATION_FORM_STORAGE_KEY } from './patientRegistrationStorage'
 

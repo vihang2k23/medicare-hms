@@ -2,26 +2,7 @@
  * Role definitions and route access.
  * Single ROLE_CONFIG drives sidebar, route access, and accent colors.
  */
-export const ROLES = ['admin', 'doctor', 'receptionist', 'nurse'] as const
-export type Role = (typeof ROLES)[number]
-
-export type SidebarAccent = 'blue' | 'green' | 'purple' | 'orange'
-
-export interface RoleSidebarLink {
-  path: string
-  label: string
-}
-
-export interface RoleConfigItem {
-  /** Access level description */
-  accessLevel: string
-  /** Primary responsibilities (short) */
-  description: string
-  /** Sidebar links for this role */
-  sidebarLinks: RoleSidebarLink[]
-  /** Sidebar/nav accent color */
-  accent: SidebarAccent
-}
+import { ROLES, type Role, type SidebarAccent, type RoleSidebarLink, type RoleConfigItem } from '../types'
 
 /**
  * Single source of truth for role-based UI:

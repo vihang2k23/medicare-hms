@@ -1,6 +1,6 @@
 import { forwardRef, type MutableRefObject, type TextareaHTMLAttributes, useCallback, useRef } from 'react'
 import { X } from 'lucide-react'
-import { cn } from '../../../utils/cn'
+import { cn } from '../../../utils/helpers'
 import { FIELD_TEXTAREA_CLASS, fieldInputOrangeClass, fieldInputSoftClass } from './fieldStyles'
 
 export type FormTextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {

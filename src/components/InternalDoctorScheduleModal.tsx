@@ -2,26 +2,21 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Loader2, X } from 'lucide-react'
 import { useDispatch } from 'react-redux'
-import type { AppDispatch } from '../store'
-import { createInternalDoctor, findInternalDoctorByNpi, updateInternalDoctor } from '../services/internalDoctorsApi'
-import { defaultImportedSchedule } from '../utils/npiRegistryApi'
-import { notify } from '../utils/notify'
+import type { AppDispatch, ScheduleDoctor } from '../domains/appointments/types'
+import { ISO_WEEKDAY_SHORT, type InternalDoctorRecord, formatInternalDoctorScheduleSummary, createManualInternalRecord } from '../types'
+import { defaultImportedSchedule } from '../utils/api'
+import { notify } from '../utils/helpers'
 import { useModalScrollLock } from '../hooks/useModalScrollLock'
-import { modalBackdropDim, modalFixedInner, modalFixedRoot } from './ui/modalOverlayClasses'
+import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../utils/helpers'
 import { FieldError, FormInput } from './ui/form'
 import { SearchableIdPicker } from './ui/SearchWithDropdown'
-import { filterLabeledOption } from './ui/labeledOptionFilter'
+import { filterLabeledOption } from '../utils/helpers'
 import {
   addImportedScheduleDoctor,
   updateImportedScheduleDoctor,
 } from '../domains/appointments/appointmentsSlice'
 import { timeToMinutes } from '../domains/appointments/slotUtils'
-import {
-  createManualInternalRecord,
-  internalRecordToScheduleDoctor,
-  ISO_WEEKDAY_SHORT,
-  type InternalDoctorRecord,
-} from '../types/internalDoctor'
+import { internalRecordToScheduleDoctor } from '../types'
 
 const SLOT_OPTIONS = [15, 20, 30] as const
 const SLOT_ITEMS = SLOT_OPTIONS.map((m) => ({ id: String(m), label: `${m} minutes` }))
