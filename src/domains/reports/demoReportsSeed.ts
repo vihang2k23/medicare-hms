@@ -1,7 +1,7 @@
 import { format, subDays } from 'date-fns'
 import type { Appointment, AppointmentStatus } from '../appointments/types'
 import type { Prescription } from '../prescriptions/types'
-import { OPD_DEPARTMENTS } from '../../config/departments'
+import { OPD_DEPARTMENTS } from '../../config/clinical'
 import type { OpdQueueToken } from '../queue/opdQueueTypes'
 import type { QueueState } from '../queue/queueSlice'
 

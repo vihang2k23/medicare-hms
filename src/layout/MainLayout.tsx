@@ -2,9 +2,9 @@ import { useEffect, useLayoutEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Outlet, useLocation } from 'react-router-dom'
 import type { RootState } from '../store'
-import { setSidebarOpen } from '../domains/ui/uiSlice'
+import { setSidebarOpen } from '../store/slices/uiSlice'
 import { useBedSimulation } from '../domains/beds/useBedSimulation'
-import Navbar from '../components/ui/Navbar'
+import { Navbar } from '../components/common'
 import Sidebar from './Sidebar'
 
 // MainLayout defines the Main Layout UI surface and its primary interaction flow.

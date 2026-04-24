@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Activity, CheckCircle2, CircleDashed, Clock, SkipForward, Timer, Users } from 'lucide-react'
 import type { RootState } from '../../store'
-import { formatOpdTokenLabel } from './queueSlice'
+import { formatOpdTokenLabel } from '../../store/slices/queueSlice'
 
 // QueueAnalytics defines the Queue Analytics UI surface and its primary interaction flow.
 // QueueAnalytics renders the queue analytics UI.

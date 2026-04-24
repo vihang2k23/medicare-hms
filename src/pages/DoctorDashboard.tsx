@@ -2,8 +2,7 @@ import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useAuth } from '../hooks/useAuth'
 import type { RootState } from '../store'
-import DashboardCard from '../components/ui/DashboardCard'
-import StatCard from '../components/ui/StatCard'
+import { DashboardCard, StatCard } from '../components/common'
 import {
 // DoctorDashboard defines the Doctor Dashboard UI surface and its primary interaction flow.
   doctorAppointmentsToday,

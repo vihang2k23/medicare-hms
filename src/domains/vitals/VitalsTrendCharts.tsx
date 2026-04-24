@@ -4,7 +4,7 @@ import { format } from 'date-fns'
 import { Activity, LineChart as LineChartIcon } from 'lucide-react'
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import type { RootState } from '../../store'
-import type { VitalRecord } from '../../types/vitals'
+import type { VitalRecord } from '../../types'
 
 // VitalsTrendCharts defines the Vitals Trend Charts UI surface and its primary interaction flow.
 type ChartRow = {

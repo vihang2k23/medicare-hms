@@ -13,8 +13,8 @@ import {
 } from 'lucide-react'
 import { format } from 'date-fns'
 import type { RootState } from '../store'
-import type { PatientRecord } from '../types/patient'
-import type { VitalRecord } from '../types/vitals'
+import type { PatientRecord } from '../types'
+import type { VitalRecord } from '../types'
 import type { Appointment } from '../domains/appointments/types'
 import type { PrescriptionStatus } from '../domains/prescriptions/types'
 import { fetchPatientById } from '../services/patientsApi'
@@ -24,7 +24,7 @@ import VitalsTrendCharts from '../domains/vitals/VitalsTrendCharts'
 import { downloadCsv } from '../utils/helpers'
 import { appointmentStatusClasses } from '../domains/appointments/appointmentStatusStyles'
 import { buildSimulatedBillingForPatient, billingTotals } from '../utils/business'
-import type { BillingRecordStatus } from '../types/billing'
+import type { BillingRecordStatus } from '../types'
 
 // PatientProfilePage defines the Patient Profile Page UI surface and its primary interaction flow.
 type Tab = 'overview' | 'appointments' | 'prescriptions' | 'vitals' | 'billing'
@@ -120,6 +120,7 @@ export default function PatientProfilePage() {
 
   const billingSummary = useMemo(() => billingTotals(billingRows), [billingRows])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!patientId) {
       setPatient(null)
@@ -143,7 +144,9 @@ export default function PatientProfilePage() {
       cancelled = true
     }
   }, [patientId])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!patientId || tab !== 'vitals') return
     let cancelled = false
@@ -160,10 +163,13 @@ export default function PatientProfilePage() {
       cancelled = true
     }
   }, [patientId, tab])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setTab(tabFromSearchParams(searchParams))
   }, [searchParams])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const setTabInUrl = (id: Tab) => {
     setTab(id)

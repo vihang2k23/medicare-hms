@@ -19,12 +19,12 @@ import {
 } from 'lucide-react'
 import type { AppDispatch, RootState } from '../store'
 import { useAuth } from '../hooks/useAuth'
-import { removePrescription, updatePrescriptionStatus } from '../domains/prescriptions/prescriptionsSlice'
+import { removePrescription, updatePrescriptionStatus } from '../store/slices/prescriptionsSlice'
 import type { Prescription, PrescriptionStatus } from '../domains/prescriptions/types'
 import PrescriptionForm from '../domains/prescriptions/PrescriptionForm'
 import { notify } from '../utils/helpers'
-import { FormInput } from '../components/ui/form'
-import ConfirmDialog from '../components/ui/ConfirmDialog'
+import { FormInput } from '../components/common'
+import { useConfirmModal } from '../hooks/useGlobalModal'
 
 // PrescriptionsPage defines the prescriptions page UI surface and its primary interaction flow.
 
@@ -287,6 +287,7 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
   const { user } = useAuth()
   const dispatch = useDispatch<AppDispatch>()
   const all = useSelector((s: RootState) => s.prescriptions.prescriptions)
+  const confirmModal = useConfirmModal()
   const { searchParams, merge } = useMergeSearchParams()
   const patientPrefill = searchParams.get('patient')
   const q = searchParams.get('q') ?? ''
@@ -340,8 +341,26 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
     [deleteId, roleScoped],
   )
 
-  const confirmDeletePrescription = () => {
-    if (!deleteId) return
+  const confirmDeletePrescription = async () => {
+    if (!deleteId || !pendingDeleteRx) return
+    
+    const confirmed = await confirmModal({
+      title: 'Delete prescription record?',
+      description: (
+        <>
+          Remove prescription for <span className="font-semibold text-slate-800 dark:text-white">{pendingDeleteRx.patientName}</span> from{' '}
+          <span className="font-semibold text-slate-800 dark:text-white">{formatDateShort(pendingDeleteRx.createdAt)}</span>?
+          This action cannot be undone.
+        </>
+      ),
+      confirmLabel: 'Delete',
+      cancelLabel: 'Cancel',
+      variant: 'danger',
+      confirmLoading: deleteBusy
+    })
+    
+    if (!confirmed) return
+    
     setDeleteBusy(true)
     try {
       dispatch(removePrescription(deleteId))
@@ -545,7 +564,7 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
                     onToggle={() => setExpandedId((id) => (id === rx.id ? null : rx.id))}
                     canManage={variant === 'admin' || rx.doctorId === user?.id}
                     onStatus={onStatus}
-                    onRequestDelete={setDeleteId}
+                    onRequestDelete={confirmDeletePrescription}
                     printBasePath={printBasePath}
                   />
                 </li>
@@ -555,26 +574,6 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
         </section>
       )}
 
-      <ConfirmDialog
-        open={deleteId !== null}
-        title="Delete prescription record?"
-        description={
-          pendingDeleteRx ? (
-            <>
-              Remove the local history entry for{' '}
-              <span className="font-semibold text-slate-800 dark:text-white">{pendingDeleteRx.patientName}</span>
-              <span className="font-mono text-xs block mt-2 text-slate-500">{pendingDeleteRx.id}</span>
-              <span className="block mt-3">This cannot be undone for the current session cache.</span>
-            </>
-          ) : null
-        }
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
-        variant="danger"
-        confirmLoading={deleteBusy}
-        onCancel={() => !deleteBusy && setDeleteId(null)}
-        onConfirm={confirmDeletePrescription}
-      />
-    </div>
+          </div>
   )
 }

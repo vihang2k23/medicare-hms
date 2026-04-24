@@ -5,8 +5,8 @@ import { getNavIcon } from '../config/navIcons'
 import type { SidebarAccent } from '../config/roles'
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from '../store'
-import { setSidebarOpen } from '../domains/ui/uiSlice'
-import MediCareLogo from '../components/ui/brand/MediCareLogo'
+import { setSidebarOpen } from '../store/slices/uiSlice'
+import { MediCareLogo } from '../components/common'
 import { LUCIDE_STROKE_CHROME, LUCIDE_STROKE_SIDEBAR_ACTIVE } from '../utils/helpers'
 
 // Sidebar defines the Sidebar UI surface and its primary interaction flow.

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { Role } from './roles'
+import type { Role } from '../types'
 
 export interface RouteConfig {
   path: string

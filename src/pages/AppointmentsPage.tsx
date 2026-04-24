@@ -10,15 +10,15 @@ import {
   cancelAppointment,
   findSchedulingConflict,
   rescheduleAppointment,
-} from '../domains/appointments/appointmentsSlice'
+} from '../store/slices/appointmentsSlice'
 import WeeklyTimeGridCalendar from '../domains/appointments/WeeklyTimeGridCalendar'
 import { BookAppointmentModal, ManageAppointmentModal } from '../domains/appointments/AppointmentDialogs'
 import { isDateInWeek, startOfWeekMonday } from '../domains/appointments/slotUtils'
 import type { Appointment, ScheduleDoctor } from '../domains/appointments/types'
 import { notify } from '../utils/helpers'
-import type { PatientRecord } from '../types/patient'
+import type { PatientRecord } from '../types'
 import { scheduleDoctorIdForAuthUser } from '../config/doctorScheduleMap'
-import { SearchableIdPicker } from '../components/ui/SearchWithDropdown'
+import { SearchableIdPicker } from '../components/common'
 
 export type AppointmentsVariant = 'admin' | 'receptionist' | 'doctor'
 

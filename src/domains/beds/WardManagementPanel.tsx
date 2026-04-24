@@ -6,8 +6,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Building2, Layers, Pencil, Plus, Shield, Trash2, X } from 'lucide-react'
 import type { AppDispatch, RootState } from '../../store'
 import { notify } from '../../utils/helpers'
-import { addWard, removeWard, updateWard } from './bedSlice'
-import { FieldError, FormInput } from '../../components/ui/form'
+import { addWard, removeWard, updateWard } from '../../store/slices/bedSlice'
+import { FieldError } from '../../components/common'
 
 // WardManagementPanel defines the Ward Management Panel UI surface and its primary interaction flow.
 const wardInputClass = '!focus:ring-teal-500/35 !focus:border-teal-400/40'

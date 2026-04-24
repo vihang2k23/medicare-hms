@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
-import DashboardCard from '../components/ui/DashboardCard'
-import StatCard from '../components/ui/StatCard'
+import { DashboardCard, StatCard } from '../components/common'
 import { fetchPatients } from '../services/patientsApi'
 import {
 // AdminDashboard defines the Admin Dashboard UI surface and its primary interaction flow.
@@ -14,7 +13,7 @@ import {
 } from '../utils/business'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../store'
-import { formatOpdTokenLabel } from '../domains/queue/queueSlice'
+import { formatOpdTokenLabel } from '../store/slices/queueSlice'
 import {
   PieChart,
   Pie,

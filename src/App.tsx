@@ -2,7 +2,7 @@ import { BrowserRouter } from 'react-router-dom'
 import AppRoutes from './router/AppRoutes'
 import ScrollToTop from './components/ScrollToTop'
 import ThemeSync from './components/ThemeSync'
-import AppToaster from './components/ui/AppToaster'
+import { AppToaster } from './components/common'
 import ImportedDoctorsSync from './components/ImportedDoctorsSync'
 
 // App renders the app UI.

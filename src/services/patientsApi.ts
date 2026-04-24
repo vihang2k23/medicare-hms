@@ -1,5 +1,5 @@
 import { getJsonServerBaseUrl } from '../config/api'
-import type { PatientRecord } from '../types/patient'
+import type { PatientRecord } from '../types'
 
 const patientsPath = () => `${getJsonServerBaseUrl()}/api/patients`
 

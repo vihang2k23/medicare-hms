@@ -5,9 +5,8 @@ import { ArrowLeft, Printer } from 'lucide-react'
 import type { RootState } from '../store'
 import { useAuth } from '../hooks/useAuth'
 import { fetchPatientById } from '../services/patientsApi'
-import MediCareLogo from '../components/ui/brand/MediCareLogo'
-import { MedicarePrintPageFooter, MedicarePrintPageHeader } from '../components/ui/print/MedicarePrintChrome'
-import type { PatientRecord } from '../types/patient'
+import { MediCareLogo, MedicarePrintPageFooter, MedicarePrintPageHeader } from '../components/common'
+import type { PatientRecord } from '../types'
 
 // PrescriptionPrintPage defines the Prescription Print Page UI surface and its primary interaction flow.
 function formatRxDate(ts: number) {

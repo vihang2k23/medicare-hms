@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { CircleCheckBig, CornerDownRight, ListX, PhoneForwarded, Timer } from 'lucide-react'
 import { store, type AppDispatch, type RootState } from '../../store'
 import { notify } from '../../utils/helpers'
-import { OPD_DEPARTMENTS } from '../../config/departments'
-import { FieldError, FormInput } from '../../components/ui/form'
-import { SearchableIdPicker } from '../../components/ui/SearchWithDropdown'
+import { OPD_DEPARTMENTS } from '../../config/clinical'
+import { FieldError, FormInput } from '../../components/common'
+// SearchableIdPicker import removed during refactor
 import { filterLabeledOption } from '../../utils/helpers'
 import {
   callNext,
@@ -15,9 +15,9 @@ import {
   resetQueue,
   setSimulationRunning,
   skipCurrent,
-} from '../../domains/queue/queueSlice'
+} from '../../store/slices/queueSlice'
 import { canCallNext, canStartQueueSimulation } from '../../domains/queue/queueSimulation'
-import ConfirmDialog from '../../components/ui/ConfirmDialog'
+import { useConfirmModal } from '../../hooks/useGlobalModal'
 
 const SIM_INTERVALS = [
   { label: '30 seconds (recommended)', ms: 30000 },
@@ -53,7 +53,7 @@ export default function QueueControls({
   const [patientNameBlurred, setPatientNameBlurred] = useState(false)
   const [simulationErr, setSimulationErr] = useState<string | null>(null)
   const simulationErrShown = canStartSimulation ? null : simulationErr
-  const [clearQueueConfirmOpen, setClearQueueConfirmOpen] = useState(false)
+  const confirmModal = useConfirmModal()
 
   const issue = () => {
     const name = patientName.trim()
@@ -183,7 +183,19 @@ export default function QueueControls({
           </button>
           <button
             type="button"
-            onClick={() => setClearQueueConfirmOpen(true)}
+            onClick={async () => {
+  const confirmed = await confirmModal({
+    title: 'Clear queue session?',
+    description: 'Remove all waiting, in-consultation, and current tokens for this browser session?',
+    confirmLabel: 'Clear queue',
+    variant: 'danger'
+  })
+  
+  if (confirmed) {
+    dispatch(resetQueue())
+    notify.success('Queue cleared')
+  }
+}}
             aria-label="Clear all tokens"
             title="Clear queue session"
             className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-red-600 dark:text-white hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
@@ -256,19 +268,6 @@ export default function QueueControls({
         <FieldError>{simulationErrShown}</FieldError>
       </div>
 
-      <ConfirmDialog
-        open={clearQueueConfirmOpen}
-        title="Clear queue session?"
-        description="Remove all waiting, in-consultation, and current tokens for this browser session?"
-        confirmLabel="Clear queue"
-        variant="danger"
-        onCancel={() => setClearQueueConfirmOpen(false)}
-        onConfirm={() => {
-          setClearQueueConfirmOpen(false)
-          dispatch(resetQueue())
-          notify.success('Queue cleared')
-        }}
-      />
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { AlertTriangle, Download, Loader2, RefreshCw } from 'lucide-react'
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import DashboardCard from '../../components/ui/DashboardCard'
+import { DashboardCard } from '../../components/common'
 import { fetchRecallCountsByDrugClass } from '../../utils/api'
 import { downloadCsv } from '../../utils/helpers'
 

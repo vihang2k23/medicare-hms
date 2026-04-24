@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { UserPen } from 'lucide-react'
-import type { PatientRecord } from '../types/patient'
+import type { PatientRecord } from '../types'
 import { fetchPatientById } from '../services/patientsApi'
 import PatientRegistrationForm from '../domains/patients/PatientRegistrationForm'
 

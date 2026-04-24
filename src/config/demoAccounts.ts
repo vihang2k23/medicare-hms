@@ -1,5 +1,5 @@
 import type { AuthUser } from '../types'
-import { DEFAULT_SCHEDULE_DOCTORS } from '../domains/appointments/appointmentsSlice'
+import { DEFAULT_SCHEDULE_DOCTORS } from '../store/slices/appointmentsSlice'
 import type { DemoLoginEntry } from '../types'
 
 /** Non-doctor demo accounts (one tap). */

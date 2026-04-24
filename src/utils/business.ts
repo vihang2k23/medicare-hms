@@ -4,7 +4,7 @@
 
 import type { Appointment } from '../domains/appointments/types'
 import type { Prescription } from '../domains/prescriptions/types'
-import type { BillingRecord, BillingRecordStatus } from '../types/billing'
+import type { BillingRecord, BillingRecordStatus } from '../types'
 import { scheduleDoctorIdForAuthUser } from '../config/doctorScheduleMap'
 
 // ── Dashboard metrics ────────────────────────────────────────────────────────

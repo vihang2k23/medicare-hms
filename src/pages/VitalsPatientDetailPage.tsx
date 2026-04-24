@@ -1,13 +1,12 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { Activity, ArrowLeft, Loader2, User } from 'lucide-react'
+import { lazy, Suspense, useEffect, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
+import { ArrowLeft, Loader2, User } from 'lucide-react'
 import { fetchPatientById } from '../services/patientsApi'
 import { fetchVitalsByPatientId } from '../services/vitalsApi'
-import type { PatientRecord } from '../types/patient'
-import type { VitalRecord } from '../types/vitals'
+import type { PatientRecord } from '../types'
+import type { VitalRecord } from '../types'
 import { notify } from '../utils/helpers'
 import VitalsHistoryList from '../domains/vitals/VitalsHistoryList'
-import VitalsRecordModal from '../domains/vitals/VitalsRecordModal'
 
 // VitalsPatientDetailPage defines the Vitals Patient Detail Page UI surface and its primary interaction flow.
 const VitalsTrendCharts = lazy(() => import('../domains/vitals/VitalsTrendCharts'))
@@ -22,63 +21,46 @@ function patientInitials(name: string): string {
 // VitalsPatientDetailPage renders the vitals patient detail page UI.
 export default function VitalsPatientDetailPage() {
   const { patientId } = useParams<{ patientId: string }>()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const autoOpenRecord = useRef(false)
 
   const [patient, setPatient] = useState<PatientRecord | null | undefined>(undefined)
   const [vitals, setVitals] = useState<VitalRecord[]>([])
   const [loading, setLoading] = useState(true)
-  const [modalOpen, setModalOpen] = useState(false)
-
-  const reloadVitals = useCallback(async () => {
-    if (!patientId) return
-    try {
-      const rows = await fetchVitalsByPatientId(patientId)
-      setVitals(rows)
-    } catch {
-      setVitals([])
-    }
-  }, [patientId])
 
   useEffect(() => {
-    if (!patientId) {
-      setPatient(null)
-      setLoading(false)
-      return
-    }
+    if (!patientId) return
     let cancelled = false
-    setLoading(true)
-    void (async () => {
+
+    async function loadData() {
       try {
-        const [p, v] = await Promise.all([fetchPatientById(patientId), fetchVitalsByPatientId(patientId)])
+        setLoading(true)
+        const [patientData, vitalsData] = await Promise.all([
+          fetchPatientById(patientId!),
+          fetchVitalsByPatientId(patientId!)
+        ])
+        
         if (!cancelled) {
-          setPatient(p)
-          setVitals(v)
+          setPatient(patientData)
+          setVitals(vitalsData)
         }
-      } catch (e) {
+      } catch {
         if (!cancelled) {
-          notify.error(e instanceof Error ? e.message : 'Failed to load patient')
           setPatient(null)
           setVitals([])
+          notify.error('Failed to load patient data')
         }
       } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+        }
       }
-    })()
-    return () => {
-      cancelled = true
     }
+
+    loadData()
+    return () => { cancelled = true }
   }, [patientId])
 
-  useEffect(() => {
-    if (patient === undefined || patient === null || autoOpenRecord.current) return
-    if (searchParams.get('record') === '1') {
-      autoOpenRecord.current = true
-      setModalOpen(true)
-      setSearchParams({}, { replace: true })
-    }
-  }, [patient, searchParams, setSearchParams])
-
+  
+  
   if (!patientId) {
     return (
       <div className="text-sm text-slate-600 dark:text-white">
@@ -124,15 +106,7 @@ export default function VitalsPatientDetailPage() {
           <ArrowLeft className="h-4 w-4" aria-hidden />
           All patients
         </Link>
-        <button
-          type="button"
-          onClick={() => setModalOpen(true)}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold shadow-md shadow-orange-600/20 sm:ml-auto"
-        >
-          <Activity className="h-4 w-4 shrink-0" aria-hidden />
-          Record vitals
-        </button>
-      </div>
+              </div>
 
       <div className="rounded-2xl border border-orange-200/60 dark:border-orange-900/40 bg-gradient-to-br from-orange-50/90 via-white to-white dark:from-orange-950/20 dark:via-slate-900/80 dark:to-slate-900/90 px-5 py-5 sm:px-6 sm:py-6 ring-1 ring-orange-100/80 dark:ring-orange-950/30">
         <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-orange-600 dark:text-white mb-2">Patient vitals</p>
@@ -188,12 +162,6 @@ export default function VitalsPatientDetailPage() {
         <VitalsHistoryList rows={vitals} listKey={patientId} />
       </section>
 
-      <VitalsRecordModal
-        open={modalOpen}
-        patient={patient}
-        onClose={() => setModalOpen(false)}
-        onSaved={reloadVitals}
-      />
     </div>
   )
 }

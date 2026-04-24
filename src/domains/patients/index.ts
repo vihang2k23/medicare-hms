@@ -1,3 +1,3 @@
 export { default as PatientRegistrationForm } from './PatientRegistrationForm'
-export * from './patientSchemas'
+export * from '../../schema/patient.schema'
 export { generatePatientId } from './patientId'

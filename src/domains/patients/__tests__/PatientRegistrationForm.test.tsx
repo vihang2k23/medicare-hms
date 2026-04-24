@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { createPatient, updatePatient } from '../../../services/patientsApi'
 import { notify } from '../../../utils/helpers'
-import type { PatientRecord } from '../../../types/patient'
+import type { PatientRecord } from '../../../types'
 import PatientRegistrationForm from '../PatientRegistrationForm'
 
 function fieldByName(name: string): HTMLElement {

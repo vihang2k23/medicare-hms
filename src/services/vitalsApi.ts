@@ -1,5 +1,5 @@
 import { getJsonServerBaseUrl } from '../config/api'
-import type { VitalRecord } from '../types/vitals'
+import type { VitalRecord } from '../types'
 
 const base = () => `${getJsonServerBaseUrl()}/api/vitals`
 

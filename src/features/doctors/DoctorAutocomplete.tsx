@@ -1,23 +1,9 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ChangeEvent,
-  type MouseEvent,
-} from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Briefcase, Eye, MapPin, Search, User, X } from 'lucide-react'
 import type { AppDispatch, RootState } from '../../store'
-import { createInternalDoctor, findInternalDoctorByNpi } from '../../services/internalDoctorsApi'
-import { npiCardToInternalRecord } from '../../utils/api'
-import { notify } from '../../utils/helpers'
-import { internalRecordToScheduleDoctor, type InternalDoctorRecord } from '../../types'
-import { addImportedScheduleDoctor } from '../appointments/appointmentsSlice'
-import { clearDoctorSearch, searchDoctors, type SearchDoctorsArgs } from './doctorSlice'
-import { FieldError, FormInput } from '../../components/ui/form'
-import DoctorDetailsModal from './DoctorDetailsModal'
+import { clearDoctorSearch, searchDoctors, type SearchDoctorsArgs } from '../../store/slices/doctorSlice'
+import { FieldError } from '../../components/common'
 import { providerCardToAutocompleteDoctor, type AutocompleteDoctor } from '../../domains/doctors/npiAutocompleteMap'
 
 // DoctorAutocomplete defines the doctor autocomplete UI surface and its primary interaction flow.
@@ -84,12 +70,10 @@ export default function DoctorAutocomplete({
   const [query, setQuery] = useState('')
   const [searchErr, setSearchErr] = useState<string | null>(null)
   const [showSuggestions, setShowSuggestions] = useState(false)
-  const [adding, setAdding] = useState(false)
   const [isUserTyping, setIsUserTyping] = useState(true)
-  const [selectedDoctor, setSelectedDoctor] = useState<AutocompleteDoctor | null>(null)
-  const [detailsOpen, setDetailsOpen] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (clearTrigger !== undefined) {
       setQuery('')
@@ -99,6 +83,7 @@ export default function DoctorAutocomplete({
       dispatch(clearDoctorSearch())
     }
   }, [clearTrigger, dispatch])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     const onDown = (e: Event) => {
@@ -181,45 +166,6 @@ export default function DoctorAutocomplete({
     dispatch(clearDoctorSearch())
     onClearForm?.()
   }, [dispatch, onClearForm])
-
-  const handleViewDetails = useCallback((doctor: AutocompleteDoctor, e: MouseEvent) => {
-    e.stopPropagation()
-    setSelectedDoctor(doctor)
-    setDetailsOpen(true)
-  }, [])
-
-  const handleCloseModal = useCallback(() => {
-    setDetailsOpen(false)
-    setSelectedDoctor(null)
-  }, [])
-
-  const handleAddToSystem = useCallback(
-    async (doctor: AutocompleteDoctor) => {
-      setAdding(true)
-      try {
-        const existing = await findInternalDoctorByNpi(doctor.npi)
-        if (existing) {
-          notify.error('This provider is already in the HMS directory.')
-          return
-        }
-        const record = npiCardToInternalRecord(doctor.sourceCard)
-        await createInternalDoctor(record)
-        dispatch(addImportedScheduleDoctor(internalRecordToScheduleDoctor(record)))
-        notify.success(`${record.name} added to MediCare HMS`)
-        setShowSuggestions(false)
-        setQuery('')
-        setIsUserTyping(true)
-        setDetailsOpen(false)
-        setSelectedDoctor(null)
-        dispatch(clearDoctorSearch())
-      } catch (e) {
-        notify.error(e instanceof Error ? e.message : 'Could not add provider')
-      } finally {
-        setAdding(false)
-      }
-    },
-    [dispatch],
-  )
 
   return (
     <div className="relative" ref={searchRef}>
@@ -333,13 +279,6 @@ export default function DoctorAutocomplete({
         </div>
       ) : null}
 
-      <DoctorDetailsModal
-        selectedDoctor={selectedDoctor}
-        open={detailsOpen}
-        onClose={handleCloseModal}
-        onAddToSystem={handleAddToSystem}
-        adding={adding}
-      />
-    </div>
+          </div>
   )
 }

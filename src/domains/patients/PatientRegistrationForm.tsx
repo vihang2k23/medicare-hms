@@ -10,8 +10,8 @@ import {
   Phone,
   User,
 } from 'lucide-react'
-import { FieldError, FieldLabel, FormInput, FormTextarea } from '../../components/ui/form'
-import { SearchableIdPicker } from '../../components/ui/SearchWithDropdown'
+import { FieldLabel, FormInput } from '../../components/common'
+import { SearchableIdPicker } from '../../components/common'
 import { filterLabeledOption } from '../../utils/helpers'
 import {
   isoDateLocalToday,
@@ -23,8 +23,8 @@ import {
   STEP_FIELD_KEYS,
   patientRecordToFormValues,
   type PatientFormValues,
-} from './patientSchemas'
-import type { PatientRecord } from '../../types/patient'
+} from '../../schema/patient.schema'
+import type { PatientRecord } from '../../types'
 import { createPatient, updatePatient } from '../../services/patientsApi'
 import { notify } from '../../utils/helpers'
 import { generatePatientId } from './patientId'
@@ -176,8 +176,10 @@ export default function PatientRegistrationForm({
       }
     }
     persist()
+    /* eslint-disable react-hooks/incompatible-library */
     const sub = watch(() => persist())
     return () => sub.unsubscribe()
+    /* eslint-enable react-hooks/incompatible-library */
   }, [watch, isEdit, form, step])
 
   const next = async () => {

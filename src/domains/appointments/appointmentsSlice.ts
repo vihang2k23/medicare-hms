@@ -1,81 +1,63 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import type { Appointment, AppointmentStatus, ScheduleDoctor } from './types'
-import { slotsOverlap } from './slotUtils'
+import { createSlice } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
+
+export interface Appointment {
+  id: string
+  patientId: string
+  patientName: string
+  doctorId: string
+  doctorName: string
+  department: string
+  date: string
+  slotStart: string
+  slotEnd: string
+  status: 'scheduled' | 'confirmed' | 'cancelled' | 'completed'
+  createdAt: number
+}
+
+export interface ScheduleDoctor {
+  id: string
+  name: string
+  department: string
+  workingDays: number[] // 1-7 (Mon-Sun)
+  startTime: string
+  endTime: string
+  slotDurationMinutes: number
+  source: 'seed' | 'manual' | 'npi'
+}
 
 export const DEFAULT_SCHEDULE_DOCTORS: ScheduleDoctor[] = [
   {
-    id: 'D1',
-    name: 'Dr. Sharma',
+    id: 'doc-1',
+    name: 'Dr. Smith',
     department: 'General OPD',
     workingDays: [1, 2, 3, 4, 5],
     startTime: '09:00',
     endTime: '17:00',
     slotDurationMinutes: 30,
-    lunchBreakStart: '13:00',
-    lunchBreakEnd: '14:00',
+    source: 'seed',
   },
   {
-    id: 'D2',
-    name: 'Dr. Patel',
+    id: 'doc-2',
+    name: 'Dr. Johnson',
     department: 'Pediatrics',
     workingDays: [1, 2, 3, 4, 5],
-    startTime: '08:30',
-    endTime: '16:30',
-    slotDurationMinutes: 20,
-    lunchBreakStart: '12:30',
-    lunchBreakEnd: '13:15',
-  },
-  {
-    id: 'D3',
-    name: 'Dr. Kumar',
-    department: 'Orthopedics',
-    workingDays: [1, 3, 5],
-    startTime: '10:00',
-    endTime: '15:00',
-    slotDurationMinutes: 30,
-    lunchBreakStart: '12:30',
-    lunchBreakEnd: '13:00',
-  },
-  {
-    id: 'D4',
-    name: 'Dr. Nair',
-    department: 'Cardiology',
-    workingDays: [1, 2, 3, 4, 5],
     startTime: '09:00',
     endTime: '17:00',
-    slotDurationMinutes: 15,
-    lunchBreakStart: '13:00',
-    lunchBreakEnd: '14:00',
+    slotDurationMinutes: 30,
+    source: 'seed',
   },
   {
-    id: 'D5',
-    name: 'Dr. Reddy',
-    department: 'General OPD',
-    workingDays: [2, 4, 6],
+    id: 'doc-3',
+    name: 'Dr. Williams',
+    department: 'Cardiology',
+    workingDays: [1, 3, 5],
     startTime: '09:00',
-    endTime: '13:00',
-    slotDurationMinutes: 30,
+    endTime: '15:00',
+    slotDurationMinutes: 45,
+    source: 'seed',
   },
 ]
-
-export function findSchedulingConflict(
-  appointments: Appointment[],
-  doctorId: string,
-  date: string,
-  slotStart: string,
-  slotEnd: string,
-  excludeAppointmentId?: string,
-): Appointment | undefined {
-  return appointments.find(
-    (a) =>
-      a.id !== excludeAppointmentId &&
-      a.doctorId === doctorId &&
-      a.date === date &&
-      a.status !== 'cancelled' &&
-      a.status !== 'no-show' &&
-      slotsOverlap(slotStart, slotEnd, a.slotStart, a.slotEnd),
-  )
-}
 
 export interface AppointmentsState {
   appointments: Appointment[]
@@ -84,85 +66,105 @@ export interface AppointmentsState {
 
 const initialState: AppointmentsState = {
   appointments: [],
-  doctors: DEFAULT_SCHEDULE_DOCTORS.map((d) => ({ ...d, source: 'seed' as const })),
+  doctors: DEFAULT_SCHEDULE_DOCTORS,
 }
 
 const appointmentsSlice = createSlice({
   name: 'appointments',
   initialState,
   reducers: {
-    hydrateAppointments(state, action: PayloadAction<Appointment[]>) {
+    hydrateAppointments: (state, action: PayloadAction<Appointment[]>) => {
       state.appointments = action.payload
     },
-    bookAppointment(state, action: PayloadAction<Omit<Appointment, 'id' | 'createdAt'>>) {
-      const p = action.payload
-      const id = `apt-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-      state.appointments.push({
-        ...p,
-        status: p.status ?? 'scheduled',
-        id,
+
+    bookAppointment: (state, action: PayloadAction<Omit<Appointment, 'id' | 'createdAt'>>) => {
+      const appointment: Appointment = {
+        ...action.payload,
+        id: `apt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         createdAt: Date.now(),
-      })
+        status: action.payload.status || 'scheduled',
+      }
+      state.appointments.push(appointment)
     },
-    rescheduleAppointment(
+
+    rescheduleAppointment: (
       state,
-      action: PayloadAction<{ id: string; date: string; slotStart: string; slotEnd: string }>,
-    ) {
-      const a = state.appointments.find((x) => x.id === action.payload.id)
-      if (
-        !a ||
-        a.status === 'cancelled' ||
-        a.status === 'completed' ||
-        a.status === 'no-show'
-      ) {
-        return
+      action: PayloadAction<{
+        id: string
+        date: string
+        slotStart: string
+        slotEnd: string
+      }>
+    ) => {
+      const { id, date, slotStart, slotEnd } = action.payload
+      const appointment = state.appointments.find(a => a.id === id)
+      
+      if (appointment && appointment.status !== 'cancelled' && appointment.status !== 'completed') {
+        appointment.date = date
+        appointment.slotStart = slotStart
+        appointment.slotEnd = slotEnd
       }
-      a.date = action.payload.date
-      a.slotStart = action.payload.slotStart
-      a.slotEnd = action.payload.slotEnd
     },
-    updateAppointmentStatus(state, action: PayloadAction<{ id: string; status: AppointmentStatus }>) {
-      const a = state.appointments.find((x) => x.id === action.payload.id)
-      if (a) a.status = action.payload.status
-    },
-    cancelAppointment(state, action: PayloadAction<string>) {
-      const a = state.appointments.find((x) => x.id === action.payload)
-      if (
-        !a ||
-        a.status === 'cancelled' ||
-        a.status === 'completed' ||
-        a.status === 'no-show'
-      ) {
-        return
+
+    updateAppointmentStatus: (
+      state,
+      action: PayloadAction<{ id: string; status: Appointment['status'] }>
+    ) => {
+      const { id, status } = action.payload
+      const appointment = state.appointments.find(a => a.id === id)
+      if (appointment) {
+        appointment.status = status
       }
-      a.status = 'cancelled'
     },
-    setImportedScheduleDoctors(state, action: PayloadAction<ScheduleDoctor[]>) {
-      const isFromJsonServer = (d: ScheduleDoctor) =>
-        d.source === 'npi' ||
-        d.source === 'manual' ||
-        d.id.startsWith('npi-') ||
-        d.id.startsWith('manual-')
-      const seeds = state.doctors.filter((d) => !isFromJsonServer(d))
-      const seen = new Set(seeds.map((d) => d.id))
-      const imports = action.payload.filter((d) => !seen.has(d.id))
-      state.doctors = [...seeds, ...imports]
+
+    cancelAppointment: (state, action: PayloadAction<string>) => {
+      const appointment = state.appointments.find(a => a.id === action.payload)
+      if (appointment && appointment.status !== 'completed') {
+        appointment.status = 'cancelled'
+      }
     },
-    addImportedScheduleDoctor(state, action: PayloadAction<ScheduleDoctor>) {
-      const d = action.payload
-      if (state.doctors.some((x) => x.id === d.id)) return
-      state.doctors.push(d)
+
+    setImportedScheduleDoctors: (state, action: PayloadAction<ScheduleDoctor[]>) => {
+      // Keep seed doctors and merge unique imports
+      const seedDoctors = state.doctors.filter(d => d.source === 'seed')
+      const importedDoctors = action.payload.filter(d => d.source !== 'seed')
+      
+      // Remove existing imports with same IDs
+      const existingImportIds = new Set(importedDoctors.map(d => d.id))
+      const filteredDoctors = state.doctors.filter(d => 
+        d.source === 'seed' || !existingImportIds.has(d.id)
+      )
+      
+      state.doctors = [...seedDoctors, ...filteredDoctors.filter(d => d.source !== 'seed'), ...importedDoctors]
     },
-    updateImportedScheduleDoctor(state, action: PayloadAction<ScheduleDoctor>) {
-      const d = action.payload
-      const i = state.doctors.findIndex((x) => x.id === d.id)
-      if (i === -1) return
-      if (state.doctors[i]!.source === 'seed') return
-      state.doctors[i] = d
+
+    addImportedScheduleDoctor: (state, action: PayloadAction<ScheduleDoctor>) => {
+      const newDoctor = action.payload
+      
+      // Don't add if ID already exists
+      if (!state.doctors.some(d => d.id === newDoctor.id)) {
+        state.doctors.push(newDoctor)
+      }
     },
-    removeImportedScheduleDoctor(state, action: PayloadAction<string>) {
-      const id = action.payload
-      state.doctors = state.doctors.filter((d) => !(d.id === id && d.source !== 'seed'))
+
+    updateImportedScheduleDoctor: (state, action: PayloadAction<ScheduleDoctor>) => {
+      const updatedDoctor = action.payload
+      
+      // Only update non-seed doctors
+      const existingDoctor = state.doctors.find(d => d.id === updatedDoctor.id)
+      if (existingDoctor && existingDoctor.source !== 'seed') {
+        Object.assign(existingDoctor, updatedDoctor)
+      }
+    },
+
+    removeImportedScheduleDoctor: (state, action: PayloadAction<string>) => {
+      const doctorId = action.payload
+      const doctor = state.doctors.find(d => d.id === doctorId)
+      
+      // Only remove non-seed doctors
+      if (doctor && doctor.source !== 'seed') {
+        state.doctors = state.doctors.filter(d => d.id !== doctorId)
+      }
     },
   },
 })

@@ -3,8 +3,8 @@
  * Replace with API/JSON Server later.
  */
 
-import { OPD_DEPARTMENTS } from '../config/departments'
-import { WARDS, wardRoomLabel } from '../config/wards'
+import { OPD_DEPARTMENTS } from '../config/clinical'
+import { WARDS, wardRoomLabel } from '../config/clinical'
 
 const [wardGeneral, wardIcu] = WARDS
 

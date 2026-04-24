@@ -4,7 +4,7 @@ import { useMergeSearchParams } from '../hooks/useMergeSearchParams'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../store'
 import type { Appointment } from '../domains/appointments/types'
-import type { PatientRecord } from '../types/patient'
+import type { PatientRecord } from '../types'
 import {
   Building2,
   Cake,
@@ -26,14 +26,14 @@ import {
 } from 'lucide-react'
 import { fetchPatients, softDeletePatient } from '../services/patientsApi'
 import { notify } from '../utils/helpers'
-import { FieldError, FormInput } from '../components/ui/form'
-import DashboardCard from '../components/ui/DashboardCard'
-import { SearchFilterCombobox, SearchableIdPicker } from '../components/ui/SearchWithDropdown'
+import { FieldError, FormInput } from '../components/common'
+import { DashboardCard } from '../components/common'
+import { SearchFilterCombobox, SearchableIdPicker } from '../components/common'
 import { filterLabeledOption } from '../utils/helpers'
-import { isoDateLocalToday } from '../domains/patients/patientSchemas'
+import { isoDateLocalToday } from '../schema/patient.schema'
 import { clearPatientRegistrationDraft } from '../domains/patients/patientRegistrationStorage'
 import { LUCIDE_STROKE_FIELD } from '../utils/helpers'
-import ConfirmDialog from '../components/ui/ConfirmDialog'
+import { useConfirmModal } from '../hooks/useGlobalModal'
 
 const PAGE_SIZE = 10
 
@@ -139,6 +139,7 @@ export default function PatientListPage() {
   const [patients, setPatients] = useState<PatientRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const confirmModal = useConfirmModal()
   const { searchParams, merge } = useMergeSearchParams()
   const searchQuery = searchParams.get('q') ?? ''
   const bloodFilter = searchParams.get('blood') ?? ''
@@ -150,7 +151,6 @@ export default function PatientListPage() {
   const departmentFilter = searchParams.get('dept') ?? ''
   const location = useLocation()
   const registeredId = (location.state as { registeredId?: string } | null)?.registeredId
-  const [deactivateTarget, setDeactivateTarget] = useState<PatientRecord | null>(null)
   const [deactivateBusy, setDeactivateBusy] = useState(false)
 
   const load = useCallback(async () => {
@@ -169,9 +169,11 @@ export default function PatientListPage() {
     }
   }, [])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     void load()
   }, [load])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const departmentOptions = useMemo(() => {
     const s = new Set<string>()
@@ -298,12 +300,28 @@ export default function PatientListPage() {
     }
   }, [regFrom, regTo, merge])
 
-  const confirmDeactivate = async () => {
-    if (!deactivateTarget) return
+  const confirmDeactivate = async (patient: PatientRecord) => {
+    const confirmed = await confirmModal({
+      title: 'Deactivate patient?',
+      description: (
+        <>
+          <span className="font-semibold text-slate-800 dark:text-white">{patient.fullName}</span>
+          <span className="font-mono text-xs block mt-2 text-slate-500 dark:text-slate-400">{patient.id}</span>
+          <span className="block mt-3">They will be hidden from this list (soft-delete).</span>
+        </>
+      ),
+      confirmLabel: 'Deactivate',
+      cancelLabel: 'Cancel',
+      variant: 'danger',
+      confirmLoading: deactivateBusy
+    })
+    
+    if (!confirmed) return
+    
     setDeactivateBusy(true)
     try {
-      await softDeletePatient(deactivateTarget.id)
-      notify.success(`${deactivateTarget.fullName} deactivated`)
+      await softDeletePatient(patient.id)
+      notify.success(`${patient.fullName} deactivated`)
       setDeactivateTarget(null)
       await load()
     } catch (e) {
@@ -800,7 +818,7 @@ export default function PatientListPage() {
                             </Link>
                             <button
                               type="button"
-                              onClick={() => setDeactivateTarget(p)}
+                              onClick={() => confirmDeactivate(p)}
                               className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-600 dark:text-white hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
                               aria-label={`Deactivate ${p.fullName}`}
                               title="Deactivate patient"
@@ -845,25 +863,6 @@ export default function PatientListPage() {
         )}
       </DashboardCard>
 
-      <ConfirmDialog
-        open={deactivateTarget !== null}
-        title="Deactivate patient?"
-        description={
-          deactivateTarget ? (
-            <>
-              <span className="font-semibold text-slate-800 dark:text-white">{deactivateTarget.fullName}</span>
-              <span className="font-mono text-xs block mt-2 text-slate-500 dark:text-slate-400">{deactivateTarget.id}</span>
-              <span className="block mt-3">They will be hidden from this list (soft-delete).</span>
-            </>
-          ) : null
-        }
-        confirmLabel="Deactivate"
-        cancelLabel="Cancel"
-        variant="danger"
-        confirmLoading={deactivateBusy}
-        onCancel={() => !deactivateBusy && setDeactivateTarget(null)}
-        onConfirm={confirmDeactivate}
-      />
-    </div>
+          </div>
   )
 }

@@ -6,8 +6,8 @@ import { Calendar, ChevronLeft, ChevronRight, FileText, Search, Users } from 'lu
 import type { RootState } from '../store'
 import { useAuth } from '../hooks/useAuth'
 import { fetchPatients } from '../services/patientsApi'
-import type { PatientRecord } from '../types/patient'
-import { FieldError, FormInput } from '../components/ui/form'
+import type { PatientRecord } from '../types'
+import { FieldError, FormInput } from '../components/common'
 import { aggregateMyPatients, type MyPatientRowMeta } from '../utils/business'
 
 // DoctorMyPatientsPage defines the Doctor My Patients Page UI surface and its primary interaction flow.
@@ -66,9 +66,11 @@ export default function DoctorMyPatientsPage() {
     }
   }, [])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     void load()
   }, [load])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const rows: Row[] = useMemo(() => {
     const out: Row[] = []

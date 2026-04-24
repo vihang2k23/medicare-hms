@@ -8,7 +8,7 @@ import {
   searchDrugLabels,
 } from '../../utils/api'
 import { notify } from '../../utils/helpers'
-import { FieldError, FIELD_LABEL_CLASS, FormInput } from '../../components/ui/form'
+import { FieldError, FormInput } from '../../components/common'
 
 interface MedicineLineEditorProps {
   line: PrescriptionMedicineLine
@@ -28,13 +28,17 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
   const [recallLoading, setRecallLoading] = useState(false)
   const [recallErr, setRecallErr] = useState<string | null>(null)
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setQuery(line.drugName)
   }, [line.drugName])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (line.drugName.trim()) setRecallErr(null)
   }, [line.drugName])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {

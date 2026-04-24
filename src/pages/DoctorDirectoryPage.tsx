@@ -17,11 +17,11 @@ import {
   X,
 } from 'lucide-react'
 import type { AppDispatch } from '../store'
-import { NPI_ADDRESS_PURPOSE_OPTIONS } from '../config/npiAddressPurpose'
-import { NPI_COUNTRY_OPTIONS } from '../config/npiCountries'
-import { getNpiRegionOptionsForCountry } from '../config/npiRegionOptions'
-import { NPI_TAXONOMY_FILTERS } from '../config/npiTaxonomies'
-import { NPI_TYPE_OPTIONS } from '../config/npiTypeOptions'
+import { NPI_ADDRESS_PURPOSE_OPTIONS } from '../config/npi'
+import { NPI_COUNTRY_OPTIONS } from '../config/npi'
+import { getNpiRegionOptionsForCountry } from '../config/npi'
+import { NPI_TAXONOMY_FILTERS } from '../config/npi'
+import { NPI_TYPE_OPTIONS } from '../config/npi'
 import {
   createInternalDoctor,
   deleteInternalDoctor,
@@ -42,16 +42,33 @@ import {
   addImportedScheduleDoctor,
   removeImportedScheduleDoctor,
   setImportedScheduleDoctors,
-} from '../domains/appointments/appointmentsSlice'
+} from '../store/slices/appointmentsSlice'
 import { notify } from '../utils/helpers'
 import { useMergeSearchParams, type QueryParamPatch } from '../hooks/useMergeSearchParams'
 import { useModalScrollLock } from '../hooks/useModalScrollLock'
-import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../utils/helpers'
-import InternalDoctorScheduleModal from '../components/InternalDoctorScheduleModal'
-import { FieldError, FormInput } from '../components/ui/form'
-import { SearchableIdPicker } from '../components/ui/SearchWithDropdown'
+import { FieldError, FormInput } from '../components/common'
+
+// =============================================================================
+// INLINE MODAL CLASSES (previously in modalOverlayClasses.ts)
+// =============================================================================
+
+/** Fixed root: scrollable so tall modals / small viewports can move; overscroll stays in overlay. */
+function modalFixedRoot(zClass: string) {
+  return `fixed inset-0 ${zClass} overflow-y-auto overscroll-y-contain`
+}
+
+/**
+ * At least one dynamic viewport tall so flex centering is true vertical center (not stuck to bottom).
+ * Use with createPortal -> body for reliable placement under app layout scroll/transform.
+ */
+const modalFixedInner =
+  'relative box-border flex min-h-[100dvh] w-full max-w-full items-center justify-center px-4 py-8 sm:px-6 sm:py-12'
+
+/** Full-bleed dim layer behind the panel (inside scrollable column). */
+const modalBackdropDim = 'absolute inset-0 min-h-full min-w-full bg-slate-950/50 backdrop-blur-sm'
+import { SearchableIdPicker } from '../components/common'
 import { filterLabeledOption } from '../utils/helpers'
-import ConfirmDialog from '../components/ui/ConfirmDialog'
+import { ConfirmationDialog as ConfirmDialog } from '../components/common'
 
 const PAGE_SIZE = 12
 const MAX_SKIP = 1000
@@ -408,8 +425,6 @@ export default function DoctorDirectoryPage() {
 
   const [internalList, setInternalList] = useState<InternalDoctorRecord[]>([])
   const [internalLoading, setInternalLoading] = useState(false)
-  const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
-  const [scheduleModalRecord, setScheduleModalRecord] = useState<InternalDoctorRecord | null>(null)
   const [removeTarget, setRemoveTarget] = useState<InternalDoctorRecord | null>(null)
   const [removeBusy, setRemoveBusy] = useState(false)
 
@@ -440,9 +455,11 @@ export default function DoctorDirectoryPage() {
     }
   }, [dispatch])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (tab === 'internal') void loadInternal()
   }, [tab, loadInternal])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     void (async () => {
@@ -1082,16 +1099,7 @@ export default function DoctorDirectoryPage() {
         </div>
       )}
 
-      <InternalDoctorScheduleModal
-        open={scheduleModalOpen}
-        record={scheduleModalRecord}
-        onClose={() => {
-          setScheduleModalOpen(false)
-          setScheduleModalRecord(null)
-        }}
-        onSaved={() => void loadInternal()}
-      />
-
+      
       <ConfirmDialog
         open={removeTarget !== null}
         title="Remove from directory?"

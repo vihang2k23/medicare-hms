@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import type { AppDispatch, RootState } from '../../store'
-import { runBedSimulationTick } from './bedSlice'
+import { runBedSimulationTick } from '../../store/slices/bedSlice'
 
 const DEFAULT_INTERVAL_MS = 45_000
 

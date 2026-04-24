@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { store, type AppDispatch, type RootState } from '../../store'
 import { notify } from '../../utils/helpers'
-import { callNext, setSimulationRunning } from './queueSlice'
+import { callNext, setSimulationRunning } from '../../store/slices/queueSlice'
 import { canCallNext, shouldStopQueueSimulation } from './queueSimulation'
 
 /** Dispatches call next on an interval while simulation is enabled. */

@@ -5,6 +5,34 @@
 import { twMerge } from 'tailwind-merge'
 import toast from 'react-hot-toast'
 import { createPortal } from 'react-dom'
+import type { ReactNode } from 'react'
+
+// =============================================================================
+// MODAL UTILITIES
+// =============================================================================
+
+/** Portal wrapper for modals - renders children to document.body */
+export function ModalPortal({ children }: { children: ReactNode }) {
+  return createPortal(children, document.body)
+}
+
+/** Fixed root: scrollable so tall modals / small viewports can move; overscroll stays in overlay. */
+export function modalFixedRoot(zClass: string) {
+  return `fixed inset-0 ${zClass} overflow-y-auto overscroll-y-contain`
+}
+
+/**
+ * At least one dynamic viewport tall so flex centering is true vertical center (not stuck to bottom).
+ * Use with createPortal -> body for reliable placement under app layout scroll/transform.
+ */
+export const modalFixedInner =
+  'relative box-border flex min-h-[100dvh] w-full max-w-full items-center justify-center px-4 py-8 sm:px-6 sm:py-12'
+
+/** Full-bleed dim layer behind the panel (inside scrollable column). */
+export const modalBackdropDim = 'absolute inset-0 min-h-full min-w-full bg-slate-950/50 backdrop-blur-sm'
+
+/** Stronger dim for ward management panel. */
+export const modalBackdropDimStrong = 'absolute inset-0 min-h-full min-w-full bg-slate-950/60 backdrop-blur-sm'
 
 // ── Class names ──────────────────────────────────────────────────────────────
 
@@ -73,32 +101,8 @@ export function filterLabeledOption<T extends { id: string; label: string }>(
   return item.label.toLowerCase().includes(t) || item.id.toLowerCase().includes(t)
 }
 
-/** Mount modal overlay on document.body so fixed positioning is viewport-true (not clipped by main scroll / transforms). */
-export function ModalPortal({ children }: { children: React.ReactNode }) {
-  return createPortal(children, document.body)
-}
-
-// Modal utilities
-/** Fixed root: scrollable so tall modals / small viewports can move; overscroll stays in overlay. */
-export function modalFixedRoot(zClass: string) {
-  return `fixed inset-0 ${zClass} overflow-y-auto overscroll-y-contain`
-}
-
-/**
- * At least one dynamic viewport tall so flex centering is true vertical center (not stuck to bottom).
- * Use with ModalPortal -> body for reliable placement under app layout scroll/transform.
- */
-export const modalFixedInner =
-  'relative box-border flex min-h-[100dvh] w-full max-w-full items-center justify-center px-4 py-8 sm:px-6 sm:py-12'
-
-/** Full-bleed dim layer behind the panel (inside scrollable column). */
-export const modalBackdropDim = 'absolute inset-0 min-h-full min-w-full bg-slate-950/50 backdrop-blur-sm'
-
-export const modalBackdropDimStrong =
-  'absolute inset-0 min-h-full min-w-full bg-slate-950/60 backdrop-blur-[2px]'
 
 // Icon styling utilities
-import type { SidebarAccent } from '../config/roles'
 
 /**
  * Lucide icons use stroke="currentColor". On some surfaces (e.g. Router <Link>, translucent
@@ -110,9 +114,9 @@ export const LUCIDE_STROKE_CHROME = 'stroke-[#0f172a] dark:stroke-[#e2e8f0]'
 export const LUCIDE_STROKE_FIELD = '!stroke-slate-800 dark:!stroke-slate-200'
 
 /** Sidebar row - active item; matches role accent pills */
-export const LUCIDE_STROKE_SIDEBAR_ACTIVE: Record<SidebarAccent, string> = {
+export const LUCIDE_STROKE_SIDEBAR_ACTIVE = {
   blue: 'stroke-[#075985] dark:stroke-[#e0f2fe]',
   green: 'stroke-[#047857] dark:stroke-[#d1fae5]',
   purple: 'stroke-[#5b21b6] dark:stroke-[#ede9fe]',
   orange: 'stroke-[#9a3412] dark:stroke-[#ffedd5]',
-}
+} as const

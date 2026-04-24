@@ -2,8 +2,8 @@ import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import type { AppDispatch } from '../store'
 import { fetchInternalDoctors } from '../services/internalDoctorsApi'
-import { internalRecordToScheduleDoctor, type InternalDoctorRecord } from '../types'
-import { setImportedScheduleDoctors } from '../domains/appointments/appointmentsSlice'
+import { internalRecordToScheduleDoctor } from '../types'
+import { setImportedScheduleDoctors } from '../store/slices/appointmentsSlice'
 
 // ImportedDoctorsSync defines the Imported Doctors Sync UI surface and its primary interaction flow.
 // ImportedDoctorsSync renders the imported doctors sync UI.

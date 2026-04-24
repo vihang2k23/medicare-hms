@@ -1,8 +1,8 @@
 import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from '../store'
-import { logout as logoutAction } from '../domains/auth/authSlice'
-import type { AuthUser } from '../domains/auth/authSlice'
+import { logout as logoutAction } from '../store/slices/authSlice'
+import type { AuthUser } from '../store/slices/authSlice'
 
 export function useAuth() {
   const user = useSelector((state: RootState) => state.auth.user)

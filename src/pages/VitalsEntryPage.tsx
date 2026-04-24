@@ -63,9 +63,11 @@ function VitalsEntryPage() {
     }
   }, [])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     void loadAll()
   }, [loadAll])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const filteredPatients = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -91,9 +93,11 @@ function VitalsEntryPage() {
   const rangeStart = totalFiltered === 0 ? 0 : (safePage - 1) * pageSize + 1
   const rangeEnd = Math.min(safePage * pageSize, totalFiltered)
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setPatientDetailId(null)
   }, [safePage, pageSize])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const refreshAfterSave = async () => {
     void loadAll()

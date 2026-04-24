@@ -1,4 +1,4 @@
-export { default as appointmentsReducer } from './appointmentsSlice'
+export { default as appointmentsReducer } from '../../store/slices/appointmentsSlice'
 export {
   bookAppointment,
   cancelAppointment,
@@ -7,7 +7,7 @@ export {
   updateAppointmentStatus,
   findSchedulingConflict,
   DEFAULT_SCHEDULE_DOCTORS,
-} from './appointmentsSlice'
+} from '../../store/slices/appointmentsSlice'
 export { default as WeeklyCalendarGrid } from './WeeklyCalendarGrid'
 export { default as WeeklyTimeGridCalendar } from './WeeklyTimeGridCalendar'
 export { BookAppointmentModal, ManageAppointmentModal } from './AppointmentDialogs'

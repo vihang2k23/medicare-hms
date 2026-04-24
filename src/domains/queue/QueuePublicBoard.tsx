@@ -2,8 +2,8 @@ import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { Building2, ChevronRight, Tv } from 'lucide-react'
 import type { RootState } from '../../store'
-import { OPD_DEPARTMENTS, type OpdDepartment } from '../../config/departments'
-import { formatOpdTokenLabel } from './queueSlice'
+import { OPD_DEPARTMENTS, type OpdDepartment } from '../../config/clinical'
+import { formatOpdTokenLabel } from '../../store/slices/queueSlice'
 import type { OpdQueueToken } from './opdQueueTypes'
 
 // QueuePublicBoard defines the Queue Public Board UI surface and its primary interaction flow.

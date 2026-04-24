@@ -1,13 +1,13 @@
 import { configureStore, type Middleware } from "@reduxjs/toolkit";
-import authReducer from "../domains/auth/authSlice";
+import authReducer from "./slices/authSlice";
 import { AUTH_STORAGE_KEY } from "../domains/auth/authConstants";
-import type { AuthUser } from "../domains/auth/authSlice";
-import queueReducer from "../domains/queue/queueSlice";
-import bedReducer from "../domains/beds/bedSlice";
-import alertReducer from "../domains/alerts/alertSlice";
+import type { AuthUser } from "../types";
+import queueReducer from "./slices/queueSlice";
+import bedReducer from "./slices/bedSlice";
+import alertReducer from "./slices/alertSlice";
 import appointmentsReducer, {
   DEFAULT_SCHEDULE_DOCTORS,
-} from "../domains/appointments/appointmentsSlice";
+} from "./slices/appointmentsSlice";
 import {
   APPOINTMENTS_STORAGE_KEY,
   loadPersistedAppointments,
@@ -17,15 +17,15 @@ import {
   buildDemoReportsPrescriptions,
   buildDemoReportsQueueState,
 } from "../domains/reports/demoReportsSeed";
-import prescriptionsReducer from "../domains/prescriptions/prescriptionsSlice";
+import prescriptionsReducer from "./slices/prescriptionsSlice";
 import {
   PRESCRIPTIONS_STORAGE_KEY,
   loadPersistedPrescriptions,
 } from "../domains/prescriptions/prescriptionsStorage";
-import uiReducer from "../domains/ui/uiSlice";
-import doctorReducer from "../domains/doctors/doctorSlice";
+import uiReducer from "./slices/uiSlice";
+import doctorReducer from "./slices/doctorSlice";
 import { THEME_STORAGE_KEY } from "../domains/ui/themeConstants";
-import type { Theme } from "../domains/ui/uiSlice";
+import type { Theme } from "./slices/uiSlice";
 
 const VALID_ROLES = ["admin", "doctor", "receptionist", "nurse"] as const;
 

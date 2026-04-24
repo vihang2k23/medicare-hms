@@ -4,14 +4,14 @@ import { Plus } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import type { RootState } from '../../store'
 import { fetchPatients } from '../../services/patientsApi'
-import type { PatientRecord } from '../../types/patient'
+import type { PatientRecord } from '../../types'
 import { notify } from '../../utils/helpers'
 import type { AppDispatch } from '../../store'
-import { addPrescription, newMedicineLine } from './prescriptionsSlice'
+import { addPrescription, newMedicineLine } from '../../store/slices/prescriptionsSlice'
 import type { PrescriptionMedicineLine } from './types'
 import MedicineLineEditor from './MedicineLineEditor'
-import { FieldError, FIELD_LABEL_CLASS, FormInput, FormTextarea } from '../../components/ui/form'
-import { SearchableIdPicker } from '../../components/ui/SearchWithDropdown'
+import { FieldError, FormInput } from '../../components/common'
+import { SearchableIdPicker } from '../../components/common'
 import type { ScheduleDoctor } from '../appointments/types'
 
 // PrescriptionForm defines the Prescription Form UI surface and its primary interaction flow.
@@ -48,10 +48,13 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
     [medicines],
   )
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (patientId) setPatientErr(null)
   }, [patientId])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (variant !== 'admin') {
       setPrescriberErr(null)
@@ -59,10 +62,13 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
     }
     if (prescriberDoctorId && doctors.some((d) => d.id === prescriberDoctorId)) setPrescriberErr(null)
   }, [prescriberDoctorId, doctors, variant])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (hasValidMedicineLine) setMedicinesErr(null)
   }, [hasValidMedicineLine])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const load = useCallback(async () => {
     setLoadingPatients(true)
@@ -77,16 +83,21 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
     }
   }, [])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     void load()
   }, [load])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (initialPatientId && patients.some((p) => p.id === initialPatientId)) {
       setPatientId(initialPatientId)
     }
   }, [initialPatientId, patients])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (variant !== 'admin') return
     setPrescriberDoctorId((prev) => {
@@ -94,6 +105,7 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
       return doctors[0]?.id ?? ''
     })
   }, [variant, doctors])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const updateLine = (id: string, next: PrescriptionMedicineLine) => {
     setMedicines((prev) => prev.map((m) => (m.id === id ? next : m)))

@@ -17,9 +17,9 @@ import type { AppDispatch, RootState } from '../../store'
 import { notify } from '../../utils/helpers'
 import { useModalScrollLock } from '../../hooks/useModalScrollLock'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../utils/helpers'
-import { FieldError, FormInput } from '../../components/ui/form'
+import { FieldError } from '../../components/common'
 import { ModalPortal } from '../../utils/helpers'
-import type { Bed, BedStatus, WardDefinition } from './bedSlice'
+import type { Bed, BedStatus, WardDefinition } from '../../store/slices/bedSlice'
 import {
   addBedToWard,
   assignPatientToBed,
@@ -27,7 +27,7 @@ import {
   removeBed,
   transferBedToWard,
   updateBedStatus,
-} from './bedSlice'
+} from '../../store/slices/bedSlice'
 import WardManagementPanel from './WardManagementPanel'
 
 const BED_DRAG_MIME = 'application/x-medicare-bed-id'
