@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { format, parse } from 'date-fns'
 import { X } from 'lucide-react'
-import type { PatientRecord } from '../../types/patient'
+import type { PatientRecord } from '../../types'
 import { fetchPatients } from '../../services/patientsApi'
 import { notify } from '../../utils/helpers'
 import { useModalScrollLock } from '../../hooks/useModalScrollLock'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../utils/helpers'
 import { ModalPortal } from '../../utils/helpers'
-import { FieldError, FormInput } from '../../components/common'
-import { SearchableIdPicker } from '../components/common'
+import { FieldError, FormField, FormInput } from '../../components/common'
+import { SearchableIdPicker } from '../../components/common'
 import { filterLabeledOption } from '../../utils/helpers'
 import type { Appointment, AppointmentStatus, ScheduleDoctor } from './types'
 import { generateDaySlots } from './slotUtils'
@@ -147,7 +147,8 @@ function BookAppointmentModalOpen({
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">Notes</label>
-            <FormTextarea
+            <FormField
+              type="textarea"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}

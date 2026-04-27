@@ -3,8 +3,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Briefcase, Eye, MapPin, Search, User, X } from 'lucide-react'
 import type { AppDispatch, RootState } from '../../store'
 import { clearDoctorSearch, searchDoctors, type SearchDoctorsArgs } from '../../store/slices/doctorSlice'
-import { FieldError } from '../../components/common'
+import { FieldError, FormInput } from '../../components/common'
+import { truncateWords } from '../../utils/helpers'
 import { providerCardToAutocompleteDoctor, type AutocompleteDoctor } from '../../domains/doctors/npiAutocompleteMap'
+import type { ChangeEvent } from 'react'
 
 // DoctorAutocomplete defines the doctor autocomplete UI surface and its primary interaction flow.
 
@@ -71,6 +73,12 @@ export default function DoctorAutocomplete({
   const [searchErr, setSearchErr] = useState<string | null>(null)
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [isUserTyping, setIsUserTyping] = useState(true)
+
+  const handleViewDetails = useCallback((doctor: AutocompleteDoctor, e: React.MouseEvent) => {
+    e.preventDefault()
+    // Placeholder for view details functionality
+    console.log('View details for doctor:', doctor)
+  }, [])
   const searchRef = useRef<HTMLDivElement>(null)
 
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -170,7 +178,7 @@ export default function DoctorAutocomplete({
   return (
     <div className="relative" ref={searchRef}>
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 dark:text-slate-400" aria-hidden />
+        <Search className="absolute left-3 top-1/2 z-20 -translate-y-1/2 h-[18px] w-[18px] pointer-events-none text-slate-900 dark:text-white" strokeWidth={2.5} aria-hidden />
         <FormInput
           type="text"
           value={query}
@@ -245,7 +253,7 @@ export default function DoctorAutocomplete({
                         <User className="w-5 h-5 text-sky-600 dark:text-white" />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-semibold text-slate-900 dark:text-white truncate">{doctor.fullName}</p>
+                        <p className="font-semibold text-slate-900 dark:text-white truncate">{truncateWords(doctor.fullName)}</p>
                         <p className="text-xs font-mono text-sky-600 dark:text-white">NPI {doctor.npi}</p>
                       </div>
                     </div>

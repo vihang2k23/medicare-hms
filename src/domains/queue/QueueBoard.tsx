@@ -1,8 +1,10 @@
+import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { ListOrdered } from 'lucide-react'
+import { truncateWords } from '../../utils/helpers'
 import type { RootState } from '../../store'
 import { formatOpdTokenLabel } from './queueSlice'
-import type { OpdTokenStatus } from './opdQueueTypes'
+import type { OpdTokenStatus, OpdQueueToken } from './opdQueueTypes'
 
 // QueueBoard defines the Queue Board UI surface and its primary interaction flow.
 function statusBadge(status: OpdTokenStatus) {
@@ -29,7 +31,7 @@ function statusBadge(status: OpdTokenStatus) {
 
 // QueueBoard renders the queue board UI.
 export default function QueueBoard() {
-  const queue = useSelector((s: RootState) => s.queue.queue)
+  const queue = useSelector((s: RootState) => s.queue.queue) as unknown as OpdQueueToken[]
   const currentToken = useSelector((s: RootState) => s.queue.currentToken)
   const simulationRunning = useSelector((s: RootState) => s.queue.simulationRunning)
 
@@ -76,10 +78,8 @@ export default function QueueBoard() {
               >
                 <span className="font-mono font-semibold text-sky-700 dark:text-white">{label}</span>
                 <div className="min-w-0 sm:col-span-1">
-                  <p className="font-medium text-slate-800 dark:text-white truncate">{t.patientName}</p>
-                  <p className="text-xs text-slate-500 dark:text-white truncate">
-                    {t.department} · {t.doctorName}
-                  </p>
+                  <p className="font-medium text-slate-800 dark:text-white truncate">{truncateWords(t.patientName, 10)}</p>
+                  <p className="text-xs text-slate-500 dark:text-white truncate">{t.department} · {t.doctorName}</p>
                 </div>
                 <div className="justify-self-start sm:justify-self-end">{statusBadge(t.status)}</div>
               </li>

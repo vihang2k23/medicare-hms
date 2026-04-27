@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux'
 import { useAuth } from '../hooks/useAuth'
 import type { RootState } from '../store'
 import { DashboardCard, StatCard } from '../components/common'
+import { truncateWords } from '../utils/helpers'
 import {
 // DoctorDashboard defines the Doctor Dashboard UI surface and its primary interaction flow.
   doctorAppointmentsToday,
@@ -88,7 +89,7 @@ export default function DoctorDashboard() {
               {nextApt.patientName.charAt(0)}
             </div>
             <div>
-              <p className="font-semibold text-slate-800 dark:text-white">{nextApt.patientName}</p>
+              <p className="font-semibold text-slate-800 dark:text-white">{truncateWords(nextApt.patientName, 10)}</p>
               <p className="text-sm text-slate-500 dark:text-white">
                 {nextApt.slotStart} – {nextApt.slotEnd}
                 {nextApt.reason ? ` · ${nextApt.reason}` : ''}
@@ -109,7 +110,7 @@ export default function DoctorDashboard() {
             {sortedToday.map((apt) => (
               <li key={apt.id} className="flex items-center justify-between py-3 first:pt-0">
                 <div>
-                  <p className="font-medium text-slate-800 dark:text-white">{apt.patientName}</p>
+                  <p className="font-medium text-slate-800 dark:text-white">{truncateWords(apt.patientName, 10)}</p>
                   <p className="text-sm text-slate-500 dark:text-white">
                     {apt.slotStart} – {apt.slotEnd}
                   </p>

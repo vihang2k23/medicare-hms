@@ -90,22 +90,7 @@ export default function Sidebar() {
       ].join(' ')}
     >
       <div className="flex h-full min-h-0 w-full min-w-[16rem] sm:w-64 flex-col">
-        <div className="flex items-center justify-between h-16 px-4 border-b border-slate-200/60 dark:border-slate-800/80 shrink-0 bg-gradient-to-r from-sky-500/[0.06] via-transparent to-violet-500/[0.05] dark:from-sky-500/10 dark:to-violet-500/10">
-          <div className="flex items-center gap-3 min-w-0">
-            <span className="shrink-0 rounded-[9px] shadow-md shadow-sky-500/25 ring-1 ring-slate-200/50 dark:ring-slate-600/50">
-              <MediCareLogo size="sm" title={false} />
-            </span>
-            <div className="min-w-0">
-              <span className="font-semibold text-slate-900 dark:text-white text-sm truncate tracking-tight block leading-tight">
-                Navigation
-              </span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-sky-600 dark:text-white truncate block">
-                MediCare HMS
-              </span>
-            </div>
-          </div>
-         
-        </div>
+     
 
         {/* Vertical menu */}
         <nav className="flex-1 overflow-y-auto py-5 px-3">

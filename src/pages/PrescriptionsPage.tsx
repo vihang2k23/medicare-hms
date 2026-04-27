@@ -24,6 +24,7 @@ import type { Prescription, PrescriptionStatus } from '../domains/prescriptions/
 import PrescriptionForm from '../domains/prescriptions/PrescriptionForm'
 import { notify } from '../utils/helpers'
 import { FormInput } from '../components/common'
+import { truncateWords } from '../utils/helpers'
 import { useConfirmModal } from '../hooks/useGlobalModal'
 
 // PrescriptionsPage defines the prescriptions page UI surface and its primary interaction flow.
@@ -129,7 +130,7 @@ function PrescriptionHistoryCard({
                       <span className="sr-only">Patient</span>
                     </span>
                     <span className="font-semibold text-slate-900 dark:text-white text-base leading-snug">
-                      {rx.patientName}
+                      {truncateWords(rx.patientName, 10)}
                     </span>
                     <span className="text-xs font-mono text-sky-700 dark:text-white bg-sky-500/10 px-2 py-0.5 rounded-md">
                       {rx.patientId}
@@ -460,7 +461,8 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
           <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/90 dark:bg-slate-900/50 p-4 sm:p-5 ring-1 ring-slate-200/40 dark:ring-slate-700/40 space-y-4">
             <div className="relative">
               <Search
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600 dark:text-slate-400 pointer-events-none"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-slate-900 dark:text-white pointer-events-none"
+                strokeWidth={2.5}
                 aria-hidden
               />
               <FormInput

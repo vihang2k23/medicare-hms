@@ -8,7 +8,9 @@ import {
   searchDrugLabels,
 } from '../../utils/api'
 import { notify } from '../../utils/helpers'
+import { cn } from '../../utils/helpers'
 import { FieldError, FormInput } from '../../components/common'
+import { FIELD_LABEL_CLASS, LUCIDE_STROKE_FIELD } from '../../components/common/Form/fieldStyles'
 
 interface MedicineLineEditorProps {
   line: PrescriptionMedicineLine
@@ -133,7 +135,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 text-slate-700 dark:text-white font-semibold text-sm">
-          <Pill className="h-4 w-4 text-violet-500 shrink-0" aria-hidden />
+          <Pill className={cn("h-4 w-4 text-violet-500 shrink-0", LUCIDE_STROKE_FIELD)} aria-hidden />
           Medicine
         </div>
         {canRemove && (
@@ -143,7 +145,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
             className="p-2 rounded-xl text-slate-600 hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-950/40 dark:hover:text-red-200 transition-colors"
             aria-label="Remove medicine line"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className={cn("h-4 w-4", LUCIDE_STROKE_FIELD)} />
           </button>
         )}
       </div>
@@ -151,7 +153,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
       <div className="relative">
         <label className={FIELD_LABEL_CLASS}>Drug (catalog)</label>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600 dark:text-slate-400" aria-hidden />
+          <Search className="absolute left-3 top-1/2 z-20 -translate-y-1/2 h-[18px] w-[18px] pointer-events-none text-slate-900 dark:text-white" strokeWidth={2.5} aria-hidden />
           <FormInput
             role="combobox"
             aria-expanded={open}
@@ -169,7 +171,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
             className="!pl-10 !pr-10"
           />
           {loading && (
-            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-sky-500" />
+            <Loader2 className={cn("absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-sky-500", LUCIDE_STROKE_FIELD)} />
           )}
         </div>
         {open && hits.length > 0 && (
@@ -252,7 +254,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
           disabled={recallLoading}
           className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold border border-amber-200 dark:border-amber-800/80 text-amber-900 dark:text-white bg-amber-50/80 dark:bg-amber-950/30 hover:bg-amber-100/80 dark:hover:bg-amber-950/50 disabled:opacity-50"
         >
-          {recallLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <AlertTriangle className="h-3.5 w-3.5" />}
+          {recallLoading ? <Loader2 className={cn("h-3.5 w-3.5 animate-spin", LUCIDE_STROKE_FIELD)} /> : <AlertTriangle className={cn("h-3.5 w-3.5", LUCIDE_STROKE_FIELD)} />}
           Check recalls
         </button>
         <span className="text-[11px] text-slate-600 dark:text-slate-400">Sample scenarios for common drugs.</span>
@@ -261,7 +263,7 @@ export default function MedicineLineEditor({ line, onChange, onRemove, canRemove
       {line.recallAlerts && line.recallAlerts.length > 0 && (
         <div className="rounded-xl border border-amber-200/90 dark:border-amber-800/60 bg-amber-50/90 dark:bg-amber-950/35 p-3 space-y-2">
           <p className="text-xs font-bold text-amber-900 dark:text-white flex items-center gap-1.5">
-            <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden />
+            <AlertTriangle className={cn("h-4 w-4 shrink-0", LUCIDE_STROKE_FIELD)} aria-hidden />
             Sample recalls — verify against live sources
           </p>
           <ul className="space-y-2 text-xs text-amber-950 dark:text-white">

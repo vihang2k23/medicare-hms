@@ -14,10 +14,10 @@ import {
   X,
 } from 'lucide-react'
 import type { AppDispatch, RootState } from '../../store'
-import { notify } from '../../utils/helpers'
+import { notify, truncateWords } from '../../utils/helpers'
 import { useModalScrollLock } from '../../hooks/useModalScrollLock'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../utils/helpers'
-import { FieldError } from '../../components/common'
+import { FieldError, FormInput } from '../../components/common'
 import { ModalPortal } from '../../utils/helpers'
 import type { Bed, BedStatus, WardDefinition } from '../../store/slices/bedSlice'
 import {
@@ -360,7 +360,7 @@ export default function BedGrid({
                   const canDrag = bed.status === 'available'
                   const subtitle =
                     bed.status === 'occupied'
-                      ? bed.occupantName ?? bed.patientId ?? 'Occupied'
+                      ? truncateWords(bed.occupantName ?? bed.patientId ?? 'Occupied', 10)
                       : bed.status === 'reserved'
                         ? 'Reserved'
                         : bed.status === 'maintenance'
@@ -405,7 +405,7 @@ export default function BedGrid({
                         <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${st.dot}`} />
                         <span className="truncate">Bed {bed.bedNumber}</span>
                       </span>
-                      <span className="mt-1 text-[11px] font-normal opacity-85 line-clamp-2 leading-snug">
+                      <span className="mt-1 text-[11px] font-normal opacity-85 line-clamp-2 leading-snug truncate" title={subtitle}>
                         {subtitle}
                       </span>
                     </button>
@@ -436,7 +436,7 @@ export default function BedGrid({
                   {activeBed.occupantName && (
                     <>
                       {' · '}
-                      <span className="text-slate-700 dark:text-white">{activeBed.occupantName}</span>
+                      <span className="text-slate-700 dark:text-white">{truncateWords(activeBed.occupantName, 10)}</span>
                     </>
                   )}
                 </p>
@@ -509,7 +509,7 @@ export default function BedGrid({
                     <FormInput
                       value={assignName}
                       invalid={!!assignNameErr}
-                      onChange={(e) => {
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                         const v = e.target.value
                         setAssignName(v)
                         if (v.trim()) setAssignNameErr(null)
@@ -530,7 +530,7 @@ export default function BedGrid({
                     </label>
                     <FormInput
                       value={assignId}
-                      onChange={(e) => setAssignId(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAssignId(e.target.value)}
                       placeholder="Registry ID"
                       className="bg-white/90 dark:bg-slate-950/50 !py-2.5 font-mono"
                     />

@@ -1,6 +1,6 @@
 import { eachDayOfInterval, format, isSameMonth, parseISO, startOfToday, subDays } from 'date-fns'
 import type { Appointment } from '../appointments/types'
-import type { Bed } from '../beds/bedSlice'
+import type { Bed } from '../../store/slices/bedSlice'
 
 function parseApptDate(d: string): Date | null {
   const x = parseISO(d)

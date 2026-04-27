@@ -2,7 +2,9 @@
  * Role definitions and route access.
  * Single ROLE_CONFIG drives sidebar, route access, and accent colors.
  */
-import { ROLES, type Role, type RoleSidebarLink, type RoleConfigItem } from '../types'
+import { ROLES, type Role, type RoleSidebarLink, type RoleConfigItem, type SidebarAccent } from '../types'
+
+export { type SidebarAccent } from '../types'
 
 /**
  * Single source of truth for role-based UI:

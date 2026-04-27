@@ -6,6 +6,7 @@
 import type { OpenFdaLabelHit, PrescriptionRecallSnapshot } from '../domains/prescriptions/types'
 import { STATIC_DRUG_CATALOG, STATIC_DRUG_RECALLS, type StaticDrugEntry } from '../data/drugCatalogData'
 import { getJsonServerBaseUrl } from '../config/api'
+import type { InternalDoctorRecord } from '../types'
 
 // ── OpenFDA drug label search ───────────────────────────────────────────────
 
@@ -604,7 +605,7 @@ export function defaultImportedSchedule() {
   }
 }
 
-export function npiCardToInternalRecord(card: NpiProviderCard): import('../types/internalDoctor').InternalDoctorRecord {
+export function npiCardToInternalRecord(card: NpiProviderCard): InternalDoctorRecord {
   const sched = defaultImportedSchedule()
   const dept = taxonomyToDepartment(card.primaryTaxonomyDesc)
   const name = card.enumerationType === 'NPI-2' ? card.displayName : `Dr. ${card.displayName}`

@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { Building2, ChevronRight, Tv } from 'lucide-react'
+import { truncateWords } from '../../utils/helpers'
 import type { RootState } from '../../store'
 import { OPD_DEPARTMENTS, type OpdDepartment } from '../../config/clinical'
 import { formatOpdTokenLabel } from '../../store/slices/queueSlice'
@@ -10,7 +11,7 @@ import type { OpdQueueToken } from '../../domains/queue/opdQueueTypes'
 // QueuePublicBoard renders the queue public board UI.
 export default function QueuePublicBoard() {
   // Read the full queue from Redux so the public board can derive live display values.
-  const queue = useSelector((s: RootState) => s.queue.queue)
+  const queue = useSelector((s: RootState) => s.queue.queue as unknown as OpdQueueToken[])
   const currentToken = useSelector((s: RootState) => s.queue.currentToken)
 
   // Precompute all board values in one place to avoid recomputing on each render section.
@@ -58,7 +59,7 @@ export default function QueuePublicBoard() {
           {serving ? (
             <>
               <p className="text-5xl sm:text-6xl font-black tabular-nums tracking-tight">{formatOpdTokenLabel(serving.tokenId)}</p>
-              <p className="mt-3 text-sm font-medium text-sky-100 truncate">{serving.patientName}</p>
+              <p className="mt-3 text-sm font-medium text-sky-100 truncate">{truncateWords(serving.patientName, 10)}</p>
               <p className="text-xs text-sky-200/90 mt-1">{serving.department}</p>
             </>
           ) : (
@@ -83,7 +84,7 @@ export default function QueuePublicBoard() {
                 >
                   <span className="text-xs font-bold text-slate-400 w-5">{i + 1}</span>
                   <span className="font-mono font-semibold text-sky-700 dark:text-white">{formatOpdTokenLabel(t.tokenId)}</span>
-                  <span className="truncate flex-1 text-right text-slate-700 dark:text-white">{t.patientName}</span>
+                  <span className="truncate flex-1 text-right text-slate-700 dark:text-white">{truncateWords(t.patientName, 10)}</span>
                 </li>
               ))}
             </ol>

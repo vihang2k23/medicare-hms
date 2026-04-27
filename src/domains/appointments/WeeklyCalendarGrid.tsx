@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import { CalendarOff } from 'lucide-react'
+import { truncateWords } from '../../utils/helpers'
 import type { Appointment, ScheduleDoctor } from './types'
 import { eachDayOfWeek, generateDaySlots } from './slotUtils'
 
@@ -67,7 +68,7 @@ export default function WeeklyCalendarGrid({
                           className="text-left rounded-lg px-2 py-2 text-xs font-medium bg-violet-500/15 text-violet-900 dark:text-white ring-1 ring-violet-500/25 hover:bg-violet-500/25 transition-colors"
                         >
                           <span className="font-mono tabular-nums">{s.startStr}</span>
-                          <span className="block truncate mt-0.5 opacity-90">{apt.patientName}</span>
+                          <span className="block truncate mt-0.5 opacity-90">{truncateWords(apt.patientName, 10)}</span>
                           <span className="text-[10px] uppercase tracking-wide text-violet-700/80 dark:text-white">
                             {apt.status}
                           </span>

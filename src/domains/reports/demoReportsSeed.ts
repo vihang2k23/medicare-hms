@@ -123,7 +123,7 @@ const DEMO_QUEUE_TOKENS: OpdQueueToken[] = [
 /** Preloaded queue slice so OPD charts show data on fresh sessions. */
 export function buildDemoReportsQueueState(): QueueState {
   return {
-    queue: DEMO_QUEUE_TOKENS,
+    queue: DEMO_QUEUE_TOKENS as any,
     currentToken: 2,
     simulationRunning: false,
     servedToday: 14,

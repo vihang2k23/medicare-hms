@@ -2,7 +2,7 @@ import { configureStore, type Middleware } from "@reduxjs/toolkit";
 import authReducer from "./slices/authSlice";
 import { AUTH_STORAGE_KEY } from "../domains/auth/authConstants";
 import type { AuthUser } from "../types";
-import queueReducer from "./slices/queueSlice";
+import queueReducer from "../domains/queue/queueSlice";
 import bedReducer from "./slices/bedSlice";
 import alertReducer from "./slices/alertSlice";
 import appointmentsReducer, {
@@ -56,6 +56,7 @@ function loadAuthFromStorage(): { user: AuthUser | null } {
 }
 
 const authPreload = loadAuthFromStorage();
+console.log('[Store] Auth loaded from storage:', authPreload);
 
 function loadThemeFromStorage(): Theme {
   try {

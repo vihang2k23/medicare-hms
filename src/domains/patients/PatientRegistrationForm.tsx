@@ -10,7 +10,7 @@ import {
   Phone,
   User,
 } from 'lucide-react'
-import { FieldLabel, FormInput } from '../../components/common'
+import { FieldError, FieldLabel, FormField, FormInput } from '../../components/common'
 import { SearchableIdPicker } from '../../components/common'
 import { filterLabeledOption } from '../../utils/helpers'
 import {
@@ -335,12 +335,17 @@ export default function PatientRegistrationForm({
               <FieldLabel htmlFor="patient-reg-fullName" className="block mb-1" required>
                 Full name
               </FieldLabel>
-              <FormInput
-                id="patient-reg-fullName"
-                {...register('fullName')}
-                invalid={!!errors.fullName}
-                variant="soft"
-              />
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
+                <FormInput
+                  id="patient-reg-fullName"
+                  {...register('fullName')}
+                  invalid={!!errors.fullName}
+                  variant="soft"
+                  placeholder="Enter full name"
+                  className="!pl-10"
+                />
+              </div>
               <FieldError>{errors.fullName?.message}</FieldError>
             </div>
             <div>
@@ -403,7 +408,6 @@ export default function PatientRegistrationForm({
                     accent="sky"
                     emptyLabel="Select"
                     placeholder="Search…"
-                    className={errors.bloodGroup ? 'ring-2 ring-red-500/20 rounded-xl' : ''}
                   />
                 )}
               />
@@ -434,27 +438,35 @@ export default function PatientRegistrationForm({
               <FieldLabel htmlFor="patient-reg-phone" className="block mb-1" required>
                 Phone
               </FieldLabel>
-              <FormInput id="patient-reg-phone" {...register('phone')} invalid={!!errors.phone} variant="soft" />
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
+                <FormInput id="patient-reg-phone" {...register('phone')} invalid={!!errors.phone} variant="soft" placeholder="Enter phone number" className="!pl-10" />
+              </div>
               <FieldError>{errors.phone?.message}</FieldError>
             </div>
             <div>
               <FieldLabel htmlFor="patient-reg-email" className="block mb-1" required>
                 Email
               </FieldLabel>
-              <FormInput
-                id="patient-reg-email"
-                type="email"
-                {...register('email')}
-                invalid={!!errors.email}
-                variant="soft"
-              />
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
+                <FormInput
+                  id="patient-reg-email"
+                  type="email"
+                  {...register('email')}
+                  invalid={!!errors.email}
+                  variant="soft"
+                  placeholder="Enter email address"
+                  className="!pl-10"
+                />
+              </div>
               <FieldError>{errors.email?.message}</FieldError>
             </div>
             <div>
               <FieldLabel htmlFor="patient-reg-address" className="block mb-1" required>
                 Address
               </FieldLabel>
-              <FormTextarea id="patient-reg-address" {...register('address')} rows={2} invalid={!!errors.address} variant="soft" />
+              <FormField id="patient-reg-address" type="textarea" {...register('address')} rows={2} invalid={!!errors.address} variant="soft" placeholder="Enter street address" />
               <FieldError>{errors.address?.message}</FieldError>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -462,21 +474,30 @@ export default function PatientRegistrationForm({
                 <FieldLabel htmlFor="patient-reg-city" className="block mb-1" required>
                   City
                 </FieldLabel>
-                <FormInput id="patient-reg-city" {...register('city')} invalid={!!errors.city} variant="soft" />
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
+                  <FormInput id="patient-reg-city" {...register('city')} invalid={!!errors.city} variant="soft" placeholder="Enter city" className="!pl-10" />
+                </div>
                 <FieldError>{errors.city?.message}</FieldError>
               </div>
               <div>
                 <FieldLabel htmlFor="patient-reg-state" className="block mb-1" required>
                   State
                 </FieldLabel>
-                <FormInput id="patient-reg-state" {...register('state')} invalid={!!errors.state} variant="soft" />
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
+                  <FormInput id="patient-reg-state" {...register('state')} invalid={!!errors.state} variant="soft" placeholder="Enter state" className="!pl-10" />
+                </div>
                 <FieldError>{errors.state?.message}</FieldError>
               </div>
               <div>
                 <FieldLabel htmlFor="patient-reg-pin" className="block mb-1" required>
                   PIN / ZIP
                 </FieldLabel>
-                <FormInput id="patient-reg-pin" {...register('pin')} invalid={!!errors.pin} variant="soft" />
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
+                  <FormInput id="patient-reg-pin" {...register('pin')} invalid={!!errors.pin} variant="soft" placeholder="Enter PIN/ZIP code" className="!pl-10" />
+                </div>
                 <FieldError>{errors.pin?.message}</FieldError>
               </div>
             </div>
@@ -493,8 +514,9 @@ export default function PatientRegistrationForm({
               <FieldLabel htmlFor="patient-reg-allergies" className="block mb-1">
                 Known allergies
               </FieldLabel>
-              <FormTextarea
+              <FormField
                 id="patient-reg-allergies"
+                type="textarea"
                 {...register('allergies')}
                 rows={2}
                 variant="soft"
@@ -505,19 +527,19 @@ export default function PatientRegistrationForm({
               <FieldLabel htmlFor="patient-reg-chronic" className="block mb-1">
                 Chronic conditions
               </FieldLabel>
-              <FormTextarea id="patient-reg-chronic" {...register('chronicConditions')} rows={2} variant="soft" />
+              <FormField id="patient-reg-chronic" type="textarea" {...register('chronicConditions')} rows={2} variant="soft" placeholder="None if not applicable" />
             </div>
             <div>
               <FieldLabel htmlFor="patient-reg-surgeries" className="block mb-1">
                 Past surgeries
               </FieldLabel>
-              <FormTextarea id="patient-reg-surgeries" {...register('pastSurgeries')} rows={2} variant="soft" />
+              <FormField id="patient-reg-surgeries" type="textarea" {...register('pastSurgeries')} rows={2} variant="soft" placeholder="None if not applicable" />
             </div>
             <div>
               <FieldLabel htmlFor="patient-reg-meds" className="block mb-1">
                 Current medications
               </FieldLabel>
-              <FormTextarea id="patient-reg-meds" {...register('currentMedications')} rows={2} variant="soft" />
+              <FormField id="patient-reg-meds" type="textarea" {...register('currentMedications')} rows={2} variant="soft" placeholder="None if not applicable" />
             </div>
           </div>
         )}
@@ -532,36 +554,51 @@ export default function PatientRegistrationForm({
               <FieldLabel htmlFor="patient-reg-emergency-name" className="block mb-1" required>
                 Full name
               </FieldLabel>
-              <FormInput
-                id="patient-reg-emergency-name"
-                {...register('emergencyName')}
-                invalid={!!errors.emergencyName}
-                variant="soft"
-              />
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
+                <FormInput
+                  id="patient-reg-emergency-name"
+                  {...register('emergencyName')}
+                  invalid={!!errors.emergencyName}
+                  variant="soft"
+                  placeholder="Enter emergency contact name"
+                  className="!pl-10"
+                />
+              </div>
               <FieldError>{errors.emergencyName?.message}</FieldError>
             </div>
             <div>
               <FieldLabel htmlFor="patient-reg-emergency-rel" className="block mb-1" required>
                 Relationship
               </FieldLabel>
-              <FormInput
-                id="patient-reg-emergency-rel"
-                {...register('emergencyRelationship')}
-                invalid={!!errors.emergencyRelationship}
-                variant="soft"
-              />
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
+                <FormInput
+                  id="patient-reg-emergency-rel"
+                  {...register('emergencyRelationship')}
+                  invalid={!!errors.emergencyRelationship}
+                  variant="soft"
+                  placeholder="e.g. Spouse, Parent, Friend"
+                  className="!pl-10"
+                />
+              </div>
               <FieldError>{errors.emergencyRelationship?.message}</FieldError>
             </div>
             <div>
               <FieldLabel htmlFor="patient-reg-emergency-phone" className="block mb-1" required>
                 Phone
               </FieldLabel>
-              <FormInput
-                id="patient-reg-emergency-phone"
-                {...register('emergencyPhone')}
-                invalid={!!errors.emergencyPhone}
-                variant="soft"
-              />
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
+                <FormInput
+                  id="patient-reg-emergency-phone"
+                  {...register('emergencyPhone')}
+                  invalid={!!errors.emergencyPhone}
+                  variant="soft"
+                  placeholder="Enter emergency contact phone"
+                  className="!pl-10"
+                />
+              </div>
               <FieldError>{errors.emergencyPhone?.message}</FieldError>
             </div>
           </div>

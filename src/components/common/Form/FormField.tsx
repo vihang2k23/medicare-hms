@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useRef } from 'react'
+import { forwardRef, useCallback, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { cn, fieldInputClass, fieldInputOrangeClass, fieldInputSoftClass, FIELD_TEXTAREA_CLASS, FIELD_LABEL_CLASS } from './fieldStyles'
 import { validateMaxWords, getWordCountError } from '../../../utils/validation'
@@ -96,6 +96,7 @@ const FormField = forwardRef<HTMLInputElement | HTMLTextAreaElement, FormFieldPr
     ref,
   ) {
     const innerRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null)
+    const [isFocused, setIsFocused] = useState(false)
     const isTextarea = type === 'textarea'
     const inputType = isTextarea ? 'text' : type
     const autoClearable = !NON_CLEARABLE_TYPES.has(inputType)
@@ -126,8 +127,8 @@ const FormField = forwardRef<HTMLInputElement | HTMLTextAreaElement, FormFieldPr
       value !== undefined &&
       stringValue.length > 0
 
-    // Truncate display value if needed
-    const displayValue = isTextarea && countWords(stringValue) > displayTruncateAt
+    // Truncate display value if needed (only when not focused)
+    const displayValue = !isFocused && countWords(stringValue) > displayTruncateAt
       ? truncateWords(stringValue, displayTruncateAt)
       : stringValue
 
@@ -167,6 +168,25 @@ const FormField = forwardRef<HTMLInputElement | HTMLTextAreaElement, FormFieldPr
       [onChange],
     )
 
+    // Prevent entering more than maxWords
+    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const newValue = e.target.value
+      const newWordCount = countWords(newValue)
+      
+      if (newWordCount <= maxWords) {
+        onChange?.(e)
+      } else {
+        // Truncate to maxWords
+        const truncatedValue = truncateWords(newValue, maxWords)
+        const synthetic = {
+          ...e,
+          target: { ...e.target, value: truncatedValue },
+          currentTarget: { ...e.currentTarget, value: truncatedValue },
+        }
+        onChange?.(synthetic)
+      }
+    }, [onChange, maxWords])
+
     return (
       <div className="w-full">
         <label
@@ -192,7 +212,9 @@ const FormField = forwardRef<HTMLInputElement | HTMLTextAreaElement, FormFieldPr
               disabled={disabled}
               readOnly={readOnly}
               value={displayValue}
-              onChange={onChange}
+              onChange={handleChange}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
               placeholder={placeholder}
               rows={rows || 5}
               className={base}
@@ -206,8 +228,10 @@ const FormField = forwardRef<HTMLInputElement | HTMLTextAreaElement, FormFieldPr
               type={type}
               disabled={disabled}
               readOnly={readOnly}
-              value={value}
-              onChange={onChange}
+              value={displayValue}
+              onChange={handleChange}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
               placeholder={placeholder}
               className={base}
               {...(register ? register(id, {}) : {})}
@@ -241,7 +265,7 @@ const FormField = forwardRef<HTMLInputElement | HTMLTextAreaElement, FormFieldPr
           </p>
         )}
 
-        {isTextarea && wordCount > 0 && (
+        {wordCount > 0 && (
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             {wordCount} / {maxWords} words
           </p>
@@ -269,3 +293,6 @@ function truncateWords(text: string, maxWords: number): string {
 }
 
 export default FormField
+
+// Also export as FormInput for backward compatibility
+export { FormField as FormInput }

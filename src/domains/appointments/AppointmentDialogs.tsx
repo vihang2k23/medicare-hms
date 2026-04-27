@@ -7,7 +7,7 @@ import { notify } from '../../utils/helpers'
 import { useModalScrollLock } from '../../hooks/useModalScrollLock'
 import { modalBackdropDim, modalFixedInner, modalFixedRoot } from '../../utils/helpers'
 import { ModalPortal } from '../../utils/helpers'
-import { FieldError } from '../../components/common'
+import { FieldError, FormField, FormInput } from '../../components/common'
 import { SearchableIdPicker } from '../../components/common'
 import { filterLabeledOption } from '../../utils/helpers'
 import type { Appointment, AppointmentStatus, ScheduleDoctor } from './types'
@@ -147,7 +147,8 @@ function BookAppointmentModalOpen({
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">Notes</label>
-            <FormTextarea
+            <FormField
+              type="textarea"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}

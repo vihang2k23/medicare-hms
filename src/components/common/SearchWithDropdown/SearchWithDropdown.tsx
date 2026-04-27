@@ -148,7 +148,7 @@ export function SearchableIdPicker<T>({
   })()
 
   return (
-    <div ref={wrapRef} className={`relative z-[80] ${className}`}>
+    <div ref={wrapRef} className="relative z-[80]">
       {label && (
         <label htmlFor={id} className={FIELD_LABEL_CLASS}>
           {label}
@@ -162,9 +162,9 @@ export function SearchableIdPicker<T>({
           ) : null}
         </label>
       )}
-      <div ref={anchorRef} className="relative">
+      <div ref={anchorRef} className={`relative ${className}`}>
         <LeadingIcon
-          className={`absolute left-3 top-1/2 z-20 -translate-y-1/2 h-[18px] w-[18px] pointer-events-none ${LUCIDE_STROKE_FIELD}`}
+          className={`absolute left-3 top-1/2 z-20 -translate-y-1/2 h-[18px] w-[18px] pointer-events-none text-slate-900 dark:text-white`}
           strokeWidth={2.5}
           aria-hidden
         />
@@ -355,15 +355,15 @@ export function SearchFilterCombobox<T>({
   const showClearField = value.trim().length > 0 && !disabled && !loading
 
   return (
-    <div ref={wrapRef} className={`relative z-[80] ${className}`}>
+    <div ref={wrapRef} className="relative z-[80]">
       {label && (
         <label htmlFor={id} className={FIELD_LABEL_CLASS}>
           {label}
         </label>
       )}
-      <div ref={anchorRef} className="relative">
+      <div ref={anchorRef} className={`relative ${className}`}>
         <LeadingIcon
-          className={`absolute left-3 top-1/2 z-20 -translate-y-1/2 h-[18px] w-[18px] pointer-events-none ${LUCIDE_STROKE_FIELD}`}
+          className="absolute left-3 top-1/2 -translate-y-1/2 z-30 h-[18px] w-[18px] pointer-events-none text-slate-900 dark:text-white"
           strokeWidth={2.5}
           aria-hidden
         />
@@ -384,9 +384,19 @@ export function SearchFilterCombobox<T>({
           }}
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
+          style={{
+            width: '100%',
+            borderRadius: '0.5rem',
+            border: '1px solid rgb(203, 213, 225)',
+            backgroundColor: 'white',
+            color: 'rgb(15, 23, 42)',
+            padding: '0.625rem 0.625rem 0.625rem 2.5rem',
+            fontSize: '0.875rem',
+            boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+            transition: 'colors 200ms',
+            outline: 'none',
+          }}
           className={cn(
-            FIELD_CONTROL_CORE,
-            'relative z-10 py-2.5 pl-10',
             showClearField && loading ? 'pr-24' : showClearField ? 'pr-20' : loading ? 'pr-14' : 'pr-10',
             ring,
             'disabled:opacity-60',

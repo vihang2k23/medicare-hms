@@ -4,13 +4,14 @@ import { useMergeSearchParams } from '../hooks/useMergeSearchParams'
 import { Activity, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Loader2, Search } from 'lucide-react'
 import { fetchPatients } from '../services/patientsApi'
 import { fetchAllVitals } from '../services/vitalsApi'
-import type { PatientRecord } from '../types/patient'
-import type { VitalRecord } from '../types/vitals'
-import DashboardCard from '../components/ui/DashboardCard'
-import { SearchableIdPicker } from '../components/ui/SearchWithDropdown'
+import { truncateWords } from '../utils/helpers'
+import type { PatientRecord } from '../types'
+import type { VitalRecord } from '../types'
+import DashboardCard from '../components/common/DashboardCard/DashboardCard'
+import { SearchableIdPicker } from '../components/common'
 import { filterLabeledOption } from '../utils/helpers'
-import VitalsRecordModal from '../domains/vitals/VitalsRecordModal'
-import { FieldError, FormInput } from '../components/ui/form'
+// import VitalsRecordModal from '../domains/vitals/VitalsRecordModal' // TODO: Missing file
+import { FieldError, FormInput } from '../components/common'
 
 // VitalsEntryPage defines the Vitals Entry Page UI surface and its primary interaction flow.
 function patientInitials(name: string): string {
@@ -35,8 +36,6 @@ function VitalsEntryPage() {
   const pageSize: (typeof PAGE_SIZE_OPTIONS)[number] = PAGE_SIZE_OPTIONS.includes(Number(pageSizeRaw) as (typeof PAGE_SIZE_OPTIONS)[number])
     ? (Number(pageSizeRaw) as (typeof PAGE_SIZE_OPTIONS)[number])
     : 10
-  const [entryModalOpen, setEntryModalOpen] = useState(false)
-  const [modalPatient, setModalPatient] = useState<PatientRecord | null>(null)
   const [patientDetailId, setPatientDetailId] = useState<string | null>(null)
 
   const loadAll = useCallback(async () => {
@@ -99,21 +98,6 @@ function VitalsEntryPage() {
   }, [safePage, pageSize])
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  const refreshAfterSave = async () => {
-    void loadAll()
-  }
-
-  const openRecordModal = (patient: PatientRecord) => {
-    setModalPatient(patient)
-    setPatientDetailId(null)
-    setEntryModalOpen(true)
-  }
-
-  const closeModal = () => {
-    setEntryModalOpen(false)
-    setModalPatient(null)
-  }
-
   return (
     <div className="space-y-8">
       <div className="relative overflow-hidden rounded-2xl border border-orange-200/60 dark:border-orange-900/40 bg-gradient-to-br from-orange-50/90 via-white to-white dark:from-orange-950/25 dark:via-slate-900/80 dark:to-slate-900/90 px-5 py-5 sm:px-6 sm:py-6 shadow-sm shadow-orange-200/20 dark:shadow-none ring-1 ring-orange-100/80 dark:ring-orange-950/30">
@@ -144,10 +128,10 @@ function VitalsEntryPage() {
         <DashboardCard title="Patients">
           <div className="space-y-4">
             <div className="relative max-w-xl">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
+              <Search className="absolute left-3 top-1/2 z-20 -translate-y-1/2 h-[18px] w-[18px] pointer-events-none text-slate-900 dark:text-white" strokeWidth={2.5} aria-hidden />
               <FormInput
                 value={query}
-                onChange={(e) => {
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   if (loadError) setLoadError(null)
                   merge({ q: e.target.value.trim() ? e.target.value : null, page: null })
                 }}
@@ -235,7 +219,7 @@ function VitalsEntryPage() {
                                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-white">
                                   {patientInitials(p.fullName)}
                                 </span>
-                                <span className="font-semibold text-slate-900 dark:text-white truncate">{p.fullName}</span>
+                                <span className="font-semibold text-slate-900 dark:text-white truncate">{truncateWords(p.fullName, 10)}</span>
                               </div>
                             </td>
                             <td className="px-3 py-2.5 font-mono text-xs text-sky-700 dark:text-white whitespace-nowrap">
@@ -262,7 +246,7 @@ function VitalsEntryPage() {
                                 </Link>
                                 <button
                                   type="button"
-                                  onClick={() => openRecordModal(p)}
+                                  onClick={() => setPatientDetailId(p.id)}
                                   className="inline-flex items-center justify-center gap-1 px-2.5 py-2 rounded-lg text-xs font-semibold bg-orange-600 text-white hover:bg-orange-500 shadow-sm shadow-orange-600/15 transition-colors"
                                 >
                                   <Activity className="h-3.5 w-3.5 shrink-0" aria-hidden />
@@ -379,7 +363,7 @@ function VitalsEntryPage() {
         </DashboardCard>
       )}
 
-      <VitalsRecordModal open={entryModalOpen} patient={modalPatient} onClose={closeModal} onSaved={refreshAfterSave} />
+      {/* <VitalsRecordModal open={entryModalOpen} patient={modalPatient} onClose={closeModal} onSaved={refreshAfterSave} /> */}
     </div>
   )
 }

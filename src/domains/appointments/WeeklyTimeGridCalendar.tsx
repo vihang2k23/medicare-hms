@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import { GripVertical } from 'lucide-react'
 import { MediCareLogo } from '../../components/common'
+import { truncateWords } from '../../utils/helpers'
 import type { Appointment, AppointmentStatus, ScheduleDoctor } from './types'
 import { appointmentStatusClasses } from './appointmentStatusStyles'
 import { eachDayOfWeek, findSlotByStart, weekSlotStartLabels } from './slotUtils'
@@ -226,7 +227,7 @@ export default function WeeklyTimeGridCalendar({
                               <span className="block font-mono text-[10px] opacity-80 pr-4">
                                 {apt.slotStart}–{apt.slotEnd}
                               </span>
-                              <span className="block truncate font-semibold">{apt.patientName}</span>
+                              <span className="block truncate font-semibold">{truncateWords(apt.patientName, 10)}</span>
                               <span className="block text-[10px] uppercase tracking-wide opacity-80">
                                 {apt.status}
                               </span>

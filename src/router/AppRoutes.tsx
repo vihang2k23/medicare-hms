@@ -29,6 +29,10 @@ import ReportsPage from '../pages/ReportsPage'
 const VitalsEntryPage = lazy(() => import('../pages/VitalsEntryPage'))
 const VitalsPatientDetailPage = lazy(() => import('../pages/VitalsPatientDetailPage'))
 
+// Wrapper components for routes that require specific props
+const AdminPrescriptionPrintPage = () => <PrescriptionPrintPage variant="admin" />
+const DoctorPrescriptionPrintPage = () => <PrescriptionPrintPage variant="doctor" />
+
 // Route configuration type
 interface RouteConfig {
   path: string
@@ -58,7 +62,7 @@ const adminRoutes: RoleRoutes = {
     { path: 'admin/patients/:patientId', element: PatientProfilePage },
     { path: 'admin/appointments', element: AppointmentsPage, props: { variant: 'admin' } },
     { path: 'admin/prescriptions', element: PrescriptionsPage, props: { variant: 'admin' } },
-    { path: 'admin/prescriptions/:prescriptionId/print', element: PrescriptionPrintPage, props: { variant: 'admin' } },
+    { path: 'admin/prescriptions/:prescriptionId/print', element: AdminPrescriptionPrintPage },
     { path: 'admin/doctors', element: DoctorDirectoryPage },
     { path: 'admin/reports', element: ReportsPage },
   ]
@@ -70,7 +74,7 @@ const doctorRoutes: RoleRoutes = {
     { path: 'doctor/patients', element: DoctorMyPatientsPage },
     { path: 'doctor/patients/:patientId', element: DoctorPatientProfilePage },
     { path: 'doctor/prescriptions', element: PrescriptionsPage, props: { variant: 'doctor' } },
-    { path: 'doctor/prescriptions/:prescriptionId/print', element: PrescriptionPrintPage, props: { variant: 'doctor' } },
+    { path: 'doctor/prescriptions/:prescriptionId/print', element: DoctorPrescriptionPrintPage },
     { path: 'doctor/schedule', element: AppointmentsPage, props: { variant: 'doctor' } },
   ]
 }

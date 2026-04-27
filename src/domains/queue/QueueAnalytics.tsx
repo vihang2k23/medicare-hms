@@ -3,11 +3,12 @@ import { useSelector } from 'react-redux'
 import { Activity, CheckCircle2, CircleDashed, Clock, SkipForward, Timer, Users } from 'lucide-react'
 import type { RootState } from '../../store'
 import { formatOpdTokenLabel } from '../../store/slices/queueSlice'
+import type { OpdQueueToken } from './opdQueueTypes'
 
 // QueueAnalytics defines the Queue Analytics UI surface and its primary interaction flow.
 // QueueAnalytics renders the queue analytics UI.
 export default function QueueAnalytics() {
-  const queue = useSelector((s: RootState) => s.queue.queue)
+  const queue = useSelector((s: RootState) => s.queue.queue) as unknown as OpdQueueToken[]
   const servedToday = useSelector((s: RootState) => s.queue.servedToday)
   const currentToken = useSelector((s: RootState) => s.queue.currentToken)
   const [now, setNow] = useState(() => Date.now())

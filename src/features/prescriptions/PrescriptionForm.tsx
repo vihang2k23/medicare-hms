@@ -10,9 +10,10 @@ import type { AppDispatch } from '../../store'
 import { addPrescription, newMedicineLine } from '../../store/slices/prescriptionsSlice'
 import type { PrescriptionMedicineLine } from '../../domains/prescriptions/types'
 import MedicineLineEditor from './MedicineLineEditor'
-import { FieldError, FormInput } from '../../components/common'
-import { SearchableIdPicker } from '../components/common'
-import type { ScheduleDoctor } from '../appointments/types'
+import { FieldError, FormInput, FormField } from '../../components/common'
+import { FIELD_LABEL_CLASS } from '../../components/common/Form/fieldStyles'
+import { SearchableIdPicker } from '../../components/common'
+import type { ScheduleDoctor } from '../../domains/appointments/types'
 
 // PrescriptionForm defines the Prescription Form UI surface and its primary interaction flow.
 export type PrescriptionFormVariant = 'admin' | 'doctor'
@@ -115,7 +116,14 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
     setMedicines((prev) => (prev.length <= 1 ? prev : prev.filter((m) => m.id !== id)))
   }
 
-  const addLine = () => setMedicines((prev) => [...prev, newMedicineLine()])
+  const addLine = () => {
+    const firstLine = medicines[0]
+    if (firstLine && (!firstLine.drugName.trim() || !firstLine.dosage.trim() || !firstLine.frequency.trim())) {
+      setMedicinesErr('Please complete the first medicine (drug name, dosage, and frequency) before adding another.')
+      return
+    }
+    setMedicines((prev) => [...prev, newMedicineLine()])
+  }
 
   const submit = () => {
     if (!user) return
@@ -264,7 +272,8 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
         </div>
         <div>
           <label className={FIELD_LABEL_CLASS}>Notes (optional)</label>
-          <FormTextarea
+          <FormField
+            type="textarea"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
@@ -282,7 +291,7 @@ export default function PrescriptionForm({ variant, initialPatientId, onSaved }:
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-violet-500/10 text-violet-800 dark:text-white hover:bg-violet-500/20"
           >
             <Plus className="h-3.5 w-3.5" />
-            Add line
+            Add medicine
           </button>
         </div>
         {medicines.map((m) => (

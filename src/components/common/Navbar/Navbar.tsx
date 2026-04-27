@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import { Fragment, useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { BedDouble, ChevronDown, Keyboard, LogOut, Menu, Moon, PanelLeftClose, RotateCcw, Sun, X } from 'lucide-react'
@@ -6,12 +6,15 @@ import { logout, login } from '../../../store/slices/authSlice'
 import type { AuthUser, NavbarProps, LetterShortcutKey, RoleShortcutRow, DemoLoginEntry } from '../../../types'
 import { useAuth } from '../../../hooks/useAuth'
 import NotificationBell from '../../../domains/alerts/NotificationBell'
-import { setTheme, toggleSidebar } from '../../../store/slices/uiSlice'
+import { setSidebarOpen, setTheme, toggleSidebar } from '../../../store/slices/uiSlice'
 import { setBedSimulationRunning } from '../../../store/slices/bedSlice'
 import type { RootState } from '../../../store'
-import { notify } from '../../../utils/helpers'
-import { MediCareLogo, MediCareWordmark } from './brand'
+import { notify, LUCIDE_STROKE_CHROME } from '../../../utils/helpers'
+import { MediCareLogo, MediCareWordmark } from '../brand'
 import { ALL_DEMO_LOGIN_ENTRIES, demoEntryToAuthUser } from '../../../config/demoAccounts'
+import { APPOINTMENTS_STORAGE_KEY } from '../../../domains/appointments/appointmentsStorage'
+import { PRESCRIPTIONS_STORAGE_KEY } from '../../../domains/prescriptions/prescriptionsStorage'
+import ConfirmDialog from '../Dialog/ConfirmationDialog'
 import { getDefaultDashboard } from '../../../config/roles'
 
 // Navbar defines the Navbar UI surface and its primary interaction flow.
@@ -30,439 +33,408 @@ function roleShortcutRows(role: AuthUser['role'] | null | undefined): RoleShortc
   switch (role) {
     case 'admin':
       return [
-        { key: 'D', label: 'Dashboard', to: '/admin/dashboard' },
-        { key: 'P', label: 'Patients', to: '/patients' },
-        { key: 'A', label: 'Appointments', to: '/appointments' },
-        { key: 'T', label: 'Doctors', to: '/directory' },
-        { key: 'R', label: 'Reports', to: '/reports' },
-        { key: 'B', label: 'Beds', to: '/beds' },
-      ]
-    case 'doctor':
-      return [
-        { key: 'M', label: 'My Patients', to: '/doctor/my-patients' },
-        { key: 'A', label: 'Appointments', to: '/doctor/appointments' },
-        { key: 'V', label: 'Vitals Entry', to: '/vitals-entry' },
-        { key: 'P', label: 'Prescriptions', to: '/doctor/prescriptions' },
-        { key: 'D', label: 'Dashboard', to: '/doctor/dashboard' },
+        { key: 'n', keysLabel: 'N', label: 'New patient', path: '/admin/patients/new' },
+        { key: 'q', keysLabel: 'Q', label: 'OPD queue', path: '/admin/opd-queue' },
+        { key: 'b', keysLabel: 'B', label: 'Bed management', path: '/admin/beds' },
       ]
     case 'receptionist':
       return [
-        { key: 'D', label: 'Dashboard', to: '/receptionist/dashboard' },
-        { key: 'A', label: 'Appointments', to: '/appointments' },
-        { key: 'P', label: 'Patients', to: '/patients' },
-        { key: 'B', label: 'Beds', to: '/beds' },
+        { key: 'n', keysLabel: 'N', label: 'Patient registration', path: '/receptionist/registration' },
+        { key: 'q', keysLabel: 'Q', label: 'OPD queue', path: '/receptionist/queue' },
       ]
     case 'nurse':
-      return [
-        { key: 'D', label: 'Dashboard', to: '/nurse/dashboard' },
-        { key: 'V', label: 'Vitals Entry', to: '/vitals-entry' },
-        { key: 'B', label: 'Beds', to: '/beds' },
-      ]
+      return [{ key: 'b', keysLabel: 'B', label: 'Bed management', path: '/nurse/beds' }]
+    case 'doctor':
     default:
       return []
   }
 }
 
-/** Reduced-motion-friendly fade/slide transition. */
-const TRANSITION = {
-  base: 'transition-all duration-200 ease-out',
-  open: 'opacity-100 translate-y-0',
-  closed: 'opacity-0 -translate-y-1 pointer-events-none',
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false
+  const tag = target.tagName.toLowerCase()
+  return tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable
 }
 
-const itemBtnBase =
-  'w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-semibold transition-colors'
-const itemBtnIdle = 'text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800'
-const itemBtnDanger = 'text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30'
-
-function classNames(...classes: Array<string | false | undefined>) {
-  return classes.filter(Boolean).join(' ')
-}
-
-/** Small badge to show current role in the menu. */
-function RoleBadge({ role }: { role: AuthUser['role'] }) {
-  const map: Record<AuthUser['role'], string> = {
-    admin: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200',
-    doctor: 'bg-sky-50 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
-    receptionist: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
-    nurse: 'bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
-  }
-  return (
-    <span
-      className={classNames(
-        'text-[11px] px-2 py-0.5 rounded-full font-semibold tracking-wide',
-        map[role]
-      )}
-    >
-      {ROLE_DISPLAY[role]}
-    </span>
-  )
-}
 
 // Navbar renders the navbar UI.
-export default function Navbar({
-  onCloseSidebar,
-}: NavbarProps) {
+export default function Navbar({ showSidebarToggle = true }: NavbarProps) {
+  const { user, isAuthenticated } = useAuth()
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { user } = useAuth()
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [helpOpen, setHelpOpen] = useState(false)
-  const [demoOpen, setDemoOpen] = useState(false)
-  const [demoLoadingId, setDemoLoadingId] = useState<string | null>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
-  const menuBtnRef = useRef<HTMLButtonElement>(null)
-  const helpBtnRef = useRef<HTMLButtonElement>(null)
-  const helpRef = useRef<HTMLDivElement>(null)
-  const demoBtnRef = useRef<HTMLButtonElement>(null)
-  const demoRef = useRef<HTMLDivElement>(null)
+  const theme = useSelector((state: RootState) => state.ui.theme)
+  const sidebarOpen = useSelector((state: RootState) => state.ui.sidebarOpen)
+  const bedSimulationRunning = useSelector((state: RootState) => state.beds.bedSimulationRunning)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [shortcutsOpen, setShortcutsOpen] = useState(false)
+  const [resetDemoOpen, setResetDemoOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
 
-  const theme = useSelector((s: RootState) => s.ui.theme)
-  const sidebarOpen = useSelector((s: RootState) => s.ui.sidebarOpen)
-  const bedSimRunning = useSelector((s: RootState) => s.beds.simulationRunning)
-  const isDark = theme === 'dark'
-
-  const shortcuts = useMemo(() => roleShortcutRows(user?.role), [user?.role])
-
-  // Close menus on route change
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    setMenuOpen(false)
-    setHelpOpen(false)
-    setDemoOpen(false)
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, [navigate])
-
-  // Close menus on outside click
-  useEffect(() => {
-    function onDocClick(e: MouseEvent) {
-      const t = e.target as Node
-      if (
-        menuOpen &&
-        menuRef.current &&
-        !menuRef.current.contains(t) &&
-        menuBtnRef.current &&
-        !menuBtnRef.current.contains(t)
-      ) {
-        setMenuOpen(false)
-      }
-      if (
-        helpOpen &&
-        helpRef.current &&
-        !helpRef.current.contains(t) &&
-        helpBtnRef.current &&
-        !helpBtnRef.current.contains(t)
-      ) {
-        setHelpOpen(false)
-      }
-      if (
-        demoOpen &&
-        demoRef.current &&
-        !demoRef.current.contains(t) &&
-        demoBtnRef.current &&
-        !demoBtnRef.current.contains(t)
-      ) {
-        setDemoOpen(false)
-      }
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setDropdownOpen(false)
     }
-    document.addEventListener('mousedown', onDocClick)
-    return () => document.removeEventListener('mousedown', onDocClick)
-  }, [menuOpen, helpOpen, demoOpen])
-
-  // Close menus on Escape
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
-        setMenuOpen(false)
-        setHelpOpen(false)
-        setDemoOpen(false)
-      }
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Run a keyboard shortcut
+  const handleSwitchAccount = (u: DemoLoginEntry) => {
+    dispatch(login(demoEntryToAuthUser(u)))
+    setDropdownOpen(false)
+    setShortcutsOpen(false)
+    notify.success(`Switched to ${u.name}`)
+    setTimeout(() => navigate(getDefaultDashboard(u.role)), 0)
+  }
+
   const runShortcut = useCallback(
     (key: LetterShortcutKey) => {
-      if (!user) return
-      const target = roleShortcutRows(user.role).find((r) => r.key === key)?.to
-      if (!target) return
-      navigate(target)
-      setHelpOpen(false)
+      const role = user?.role
+      if (!role) return
+      const row = roleShortcutRows(role).find((r) => r.key === key)
+      if (!row) {
+        notify.error('This shortcut is not available for your role.')
+        return
+      }
+      setDropdownOpen(false)
+      setShortcutsOpen(false)
+      navigate(row.path)
     },
-    [navigate, user]
+    [navigate, user?.role],
   )
 
-  // Global key listener (Ctrl/Cmd + letter)
+  const letterShortcuts = useMemo(() => roleShortcutRows(user?.role), [user?.role])
+  const hasLetterShortcuts = letterShortcuts.length > 0
+
+  const executeResetDemoData = () => {
+    if (user?.role !== 'admin') return
+    try {
+      localStorage.removeItem(APPOINTMENTS_STORAGE_KEY)
+      localStorage.removeItem(PRESCRIPTIONS_STORAGE_KEY)
+      notify.success('Demo data reset. Reloading…')
+      setResetDemoOpen(false)
+      setDropdownOpen(false)
+      setTimeout(() => window.location.reload(), 250)
+    } catch {
+      notify.error('Could not reset demo cache in this browser.')
+    }
+  }
+
   useEffect(() => {
-    if (!user) return
-    function onDocKey(e: KeyboardEvent) {
-      const mod = e.ctrlKey || e.metaKey
-      if (!mod) return
-      const key = e.key.toUpperCase() as LetterShortcutKey
-      const available = roleShortcutRows(user.role).map((r) => r.key)
-      if (available.includes(key)) {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!isAuthenticated) return
+      const key = e.key.toLowerCase()
+      if ((e.metaKey || e.ctrlKey) && key === 'k') {
+        if (!hasLetterShortcuts) return
         e.preventDefault()
-        runShortcut(key)
+        setDropdownOpen(false)
+        setShortcutsOpen((o) => !o)
+        return
+      }
+      if (key === 'escape') {
+        setShortcutsOpen(false)
+        return
+      }
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey || isEditableTarget(e.target)) return
+      const letterKeys = new Set(letterShortcuts.map((r) => r.key))
+      if (letterKeys.has(key as LetterShortcutKey)) {
+        e.preventDefault()
+        runShortcut(key as LetterShortcutKey)
       }
     }
-    document.addEventListener('keydown', onDocKey)
-    return () => document.removeEventListener('keydown', onDocKey)
-  }, [runShortcut, user])
-
-  const handleLogout = () => {
-    dispatch(logout())
-    setMenuOpen(false)
-    navigate('/login')
-  }
-
-  const handleDemoLogin = async (entry: DemoLoginEntry) => {
-    setDemoLoadingId(entry.id)
-    try {
-      const authUser = demoEntryToAuthUser(entry)
-      await dispatch(login(authUser))
-      notify.success(`Logged in as ${entry.label}`)
-      setDemoOpen(false)
-      const defaultDashboard = getDefaultDashboard(authUser.role)
-      navigate(defaultDashboard)
-    } finally {
-      setDemoLoadingId(null)
-    }
-  }
-
-  const handleToggleTheme = () => {
-    const next = isDark ? 'light' : 'dark'
-    dispatch(setTheme(next))
-  }
-
-  const handleToggleSidebar = () => {
-    dispatch(toggleSidebar())
-  }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [hasLetterShortcuts, isAuthenticated, letterShortcuts, runShortcut])
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 dark:border-slate-700/70 bg-white/80 dark:bg-slate-900/70 backdrop-blur-md">
-      <div className="h-16 px-4 sm:px-6 flex items-center justify-between gap-4">
-        {/* Left: Sidebar toggle + Logo + optional close button */}
-        <div className="flex items-center gap-3 min-w-0">
+    <>
+      <header className="sticky top-0 z-50 h-16 flex-shrink-0 flex items-center justify-between px-3 sm:px-4 lg:px-8 bg-white/80 dark:bg-slate-950/85 backdrop-blur-xl border-b border-slate-200/70 dark:border-slate-800/80 shadow-[0_1px_0_0_rgb(15_23_42_/_0.06)] dark:shadow-[0_1px_0_0_rgb(0_0_0_/_0.35)] supports-[padding:max(0px)]:pt-[env(safe-area-inset-top,0px)]">
+      {/* Left: menu toggler + brand */}
+      <div className="flex items-center gap-4">
+        {isAuthenticated && showSidebarToggle && (
           <button
             type="button"
-            onClick={handleToggleSidebar}
-            className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 transition-colors"
-            aria-label={sidebarOpen ? 'Collapse sidebar' : 'Open sidebar'}
-            title={sidebarOpen ? 'Collapse sidebar' : 'Open sidebar'}
+            onClick={() => dispatch(toggleSidebar())}
+            className="p-2.5 rounded-xl text-slate-900 hover:text-slate-950 hover:bg-slate-100/90 dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 touch-manipulation"
+            aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
           >
-            <Menu className="h-5 w-5" aria-hidden />
+            {sidebarOpen ? (
+              <PanelLeftClose className={`h-5 w-5 ${LUCIDE_STROKE_CHROME}`} strokeWidth={2.5} aria-hidden />
+            ) : (
+              <Menu className={`h-5 w-5 ${LUCIDE_STROKE_CHROME}`} strokeWidth={2.5} aria-hidden />
+            )}
           </button>
-
-          <Link to={user ? getDefaultDashboard(user.role) : '/login'} className="flex items-center gap-2 min-w-0">
+        )}
+        <Link
+          to="/"
+          className="flex items-center gap-3 group rounded-2xl py-1.5 pl-1 pr-2 -ml-1 hover:bg-slate-100/90 dark:hover:bg-slate-800/60 transition-colors duration-200"
+        >
+          <span className="relative shrink-0 rounded-[11px] shadow-md shadow-sky-500/30 ring-1 ring-white/40 dark:ring-slate-600/50 group-hover:shadow-lg group-hover:shadow-sky-500/40 transition-shadow duration-300">
             <MediCareLogo size="md" />
-            <div className="hidden sm:block">
-              <MediCareWordmark size="compact" />
-            </div>
-          </Link>
+          </span>
+          <MediCareWordmark className="hidden sm:flex" size="compact" />
+        </Link>
+      </div>
 
-          {onCloseSidebar && (
-            <button
-              type="button"
-              onClick={onCloseSidebar}
-              className="ml-1 p-2 rounded-xl text-slate-600 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 transition-colors"
-              aria-label="Close sidebar"
-              title="Close sidebar"
-            >
-              <PanelLeftClose className="h-5 w-5" aria-hidden />
-            </button>
+      {/* Right: actions + user */}
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={() => dispatch(setTheme(theme === 'dark' ? 'light' : 'dark'))}
+          className="p-2.5 rounded-xl text-slate-900 hover:text-slate-950 hover:bg-slate-100/90 dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 touch-manipulation"
+          aria-label={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+        >
+          {theme === 'dark' ? (
+            <Sun className={`h-5 w-5 ${LUCIDE_STROKE_CHROME}`} strokeWidth={2.5} aria-hidden />
+          ) : (
+            <Moon className={`h-5 w-5 ${LUCIDE_STROKE_CHROME}`} strokeWidth={2.5} aria-hidden />
           )}
-        </div>
+        </button>
 
-        {/* Right: Notifications + Theme + Help + Menu */}
-        <div className="flex items-center gap-2">
-          {/* Bed Simulation Toggle (admin only) */}
-          {user?.role === 'admin' && (
-            <button
-              type="button"
-              onClick={() => dispatch(setBedSimulationRunning(!bedSimRunning))}
-              className={classNames(
-                'p-2 rounded-xl transition-colors relative',
-                bedSimRunning
-                  ? 'text-amber-600 bg-amber-50 hover:bg-amber-100 dark:text-amber-300 dark:bg-amber-900/30 dark:hover:bg-amber-900/50'
-                  : 'text-slate-600 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800'
-              )}
-              aria-label={bedSimRunning ? 'Bed simulation running' : 'Bed simulation paused'}
-              title={bedSimRunning ? 'Bed simulation running (click to pause)' : 'Bed simulation paused (click to run)'}
-            >
-              <BedDouble className="h-5 w-5" aria-hidden />
-              {bedSimRunning && (
-                <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
-              )}
-            </button>
-          )}
-
-          <NotificationBell />
-
-          <button
-            type="button"
-            onClick={handleToggleTheme}
-            className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 transition-colors"
-            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {isDark ? <Sun className="h-5 w-5" aria-hidden /> : <Moon className="h-5 w-5" aria-hidden />}
-          </button>
-
-          {/* Keyboard shortcuts (help) popover */}
-          <div className="relative">
-            <button
-              ref={helpBtnRef}
-              type="button"
-              onClick={() => setHelpOpen((v) => !v)}
-              className={classNames(
-                'p-2 rounded-xl transition-colors',
-                helpOpen
-                  ? 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white'
-                  : 'text-slate-600 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800'
-              )}
-              aria-haspopup="true"
-              aria-expanded={helpOpen}
-              aria-label="Keyboard shortcuts"
-              title="Keyboard shortcuts"
-            >
-              <Keyboard className="h-5 w-5" aria-hidden />
-            </button>
-
-            <div
-              ref={helpRef}
-              className={classNames(
-                'absolute right-0 mt-2 w-72 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-xl z-50',
-                TRANSITION.base,
-                helpOpen ? TRANSITION.open : TRANSITION.closed
-              )}
-              role="dialog"
-              aria-label="Keyboard shortcuts"
-            >
-              <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                <p className="text-sm font-semibold text-slate-900 dark:text-white">Shortcuts</p>
-                <button
-                  type="button"
-                  onClick={() => setHelpOpen(false)}
-                  className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-                  aria-label="Close"
+        {isAuthenticated ? (
+          <>
+            {hasLetterShortcuts && (
+              <button
+                type="button"
+                onClick={() => {
+                  setDropdownOpen(false)
+                  setShortcutsOpen(true)
+                }}
+                className="p-2.5 rounded-xl text-slate-900 hover:text-slate-950 hover:bg-slate-100/90 dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 touch-manipulation"
+                aria-label="Open keyboard shortcuts"
+                title="Keyboard shortcuts (Ctrl/Cmd + K)"
+              >
+                <Keyboard className={`h-5 w-5 ${LUCIDE_STROKE_CHROME}`} strokeWidth={2.5} aria-hidden />
+              </button>
+            )}
+            {(user?.role === 'admin' || user?.role === 'nurse') && (
+              <button
+                type="button"
+                onClick={() => dispatch(setBedSimulationRunning(!bedSimulationRunning))}
+                className={`p-2.5 rounded-xl transition-all duration-200 touch-manipulation ${
+                  bedSimulationRunning
+                    ? 'text-amber-800 bg-amber-100/90 dark:text-amber-200 dark:bg-amber-950/50 ring-1 ring-amber-200/80 dark:ring-amber-800/60'
+                    : 'text-slate-900 hover:text-slate-950 hover:bg-slate-100/90 dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80'
+                }`}
+                aria-pressed={bedSimulationRunning}
+                aria-label={bedSimulationRunning ? 'Stop bed simulation' : 'Start bed simulation'}
+                title="Toggle demo bed status simulation (~45s)"
+              >
+                <BedDouble
+                  className={`h-5 w-5 ${bedSimulationRunning ? 'stroke-[#92400e] dark:stroke-amber-200' : LUCIDE_STROKE_CHROME}`}
+                  strokeWidth={2.5}
+                  aria-hidden
+                />
+              </button>
+            )}
+            {user?.role === 'admin' && <NotificationBell onOpen={() => setDropdownOpen(false)} />}
+            <div className="relative ml-1 sm:ml-2" ref={ref}>
+              <button
+                type="button"
+                onClick={() => setDropdownOpen((o) => !o)}
+                aria-expanded={dropdownOpen}
+                aria-haspopup="menu"
+                className="group flex items-center gap-2.5 sm:gap-3 pl-1.5 sm:pl-2 pr-1.5 sm:pr-2 py-1.5 rounded-2xl border border-slate-200/90 dark:border-slate-700/90 bg-white dark:bg-slate-900/90 hover:bg-slate-50/95 dark:hover:bg-slate-800/95 hover:border-slate-300 dark:hover:border-slate-600 shadow-sm shadow-slate-200/30 dark:shadow-none transition-all duration-200 min-w-0 max-w-[min(100%,17rem)]"
+              >
+                <div
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800/90 text-sm font-semibold text-slate-700 dark:text-white ring-1 ring-slate-200/90 dark:ring-slate-700/80"
+                  aria-hidden
                 >
-                  <X className="h-4 w-4" aria-hidden />
-                </button>
-              </div>
-              <div className="px-4 py-3">
-                {shortcuts.length === 0 ? (
-                  <p className="text-sm text-slate-600 dark:text-slate-300">No shortcuts available.</p>
-                ) : (
-                  <div className="space-y-2">
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Ctrl/Cmd + letter</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {shortcuts.map((row) => (
-                        <button
-                          key={row.key}
-                          type="button"
-                          onClick={() => runShortcut(row.key)}
-                          className="flex items-center gap-2 text-left px-2 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                        >
-                          <kbd className="px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700">
-                            {row.key}
-                          </kbd>
-                          <span className="text-sm text-slate-700 dark:text-slate-200">{row.label}</span>
-                        </button>
-                      ))}
+                  {user?.name?.charAt(0) ?? '?'}
+                </div>
+                <div className="hidden min-w-0 flex-1 flex-col items-stretch text-left sm:flex">
+                  <span className="truncate text-[13px] font-semibold leading-tight tracking-tight text-slate-900 dark:text-white">
+                    {user?.name}
+                  </span>
+                  <span className="mt-1 text-[11px] font-medium leading-none text-slate-600 dark:text-slate-400">
+                    {ROLE_DISPLAY[(user?.role ?? 'admin') as AuthUser['role']]}
+                  </span>
+                </div>
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-800 transition-colors dark:bg-slate-800/70 dark:text-white group-hover:bg-slate-200/90 dark:group-hover:bg-slate-700/80">
+                  <ChevronDown
+                    strokeWidth={2.5}
+                    className={`h-4 w-4 ${LUCIDE_STROKE_CHROME} transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`}
+                    aria-hidden
+                  />
+                </span>
+              </button>
+
+              {dropdownOpen && (
+                <div
+                  className="no-print-appt absolute right-0 top-full mt-2 w-[min(calc(100vw-2rem),18rem)] rounded-2xl border border-slate-200/90 bg-white/98 p-1 shadow-2xl shadow-slate-300/35 ring-1 ring-slate-200/60 backdrop-blur-xl dark:border-slate-700/90 dark:bg-slate-900/98 dark:shadow-slate-950/30 dark:ring-slate-700/60 z-50"
+                  role="menu"
+                >
+                  <div className="flex items-center gap-3 rounded-xl bg-slate-50/90 px-3 py-3 dark:bg-slate-800/50">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-base font-semibold text-slate-700 ring-1 ring-slate-200/90 dark:bg-slate-800 dark:text-white dark:ring-slate-600/80">
+                      {user?.name?.charAt(0) ?? '?'}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">{user?.name}</p>
+                      <p className="mt-0.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        {ROLE_DISPLAY[(user?.role ?? 'admin') as AuthUser['role']]}
+                      </p>
                     </div>
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* User menu */}
-          <div className="relative">
-            <button
-              ref={menuBtnRef}
-              type="button"
-              onClick={() => setMenuOpen((v) => !v)}
-              className={classNames(
-                'flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-xl border transition-colors',
-                menuOpen
-                  ? 'bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700'
-                  : 'bg-white border-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:hover:bg-slate-800'
-              )}
-              aria-haspopup="true"
-              aria-expanded={menuOpen}
-              aria-label="Open user menu"
-            >
-              <div className="text-left hidden sm:block">
-                <p className="text-sm font-semibold text-slate-900 dark:text-white leading-none">
-                  {user?.name ?? 'Guest'}
-                </p>
-                {user && <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{user.email}</p>}
-              </div>
-              <ChevronDown className={classNames('h-4 w-4 text-slate-500 transition-transform', menuOpen ? 'rotate-180' : '')} aria-hidden />
-            </button>
-
-            <div
-              ref={menuRef}
-              className={classNames(
-                'absolute right-0 mt-2 w-64 rounded-xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-xl z-50',
-                TRANSITION.base,
-                menuOpen ? TRANSITION.open : TRANSITION.closed
-              )}
-              role="menu"
-            >
-              <div className="px-3 py-3 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
-                    {user?.name ?? 'Guest'}
+                  <div className="my-1 h-px bg-slate-200/80 dark:bg-slate-700/80" />
+                  <p className="px-3 pt-2 pb-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400 dark:text-white">
+                    Switch account
                   </p>
-                  {user && <RoleBadge role={user.role} />}
+                  <div className="max-h-52 overflow-auto px-0.5 pb-1">
+                    {ALL_DEMO_LOGIN_ENTRIES.map((u) => (
+                      <button
+                        key={u.id}
+                        type="button"
+                        role="menuitem"
+                        onClick={() => handleSwitchAccount(u)}
+                        className="flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-slate-100/90 dark:hover:bg-slate-800/80"
+                      >
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-white">
+                          {u.name.charAt(0)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium text-slate-900 dark:text-white">{u.name}</p>
+                          <p className="text-xs font-medium text-slate-600 dark:text-slate-400">{ROLE_DISPLAY[u.role]}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  {(hasLetterShortcuts || user?.role === 'admin') && (
+                    <>
+                      <div className="my-1 h-px bg-slate-200/80 dark:bg-slate-700/80" />
+                      <div className="px-1.5 pb-1.5 space-y-1">
+                        {hasLetterShortcuts && (
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setDropdownOpen(false)
+                              setShortcutsOpen(true)
+                            }}
+                            className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100/90 dark:hover:bg-slate-800/80"
+                          >
+                            <Keyboard className={`h-4 w-4 ${LUCIDE_STROKE_CHROME}`} strokeWidth={2.5} aria-hidden />
+                            Keyboard shortcuts (Ctrl/Cmd + K)
+                          </button>
+                        )}
+                        {user?.role === 'admin' && (
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setDropdownOpen(false)
+                              setResetDemoOpen(true)
+                            }}
+                            className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-amber-700 dark:text-amber-200 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                          >
+                            <RotateCcw className={`h-4 w-4 ${LUCIDE_STROKE_CHROME}`} strokeWidth={2.5} aria-hidden />
+                            Reset demo data (reseed)
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  )}
+                  <div className="border-t border-slate-200/80 p-1.5 dark:border-slate-700/80">
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        dispatch(logout())
+                        dispatch(setSidebarOpen(false))
+                        setShortcutsOpen(false)
+                        setDropdownOpen(false)
+                        notify.success('Signed out')
+                        navigate('/login', { replace: true })
+                      }}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 dark:text-white dark:hover:bg-red-950/40"
+                    >
+                      <LogOut className="h-4 w-4 stroke-red-600 dark:stroke-red-300" strokeWidth={2.5} aria-hidden />
+                      Logout
+                    </button>
+                  </div>
                 </div>
-                {user && <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{user.email}</p>}
+              )}
+            </div>
+          </>
+        ) : <></>}
+      </div>
+      </header>
+
+      {shortcutsOpen && hasLetterShortcuts && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label="Close shortcuts"
+            className="absolute inset-0 bg-black/50 backdrop-blur-[1px]"
+            onClick={() => setShortcutsOpen(false)}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="keyboard-shortcuts-title"
+            className="relative z-10 w-full max-w-md rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-xl ring-1 ring-slate-200/60 dark:ring-slate-700/60"
+          >
+            <div className="flex items-center justify-between p-4 border-b border-slate-200/80 dark:border-slate-700/80">
+              <h2 id="keyboard-shortcuts-title" className="text-sm font-bold text-slate-900 dark:text-white">
+                Keyboard shortcuts
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShortcutsOpen(false)}
+                className="p-2 rounded-lg text-slate-800 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                aria-label="Close shortcuts"
+              >
+                <X className={`h-4 w-4 ${LUCIDE_STROKE_CHROME}`} strokeWidth={2.5} aria-hidden />
+              </button>
+            </div>
+            <div className="p-4 space-y-3 text-sm">
+              <p className="text-slate-600 dark:text-white">
+                Use shortcuts from anywhere outside form fields.{' '}
+                <span className="block mt-1 text-xs font-semibold text-slate-500 dark:text-slate-300">
+                  Role: {user?.role ? ROLE_DISPLAY[user.role as AuthUser['role']] : '—'}
+                </span>
+              </p>
+              <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-slate-700 dark:text-white">
+                <span className="font-mono text-xs px-2 py-1 rounded bg-slate-100 dark:bg-slate-800">Ctrl/Cmd + K</span>
+                <span>Open this shortcuts panel</span>
+                {letterShortcuts.map((row) => (
+                  <Fragment key={row.key}>
+                    <span className="font-mono text-xs px-2 py-1 rounded bg-slate-100 dark:bg-slate-800">
+                      {row.keysLabel}
+                    </span>
+                    <span>
+                      {row.label}
+                      <span className="block text-[11px] font-normal text-slate-500 dark:text-slate-400 mt-0.5 font-mono">
+                        {row.path}
+                      </span>
+                    </span>
+                  </Fragment>
+                ))}
               </div>
-
-              <div className="p-2">
-                <div className="px-2 py-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-                  Demo Accounts
-                </div>
-
-                {ALL_DEMO_LOGIN_ENTRIES.map((entry) => (
+              <div className="pt-1 flex flex-wrap gap-2">
+                {letterShortcuts.map((row) => (
                   <button
-                    key={entry.id}
+                    key={row.key}
                     type="button"
-                    onClick={() => handleDemoLogin(entry)}
-                    disabled={demoLoadingId === entry.id}
-                    className={classNames(
-                      itemBtnBase,
-                      itemBtnIdle,
-                      'w-full text-left'
-                    )}
+                    onClick={() => runShortcut(row.key)}
+                    className="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white"
                   >
-                    {demoLoadingId === entry.id ? (
-                      <RotateCcw className="h-4 w-4 animate-spin" aria-hidden />
-                    ) : (
-                      <span className="h-4 w-4 rounded-full" style={{ backgroundColor: entry.color }} aria-hidden />
-                    )}
-                    <span className="flex-1">{entry.label}</span>
+                    Go: {row.keysLabel}
                   </button>
                 ))}
-
-                <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className={classNames(itemBtnBase, itemBtnDanger, 'w-full')}
-                  >
-                    <LogOut className="h-4 w-4" aria-hidden />
-                    Log out
-                  </button>
-                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </header>
+      )}
+
+      <ConfirmDialog
+        open={resetDemoOpen}
+        title="Reset demo data?"
+        description="This clears local appointment and prescription cache in this browser and reloads seeded defaults."
+        confirmLabel="Reset & reload"
+        variant="danger"
+        onCancel={() => setResetDemoOpen(false)}
+        onConfirm={executeResetDemoData}
+      />
+    </>
   )
 }

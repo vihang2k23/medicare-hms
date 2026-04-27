@@ -92,6 +92,17 @@ export function medicarePrintTimestamp() {
 // UI utilities
 
 /** Default string filter for `{ id, label }` option rows used with SearchableIdPicker. */
+export function truncateWords(text: string, maxWords: number = 10): string {
+  if (!text || text.trim().length === 0) return text
+  
+  const words = text.trim().split(/\s+/)
+  
+  if (words.length <= maxWords) return text
+  
+  const truncated = words.slice(0, maxWords).join(' ')
+  return `${truncated}....`
+}
+
 export function filterLabeledOption<T extends { id: string; label: string }>(
   item: T,
   query: string,

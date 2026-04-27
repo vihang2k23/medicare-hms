@@ -4,9 +4,9 @@ import { CircleCheckBig, CornerDownRight, ListX, PhoneForwarded, Timer } from 'l
 import { store, type AppDispatch, type RootState } from '../../store'
 import { notify } from '../../utils/helpers'
 import { OPD_DEPARTMENTS } from '../../config/clinical'
-import { FieldError, FormInput } from '../../components/common'
-import { SearchableIdPicker } from '../../components/common'
+import { FieldError, FormInput, SearchableIdPicker } from '../../components/common'
 import { filterLabeledOption } from '../../utils/helpers'
+import type { OpdQueueToken } from './opdQueueTypes'
 import {
   callNext,
   completeCurrent,
@@ -44,7 +44,7 @@ export default function QueueControls({
   const dispatch = useDispatch<AppDispatch>()
   const currentToken = useSelector((s: RootState) => s.queue.currentToken)
   const simulationRunning = useSelector((s: RootState) => s.queue.simulationRunning)
-  const queue = useSelector((s: RootState) => s.queue.queue)
+  const queue = useSelector((s: RootState) => s.queue.queue) as unknown as OpdQueueToken[]
   const scheduleDoctors = useSelector((s: RootState) => s.appointments.doctors)
   const canStartSimulation = canStartQueueSimulation(queue)
   const callNextEnabled = canCallNext(queue)
@@ -127,7 +127,7 @@ export default function QueueControls({
           <button
             type="button"
             onClick={() => {
-              if (!canCallNext(store.getState().queue.queue)) return
+              if (!canCallNext(store.getState().queue.queue as unknown as OpdQueueToken[])) return
               dispatch(callNext())
               const { queue: qAfter, currentToken: cur } = store.getState().queue
               if (cur != null) {

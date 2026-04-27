@@ -27,4 +27,5 @@ const authSlice = createSlice({
 })
 
 export const { setUser, login, logout } = authSlice.actions
+export { type AuthUser } from '../../types'
 export default authSlice.reducer

@@ -7,7 +7,8 @@ import { Building2, Layers, Pencil, Plus, Shield, Trash2, X } from 'lucide-react
 import type { AppDispatch, RootState } from '../../store'
 import { notify } from '../../utils/helpers'
 import { addWard, removeWard, updateWard } from '../../store/slices/bedSlice'
-import { FieldError } from '../../components/common'
+import { FieldError, FormField } from '../../components/common'
+import { validateMaxWords, getWordCountError } from '../../utils/validation'
 
 // WardManagementPanel defines the Ward Management Panel UI surface and its primary interaction flow.
 const wardInputClass = '!focus:ring-teal-500/35 !focus:border-teal-400/40'
@@ -92,6 +93,10 @@ export default function WardManagementPanel() {
       setAddNameErr('Enter a ward name.')
       return
     }
+    if (!validateMaxWords(name, 20)) {
+      setAddNameErr(getWordCountError(20))
+      return
+    }
     setAddNameErr(null)
     dispatch(addWard({ name }))
     notify.success(`Ward “${name}” added with one available bed`)
@@ -111,6 +116,10 @@ export default function WardManagementPanel() {
     const name = editName.trim()
     if (!name) {
       setEditNameErr('Enter a ward name.')
+      return
+    }
+    if (!validateMaxWords(name, 20)) {
+      setEditNameErr(getWordCountError(20))
       return
     }
     setEditNameErr(null)
@@ -251,10 +260,14 @@ export default function WardManagementPanel() {
           <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
             Ward name
           </label>
-          <FormInput
+          <FormField
+            id="add-ward-name"
+            label=""
+            type="text"
             value={addName}
             invalid={!!addNameErr}
-            onChange={(e) => {
+            maxWords={20}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const v = e.target.value
               setAddName(v)
               if (v.trim()) setAddNameErr(null)
@@ -267,7 +280,8 @@ export default function WardManagementPanel() {
             placeholder="e.g. Maternity Ward"
             className={wardInputClass}
             autoFocus
-            onKeyDown={(e) => {
+            maxLength={100}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter') submitAdd()
             }}
           />
@@ -313,10 +327,14 @@ export default function WardManagementPanel() {
           <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
             Ward name
           </label>
-          <FormInput
+          <FormField
+            id="edit-ward-name"
+            label=""
+            type="text"
             value={editName}
             invalid={!!editNameErr}
-            onChange={(e) => {
+            maxWords={20}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const v = e.target.value
               setEditName(v)
               if (v.trim()) setEditNameErr(null)
@@ -328,7 +346,8 @@ export default function WardManagementPanel() {
             }}
             className={wardInputClass}
             autoFocus
-            onKeyDown={(e) => {
+            maxLength={100}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter') submitEdit()
             }}
           />

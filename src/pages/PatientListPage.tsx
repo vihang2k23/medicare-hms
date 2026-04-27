@@ -25,7 +25,7 @@ import {
   Users,
 } from 'lucide-react'
 import { fetchPatients, softDeletePatient } from '../services/patientsApi'
-import { notify } from '../utils/helpers'
+import { notify, truncateWords } from '../utils/helpers'
 import { FieldError, FormInput } from '../components/common'
 import { DashboardCard } from '../components/common'
 import { SearchFilterCombobox, SearchableIdPicker } from '../components/common'
@@ -152,6 +152,7 @@ export default function PatientListPage() {
   const location = useLocation()
   const registeredId = (location.state as { registeredId?: string } | null)?.registeredId
   const [deactivateBusy, setDeactivateBusy] = useState(false)
+  const [deactivateTarget, setDeactivateTarget] = useState<PatientRecord | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -463,7 +464,7 @@ export default function PatientListPage() {
                     {initials(p.fullName)}
                   </span>
                   <span>
-                    <span className="font-medium text-slate-900 dark:text-white block">{p.fullName}</span>
+                    <span className="font-medium text-slate-900 dark:text-white block">{truncateWords(p.fullName, 10)}</span>
                     <span className="text-xs font-mono text-sky-600 dark:text-white">{p.id}</span>
                   </span>
                 </span>
@@ -781,8 +782,8 @@ export default function PatientListPage() {
                         <td className="px-2 sm:px-3 py-3 font-mono text-xs font-medium text-sky-600 dark:text-white whitespace-nowrap">
                           {p.id}
                         </td>
-                        <td className="px-2 sm:px-3 py-3">
-                          <span className="font-semibold text-slate-900 dark:text-white">{p.fullName}</span>
+                        <td className="px-2 sm:px-3 py-3 max-w-[180px] min-w-0">
+                          <span className="font-semibold text-slate-900 dark:text-white truncate block" title={p.fullName}>{truncateWords(p.fullName, 10)}</span>
                         </td>
                         <td className="px-2 sm:px-3 py-3 text-slate-600 dark:text-white whitespace-nowrap tabular-nums">
                           {p.phone}
@@ -797,7 +798,7 @@ export default function PatientListPage() {
                             {p.bloodGroup}
                           </span>
                         </td>
-                        <td className="px-2 sm:px-3 py-3 text-slate-600 dark:text-white">{p.city}</td>
+                        <td className="px-2 sm:px-3 py-3 max-w-[120px] min-w-0 truncate" title={p.city}>{p.city}</td>
                         <td className="px-4 sm:px-5 py-3 text-right">
                           <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
                             <Link

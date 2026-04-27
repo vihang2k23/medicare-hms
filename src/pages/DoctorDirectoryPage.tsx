@@ -27,6 +27,7 @@ import {
   deleteInternalDoctor,
   fetchInternalDoctors,
   findInternalDoctorByNpi,
+  updateInternalDoctor,
 } from '../services/internalDoctorsApi'
 import type { NpiProviderCard, NpiRawResult, NpiSearchParams } from '../utils/api'
 import {
@@ -34,6 +35,7 @@ import {
   searchNpiRegistry,
 } from '../utils/api'
 import {
+  createManualInternalRecord,
   formatInternalDoctorScheduleSummary,
   internalRecordToScheduleDoctor,
   type InternalDoctorRecord,
@@ -42,8 +44,10 @@ import {
   addImportedScheduleDoctor,
   removeImportedScheduleDoctor,
   setImportedScheduleDoctors,
+  updateImportedScheduleDoctor,
 } from '../store/slices/appointmentsSlice'
 import { notify } from '../utils/helpers'
+import { npiCardToInternalRecord, NPI_SEARCH_MINIMUM_CRITERIA_MESSAGE } from '../utils/api'
 import { useMergeSearchParams, type QueryParamPatch } from '../hooks/useMergeSearchParams'
 import { useModalScrollLock } from '../hooks/useModalScrollLock'
 import { FieldError, FormInput } from '../components/common'
@@ -390,6 +394,361 @@ function NpiProfileModal({ raw, onClose }: { raw: NpiRawResult; onClose: () => v
   return createPortal(modal, document.body)
 }
 
+// =============================================================================
+// SCHEDULE MODAL (Add/Edit Manual Doctor)
+// =============================================================================
+
+const SLOT_DURATION_OPTIONS = [
+  { value: 15 as const, label: '15m' },
+  { value: 20 as const, label: '20m' },
+  { value: 30 as const, label: '30m' },
+]
+
+const WEEKDAY_OPTIONS = [
+  { value: 1, label: 'Mon' },
+  { value: 2, label: 'Tue' },
+  { value: 3, label: 'Wed' },
+  { value: 4, label: 'Thu' },
+  { value: 5, label: 'Fri' },
+  { value: 6, label: 'Sat' },
+  { value: 7, label: 'Sun' },
+]
+
+interface ScheduleModalProps {
+  record: InternalDoctorRecord | null
+  onClose: () => void
+  onSave: () => void
+}
+
+function ScheduleModal({ record, onClose, onSave }: ScheduleModalProps) {
+  useModalScrollLock(true)
+  const dispatch = useDispatch<AppDispatch>()
+  const isEdit = record !== null
+
+  const [name, setName] = useState(record?.name ?? '')
+  const [department, setDepartment] = useState(record?.department ?? '')
+  const [npi, setNpi] = useState(record?.npi ?? '')
+  const [phone, setPhone] = useState(record?.phone ?? '')
+  const [workingDays, setWorkingDays] = useState<number[]>(record?.workingDays ?? [1, 2, 3, 4, 5])
+  const [startTime, setStartTime] = useState(record?.startTime ?? '09:00')
+  const [endTime, setEndTime] = useState(record?.endTime ?? '17:00')
+  const [slotDuration, setSlotDuration] = useState<15 | 20 | 30>(record?.slotDurationMinutes ?? 15)
+  const [lunchStart, setLunchStart] = useState(record?.lunchBreakStart ?? '')
+  const [lunchEnd, setLunchEnd] = useState(record?.lunchBreakEnd ?? '')
+
+  const [saving, setSaving] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  const validate = (): boolean => {
+    const newErrors: Record<string, string> = {}
+    if (!name.trim()) newErrors.name = 'Name is required'
+    if (!department.trim()) newErrors.department = 'Department is required'
+    if (workingDays.length === 0) newErrors.workingDays = 'Select at least one working day'
+    if (!startTime) newErrors.startTime = 'Start time is required'
+    if (!endTime) newErrors.endTime = 'End time is required'
+    if (startTime && endTime && startTime >= endTime) {
+      newErrors.endTime = 'End time must be after start time'
+    }
+    if (lunchStart && !lunchEnd) newErrors.lunchEnd = 'Lunch end time is required'
+    if (!lunchStart && lunchEnd) newErrors.lunchStart = 'Lunch start time is required'
+    if (lunchStart && lunchEnd && lunchStart >= lunchEnd) {
+      newErrors.lunchEnd = 'Lunch end must be after lunch start'
+    }
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = async () => {
+    if (!validate()) return
+    setSaving(true)
+    try {
+      if (isEdit && record) {
+        const updated: InternalDoctorRecord = {
+          ...record,
+          name: name.trim(),
+          department: department.trim(),
+          npi: npi.replace(/\D/g, '').slice(0, 10),
+          phone: phone.trim() || undefined,
+          workingDays,
+          startTime,
+          endTime,
+          slotDurationMinutes: slotDuration,
+          lunchBreakStart: lunchStart.trim() || undefined,
+          lunchBreakEnd: lunchEnd.trim() || undefined,
+        }
+        await updateInternalDoctor(updated)
+        dispatch(updateImportedScheduleDoctor(internalRecordToScheduleDoctor(updated)))
+        notify.success('Doctor schedule updated')
+      } else {
+        const newRecord = createManualInternalRecord({
+          name: name.trim(),
+          department: department.trim(),
+          npi: npi.replace(/\D/g, '').slice(0, 10),
+          phone: phone.trim() || undefined,
+          workingDays,
+          startTime,
+          endTime,
+          slotDurationMinutes: slotDuration,
+          lunchBreakStart: lunchStart.trim() || undefined,
+          lunchBreakEnd: lunchEnd.trim() || undefined,
+        })
+        await createInternalDoctor(newRecord)
+        dispatch(addImportedScheduleDoctor(internalRecordToScheduleDoctor(newRecord)))
+        notify.success('Doctor added to HMS')
+      }
+      onSave()
+      onClose()
+    } catch (e) {
+      notify.error(e instanceof Error ? e.message : 'Failed to save doctor')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const toggleDay = (day: number) => {
+    setWorkingDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort((a, b) => a - b)
+    )
+  }
+
+  const modal = (
+    <div className={modalFixedRoot('z-[100]')}>
+      <div className={modalFixedInner}>
+        <button type="button" className={modalBackdropDim} aria-label="Close dialog" onClick={onClose} />
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="schedule-modal-title"
+          className="relative z-10 w-full max-w-2xl max-h-[90dvh] min-h-0 flex flex-col rounded-2xl border border-slate-200/90 dark:border-slate-600/90 bg-white dark:bg-slate-900 shadow-2xl shadow-slate-900/20 dark:shadow-black/40 ring-1 ring-slate-200/60 dark:ring-slate-600/60 overflow-hidden overscroll-contain"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex shrink-0 items-start justify-between gap-3 p-5 border-b border-slate-200/80 dark:border-slate-700/80 bg-gradient-to-r from-violet-500/10 to-transparent">
+            <div className="min-w-0">
+              <h2 id="schedule-modal-title" className="text-lg font-bold text-slate-900 dark:text-white truncate">
+                {isEdit ? 'Edit Schedule' : 'Add Manual Doctor'}
+              </h2>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                {isEdit ? 'Update working hours and schedule settings' : 'Add a provider manually to the HMS directory'}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="p-5 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] min-h-0 flex-1 space-y-5 text-sm touch-pan-y">
+            {/* Basic Info */}
+            <section className="space-y-3">
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                Basic Information
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <FormInput
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Dr. Jane Smith"
+                    invalid={!!errors.name}
+                  />
+                  {errors.name && <FieldError className="!mt-1">{errors.name}</FieldError>}
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Department <span className="text-red-500">*</span>
+                  </label>
+                  <FormInput
+                    value={department}
+                    onChange={(e) => setDepartment(e.target.value)}
+                    placeholder="Cardiology"
+                    invalid={!!errors.department}
+                  />
+                  {errors.department && <FieldError className="!mt-1">{errors.department}</FieldError>}
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    NPI Number (optional)
+                  </label>
+                  <FormInput
+                    value={npi}
+                    onChange={(e) => setNpi(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    placeholder="10-digit NPI"
+                    inputMode="numeric"
+                    className="font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Phone (optional)
+                  </label>
+                  <FormInput
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+1 (555) 123-4567"
+                    inputMode="tel"
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* Working Days */}
+            <section className="space-y-3">
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                Working Days <span className="text-red-500">*</span>
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {WEEKDAY_OPTIONS.map((day) => {
+                  const selected = workingDays.includes(day.value)
+                  return (
+                    <button
+                      key={day.value}
+                      type="button"
+                      onClick={() => toggleDay(day.value)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        selected
+                          ? 'bg-violet-600 text-white'
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      {day.label}
+                    </button>
+                  )
+                })}
+              </div>
+              {errors.workingDays && <FieldError>{errors.workingDays}</FieldError>}
+            </section>
+
+            {/* Working Hours */}
+            <section className="space-y-3">
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                Working Hours
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Start Time <span className="text-red-500">*</span>
+                  </label>
+                  <FormInput
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                    invalid={!!errors.startTime}
+                  />
+                  {errors.startTime && <FieldError className="!mt-1">{errors.startTime}</FieldError>}
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    End Time <span className="text-red-500">*</span>
+                  </label>
+                  <FormInput
+                    type="time"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                    invalid={!!errors.endTime}
+                  />
+                  {errors.endTime && <FieldError className="!mt-1">{errors.endTime}</FieldError>}
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Slot Duration <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {SLOT_DURATION_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setSlotDuration(opt.value)}
+                        className={`px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+                          slotDuration === opt.value
+                            ? 'bg-violet-600 text-white'
+                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Lunch Break */}
+            <section className="space-y-3">
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                Lunch Break (optional)
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Start
+                  </label>
+                  <FormInput
+                    type="time"
+                    value={lunchStart}
+                    onChange={(e) => setLunchStart(e.target.value)}
+                    invalid={!!errors.lunchStart}
+                  />
+                  {errors.lunchStart && <FieldError className="!mt-1">{errors.lunchStart}</FieldError>}
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    End
+                  </label>
+                  <FormInput
+                    type="time"
+                    value={lunchEnd}
+                    onChange={(e) => setLunchEnd(e.target.value)}
+                    invalid={!!errors.lunchEnd}
+                  />
+                  {errors.lunchEnd && <FieldError className="!mt-1">{errors.lunchEnd}</FieldError>}
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* Footer */}
+          <div className="flex items-center justify-end gap-3 p-5 border-t border-slate-200/80 dark:border-slate-700/80 bg-slate-50/50 dark:bg-slate-800/50">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={saving}
+              className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={saving}
+              className="px-4 py-2 rounded-xl text-sm font-semibold bg-violet-600 text-white hover:bg-violet-500 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+            >
+              {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isEdit ? 'Save Changes' : 'Add Doctor'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  return createPortal(modal, document.body)
+}
+
 // DoctorDirectoryPage renders the doctor directory page UI.
 export default function DoctorDirectoryPage() {
   const dispatch = useDispatch<AppDispatch>()
@@ -427,6 +786,8 @@ export default function DoctorDirectoryPage() {
   const [internalLoading, setInternalLoading] = useState(false)
   const [removeTarget, setRemoveTarget] = useState<InternalDoctorRecord | null>(null)
   const [removeBusy, setRemoveBusy] = useState(false)
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
+  const [scheduleModalRecord, setScheduleModalRecord] = useState<InternalDoctorRecord | null>(null)
 
   const patchNpiFilters = useCallback(
     (patch: Partial<NpiFilterForm>) => {
@@ -1120,6 +1481,14 @@ export default function DoctorDirectoryPage() {
       />
 
       {profileRaw && <NpiProfileModal raw={profileRaw} onClose={() => setProfileRaw(null)} />}
+
+      {scheduleModalOpen && (
+        <ScheduleModal
+          record={scheduleModalRecord}
+          onClose={() => setScheduleModalOpen(false)}
+          onSave={() => void loadInternal()}
+        />
+      )}
 
       <p className="text-[11px] text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed">
         <Building2 className="inline h-3.5 w-3.5 mr-1 align-text-bottom opacity-70" aria-hidden />

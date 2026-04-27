@@ -9,6 +9,7 @@ import { fetchPatients } from '../services/patientsApi'
 import { fetchAllVitals } from '../services/vitalsApi'
 import type { PatientRecord } from '../types'
 import type { VitalRecord } from '../types'
+import { truncateWords } from '../utils/helpers'
 
 // NurseDashboard defines the Nurse Dashboard UI surface and its primary interaction flow.
 const VITALS_STALE_MS = 24 * 60 * 60 * 1000
@@ -112,7 +113,7 @@ export default function NurseDashboard() {
                   className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-2 px-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800"
                 >
                   <div>
-                    <span className="font-medium text-slate-800 dark:text-white">{patient.fullName}</span>
+                    <span className="font-medium text-slate-800 dark:text-white">{truncateWords(patient.fullName, 10)}</span>
                     <span className="block text-[11px] font-mono text-sky-600 dark:text-white">{patient.id}</span>
                     <span className="text-xs text-amber-800 dark:text-white">{reason}</span>
                   </div>

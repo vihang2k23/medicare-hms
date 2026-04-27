@@ -18,6 +18,7 @@ import {
   YAxis,
 } from 'recharts'
 import type { RootState } from '../store'
+import type { OpdQueueToken } from '../domains/queue/opdQueueTypes'
 import { DashboardCard, StatCard } from '../components/common'
 import { formatOpdTokenLabel } from '../store/slices/queueSlice'
 import { OPD_DEPARTMENTS } from '../config/clinical'
@@ -134,7 +135,7 @@ function formatReportTimestamp() {
 
 // ReportsPage renders the reports page UI.
 export default function ReportsPage() {
-  const opdQueue = useSelector((s: RootState) => s.queue.queue)
+  const opdQueue = useSelector((s: RootState) => s.queue.queue) as unknown as OpdQueueToken[]
   const opdCurrentToken = useSelector((s: RootState) => s.queue.currentToken)
   const opdServedToday = useSelector((s: RootState) => s.queue.servedToday)
   const beds = useSelector((s: RootState) => s.beds.beds)

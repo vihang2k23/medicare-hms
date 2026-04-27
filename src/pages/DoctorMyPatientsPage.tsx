@@ -6,6 +6,7 @@ import { Calendar, ChevronLeft, ChevronRight, FileText, Search, Users } from 'lu
 import type { RootState } from '../store'
 import { useAuth } from '../hooks/useAuth'
 import { fetchPatients } from '../services/patientsApi'
+import { truncateWords } from '../utils/helpers'
 import type { PatientRecord } from '../types'
 import { FieldError, FormInput } from '../components/common'
 import { aggregateMyPatients, type MyPatientRowMeta } from '../utils/business'
@@ -204,7 +205,7 @@ export default function DoctorMyPatientsPage() {
                               {initials(name)}
                             </span>
                             <div className="min-w-0">
-                              <p className="font-semibold text-slate-900 dark:text-white truncate">{name}</p>
+                              <p className="font-semibold text-slate-900 dark:text-white truncate">{truncateWords(name, 10)}</p>
                               <p className="font-mono text-xs text-emerald-700 dark:text-white truncate">{r.patientId}</p>
                               {!r.record && (
                                 <p className="text-xs text-amber-700 dark:text-white mt-0.5">Not in registry API</p>

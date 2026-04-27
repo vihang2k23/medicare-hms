@@ -2,7 +2,7 @@ import { Fragment, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from 'lucide-react'
 import type { VitalRecord } from '../../types'
-// SearchableIdPicker import removed during refactor
+import { SearchableIdPicker } from '../../components/common'
 import { filterLabeledOption } from '../../utils/helpers'
 
 // VitalsHistoryList defines the Vitals History List UI surface and its primary interaction flow.
