@@ -356,10 +356,12 @@ export default function PatientListPage() {
           </div>
           <Link
             to="/admin/patients/new"
-            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-sm font-semibold shadow-md shadow-sky-600/25 transition-colors shrink-0"
+            className="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-sm font-semibold shadow-md shadow-sky-600/25 transition-colors shrink-0"
+            aria-label="Register patient"
+            title="Register patient"
           >
-            <UserPlus className="h-4 w-4" aria-hidden />
-            Register patient
+            <UserPlus className="h-5 w-5 sm:h-4 sm:w-4" aria-hidden />
+            <span className="hidden sm:inline">Register patient</span>
           </Link>
         </div>
       </div>
@@ -841,10 +843,12 @@ export default function PatientListPage() {
                   type="button"
                   disabled={safePage <= 1}
                   onClick={() => merge({ page: safePage <= 2 ? null : String(safePage - 1) })}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-white hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-white hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                  aria-label="Previous page"
+                  title="Previous"
                 >
-                  <ChevronLeft className="h-4 w-4" aria-hidden />
-                  Previous
+                  <ChevronLeft className="h-5 w-5 sm:h-4 sm:w-4" aria-hidden />
+                  <span className="hidden sm:inline">Previous</span>
                 </button>
                 <span className="text-sm font-medium text-slate-600 dark:text-white tabular-nums text-center">
                   Page {safePage} of {totalPages}
@@ -853,10 +857,12 @@ export default function PatientListPage() {
                   type="button"
                   disabled={safePage >= totalPages}
                   onClick={() => merge({ page: String(safePage + 1) })}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-white hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl border border-slate-200/90 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-white hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                  aria-label="Next page"
+                  title="Next"
                 >
-                  Next
-                  <ChevronRight className="h-4 w-4" aria-hidden />
+                  <span className="hidden sm:inline">Next</span>
+                  <ChevronRight className="h-5 w-5 sm:h-4 sm:w-4" aria-hidden />
                 </button>
               </div>
             )}

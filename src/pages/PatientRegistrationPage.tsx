@@ -15,7 +15,7 @@ export default function PatientRegistrationPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+      <div className="flex flex-col gap-4">
         <div className="min-w-0">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-600 dark:text-white mb-2">Intake</p>
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-3 flex-wrap">
@@ -28,9 +28,6 @@ export default function PatientRegistrationPage() {
             Guided multi-step intake. Records persist through the JSON Server REST API.
           </p>
         </div>
-        <Link to={redirectTo} className={headerBackBtnClass}>
-          {backLabel}
-        </Link>
       </div>
       <PatientRegistrationForm
         redirectTo={redirectTo}

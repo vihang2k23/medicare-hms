@@ -165,10 +165,12 @@ export default function WardManagementPanel() {
               setAddNameBlurred(false)
               setAddOpen(true)
             }}
-            className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold shadow-lg shadow-teal-600/20 transition-colors shrink-0 w-full sm:w-auto"
+            className="inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold shadow-lg shadow-teal-600/20 transition-colors shrink-0 w-full sm:w-auto"
+            aria-label="Add ward"
+            title="Add ward"
           >
-            <Plus className="h-4 w-4" aria-hidden />
-            Add ward
+            <Plus className="h-5 w-5 sm:h-4 sm:w-4" aria-hidden />
+            <span className="hidden sm:inline">Add ward</span>
           </button>
         </div>
 

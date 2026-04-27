@@ -1352,10 +1352,12 @@ export default function DoctorDirectoryPage() {
                 setScheduleModalRecord(null)
                 setScheduleModalOpen(true)
               }}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-sky-600 text-white hover:bg-sky-500 shadow-sm"
+              className="inline-flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl text-sm font-semibold bg-sky-600 text-white hover:bg-sky-500 shadow-sm"
+              aria-label="Add manual doctor"
+              title="Add manual doctor"
             >
-              <UserPlus className="h-4 w-4" />
-              Add manual doctor
+              <UserPlus className="h-5 w-5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Add manual doctor</span>
             </button>
           </div>
 
@@ -1376,10 +1378,12 @@ export default function DoctorDirectoryPage() {
                     setScheduleModalRecord(null)
                     setScheduleModalOpen(true)
                   }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white"
+                  className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white"
+                  aria-label="Add manual doctor"
+                  title="Add manual doctor"
                 >
-                  <UserPlus className="h-4 w-4" />
-                  Add manual doctor
+                  <UserPlus className="h-5 w-5 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Add manual doctor</span>
                 </button>
               </div>
             ) : (

@@ -174,26 +174,30 @@ function PrescriptionHistoryCard({
             <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-2 shrink-0 lg:items-end">
               <Link
                 to={`${printBasePath}/${rx.id}/print`}
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-sky-600 text-white hover:bg-sky-700 dark:bg-sky-600 dark:hover:bg-sky-500 shadow-sm transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl text-sm font-semibold bg-sky-600 text-white hover:bg-sky-700 dark:bg-sky-600 dark:hover:bg-sky-500 shadow-sm transition-colors"
+                aria-label="Print / PDF"
+                title="Print / PDF"
               >
-                <Printer className="h-4 w-4 shrink-0" aria-hidden />
-                Print / PDF
+                <Printer className="h-5 w-5 sm:h-4 sm:w-4 shrink-0" aria-hidden />
+                <span className="hidden sm:inline">Print / PDF</span>
               </Link>
               <button
                 type="button"
                 onClick={onToggle}
                 aria-expanded={expanded}
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-2 sm:px-4 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors"
+                aria-label={expanded ? 'Hide details' : 'View medicines'}
+                title={expanded ? 'Hide details' : 'View medicines'}
               >
                 {expanded ? (
                   <>
-                    <ChevronUp className="h-4 w-4 shrink-0" aria-hidden />
-                    Hide details
+                    <ChevronUp className="h-5 w-5 sm:h-4 sm:w-4 shrink-0" aria-hidden />
+                    <span className="hidden sm:inline">Hide details</span>
                   </>
                 ) : (
                   <>
-                    <ChevronDown className="h-4 w-4 shrink-0" aria-hidden />
-                    View medicines
+                    <ChevronDown className="h-5 w-5 sm:h-4 sm:w-4 shrink-0" aria-hidden />
+                    <span className="hidden sm:inline">View medicines</span>
                   </>
                 )}
               </button>
@@ -461,8 +465,8 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
           <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/90 dark:bg-slate-900/50 p-4 sm:p-5 ring-1 ring-slate-200/40 dark:ring-slate-700/40 space-y-4">
             <div className="relative">
               <Search
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-slate-900 dark:text-white pointer-events-none"
-                strokeWidth={2.5}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 dark:text-slate-400 pointer-events-none"
+                strokeWidth={2}
                 aria-hidden
               />
               <FormInput

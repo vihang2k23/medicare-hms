@@ -241,10 +241,11 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
             type="button"
             onClick={printSchedule}
             title="Print: disable browser headers/footers to omit the URL in PDFs."
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80"
+            className="inline-flex items-center gap-2 px-2 sm:px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80"
+            aria-label="Print week"
           >
-            <Printer className="h-4 w-4" aria-hidden />
-            Print week
+            <Printer className="h-5 w-5 sm:h-4 sm:w-4" aria-hidden />
+            <span className="hidden sm:inline">Print week</span>
           </button>
           {lockedDoctorId ? (
             <p className="text-sm text-slate-600 dark:text-white">

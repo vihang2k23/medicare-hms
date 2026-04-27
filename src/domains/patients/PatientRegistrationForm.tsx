@@ -292,20 +292,21 @@ export default function PatientRegistrationForm({
     <div className="max-w-2xl mx-auto">
       {/* Progress */}
       <div className="mb-8">
-        <div className="flex gap-3 sm:gap-0 sm:justify-between text-xs font-medium text-slate-600 dark:text-slate-400 mb-2 overflow-x-auto pb-1 -mx-1 px-1 scroll-pl-1">
+        <div className="flex justify-between gap-2 sm:gap-0 sm:justify-between text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">
           {STEPS.map((label, i) => {
             const Icon = STEP_ICONS[i]!
             const active = i <= step
             return (
               <span
                 key={label}
-                className={`inline-flex items-center gap-1 shrink-0 whitespace-nowrap ${active ? 'text-sky-600 dark:text-white' : ''}`}
+                className={`inline-flex items-center justify-center gap-1 shrink-0 whitespace-nowrap ${active ? 'text-sky-600 dark:text-white' : ''}`}
+                title={label}
               >
                 <Icon
-                  className={`h-3.5 w-3.5 shrink-0 ${active ? 'text-sky-600 dark:text-sky-400' : 'text-slate-400 dark:text-slate-500'}`}
+                  className={`h-5 w-5 sm:h-3.5 sm:w-3.5 shrink-0 ${active ? 'text-sky-600 dark:text-sky-400' : 'text-slate-400 dark:text-slate-500'}`}
                   aria-hidden
                 />
-                {label}
+                <span className="hidden sm:inline">{label}</span>
               </span>
             )
           })}
