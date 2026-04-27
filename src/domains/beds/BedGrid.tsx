@@ -253,11 +253,11 @@ export default function BedGrid({
                     className="rounded-xl border border-slate-200/70 dark:border-slate-600/80 bg-gradient-to-br from-white/90 to-slate-50/80 dark:from-slate-950/40 dark:to-slate-900/30 p-4 ring-1 ring-slate-200/50 dark:ring-slate-700/50"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 truncate">
                           {wardId}
                         </p>
-                        <p className="text-lg font-bold text-slate-900 dark:text-white">{wardName}</p>
+                        <p className="text-lg font-bold text-slate-900 dark:text-white truncate">{wardName}</p>
                       </div>
                       <span className="text-xs font-semibold tabular-nums text-teal-700 dark:text-white bg-teal-500/10 px-2 py-1 rounded-lg">
                         {occPct}% occ.
