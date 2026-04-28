@@ -1,13 +1,26 @@
 import { Link, useLocation } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
-import { ROLE_CONFIG } from '../config/roles'
-import { getNavIcon } from '../config/navIcons'
-import type { SidebarAccent } from '../config/roles'
+import { useAuth } from '../../hooks/useAuth'
+import { ROLE_CONFIG } from '../../config/roles'
+import { ROUTES_CONFIG } from '../../router/AppRoutes'
+import type { SidebarAccent } from '../../config/roles'
 import { useDispatch, useSelector } from 'react-redux'
-import type { RootState } from '../store'
-import { setSidebarOpen } from '../store/slices/uiSlice'
-import { MediCareLogo } from '../components/common'
-import { LUCIDE_STROKE_CHROME, LUCIDE_STROKE_SIDEBAR_ACTIVE } from '../utils/helpers'
+import type { RootState } from '../../store'
+import { setSidebarOpen } from '../../store/slices/uiSlice'
+import MediCareLogo from './brand/MediCareLogo'
+import { LUCIDE_STROKE_CHROME, LUCIDE_STROKE_SIDEBAR_ACTIVE } from '../../utils/helpers'
+import {
+  Activity,
+  BarChart3,
+  BedDouble,
+  Calendar,
+  FileText,
+  LayoutDashboard,
+  ListOrdered,
+  Stethoscope,
+  Ticket,
+  UserPlus,
+  Users,
+} from 'lucide-react'
 
 // Sidebar defines the Sidebar UI surface and its primary interaction flow.
 const ACCENT: Record<
@@ -100,7 +113,21 @@ export default function Sidebar() {
           <ul className="space-y-1">
             {links.map(({ path, label }) => {
               const isActive = path === activeSidebarPath
-              const Icon = getNavIcon(path)
+              const roleRoutes = ROUTES_CONFIG[user?.role as keyof typeof ROUTES_CONFIG]
+              const route = roleRoutes?.routes.find(r => r.path === path) || roleRoutes?.dashboard.path === path ? roleRoutes.dashboard : null
+              const Icon = route?.icon || (() => {
+                // Fallback to default icon based on path
+                if (path.includes('patients')) return Users
+                if (path.includes('beds')) return BedDouble
+                if (path.includes('appointments') || path.includes('schedule')) return Calendar
+                if (path.includes('prescriptions')) return FileText
+                if (path.includes('doctors')) return Stethoscope
+                if (path.includes('reports')) return BarChart3
+                if (path.includes('queue')) return ListOrdered
+                if (path.includes('registration')) return UserPlus
+                if (path.includes('vitals')) return Activity
+                return LayoutDashboard
+              })()
               return (
                 <li key={path}>
                   <Link

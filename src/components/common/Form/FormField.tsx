@@ -25,9 +25,11 @@ export interface FormFieldProps {
   /** react-hook-form register function */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   register?: any
-  /** Maximum word count for validation (default: 20) */
+  /** Maximum word count for validation (optional) */
   maxWords?: number
-  /** Display truncation threshold (default: 10 words) */
+  /** Maximum character count for validation (default: 50) */
+  maxLength?: number
+  /** Display truncation threshold (default: 50 words) */
   displayTruncateAt?: number
   /** Additional class name */
   className?: string
@@ -84,8 +86,9 @@ const FormField = forwardRef<HTMLInputElement | HTMLTextAreaElement, FormFieldPr
       required = false,
       error,
       register,
-      maxWords = 20,
-      displayTruncateAt = 10,
+      maxWords,
+      maxLength = 50,
+      displayTruncateAt = 50,
       className,
       placeholder,
       disabled = false,
@@ -107,15 +110,26 @@ const FormField = forwardRef<HTMLInputElement | HTMLTextAreaElement, FormFieldPr
     let value = props.value
     let onChange = props.onChange
     
-    if (register) {
+    // Only call register if parent hasn't already registered (check for name prop)
+    if (register && !props.name) {
       const registerResult = register(id, {
         validate: (val: string) => {
           if (!val || val.trim().length === 0) return true
-          return validateMaxWords(val, maxWords) || getWordCountError(maxWords)
+          if (maxLength && val.length > maxLength) {
+            return `Maximum ${maxLength} characters allowed`
+          }
+          if (maxWords && validateMaxWords(val, maxWords) === false) {
+            return getWordCountError(maxWords)
+          }
+          return true
         }
       })
       value = registerResult?.value ?? props.value
       onChange = registerResult?.onChange ?? props.onChange
+    } else if (props.name) {
+      // Parent has already registered, use props directly
+      value = props.value
+      onChange = props.onChange
     }
 
     const stringValue = value === undefined || value === null ? '' : String(value)
@@ -132,10 +146,11 @@ const FormField = forwardRef<HTMLInputElement | HTMLTextAreaElement, FormFieldPr
       ? truncateWords(stringValue, displayTruncateAt)
       : stringValue
 
-    // Count words for validation
+    // Count for validation
     const wordCount = countWords(stringValue)
-    const wordCountError = wordCount > maxWords ? getWordCountError(maxWords) : undefined
-    const finalError = error || wordCountError
+    const wordCountError = maxWords && wordCount > maxWords ? getWordCountError(maxWords) : undefined
+    const charCountError = maxLength && stringValue.length > maxLength ? `Maximum ${maxLength} characters allowed` : undefined
+    const finalError = error || charCountError || wordCountError
 
     const base =
       variant === 'soft'
@@ -173,7 +188,7 @@ const FormField = forwardRef<HTMLInputElement | HTMLTextAreaElement, FormFieldPr
       const newValue = e.target.value
       const newWordCount = countWords(newValue)
       
-      if (newWordCount <= maxWords) {
+      if (!maxWords || newWordCount <= maxWords) {
         onChange?.(e)
       } else {
         // Truncate to maxWords
@@ -218,7 +233,6 @@ const FormField = forwardRef<HTMLInputElement | HTMLTextAreaElement, FormFieldPr
               placeholder={placeholder}
               rows={rows || 5}
               className={base}
-              {...(register ? register(id, {}) : {})}
               {...props}
             />
           ) : (
@@ -234,7 +248,6 @@ const FormField = forwardRef<HTMLInputElement | HTMLTextAreaElement, FormFieldPr
               onBlur={() => setIsFocused(false)}
               placeholder={placeholder}
               className={base}
-              {...(register ? register(id, {}) : {})}
               {...props}
             />
           )}
@@ -262,12 +275,6 @@ const FormField = forwardRef<HTMLInputElement | HTMLTextAreaElement, FormFieldPr
             className="text-sm text-red-600 dark:text-red-400 mt-1.5"
           >
             {finalError}
-          </p>
-        )}
-
-        {wordCount > 0 && (
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            {wordCount} / {maxWords} words
           </p>
         )}
       </div>

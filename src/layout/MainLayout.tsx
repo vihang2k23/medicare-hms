@@ -4,8 +4,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import type { RootState } from '../store'
 import { setSidebarOpen } from '../store/slices/uiSlice'
 import { useBedSimulation } from '../domains/beds/useBedSimulation'
-import { Navbar } from '../components/common'
-import Sidebar from './Sidebar'
+import { Navbar, Sidebar } from '../components/common'
 
 // MainLayout defines the Main Layout UI surface and its primary interaction flow.
 // MainLayout renders the main layout UI.

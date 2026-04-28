@@ -8,7 +8,7 @@ import { useAuth } from '../hooks/useAuth'
 import { fetchPatients } from '../services/patientsApi'
 import { truncateWords } from '../utils/helpers'
 import type { PatientRecord } from '../types'
-import { FieldError, FormInput } from '../components/common'
+import { FieldError } from '../components/common'
 import { aggregateMyPatients, type MyPatientRowMeta } from '../utils/business'
 
 // DoctorMyPatientsPage defines the Doctor My Patients Page UI surface and its primary interaction flow.
@@ -124,10 +124,11 @@ export default function DoctorMyPatientsPage() {
       <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/90 dark:bg-slate-900/50 p-4 sm:p-5 ring-1 ring-slate-200/40 dark:ring-slate-700/40 space-y-4">
         <div className="relative">
           <Search
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none"
+            className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-900 dark:text-slate-400 pointer-events-none"
+            strokeWidth={2.5}
             aria-hidden
           />
-          <FormInput
+          <input
             type="text"
             inputMode="search"
             enterKeyHint="search"
@@ -137,9 +138,8 @@ export default function DoctorMyPatientsPage() {
               merge({ q: e.target.value.trim() ? e.target.value : null, page: null })
             }}
             placeholder="Search by name, id, or phone…"
-            className="!pl-10 !pr-10 focus:!ring-emerald-500/35 focus:!border-emerald-400/40"
+            className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 pl-10 pr-10 text-sm placeholder-slate-500 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/35 focus:border-emerald-400/40 dark:border-slate-600 dark:bg-slate-900 dark:text-white dark:placeholder-slate-400"
             aria-label="Search patients"
-            invalid={!!loadError}
             aria-invalid={loadError ? true : undefined}
             aria-describedby={loadError ? 'doctor-my-patients-load-err' : undefined}
           />

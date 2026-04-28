@@ -529,7 +529,7 @@ export default function PatientListPage() {
             </label>
             <div className="relative">
               <Cake
-                className={`absolute left-3 top-1/2 z-20 h-[18px] w-[18px] -translate-y-1/2 pointer-events-none ${LUCIDE_STROKE_FIELD}`}
+                className={`absolute left-3 top-1/2 z-20 h-5 w-5 -translate-y-1/2 pointer-events-none ${LUCIDE_STROKE_FIELD}`}
                 strokeWidth={2.5}
                 aria-hidden
               />
@@ -547,7 +547,7 @@ export default function PatientListPage() {
                 invalid={!!ageRangeFilterError}
                 aria-invalid={ageRangeFilterError ? true : undefined}
                 aria-describedby={ageRangeFilterError ? 'patient-list-age-range-err' : undefined}
-                className="relative z-10 pl-10"
+                className="pl-10 py-2.5 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
               />
             </div>
           </div>
@@ -560,7 +560,7 @@ export default function PatientListPage() {
             </label>
             <div className="relative">
               <Cake
-                className={`absolute left-3 top-1/2 z-20 h-[18px] w-[18px] -translate-y-1/2 pointer-events-none ${LUCIDE_STROKE_FIELD}`}
+                className={`absolute left-3 top-1/2 z-20 h-5 w-5 -translate-y-1/2 pointer-events-none ${LUCIDE_STROKE_FIELD}`}
                 strokeWidth={2.5}
                 aria-hidden
               />
@@ -578,7 +578,7 @@ export default function PatientListPage() {
                 invalid={!!ageRangeFilterError}
                 aria-invalid={ageRangeFilterError ? true : undefined}
                 aria-describedby={ageRangeFilterError ? 'patient-list-age-range-err' : undefined}
-                className="relative z-10 pl-10"
+                className="pl-10 py-2.5 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
               />
             </div>
             <FieldError id="patient-list-age-range-err" className="!mt-1">
@@ -594,7 +594,7 @@ export default function PatientListPage() {
             </label>
             <div className="relative">
               <Calendar
-                className={`absolute left-3 top-1/2 z-20 h-[18px] w-[18px] -translate-y-1/2 pointer-events-none ${LUCIDE_STROKE_FIELD}`}
+                className={`absolute left-3 top-1/2 z-20 h-5 w-5 -translate-y-1/2 pointer-events-none ${LUCIDE_STROKE_FIELD}`}
                 strokeWidth={2.5}
                 aria-hidden
               />
@@ -617,7 +617,7 @@ export default function PatientListPage() {
                 invalid={!!regRangeFilterError}
                 aria-invalid={regRangeFilterError ? true : undefined}
                 aria-describedby={regRangeFilterError ? 'patient-list-reg-range-err' : undefined}
-                className="relative z-10 pl-10 min-h-[42px]"
+                className="pl-10 py-2.5"
               />
             </div>
           </div>
@@ -630,7 +630,7 @@ export default function PatientListPage() {
             </label>
             <div className="relative">
               <Calendar
-                className={`absolute left-3 top-1/2 z-20 h-[18px] w-[18px] -translate-y-1/2 pointer-events-none ${LUCIDE_STROKE_FIELD}`}
+                className={`absolute left-3 top-1/2 z-20 h-5 w-5 -translate-y-1/2 pointer-events-none ${LUCIDE_STROKE_FIELD}`}
                 strokeWidth={2.5}
                 aria-hidden
               />
@@ -654,7 +654,7 @@ export default function PatientListPage() {
                 invalid={!!regRangeFilterError}
                 aria-invalid={regRangeFilterError ? true : undefined}
                 aria-describedby={regRangeFilterError ? 'patient-list-reg-range-err' : undefined}
-                className="relative z-10 pl-10 min-h-[42px]"
+                className="pl-10 py-2.5"
               />
             </div>
             <FieldError id="patient-list-reg-range-err" className="!mt-1">

@@ -122,7 +122,8 @@ export default function Navbar({ showSidebarToggle = true }: NavbarProps) {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (!isAuthenticated) return
-      const key = e.key.toLowerCase()
+      const key = e.key?.toLowerCase()
+      if (!key) return
       if ((e.metaKey || e.ctrlKey) && key === 'k') {
         if (!hasLetterShortcuts) return
         e.preventDefault()

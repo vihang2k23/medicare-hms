@@ -30,17 +30,13 @@ export function MediCareLogo({ size = 'md', className = '' }: LogoProps) {
           height="40"
           rx="8"
           fill="currentColor"
-          className="text-blue-600"
+          className="text-sky-600"
         />
         <path
-          d="M12 12h16v2H12v-2zm0 6h16v2H12v-2zm0 6h10v2H12v-2z"
-          fill="white"
-        />
-        <circle
-          cx="28"
-          cy="28"
-          r="4"
-          fill="white"
+          d="M20 10v20M10 20h20"
+          stroke="white"
+          strokeWidth="5"
+          strokeLinecap="round"
         />
       </svg>
     </div>

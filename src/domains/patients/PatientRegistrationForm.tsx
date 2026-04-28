@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from 'react-router-dom'
 import {
@@ -11,8 +11,6 @@ import {
   User,
 } from 'lucide-react'
 import { FieldError, FieldLabel, FormField, FormInput } from '../../components/common'
-import { SearchableIdPicker } from '../../components/common'
-import { filterLabeledOption } from '../../utils/helpers'
 import {
   isoDateLocalToday,
   patientRegistrationSchema,
@@ -34,7 +32,7 @@ const defaultValues: PatientFormValues = {
   fullName: '',
   dob: '',
   gender: 'male',
-  bloodGroup: '',
+  bloodGroup: 'O+',
   photo: null,
   phone: '',
   email: '',
@@ -333,94 +331,72 @@ export default function PatientRegistrationForm({
               Personal information
             </h2>
             <div>
-              <FieldLabel htmlFor="patient-reg-fullName" className="block mb-1" required>
-                Full name
-              </FieldLabel>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
-                <FormInput
-                  id="patient-reg-fullName"
-                  {...register('fullName')}
-                  invalid={!!errors.fullName}
-                  variant="soft"
-                  placeholder="Enter full name"
-                  className="!pl-10"
-                />
-              </div>
-              <FieldError>{errors.fullName?.message}</FieldError>
+              <label htmlFor="patient-reg-fullName" className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                Full name <span className="text-red-600">*</span>
+              </label>
+              <input
+                id="patient-reg-fullName"
+                type="text"
+                {...register('fullName')}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors"
+                placeholder="Enter full name"
+                maxLength={100}
+              />
+              {errors.fullName && <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.fullName.message}</p>}
             </div>
             <div>
-              <FieldLabel htmlFor="patient-reg-dob" className="block mb-1" required>
-                Date of birth
-              </FieldLabel>
-              <FormInput
+              <label htmlFor="patient-reg-dob" className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                Date of birth <span className="text-red-600">*</span>
+              </label>
+              <input
                 id="patient-reg-dob"
                 type="date"
+                min="1900-01-01"
                 max={isoDateLocalToday()}
                 {...register('dob')}
-                invalid={!!errors.dob}
-                variant="soft"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors"
               />
-              <FieldError>{errors.dob?.message}</FieldError>
+              {errors.dob && <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.dob.message}</p>}
             </div>
             <div>
-              <Controller
-                name="gender"
-                control={control}
-                render={({ field }) => (
-                  <SearchableIdPicker<(typeof GENDER_PICKER)[number]>
-                    id="patient-reg-gender"
-                    name="gender"
-                    label="Gender"
-                    labelRequired
-                    items={GENDER_PICKER}
-                    selectedId={field.value}
-                    onSelectId={field.onChange}
-                    getId={(x) => x.id}
-                    getLabel={(x) => x.label}
-                    filterItem={filterLabeledOption}
-                    allowClear={false}
-                    accent="sky"
-                    emptyLabel="Pick gender"
-                    placeholder="Search…"
-                    className={errors.gender ? 'ring-2 ring-red-500/20 rounded-xl' : ''}
-                  />
-                )}
-              />
-              <FieldError>{errors.gender?.message}</FieldError>
+              <label htmlFor="patient-reg-gender" className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                Gender <span className="text-red-600">*</span>
+              </label>
+              <select
+                id="patient-reg-gender"
+                {...register('gender')}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors"
+              >
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+              {errors.gender && <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.gender.message}</p>}
             </div>
             <div>
-              <Controller
-                name="bloodGroup"
-                control={control}
-                render={({ field }) => (
-                  <SearchableIdPicker<(typeof BLOOD_PICKER)[number]>
-                    id="patient-reg-bloodGroup"
-                    name="bloodGroup"
-                    label="Blood group"
-                    labelRequired
-                    items={BLOOD_PICKER}
-                    selectedId={field.value}
-                    onSelectId={field.onChange}
-                    getId={(x) => x.id}
-                    getLabel={(x) => x.label}
-                    filterItem={filterLabeledOption}
-                    allowClear={false}
-                    accent="sky"
-                    emptyLabel="Select"
-                    placeholder="Search…"
-                  />
-                )}
-              />
-              <FieldError>{errors.bloodGroup?.message}</FieldError>
+              <label htmlFor="patient-reg-bloodGroup" className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                Blood group <span className="text-red-600">*</span>
+              </label>
+              <select
+                id="patient-reg-bloodGroup"
+                {...register('bloodGroup')}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors"
+              >
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </select>
+              {errors.bloodGroup && <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.bloodGroup.message}</p>}
             </div>
             <div>
-              <FieldLabel className="block mb-1">
-                <span className="inline-flex items-center gap-1.5">
-                  <ImagePlus className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400 shrink-0" aria-hidden />
-                  Photo (optional)
-                </span>
-              </FieldLabel>
+              <label className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                Photo (optional)
+              </label>
               <input type="file" accept="image/*" onChange={handlePhoto} className="text-sm text-slate-600 dark:text-white" />
               {photoPreview && (
                 <img src={photoPreview} alt="" className="mt-2 h-24 w-24 object-cover rounded-lg border border-slate-200 dark:border-slate-600" />
@@ -436,70 +412,82 @@ export default function PatientRegistrationForm({
               Contact & address
             </h2>
             <div>
-              <FieldLabel htmlFor="patient-reg-phone" className="block mb-1" required>
-                Phone
-              </FieldLabel>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
-                <FormInput id="patient-reg-phone" {...register('phone')} invalid={!!errors.phone} variant="soft" placeholder="Enter phone number" className="!pl-10" />
-              </div>
-              <FieldError>{errors.phone?.message}</FieldError>
+              <label htmlFor="patient-reg-phone" className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                Phone <span className="text-red-600">*</span>
+              </label>
+              <input
+                id="patient-reg-phone"
+                type="tel"
+                {...register('phone')}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors"
+                placeholder="Enter phone number"
+                maxLength={15}
+              />
+              {errors.phone && <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.phone.message}</p>}
             </div>
             <div>
-              <FieldLabel htmlFor="patient-reg-email" className="block mb-1" required>
-                Email
-              </FieldLabel>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
-                <FormInput
-                  id="patient-reg-email"
-                  type="email"
-                  {...register('email')}
-                  invalid={!!errors.email}
-                  variant="soft"
-                  placeholder="Enter email address"
-                  className="!pl-10"
-                />
-              </div>
-              <FieldError>{errors.email?.message}</FieldError>
+              <label htmlFor="patient-reg-email" className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                Email <span className="text-red-600">*</span>
+              </label>
+              <input
+                id="patient-reg-email"
+                type="email"
+                {...register('email')}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors"
+                placeholder="Enter email address"
+                maxLength={100}
+              />
+              {errors.email && <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.email.message}</p>}
             </div>
             <div>
-              <FieldLabel htmlFor="patient-reg-address" className="block mb-1" required>
-                Address
-              </FieldLabel>
-              <FormField id="patient-reg-address" type="textarea" {...register('address')} rows={2} invalid={!!errors.address} variant="soft" placeholder="Enter street address" />
-              <FieldError>{errors.address?.message}</FieldError>
+              <label htmlFor="patient-reg-address" className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                Address <span className="text-red-600">*</span>
+              </label>
+              <textarea
+                id="patient-reg-address"
+                {...register('address')}
+                rows={2}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors resize-y"
+                placeholder="Enter street address"
+              />
+              {errors.address && <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.address.message}</p>}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <FieldLabel htmlFor="patient-reg-city" className="block mb-1" required>
-                  City
-                </FieldLabel>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
-                  <FormInput id="patient-reg-city" {...register('city')} invalid={!!errors.city} variant="soft" placeholder="Enter city" className="!pl-10" />
-                </div>
-                <FieldError>{errors.city?.message}</FieldError>
+                <label htmlFor="patient-reg-city" className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                  City <span className="text-red-600">*</span>
+                </label>
+                <input
+                  id="patient-reg-city"
+                  {...register('city')}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors"
+                  placeholder="Enter city"
+                />
+                {errors.city && <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.city.message}</p>}
               </div>
               <div>
-                <FieldLabel htmlFor="patient-reg-state" className="block mb-1" required>
-                  State
-                </FieldLabel>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
-                  <FormInput id="patient-reg-state" {...register('state')} invalid={!!errors.state} variant="soft" placeholder="Enter state" className="!pl-10" />
-                </div>
-                <FieldError>{errors.state?.message}</FieldError>
+                <label htmlFor="patient-reg-state" className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                  State <span className="text-red-600">*</span>
+                </label>
+                <input
+                  id="patient-reg-state"
+                  {...register('state')}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors"
+                  placeholder="Enter state"
+                />
+                {errors.state && <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.state.message}</p>}
               </div>
               <div>
-                <FieldLabel htmlFor="patient-reg-pin" className="block mb-1" required>
-                  PIN / ZIP
-                </FieldLabel>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
-                  <FormInput id="patient-reg-pin" {...register('pin')} invalid={!!errors.pin} variant="soft" placeholder="Enter PIN/ZIP code" className="!pl-10" />
-                </div>
-                <FieldError>{errors.pin?.message}</FieldError>
+                <label htmlFor="patient-reg-pin" className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                  PIN / ZIP <span className="text-red-600">*</span>
+                </label>
+                <input
+                  id="patient-reg-pin"
+                  {...register('pin')}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors"
+                  placeholder="Enter PIN/ZIP code"
+                />
+                {errors.pin && <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.pin.message}</p>}
               </div>
             </div>
           </div>
@@ -512,35 +500,34 @@ export default function PatientRegistrationForm({
               Medical history
             </h2>
             <div>
-              <FieldLabel htmlFor="patient-reg-allergies" className="block mb-1">
+              <label htmlFor="patient-reg-allergies" className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
                 Known allergies
-              </FieldLabel>
-              <FormField
+              </label>
+              <textarea
                 id="patient-reg-allergies"
-                type="textarea"
                 {...register('allergies')}
                 rows={2}
-                variant="soft"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors resize-y"
                 placeholder="None if not applicable"
               />
             </div>
             <div>
-              <FieldLabel htmlFor="patient-reg-chronic" className="block mb-1">
+              <label htmlFor="patient-reg-chronic" className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
                 Chronic conditions
-              </FieldLabel>
-              <FormField id="patient-reg-chronic" type="textarea" {...register('chronicConditions')} rows={2} variant="soft" placeholder="None if not applicable" />
+              </label>
+              <textarea id="patient-reg-chronic" {...register('chronicConditions')} rows={2} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors resize-y" placeholder="None if not applicable" />
             </div>
             <div>
-              <FieldLabel htmlFor="patient-reg-surgeries" className="block mb-1">
+              <label htmlFor="patient-reg-surgeries" className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
                 Past surgeries
-              </FieldLabel>
-              <FormField id="patient-reg-surgeries" type="textarea" {...register('pastSurgeries')} rows={2} variant="soft" placeholder="None if not applicable" />
+              </label>
+              <textarea id="patient-reg-surgeries" {...register('pastSurgeries')} rows={2} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors resize-y" placeholder="None if not applicable" />
             </div>
             <div>
-              <FieldLabel htmlFor="patient-reg-meds" className="block mb-1">
+              <label htmlFor="patient-reg-meds" className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
                 Current medications
-              </FieldLabel>
-              <FormField id="patient-reg-meds" type="textarea" {...register('currentMedications')} rows={2} variant="soft" placeholder="None if not applicable" />
+              </label>
+              <textarea id="patient-reg-meds" {...register('currentMedications')} rows={2} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors resize-y" placeholder="None if not applicable" />
             </div>
           </div>
         )}
@@ -552,55 +539,41 @@ export default function PatientRegistrationForm({
               Emergency contact
             </h2>
             <div>
-              <FieldLabel htmlFor="patient-reg-emergency-name" className="block mb-1" required>
-                Full name
-              </FieldLabel>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
-                <FormInput
-                  id="patient-reg-emergency-name"
-                  {...register('emergencyName')}
-                  invalid={!!errors.emergencyName}
-                  variant="soft"
-                  placeholder="Enter emergency contact name"
-                  className="!pl-10"
-                />
-              </div>
-              <FieldError>{errors.emergencyName?.message}</FieldError>
+              <label htmlFor="patient-reg-emergency-name" className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                Full name <span className="text-red-600">*</span>
+              </label>
+              <input
+                id="patient-reg-emergency-name"
+                {...register('emergencyName')}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors"
+                placeholder="Enter emergency contact name"
+              />
+              {errors.emergencyName && <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.emergencyName.message}</p>}
             </div>
             <div>
-              <FieldLabel htmlFor="patient-reg-emergency-rel" className="block mb-1" required>
-                Relationship
-              </FieldLabel>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
-                <FormInput
-                  id="patient-reg-emergency-rel"
-                  {...register('emergencyRelationship')}
-                  invalid={!!errors.emergencyRelationship}
-                  variant="soft"
-                  placeholder="e.g. Spouse, Parent, Friend"
-                  className="!pl-10"
-                />
-              </div>
-              <FieldError>{errors.emergencyRelationship?.message}</FieldError>
+              <label htmlFor="patient-reg-emergency-rel" className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                Relationship <span className="text-red-600">*</span>
+              </label>
+              <input
+                id="patient-reg-emergency-rel"
+                {...register('emergencyRelationship')}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors"
+                placeholder="e.g. Spouse, Parent, Friend"
+              />
+              {errors.emergencyRelationship && <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.emergencyRelationship.message}</p>}
             </div>
             <div>
-              <FieldLabel htmlFor="patient-reg-emergency-phone" className="block mb-1" required>
-                Phone
-              </FieldLabel>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" aria-hidden />
-                <FormInput
-                  id="patient-reg-emergency-phone"
-                  {...register('emergencyPhone')}
-                  invalid={!!errors.emergencyPhone}
-                  variant="soft"
-                  placeholder="Enter emergency contact phone"
-                  className="!pl-10"
-                />
-              </div>
-              <FieldError>{errors.emergencyPhone?.message}</FieldError>
+              <label htmlFor="patient-reg-emergency-phone" className="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                Phone <span className="text-red-600">*</span>
+              </label>
+              <input
+                id="patient-reg-emergency-phone"
+                type="tel"
+                {...register('emergencyPhone')}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors"
+                placeholder="Enter emergency contact phone"
+              />
+              {errors.emergencyPhone && <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.emergencyPhone.message}</p>}
             </div>
           </div>
         )}

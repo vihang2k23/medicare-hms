@@ -465,19 +465,19 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
           <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/90 dark:bg-slate-900/50 p-4 sm:p-5 ring-1 ring-slate-200/40 dark:ring-slate-700/40 space-y-4">
             <div className="relative">
               <Search
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 dark:text-slate-400 pointer-events-none"
-                strokeWidth={2}
+                className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-900 dark:text-slate-400 pointer-events-none"
+                strokeWidth={2.5}
                 aria-hidden
               />
-              <FormInput
-                value={q}
-                clearable={false}
+              <input
+                type="text"
                 inputMode="search"
                 enterKeyHint="search"
+                value={q}
                 onChange={(e) => merge({ q: e.target.value.trim() ? e.target.value : null })}
                 placeholder="Search by patient name, patient ID, or prescriber…"
                 aria-label="Search prescriptions"
-                className="!pl-10 !py-3 bg-slate-50/80 dark:bg-slate-950/40 !pr-10"
+                className="w-full rounded-md border border-slate-300 bg-slate-50/80 dark:bg-slate-950/40 px-3 py-3 pl-10 pr-10 text-sm placeholder-slate-500 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500/35 focus:border-sky-400/40 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
               />
               {q.trim() !== '' && (
                 <button

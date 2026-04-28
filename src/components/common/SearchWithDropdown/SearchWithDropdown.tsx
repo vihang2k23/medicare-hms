@@ -164,7 +164,7 @@ export function SearchableIdPicker<T>({
       )}
       <div ref={anchorRef} className={`relative ${className}`}>
         <LeadingIcon
-          className={`absolute left-3 top-1/2 z-20 -translate-y-1/2 h-[18px] w-[18px] pointer-events-none text-slate-900 dark:text-white`}
+          className={`absolute left-3 top-1/2 z-20 -translate-y-1/2 h-5 w-5 pointer-events-none text-slate-900 dark:text-white`}
           strokeWidth={2.5}
           aria-hidden
         />

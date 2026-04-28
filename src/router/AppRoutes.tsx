@@ -1,5 +1,18 @@
 import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
+import {
+  Activity,
+  BarChart3,
+  BedDouble,
+  Calendar,
+  FileText,
+  LayoutDashboard,
+  ListOrdered,
+  Stethoscope,
+  Ticket,
+  UserPlus,
+  Users,
+} from 'lucide-react'
 import ProtectedRoute from './ProtectedRoute'
 import MainLayout from '../layout/MainLayout'
 import Login from '../pages/Login'
@@ -38,6 +51,7 @@ interface RouteConfig {
   path: string
   element: React.ComponentType<Record<string, unknown>>
   props?: Record<string, unknown>
+  icon?: any
 }
 
 interface JSXRouteConfig {
@@ -52,46 +66,46 @@ interface RoleRoutes {
 
 // Route configurations
 const adminRoutes: RoleRoutes = {
-  dashboard: { path: 'admin', element: AdminDashboard },
+  dashboard: { path: 'admin', element: AdminDashboard, icon: LayoutDashboard },
   routes: [
-    { path: 'admin/opd-queue', element: OPDQueuePage, props: { title: 'OPD queue', description: 'Admin view — same live queue as reception.' } },
-    { path: 'admin/beds', element: AdminBedsPage },
-    { path: 'admin/patients', element: PatientListPage },
+    { path: 'admin/opd-queue', element: OPDQueuePage, props: { title: 'OPD queue', description: 'Admin view — same live queue as reception.' }, icon: ListOrdered },
+    { path: 'admin/beds', element: AdminBedsPage, icon: BedDouble },
+    { path: 'admin/patients', element: PatientListPage, icon: Users },
     { path: 'admin/patients/new', element: PatientRegistrationPage },
     { path: 'admin/patients/:patientId/edit', element: PatientEditPage },
     { path: 'admin/patients/:patientId', element: PatientProfilePage },
-    { path: 'admin/appointments', element: AppointmentsPage, props: { variant: 'admin' } },
-    { path: 'admin/prescriptions', element: PrescriptionsPage, props: { variant: 'admin' } },
+    { path: 'admin/appointments', element: AppointmentsPage, props: { variant: 'admin' }, icon: Calendar },
+    { path: 'admin/prescriptions', element: PrescriptionsPage, props: { variant: 'admin' }, icon: FileText },
     { path: 'admin/prescriptions/:prescriptionId/print', element: AdminPrescriptionPrintPage },
-    { path: 'admin/doctors', element: DoctorDirectoryPage },
-    { path: 'admin/reports', element: ReportsPage },
+    { path: 'admin/doctors', element: DoctorDirectoryPage, icon: Stethoscope },
+    { path: 'admin/reports', element: ReportsPage, icon: BarChart3 },
   ]
 }
 
 const doctorRoutes: RoleRoutes = {
-  dashboard: { path: 'doctor', element: DoctorDashboard },
+  dashboard: { path: 'doctor', element: DoctorDashboard, icon: LayoutDashboard },
   routes: [
-    { path: 'doctor/patients', element: DoctorMyPatientsPage },
+    { path: 'doctor/patients', element: DoctorMyPatientsPage, icon: Users },
     { path: 'doctor/patients/:patientId', element: DoctorPatientProfilePage },
-    { path: 'doctor/prescriptions', element: PrescriptionsPage, props: { variant: 'doctor' } },
+    { path: 'doctor/prescriptions', element: PrescriptionsPage, props: { variant: 'doctor' }, icon: FileText },
     { path: 'doctor/prescriptions/:prescriptionId/print', element: DoctorPrescriptionPrintPage },
-    { path: 'doctor/schedule', element: AppointmentsPage, props: { variant: 'doctor' } },
+    { path: 'doctor/schedule', element: AppointmentsPage, props: { variant: 'doctor' }, icon: Calendar },
   ]
 }
 
 const receptionistRoutes: RoleRoutes = {
-  dashboard: { path: 'receptionist', element: ReceptionistDashboard },
+  dashboard: { path: 'receptionist', element: ReceptionistDashboard, icon: LayoutDashboard },
   routes: [
-    { path: 'receptionist/queue', element: ReceptionistQueue },
-    { path: 'receptionist/registration', element: PatientRegistrationPage },
-    { path: 'receptionist/appointments', element: AppointmentsPage, props: { variant: 'receptionist' } },
+    { path: 'receptionist/queue', element: ReceptionistQueue, icon: Ticket },
+    { path: 'receptionist/registration', element: PatientRegistrationPage, icon: UserPlus },
+    { path: 'receptionist/appointments', element: AppointmentsPage, props: { variant: 'receptionist' }, icon: Calendar },
   ]
 }
 
 const nurseRoutes: RoleRoutes = {
-  dashboard: { path: 'nurse', element: NurseDashboard },
+  dashboard: { path: 'nurse', element: NurseDashboard, icon: LayoutDashboard },
   routes: [
-    { path: 'nurse/beds', element: NurseBeds },
+    { path: 'nurse/beds', element: NurseBeds, icon: BedDouble },
   ]
 }
 
@@ -113,6 +127,14 @@ const lazyRoutes: JSXRouteConfig[] = [
     )
   }
 ]
+
+// Export route configurations for use in sidebar and other components
+export const ROUTES_CONFIG = {
+  admin: adminRoutes,
+  doctor: doctorRoutes,
+  receptionist: receptionistRoutes,
+  nurse: nurseRoutes,
+}
 
 const sharedRoutes: RouteConfig[] = [
   { path: 'access-denied', element: AccessDenied }

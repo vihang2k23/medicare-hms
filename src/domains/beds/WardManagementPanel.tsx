@@ -282,7 +282,7 @@ export default function WardManagementPanel() {
             placeholder="e.g. Maternity Ward"
             className={wardInputClass}
             autoFocus
-            maxLength={100}
+            maxLength={50}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter') submitAdd()
             }}
@@ -348,7 +348,7 @@ export default function WardManagementPanel() {
             }}
             className={wardInputClass}
             autoFocus
-            maxLength={100}
+            maxLength={50}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter') submitEdit()
             }}

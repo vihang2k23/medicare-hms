@@ -128,17 +128,18 @@ function VitalsEntryPage() {
         <DashboardCard title="Patients">
           <div className="space-y-4">
             <div className="relative max-w-xl">
-              <Search className="absolute left-3 top-1/2 z-20 -translate-y-1/2 h-[18px] w-[18px] pointer-events-none text-slate-900 dark:text-white" strokeWidth={2.5} aria-hidden />
-              <FormInput
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 pointer-events-none text-slate-900 dark:text-slate-400" strokeWidth={2.5} aria-hidden />
+              <input
+                type="text"
+                inputMode="search"
+                enterKeyHint="search"
                 value={query}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   if (loadError) setLoadError(null)
                   merge({ q: e.target.value.trim() ? e.target.value : null, page: null })
                 }}
                 placeholder="Search by name, patient ID, or phone"
-                variant="orange"
-                className="!pl-10"
-                invalid={!!loadError}
+                className="w-full rounded-md border border-orange-300 bg-white px-3 py-2 pl-10 text-sm placeholder-slate-500 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500/35 focus:border-orange-400/40 dark:border-orange-600 dark:bg-slate-900 dark:text-white dark:placeholder-slate-400"
                 aria-invalid={loadError ? true : undefined}
                 aria-describedby={loadError ? 'vitals-entry-load-err' : undefined}
               />
