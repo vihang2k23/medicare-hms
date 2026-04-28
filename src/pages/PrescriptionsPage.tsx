@@ -407,8 +407,8 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
           onClick={() => merge({ tab: 'new' })}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
             tab === 'new'
-              ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
-              : 'text-slate-600 dark:text-white hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm ring-1 ring-slate-200/50 dark:ring-slate-600'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
           <FileText className="h-4 w-4" />
@@ -419,8 +419,8 @@ export default function PrescriptionsPage({ variant = 'doctor' }: PrescriptionsP
           onClick={() => merge({ tab: 'history' })}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
             tab === 'history'
-              ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
-              : 'text-slate-600 dark:text-white hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm ring-1 ring-slate-200/50 dark:ring-slate-600'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
           <History className="h-4 w-4" />
