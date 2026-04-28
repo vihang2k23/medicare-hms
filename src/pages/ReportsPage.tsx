@@ -648,10 +648,10 @@ export default function ReportsPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={opdTrendFromAppointments} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
-                  <XAxis dataKey="day" tick={{ fontSize: 8 }} stroke="#64748b" interval={6} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 9 }} stroke="#64748b" />
-                  <Tooltip />
-                  <Legend />
+                  <XAxis dataKey="day" tick={{ fontSize: 8, fill: '#64748b' }} stroke="#64748b" interval={6} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 9, fill: '#64748b' }} stroke="#64748b" />
+                  <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }} itemStyle={{ color: '#e2e8f0' }} labelStyle={{ color: '#94a3b8' }} />
+                  <Legend wrapperStyle={{ fontSize: '11px' }} />
                   <Line
                     type="monotone"
                     dataKey="patients"
@@ -690,8 +690,8 @@ export default function ReportsPage() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
-                  <XAxis dataKey="day" tick={{ fontSize: 8 }} stroke="#64748b" interval={6} />
-                  <YAxis domain={[0, 100]} tick={{ fontSize: 9 }} stroke="#64748b" unit="%" />
+                  <XAxis dataKey="day" tick={{ fontSize: 8, fill: '#64748b' }} stroke="#64748b" interval={6} />
+                  <YAxis domain={[0, 100]} tick={{ fontSize: 9, fill: '#64748b' }} stroke="#64748b" unit="%" />
                   <Tooltip formatter={(v: unknown) => [`${v}%`, 'Occupancy']} />
                   <Area
                     type="monotone"
@@ -760,9 +760,9 @@ export default function ReportsPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={outcomeStackRow} margin={{ top: 4, right: 8, left: 0, bottom: 24 }}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
-                    <XAxis dataKey="name" tick={{ fontSize: 8 }} stroke="#64748b" />
-                    <YAxis allowDecimals={false} tick={{ fontSize: 9 }} stroke="#64748b" />
-                    <Tooltip />
+                    <XAxis dataKey="name" tick={{ fontSize: 8, fill: '#64748b' }} stroke="#64748b" />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 9, fill: '#64748b' }} stroke="#64748b" />
+                    <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }} itemStyle={{ color: '#e2e8f0' }} labelStyle={{ color: '#94a3b8' }} />
                     <Legend />
                     <Bar dataKey="completed" stackId="o" fill={APPT_STATUS_COLORS.completed} name="Completed" />
                     <Bar dataKey="cancelled" stackId="o" fill={APPT_STATUS_COLORS.cancelled} name="Cancelled" />
@@ -792,8 +792,8 @@ export default function ReportsPage() {
                     margin={{ top: 4, right: 8, left: 4, bottom: 4 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
-                    <XAxis type="number" allowDecimals={false} tick={{ fontSize: 9 }} stroke="#64748b" />
-                    <YAxis type="category" dataKey="name" width={80} tick={{ fontSize: 8 }} stroke="#64748b" />
+                    <XAxis type="number" allowDecimals={false} tick={{ fontSize: 9, fill: '#64748b' }} stroke="#64748b" />
+                    <YAxis type="category" dataKey="name" width={80} tick={{ fontSize: 8, fill: '#64748b' }} stroke="#64748b" />
                     <Tooltip formatter={(v: unknown) => [`${Number(v)} appts`, 'Count']} />
                     <Bar dataKey="count" fill="#0ea5e9" radius={[0, 4, 4, 0]} name="Appointments" />
                   </BarChart>
@@ -812,8 +812,8 @@ export default function ReportsPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={revenueByDepartment} margin={{ top: 4, right: 4, left: 0, bottom: 32 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
-                  <XAxis dataKey="name" tick={{ fontSize: 7 }} stroke="#64748b" angle={-30} textAnchor="end" height={48} />
-                  <YAxis tick={{ fontSize: 9 }} stroke="#64748b" label={{ value: '₹k', angle: -90, position: 'insideLeft' }} />
+                  <XAxis dataKey="name" tick={{ fontSize: 7, fill: '#64748b' }} stroke="#64748b" angle={-30} textAnchor="end" height={48} />
+                  <YAxis tick={{ fontSize: 9, fill: '#64748b' }} stroke="#64748b" label={{ value: '₹k', angle: -90, position: 'insideLeft', fill: '#64748b' }} />
                   <Tooltip formatter={(v: unknown) => [`₹${Number(v)}k`, 'Simulated']} />
                   <Bar dataKey="revenue" fill="#22c55e" radius={[4, 4, 0, 0]} name="Revenue (₹k)" />
                 </BarChart>
@@ -919,8 +919,8 @@ export default function ReportsPage() {
           <div className="report-chart-host h-56 sm:h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={volumeBarData} margin={{ top: 4, right: 8, left: 0, bottom: 8 }}>
-                <XAxis dataKey="name" tick={{ fontSize: 8 }} stroke="#64748b" interval={0} angle={-20} textAnchor="end" height={48} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 9 }} stroke="#64748b" />
+                <XAxis dataKey="name" tick={{ fontSize: 8, fill: '#64748b' }} stroke="#64748b" interval={0} angle={-20} textAnchor="end" height={48} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 9, fill: '#64748b' }} stroke="#64748b" />
                 <Tooltip />
                 <Bar dataKey="value" fill="#8b5cf6" radius={[4, 4, 0, 0]} name="Count" />
               </BarChart>
@@ -940,9 +940,9 @@ export default function ReportsPage() {
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={appointmentsByStatus} layout="vertical" margin={{ top: 4, right: 8, left: 4, bottom: 4 }}>
-                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 9 }} stroke="#64748b" />
-                  <YAxis type="category" dataKey="name" width={70} tick={{ fontSize: 8 }} stroke="#64748b" />
-                  <Tooltip />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 9, fill: '#64748b' }} stroke="#64748b" />
+                  <YAxis type="category" dataKey="name" width={70} tick={{ fontSize: 8, fill: '#64748b' }} stroke="#64748b" />
+                  <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }} itemStyle={{ color: '#e2e8f0' }} labelStyle={{ color: '#94a3b8' }} />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]} name="Count">
                     {appointmentsByStatus.map((e) => (
                       <Cell key={e.name} fill={e.fill} />
@@ -968,8 +968,8 @@ export default function ReportsPage() {
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={wardStackData} margin={{ top: 4, right: 8, left: 0, bottom: 8 }}>
-                <XAxis dataKey="ward" tick={{ fontSize: 8 }} stroke="#64748b" interval={0} angle={-25} textAnchor="end" height={56} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 9 }} stroke="#64748b" />
+                <XAxis dataKey="ward" tick={{ fontSize: 8, fill: '#64748b' }} stroke="#64748b" interval={0} angle={-25} textAnchor="end" height={56} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 9, fill: '#64748b' }} stroke="#64748b" />
                 <Tooltip />
                 <Legend />
                 <Bar dataKey="Available" stackId="a" fill={BED_STATUS_COLORS.Available} radius={[0, 0, 0, 0]} />

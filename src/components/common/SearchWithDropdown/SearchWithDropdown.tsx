@@ -384,19 +384,9 @@ export function SearchFilterCombobox<T>({
           }}
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
-          style={{
-            width: '100%',
-            borderRadius: '0.5rem',
-            border: '1px solid rgb(203, 213, 225)',
-            backgroundColor: 'white',
-            color: 'rgb(15, 23, 42)',
-            padding: '0.625rem 0.625rem 0.625rem 2.5rem',
-            fontSize: '0.875rem',
-            boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-            transition: 'colors 200ms',
-            outline: 'none',
-          }}
           className={cn(
+            'w-full rounded-lg border border-slate-300 bg-white text-slate-900 placeholder-slate-500 shadow-sm transition-colors focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-white dark:placeholder-slate-400',
+            'py-2.5 pl-10',
             showClearField && loading ? 'pr-24' : showClearField ? 'pr-20' : loading ? 'pr-14' : 'pr-10',
             ring,
             'disabled:opacity-60',
