@@ -521,6 +521,7 @@ export default function BedGrid({
                       }}
                       placeholder="Full name"
                       className="bg-white/90 dark:bg-slate-950/50 !py-2.5"
+                      maxLength={50}
                     />
                     <FieldError>{assignNameErr}</FieldError>
                   </div>
@@ -533,12 +534,13 @@ export default function BedGrid({
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAssignId(e.target.value)}
                       placeholder="Registry ID"
                       className="bg-white/90 dark:bg-slate-950/50 !py-2.5 font-mono"
+                      maxLength={50}
                     />
                   </div>
                   <button
                     type="button"
                     onClick={assign}
-                    disabled={!assignName.trim()}
+                    disabled={!assignName.trim() || assignName.length > 50}
                     className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 disabled:opacity-45 text-white text-sm font-semibold shadow-lg shadow-teal-500/20"
                   >
                     <Stethoscope className="h-4 w-4" aria-hidden />

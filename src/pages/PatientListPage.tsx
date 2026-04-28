@@ -24,7 +24,7 @@ import {
   UserX,
   Users,
 } from 'lucide-react'
-import { fetchPatients, softDeletePatient } from '../services/patientsApi'
+import { fetchPatients, softDeletePatient } from '../api/patientsApi'
 import { notify, truncateWords } from '../utils/helpers'
 import { FieldError, FormInput } from '../components/common'
 import { DashboardCard } from '../components/common'

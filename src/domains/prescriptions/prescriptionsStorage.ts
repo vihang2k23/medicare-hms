@@ -1,6 +1,5 @@
 import type { Prescription } from './types'
-
-export const PRESCRIPTIONS_STORAGE_KEY = 'medicare_hms_prescriptions_v1'
+import { PRESCRIPTIONS_STORAGE_KEY } from '../../constants/storageKeys'
 
 export function loadPersistedPrescriptions(): Prescription[] {
   try {

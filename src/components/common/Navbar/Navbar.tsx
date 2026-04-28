@@ -1,19 +1,17 @@
 import { Fragment, useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
-import { BedDouble, ChevronDown, Keyboard, LogOut, Menu, Moon, PanelLeftClose, RotateCcw, Sun, X } from 'lucide-react'
+import { ChevronDown, Keyboard, LogOut, Menu, Moon, PanelLeftClose, RotateCcw, Sun, X } from 'lucide-react'
 import { logout, login } from '../../../store/slices/authSlice'
 import type { AuthUser, NavbarProps, LetterShortcutKey, RoleShortcutRow, DemoLoginEntry } from '../../../types'
 import { useAuth } from '../../../hooks/useAuth'
 import NotificationBell from '../../../domains/alerts/NotificationBell'
 import { setSidebarOpen, setTheme, toggleSidebar } from '../../../store/slices/uiSlice'
-import { setBedSimulationRunning } from '../../../store/slices/bedSlice'
 import type { RootState } from '../../../store'
 import { notify, LUCIDE_STROKE_CHROME } from '../../../utils/helpers'
 import { MediCareLogo, MediCareWordmark } from '../brand'
 import { ALL_DEMO_LOGIN_ENTRIES, demoEntryToAuthUser } from '../../../config/demoAccounts'
-import { APPOINTMENTS_STORAGE_KEY } from '../../../domains/appointments/appointmentsStorage'
-import { PRESCRIPTIONS_STORAGE_KEY } from '../../../domains/prescriptions/prescriptionsStorage'
+import { APPOINTMENTS_STORAGE_KEY, PRESCRIPTIONS_STORAGE_KEY } from '../../../constants/storageKeys'
 import ConfirmDialog from '../Dialog/ConfirmationDialog'
 import { getDefaultDashboard } from '../../../config/roles'
 
@@ -64,7 +62,6 @@ export default function Navbar({ showSidebarToggle = true }: NavbarProps) {
   const navigate = useNavigate()
   const theme = useSelector((state: RootState) => state.ui.theme)
   const sidebarOpen = useSelector((state: RootState) => state.ui.sidebarOpen)
-  const bedSimulationRunning = useSelector((state: RootState) => state.beds.bedSimulationRunning)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [shortcutsOpen, setShortcutsOpen] = useState(false)
   const [resetDemoOpen, setResetDemoOpen] = useState(false)
@@ -181,13 +178,13 @@ export default function Navbar({ showSidebarToggle = true }: NavbarProps) {
         <button
           type="button"
           onClick={() => dispatch(setTheme(theme === 'dark' ? 'light' : 'dark'))}
-          className="p-2.5 rounded-xl text-slate-900 hover:text-slate-950 hover:bg-slate-100/90 dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 touch-manipulation"
+          className="p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl text-slate-900 hover:text-slate-950 hover:bg-slate-100/90 dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 touch-manipulation"
           aria-label={theme === 'dark' ? 'Light mode' : 'Dark mode'}
         >
           {theme === 'dark' ? (
-            <Sun className={`h-5 w-5 ${LUCIDE_STROKE_CHROME}`} strokeWidth={2.5} aria-hidden />
+            <Sun className={`h-4 w-4 sm:h-5 sm:w-5 ${LUCIDE_STROKE_CHROME}`} strokeWidth={2.5} aria-hidden />
           ) : (
-            <Moon className={`h-5 w-5 ${LUCIDE_STROKE_CHROME}`} strokeWidth={2.5} aria-hidden />
+            <Moon className={`h-4 w-4 sm:h-5 sm:w-5 ${LUCIDE_STROKE_CHROME}`} strokeWidth={2.5} aria-hidden />
           )}
         </button>
 
@@ -200,31 +197,11 @@ export default function Navbar({ showSidebarToggle = true }: NavbarProps) {
                   setDropdownOpen(false)
                   setShortcutsOpen(true)
                 }}
-                className="p-2.5 rounded-xl text-slate-900 hover:text-slate-950 hover:bg-slate-100/90 dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 touch-manipulation"
+                className="p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl text-slate-900 hover:text-slate-950 hover:bg-slate-100/90 dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 touch-manipulation"
                 aria-label="Open keyboard shortcuts"
                 title="Keyboard shortcuts (Ctrl/Cmd + K)"
               >
-                <Keyboard className={`h-5 w-5 ${LUCIDE_STROKE_CHROME}`} strokeWidth={2.5} aria-hidden />
-              </button>
-            )}
-            {(user?.role === 'admin' || user?.role === 'nurse') && (
-              <button
-                type="button"
-                onClick={() => dispatch(setBedSimulationRunning(!bedSimulationRunning))}
-                className={`p-2.5 rounded-xl transition-all duration-200 touch-manipulation ${
-                  bedSimulationRunning
-                    ? 'text-amber-800 bg-amber-100/90 dark:text-amber-200 dark:bg-amber-950/50 ring-1 ring-amber-200/80 dark:ring-amber-800/60'
-                    : 'text-slate-900 hover:text-slate-950 hover:bg-slate-100/90 dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80'
-                }`}
-                aria-pressed={bedSimulationRunning}
-                aria-label={bedSimulationRunning ? 'Stop bed simulation' : 'Start bed simulation'}
-                title="Toggle demo bed status simulation (~45s)"
-              >
-                <BedDouble
-                  className={`h-5 w-5 ${bedSimulationRunning ? 'stroke-[#92400e] dark:stroke-amber-200' : LUCIDE_STROKE_CHROME}`}
-                  strokeWidth={2.5}
-                  aria-hidden
-                />
+                <Keyboard className={`h-4 w-4 sm:h-5 sm:w-5 ${LUCIDE_STROKE_CHROME}`} strokeWidth={2.5} aria-hidden />
               </button>
             )}
             {user?.role === 'admin' && <NotificationBell onOpen={() => setDropdownOpen(false)} />}
@@ -234,15 +211,15 @@ export default function Navbar({ showSidebarToggle = true }: NavbarProps) {
                 onClick={() => setDropdownOpen((o) => !o)}
                 aria-expanded={dropdownOpen}
                 aria-haspopup="menu"
-                className="group flex items-center gap-2.5 sm:gap-3 pl-1.5 sm:pl-2 pr-1.5 sm:pr-2 py-1.5 rounded-2xl border border-slate-200/90 dark:border-slate-700/90 bg-white dark:bg-slate-900/90 hover:bg-slate-50/95 dark:hover:bg-slate-800/95 hover:border-slate-300 dark:hover:border-slate-600 shadow-sm shadow-slate-200/30 dark:shadow-none transition-all duration-200 min-w-0 max-w-[min(100%,17rem)]"
+                className="group flex items-center gap-1.5 sm:gap-3 pl-1 sm:pl-2 pr-1 sm:pr-2 py-1 sm:py-1.5 rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-700/90 bg-white dark:bg-slate-900/90 hover:bg-slate-50/95 dark:hover:bg-slate-800/95 hover:border-slate-300 dark:hover:border-slate-600 shadow-sm shadow-slate-200/30 dark:shadow-none transition-all duration-200 min-w-0 max-w-[min(100%,17rem)]"
               >
                 <div
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800/90 text-sm font-semibold text-slate-700 dark:text-white ring-1 ring-slate-200/90 dark:ring-slate-700/80"
+                  className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg sm:rounded-xl bg-slate-100 dark:bg-slate-800/90 text-xs sm:text-sm font-semibold text-slate-700 dark:text-white ring-1 ring-slate-200/90 dark:ring-slate-700/80"
                   aria-hidden
                 >
                   {user?.name?.charAt(0) ?? '?'}
                 </div>
-                <div className="hidden min-w-0 flex-1 flex-col items-stretch text-left sm:flex">
+                <div className="hidden sm:flex min-w-0 flex-1 flex-col items-stretch text-left">
                   <span className="truncate text-[13px] font-semibold leading-tight tracking-tight text-slate-900 dark:text-white">
                     {user?.name}
                   </span>
@@ -250,10 +227,10 @@ export default function Navbar({ showSidebarToggle = true }: NavbarProps) {
                     {ROLE_DISPLAY[(user?.role ?? 'admin') as AuthUser['role']]}
                   </span>
                 </div>
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-800 transition-colors dark:bg-slate-800/70 dark:text-white group-hover:bg-slate-200/90 dark:group-hover:bg-slate-700/80">
+                <span className="flex h-6 w-6 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-md sm:rounded-xl bg-slate-100 text-slate-800 transition-colors dark:bg-slate-800/70 dark:text-white group-hover:bg-slate-200/90 dark:group-hover:bg-slate-700/80">
                   <ChevronDown
                     strokeWidth={2.5}
-                    className={`h-4 w-4 ${LUCIDE_STROKE_CHROME} transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`}
+                    className={`h-3 w-3 sm:h-4 sm:w-4 ${LUCIDE_STROKE_CHROME} transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`}
                     aria-hidden
                   />
                 </span>

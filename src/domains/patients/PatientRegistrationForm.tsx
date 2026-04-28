@@ -10,7 +10,6 @@ import {
   Phone,
   User,
 } from 'lucide-react'
-import { FieldError, FieldLabel, FormField, FormInput } from '../../components/common'
 import {
   isoDateLocalToday,
   patientRegistrationSchema,
@@ -23,10 +22,10 @@ import {
   type PatientFormValues,
 } from '../../schema/patient.schema'
 import type { PatientRecord } from '../../types'
-import { createPatient, updatePatient } from '../../services/patientsApi'
+import { createPatient, updatePatient } from '../../api/patientsApi'
 import { notify } from '../../utils/helpers'
 import { generatePatientId } from './patientId'
-import { PATIENT_REGISTRATION_FORM_STORAGE_KEY } from './patientRegistrationStorage'
+import { PATIENT_REGISTRATION_FORM_STORAGE_KEY } from '../../constants/storageKeys'
 
 const defaultValues: PatientFormValues = {
   fullName: '',
@@ -340,7 +339,7 @@ export default function PatientRegistrationForm({
                 {...register('fullName')}
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors"
                 placeholder="Enter full name"
-                maxLength={100}
+                maxLength={50}
               />
               {errors.fullName && <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.fullName.message}</p>}
             </div>
@@ -547,6 +546,7 @@ export default function PatientRegistrationForm({
                 {...register('emergencyName')}
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/25 focus:border-sky-400 outline-none transition-colors"
                 placeholder="Enter emergency contact name"
+                maxLength={50}
               />
               {errors.emergencyName && <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.emergencyName.message}</p>}
             </div>
@@ -615,9 +615,9 @@ export default function PatientRegistrationForm({
         )}
 
         {submitError && (
-          <FieldError className="!mt-0 mb-3" placement="above">
+          <p className="text-sm text-red-600 dark:text-red-400 mt-0 mb-3">
             {submitError}
-          </FieldError>
+          </p>
         )}
 
         <div className="flex flex-wrap gap-3 justify-between">

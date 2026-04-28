@@ -11,7 +11,7 @@ export function isoDateLocalToday(): string {
 }
 
 export const step1Schema = z.object({
-  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
+  fullName: z.string().min(2, 'Full name must be at least 2 characters').max(50, 'Full name must be 50 characters or less'),
   dob: z
     .string()
     .min(1, 'Date of birth is required')
@@ -43,7 +43,7 @@ export const step3Schema = z.object({
 })
 
 export const step4Schema = z.object({
-  emergencyName: z.string().min(2, 'Emergency contact name is required'),
+  emergencyName: z.string().min(2, 'Emergency contact name is required').max(50, 'Emergency contact name must be 50 characters or less'),
   emergencyRelationship: z.string().min(2, 'Relationship is required'),
   emergencyPhone: z
     .string()

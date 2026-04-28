@@ -1,6 +1,5 @@
 import type { Appointment } from './types'
-
-export const APPOINTMENTS_STORAGE_KEY = 'medicare_hms_appointments_v1'
+import { APPOINTMENTS_STORAGE_KEY } from '../../constants/storageKeys'
 
 export function loadPersistedAppointments(): Appointment[] {
   try {

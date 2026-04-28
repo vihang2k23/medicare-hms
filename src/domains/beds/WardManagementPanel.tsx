@@ -7,7 +7,7 @@ import { Building2, Layers, Pencil, Plus, Shield, Trash2, X } from 'lucide-react
 import type { AppDispatch, RootState } from '../../store'
 import { notify } from '../../utils/helpers'
 import { addWard, removeWard, updateWard } from '../../store/slices/bedSlice'
-import { FieldError, FormField } from '../../components/common'
+import { FormField } from '../../components/common'
 import { validateMaxWords, getWordCountError } from '../../utils/validation'
 
 // WardManagementPanel defines the Ward Management Panel UI surface and its primary interaction flow.
@@ -93,6 +93,10 @@ export default function WardManagementPanel() {
       setAddNameErr('Enter a ward name.')
       return
     }
+    if (name.length > 50) {
+      setAddNameErr('Ward name must not exceed 50 characters.')
+      return
+    }
     if (!validateMaxWords(name, 20)) {
       setAddNameErr(getWordCountError(20))
       return
@@ -116,6 +120,10 @@ export default function WardManagementPanel() {
     const name = editName.trim()
     if (!name) {
       setEditNameErr('Enter a ward name.')
+      return
+    }
+    if (name.length > 50) {
+      setEditNameErr('Ward name must not exceed 50 characters.')
       return
     }
     if (!validateMaxWords(name, 20)) {
@@ -270,10 +278,13 @@ export default function WardManagementPanel() {
             invalid={!!addNameErr}
             maxWords={20}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              const v = e.target.value
+              const v = e.target.value.slice(0, 50)
               setAddName(v)
-              if (v.trim()) setAddNameErr(null)
-              else if (addNameBlurred) setAddNameErr('Enter a ward name.')
+              if (!v.trim()) {
+                setAddNameErr('Enter a ward name.')
+              } else {
+                setAddNameErr(null)
+              }
             }}
             onBlur={() => {
               setAddNameBlurred(true)
@@ -287,7 +298,6 @@ export default function WardManagementPanel() {
               if (e.key === 'Enter') submitAdd()
             }}
           />
-          <FieldError>{addNameErr}</FieldError>
         </ModalShell>
       )}
 
@@ -337,10 +347,13 @@ export default function WardManagementPanel() {
             invalid={!!editNameErr}
             maxWords={20}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              const v = e.target.value
+              const v = e.target.value.slice(0, 50)
               setEditName(v)
-              if (v.trim()) setEditNameErr(null)
-              else if (editNameBlurred) setEditNameErr('Enter a ward name.')
+              if (!v.trim()) {
+                setEditNameErr('Enter a ward name.')
+              } else {
+                setEditNameErr(null)
+              }
             }}
             onBlur={() => {
               setEditNameBlurred(true)
@@ -353,7 +366,6 @@ export default function WardManagementPanel() {
               if (e.key === 'Enter') submitEdit()
             }}
           />
-          <FieldError>{editNameErr}</FieldError>
         </ModalShell>
       )}
 
@@ -384,7 +396,7 @@ export default function WardManagementPanel() {
           <div className="rounded-xl border border-red-200/80 dark:border-red-900/50 bg-red-50/50 dark:bg-red-950/25 px-4 py-3 text-sm text-slate-700 dark:text-white leading-relaxed">
             <p>
               You are about to remove{' '}
-              <span className="font-semibold text-slate-900 dark:text-white">
+              <span className="font-semibold text-slate-900 dark:text-white break-words">
                 {wards.find((w) => w.id === removeId)?.name ?? removeId}
               </span>{' '}
               and{' '}

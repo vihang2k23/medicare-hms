@@ -7,7 +7,7 @@ import { Calendar, Ticket, UserPlus } from 'lucide-react'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../store'
 import { formatOpdTokenLabel } from '../store/slices/queueSlice'
-import { fetchPatients } from '../services/patientsApi'
+import { fetchPatients } from '../api/patientsApi'
 import { formatLocalDate, pendingAppointmentsToday, startOfLocalDayMs } from '../utils/business'
 import { clearPatientRegistrationDraft } from '../domains/patients/patientRegistrationStorage'
 

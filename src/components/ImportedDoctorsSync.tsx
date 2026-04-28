@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import type { AppDispatch } from '../store'
-import { fetchInternalDoctors } from '../services/internalDoctorsApi'
+import { fetchInternalDoctors } from '../api/internalDoctorsApi'
 import { internalRecordToScheduleDoctor } from '../types'
 import { setImportedScheduleDoctors } from '../store/slices/appointmentsSlice'
 

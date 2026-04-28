@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { DashboardCard, StatCard } from '../components/common'
-import { fetchPatients } from '../services/patientsApi'
+import { fetchPatients } from '../api/patientsApi'
 import {
 // AdminDashboard defines the Admin Dashboard UI surface and its primary interaction flow.
   estimateRevenueToday,

@@ -1,4 +1,4 @@
-import { fetchPatients } from '../../services/patientsApi'
+import { fetchPatients } from '../../api/patientsApi'
 
 /** Generate unique patient id: MED-YYYY-XXXX (checks existing IDs from JSON Server). */
 export async function generatePatientId(): Promise<string> {

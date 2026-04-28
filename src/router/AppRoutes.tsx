@@ -15,30 +15,30 @@ import {
 } from 'lucide-react'
 import ProtectedRoute from './ProtectedRoute'
 import MainLayout from '../layout/MainLayout'
-import Login from '../pages/Login'
-import RedirectToDefault from '../pages/RedirectToDefault'
-import AdminDashboard from '../pages/AdminDashboard'
-import DoctorDashboard from '../pages/DoctorDashboard'
-import ReceptionistDashboard from '../pages/ReceptionistDashboard'
-import ReceptionistQueue from '../pages/ReceptionistQueue'
-import NurseDashboard from '../pages/NurseDashboard'
-import NurseBeds from '../pages/NurseBeds'
-import AccessDenied from '../pages/AccessDenied'
-import PatientListPage from '../pages/PatientListPage'
-import PatientRegistrationPage from '../pages/PatientRegistrationPage'
-import PatientProfilePage from '../pages/PatientProfilePage'
-import PatientEditPage from '../pages/PatientEditPage'
-import OPDQueuePage from '../pages/OPDQueuePage'
-import AdminBedsPage from '../pages/AdminBedsPage'
-import AppointmentsPage from '../pages/AppointmentsPage'
-import PrescriptionsPage from '../pages/PrescriptionsPage'
-import PrescriptionPrintPage from '../pages/PrescriptionPrintPage'
-import DoctorDirectoryPage from '../pages/DoctorDirectoryPage'
-import DoctorMyPatientsPage from '../pages/DoctorMyPatientsPage'
-import DoctorPatientProfilePage from '../pages/DoctorPatientProfilePage'
-import ReportsPage from '../pages/ReportsPage'
 
 // Lazy loaded components
+const Login = lazy(() => import('../pages/Login'))
+const RedirectToDefault = lazy(() => import('../pages/RedirectToDefault'))
+const AdminDashboard = lazy(() => import('../pages/AdminDashboard'))
+const DoctorDashboard = lazy(() => import('../pages/DoctorDashboard'))
+const ReceptionistDashboard = lazy(() => import('../pages/ReceptionistDashboard'))
+const ReceptionistQueue = lazy(() => import('../pages/ReceptionistQueue'))
+const NurseDashboard = lazy(() => import('../pages/NurseDashboard'))
+const NurseBeds = lazy(() => import('../pages/NurseBeds'))
+const AccessDenied = lazy(() => import('../pages/AccessDenied'))
+const PatientListPage = lazy(() => import('../pages/PatientListPage'))
+const PatientRegistrationPage = lazy(() => import('../pages/PatientRegistrationPage'))
+const PatientProfilePage = lazy(() => import('../pages/PatientProfilePage'))
+const PatientEditPage = lazy(() => import('../pages/PatientEditPage'))
+const OPDQueuePage = lazy(() => import('../pages/OPDQueuePage'))
+const AdminBedsPage = lazy(() => import('../pages/AdminBedsPage'))
+const AppointmentsPage = lazy(() => import('../pages/AppointmentsPage'))
+const PrescriptionsPage = lazy(() => import('../pages/PrescriptionsPage'))
+const PrescriptionPrintPage = lazy(() => import('../pages/PrescriptionPrintPage'))
+const DoctorDirectoryPage = lazy(() => import('../pages/DoctorDirectoryPage'))
+const DoctorMyPatientsPage = lazy(() => import('../pages/DoctorMyPatientsPage'))
+const DoctorPatientProfilePage = lazy(() => import('../pages/DoctorPatientProfilePage'))
+const ReportsPage = lazy(() => import('../pages/ReportsPage'))
 const VitalsEntryPage = lazy(() => import('../pages/VitalsEntryPage'))
 const VitalsPatientDetailPage = lazy(() => import('../pages/VitalsPatientDetailPage'))
 
@@ -109,21 +109,30 @@ const nurseRoutes: RoleRoutes = {
   ]
 }
 
+// Wrapper for lazy loading with suspense
+function LazyRoute({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<div className="p-6 text-slate-500 dark:text-white">Loading…</div>}>
+      {children}
+    </Suspense>
+  )
+}
+
 const lazyRoutes: JSXRouteConfig[] = [
   {
     path: 'nurse/vitals/patient/:patientId',
     element: (
-      <Suspense fallback={<div className="p-6 text-slate-500 dark:text-white">Loading vitals…</div>}>
+      <LazyRoute>
         <VitalsPatientDetailPage />
-      </Suspense>
+      </LazyRoute>
     )
   },
   {
     path: 'nurse/vitals',
     element: (
-      <Suspense fallback={<div className="p-6 text-slate-500 dark:text-white">Loading vitals…</div>}>
+      <LazyRoute>
         <VitalsEntryPage />
-      </Suspense>
+      </LazyRoute>
     )
   }
 ]
@@ -145,7 +154,11 @@ function renderRoutes(routes: RouteConfig[]) {
   return routes.map(({ path, element, props }) => {
     const Element = element as React.ComponentType<Record<string, unknown>>
     return (
-      <Route key={path} path={path} element={props ? <Element {...props} /> : <Element />} />
+      <Route key={path} path={path} element={
+        <LazyRoute>
+          {props ? <Element {...props} /> : <Element />}
+        </LazyRoute>
+      } />
     )
   })
 }
@@ -159,7 +172,11 @@ function renderJSXRoutes(routes: JSXRouteConfig[]) {
 function renderRoleRoutes(roleRoutes: RoleRoutes) {
   return (
     <>
-      <Route path={roleRoutes.dashboard.path} element={<roleRoutes.dashboard.element />} />
+      <Route path={roleRoutes.dashboard.path} element={
+        <LazyRoute>
+          <roleRoutes.dashboard.element />
+        </LazyRoute>
+      } />
       {renderRoutes(roleRoutes.routes)}
     </>
   )
@@ -169,11 +186,19 @@ function renderRoleRoutes(roleRoutes: RoleRoutes) {
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route path="/login" element={
+        <LazyRoute>
+          <Login />
+        </LazyRoute>
+      } />
       <Route path="/" element={<ProtectedRoute />}>
         {/* Main shell groups all authenticated routes under a shared layout. */}
         <Route element={<MainLayout />}>
-          <Route index element={<RedirectToDefault />} />
+          <Route index element={
+            <LazyRoute>
+              <RedirectToDefault />
+            </LazyRoute>
+          } />
           
           {/* Role-based routes */}
           {renderRoleRoutes(adminRoutes)}

@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux'
 import { ArrowLeft, Printer } from 'lucide-react'
 import type { RootState } from '../store'
 import { useAuth } from '../hooks/useAuth'
-import { fetchPatientById } from '../services/patientsApi'
+import { fetchPatientById } from '../api/patientsApi'
 import { MediCareLogo, MedicarePrintPageFooter, MedicarePrintPageHeader } from '../components/common'
 import type { PatientRecord } from '../types'
 

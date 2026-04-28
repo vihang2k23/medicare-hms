@@ -18,8 +18,7 @@ import {
 } from 'lucide-react'
 import type { AppDispatch } from '../store'
 import { NPI_ADDRESS_PURPOSE_OPTIONS } from '../config/npi'
-import { NPI_COUNTRY_OPTIONS } from '../config/npi'
-import { getNpiRegionOptionsForCountry } from '../config/npi'
+import { getNpiCountryOptions, getNpiRegionOptionsForCountry } from '../config/npi'
 import { NPI_TAXONOMY_FILTERS } from '../config/npi'
 import { NPI_TYPE_OPTIONS } from '../config/npi'
 import {
@@ -28,7 +27,7 @@ import {
   fetchInternalDoctors,
   findInternalDoctorByNpi,
   updateInternalDoctor,
-} from '../services/internalDoctorsApi'
+} from '../api/internalDoctorsApi'
 import type { NpiProviderCard, NpiRawResult, NpiSearchParams } from '../utils/api'
 import {
   hasMinimumNpiSearchCriteria,
@@ -799,8 +798,25 @@ export default function DoctorDirectoryPage() {
     [merge, searchParams, tab],
   )
 
-  const regionOptions = useMemo(() => getNpiRegionOptionsForCountry(countryCode), [countryCode])
+  const [countryOptions, setCountryOptions] = useState<{ id: string; label: string }[]>([])
+  const [regionOptions, setRegionOptions] = useState<{ code: string; name: string }[] | null>(null)
   const stateIsSelect = regionOptions !== null && regionOptions.length > 1
+
+  // Load country options on mount
+  useEffect(() => {
+    void (async () => {
+      const options = await getNpiCountryOptions()
+      setCountryOptions(options.map((c) => ({ id: c.code, label: c.label })))
+    })()
+  }, [])
+
+  // Load region options when country changes
+  useEffect(() => {
+    void (async () => {
+      const options = await getNpiRegionOptionsForCountry(countryCode)
+      setRegionOptions(options)
+    })()
+  }, [countryCode])
 
   const loadInternal = useCallback(async () => {
     setInternalLoading(true)
@@ -929,10 +945,7 @@ export default function DoctorDirectoryPage() {
     [],
   )
 
-  const countryPickerItems = useMemo(
-    () => NPI_COUNTRY_OPTIONS.map((c) => ({ id: c.code, label: c.label })),
-    [],
-  )
+  const countryPickerItems = countryOptions
 
   const addressPurposePickerItems = useMemo(
     () => NPI_ADDRESS_PURPOSE_OPTIONS.map((o) => ({ id: o.value, label: o.label })),

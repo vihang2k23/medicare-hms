@@ -1,4 +1,3 @@
-import { Country, State } from 'country-state-city'
 import { US_STATE_OPTIONS } from './usStates'
 
 // =============================================================================
@@ -32,13 +31,15 @@ export const NPI_ADDRESS_PURPOSE_OPTIONS = [
 /**
  * ISO 3166-1 alpha-2 codes for NPPES `country_code`.
  * CMS: US cannot be the only search criterion; other countries may be used alone.
+ * Lazy loaded to avoid bundling country-state-city in main bundle.
  */
-export const NPI_COUNTRY_OPTIONS: { code: string; label: string }[] = (() => {
+export async function getNpiCountryOptions(): Promise<{ code: string; label: string }[]> {
+  const { Country } = await import('country-state-city')
   const rows = Country.getAllCountries()
-    .map((c) => ({ code: c.isoCode, label: c.name }))
-    .sort((a, b) => a.label.localeCompare(b.label))
+    .map((c: any) => ({ code: c.isoCode, label: c.name }))
+    .sort((a: any, b: any) => a.label.localeCompare(b.label))
   return [{ code: '', label: 'Any' }, ...rows]
-})()
+}
 
 // =============================================================================
 // NPI Region Options
@@ -49,14 +50,16 @@ export type NpiRegionOption = { code: string; name: string }
 /**
  * Subdivisions for NPPES `state` (US: 2-letter abbreviation; others: ISO subdivision or name from dataset).
  * Returns null when no country is selected — use a free-text state field instead.
+ * Lazy loaded to avoid bundling country-state-city in main bundle.
  */
-export function getNpiRegionOptionsForCountry(countryIso: string): NpiRegionOption[] | null {
+export async function getNpiRegionOptionsForCountry(countryIso: string): Promise<NpiRegionOption[] | null> {
   if (!countryIso) return null
 
   if (countryIso === 'US') {
     return US_STATE_OPTIONS.map((s) => ({ code: s.code, name: s.name }))
   }
 
+  const { State } = await import('country-state-city')
   const states = State.getStatesOfCountry(countryIso)
   const anyOpt: NpiRegionOption = { code: '', name: 'Any region' }
   if (states.length === 0) {
@@ -65,7 +68,7 @@ export function getNpiRegionOptionsForCountry(countryIso: string): NpiRegionOpti
 
   return [
     anyOpt,
-    ...states.map((s) => ({
+    ...states.map((s: any) => ({
       code: (s.isoCode || s.name).trim(),
       name: s.name,
     })),

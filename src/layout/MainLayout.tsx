@@ -5,6 +5,7 @@ import type { RootState } from '../store'
 import { setSidebarOpen } from '../store/slices/uiSlice'
 import { useBedSimulation } from '../domains/beds/useBedSimulation'
 import { Navbar, Sidebar } from '../components/common'
+import { ModalProvider } from '../contexts/ModalContext'
 
 // MainLayout defines the Main Layout UI surface and its primary interaction flow.
 // MainLayout renders the main layout UI.
@@ -45,7 +46,9 @@ export default function MainLayout() {
           className="min-h-0 flex-1 min-w-0 w-full max-w-full overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-gutter:stable] px-4 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8 xl:px-10 xl:py-10 pb-[max(1rem,env(safe-area-inset-bottom,0px))]"
         >
           <div className="mx-auto max-w-[1680px] w-full min-w-0 page-enter">
-            <Outlet />
+            <ModalProvider>
+              <Outlet />
+            </ModalProvider>
           </div>
         </main>
       </div>

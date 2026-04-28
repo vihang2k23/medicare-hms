@@ -1,5 +1,4 @@
-/** Draft key for the multi-step new-patient registration wizard (localStorage). */
-export const PATIENT_REGISTRATION_FORM_STORAGE_KEY = 'medicare_hms_patient_registration_form'
+import { PATIENT_REGISTRATION_FORM_STORAGE_KEY } from '../../constants/storageKeys'
 
 /** Clears persisted registration draft (e.g. after leaving for the patient list). */
 export function clearPatientRegistrationDraft(): void {

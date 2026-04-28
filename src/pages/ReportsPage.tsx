@@ -31,7 +31,7 @@ import {
   buildSimulatedBedOccupancySeries,
   buildSimulatedRevenueByDepartment,
 } from '../domains/reports/reportsAnalyticsData'
-import { fetchAllPatients } from '../services/patientsApi'
+import { fetchAllPatients } from '../api/patientsApi'
 import { downloadCsv } from '../utils/helpers'
 import { MedicarePrintPageFooter, MedicarePrintPageHeader } from '../components/common'
 import { BedDouble, Calendar, Download, FileText, ListOrdered, Printer, Stethoscope, Users } from 'lucide-react'
