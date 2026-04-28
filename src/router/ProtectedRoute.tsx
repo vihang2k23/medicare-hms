@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import type { RootState } from '../store'
-import { canAccessPath } from '../config/roles'
+import { canAccessPath, getDefaultDashboard } from '../config/roles'
 
 // ProtectedRoute defines the Protected Route UI surface and its primary interaction flow.
 /**
@@ -36,7 +36,8 @@ export default function ProtectedRoute() {
 
   if (!canAccessPath(user.role, pathname)) {
     console.log('[ProtectedRoute] Access denied', { pathname, role: user.role })
-    return <Navigate to="/access-denied" replace />
+    const defaultDashboard = getDefaultDashboard(user.role)
+    return <Navigate to={defaultDashboard} replace />
   }
 
   console.log('[ProtectedRoute] Access granted', { pathname, role: user.role })

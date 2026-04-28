@@ -601,6 +601,7 @@ export default function PatientListPage() {
               <FormInput
                 id="patient-reg-from"
                 type="date"
+                min="1900-01-01"
                 max={regFromMax}
                 value={regFrom}
                 onChange={(e) => {
@@ -637,7 +638,7 @@ export default function PatientListPage() {
               <FormInput
                 id="patient-reg-to"
                 type="date"
-                min={regToMin}
+                min={regToMin || "1900-01-01"}
                 max={todayStr}
                 value={regTo}
                 onChange={(e) => {

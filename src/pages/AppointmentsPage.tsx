@@ -219,6 +219,7 @@ export default function AppointmentsPage({ variant = 'admin' }: AppointmentsPage
           <label className="relative inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-800 dark:text-white ml-0 sm:ml-2 min-w-0 cursor-pointer rounded-lg px-1 py-0.5 -mx-1 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 focus-within:ring-2 focus-within:ring-violet-400/60 focus-within:ring-offset-2 dark:focus-within:ring-offset-slate-900">
             <input
               type="date"
+              min="1900-01-01"
               value={format(weekStart, 'yyyy-MM-dd')}
               onChange={(e) => {
                 const v = e.target.value

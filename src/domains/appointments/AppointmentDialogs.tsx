@@ -314,6 +314,7 @@ function ManageAppointmentModalContent({
             <label className="block text-xs font-medium text-slate-600 dark:text-white mb-1">New date</label>
             <FormInput
               type="date"
+              min="1900-01-01"
               value={newDate}
               disabled={!canReschedule}
               onChange={(e) => {

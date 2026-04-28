@@ -568,18 +568,20 @@ export default function ReportsPage() {
           <button
             type="button"
             onClick={handleExportCsv}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-semibold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800"
+            className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-white text-xs sm:text-sm font-semibold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800"
           >
-            <Download className="h-4 w-4" aria-hidden />
-            Export CSV
+            <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
+            <span className="hidden sm:inline">Export CSV</span>
+            <span className="sm:hidden">CSV</span>
           </button>
           <button
             type="button"
             onClick={handlePrint}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-violet-700 text-white text-sm font-semibold shadow-md hover:from-violet-500 hover:to-violet-600"
+            className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl bg-gradient-to-r from-violet-600 to-violet-700 text-white text-xs sm:text-sm font-semibold shadow-md hover:from-violet-500 hover:to-violet-600"
           >
-            <Printer className="h-4 w-4" aria-hidden />
-            Print
+            <Printer className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
+            <span className="hidden sm:inline">Print</span>
+            <span className="sm:hidden">Print</span>
           </button>
         </div>
       </div>
@@ -636,18 +638,18 @@ export default function ReportsPage() {
         <p className="report-print-skip-when-single hidden print:block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600 border-b border-slate-400 pb-2">
           Trends, workload &amp; operational charts
         </p>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <div className="report-chart-section" data-report-chart-id={REPORT_CHART_IDS.opdTrend30d}>
             <DashboardCard
               title="OPD trend — unique patients per day (30d, from appointments)"
               actions={reportChartToolbar(REPORT_CHART_IDS.opdTrend30d)}
             >
-            <div className="report-chart-host h-72">
+            <div className="report-chart-host h-56 sm:h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={opdTrendFromAppointments} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <LineChart data={opdTrendFromAppointments} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
-                  <XAxis dataKey="day" tick={{ fontSize: 9 }} stroke="#64748b" interval={4} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#64748b" />
+                  <XAxis dataKey="day" tick={{ fontSize: 8 }} stroke="#64748b" interval={6} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 9 }} stroke="#64748b" />
                   <Tooltip />
                   <Legend />
                   <Line
@@ -678,9 +680,9 @@ export default function ReportsPage() {
               title="Bed occupancy over time (simulated %, 30d)"
               actions={reportChartToolbar(REPORT_CHART_IDS.bedOcc30d)}
             >
-            <div className="report-chart-host h-72">
+            <div className="report-chart-host h-56 sm:h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={bedOccupancySimulated} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <AreaChart data={bedOccupancySimulated} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="occFill" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.35} />
@@ -688,8 +690,8 @@ export default function ReportsPage() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
-                  <XAxis dataKey="day" tick={{ fontSize: 9 }} stroke="#64748b" interval={4} />
-                  <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} stroke="#64748b" unit="%" />
+                  <XAxis dataKey="day" tick={{ fontSize: 8 }} stroke="#64748b" interval={6} />
+                  <YAxis domain={[0, 100]} tick={{ fontSize: 9 }} stroke="#64748b" unit="%" />
                   <Tooltip formatter={(v: unknown) => [`${v}%`, 'Occupancy']} />
                   <Area
                     type="monotone"
@@ -706,13 +708,13 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <div className="report-chart-section" data-report-chart-id={REPORT_CHART_IDS.deptPatientPie}>
             <DashboardCard
               title="Department-wise patient distribution (unique patients with bookings)"
               actions={reportChartToolbar(REPORT_CHART_IDS.deptPatientPie)}
             >
-            <div className="report-chart-host h-72">
+            <div className="report-chart-host h-56 sm:h-72">
               {departmentPatientPie.length === 0 ? (
                 pieFallback
               ) : (
@@ -751,15 +753,15 @@ export default function ReportsPage() {
               title="Appointment status — completed vs cancelled vs no-show (stacked)"
               actions={reportChartToolbar(REPORT_CHART_IDS.apptOutcomes)}
             >
-            <div className="report-chart-host h-72">
+            <div className="report-chart-host h-56 sm:h-72">
               {appointmentOutcomes.completed + appointmentOutcomes.cancelled + appointmentOutcomes.noShow === 0 ? (
                 pieFallback
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={outcomeStackRow} margin={{ top: 8, right: 16, left: 0, bottom: 32 }}>
+                  <BarChart data={outcomeStackRow} margin={{ top: 4, right: 8, left: 0, bottom: 24 }}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
-                    <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="#64748b" />
-                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#64748b" />
+                    <XAxis dataKey="name" tick={{ fontSize: 8 }} stroke="#64748b" />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 9 }} stroke="#64748b" />
                     <Tooltip />
                     <Legend />
                     <Bar dataKey="completed" stackId="o" fill={APPT_STATUS_COLORS.completed} name="Completed" />
@@ -773,13 +775,13 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <div className="report-chart-section" data-report-chart-id={REPORT_CHART_IDS.doctorWorkload}>
             <DashboardCard
               title="Doctor workload — appointments this month"
               actions={reportChartToolbar(REPORT_CHART_IDS.doctorWorkload)}
             >
-            <div className="report-chart-host h-72">
+            <div className="report-chart-host h-56 sm:h-72">
               {doctorWorkloadMonth.length === 0 ? (
                 pieFallback
               ) : (
@@ -787,11 +789,11 @@ export default function ReportsPage() {
                   <BarChart
                     data={doctorWorkloadMonth}
                     layout="vertical"
-                    margin={{ top: 8, right: 16, left: 8, bottom: 8 }}
+                    margin={{ top: 4, right: 8, left: 4, bottom: 4 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
-                    <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} stroke="#64748b" />
-                    <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 10 }} stroke="#64748b" />
+                    <XAxis type="number" allowDecimals={false} tick={{ fontSize: 9 }} stroke="#64748b" />
+                    <YAxis type="category" dataKey="name" width={80} tick={{ fontSize: 8 }} stroke="#64748b" />
                     <Tooltip formatter={(v: unknown) => [`${Number(v)} appts`, 'Count']} />
                     <Bar dataKey="count" fill="#0ea5e9" radius={[0, 4, 4, 0]} name="Appointments" />
                   </BarChart>
@@ -806,12 +808,12 @@ export default function ReportsPage() {
               title="Revenue summary (simulated ₹ thousands by department)"
               actions={reportChartToolbar(REPORT_CHART_IDS.revenueSim)}
             >
-            <div className="report-chart-host h-72">
+            <div className="report-chart-host h-56 sm:h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={revenueByDepartment} margin={{ top: 8, right: 8, left: 0, bottom: 40 }}>
+                <BarChart data={revenueByDepartment} margin={{ top: 4, right: 4, left: 0, bottom: 32 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
-                  <XAxis dataKey="name" tick={{ fontSize: 9 }} stroke="#64748b" angle={-20} textAnchor="end" height={56} />
-                  <YAxis tick={{ fontSize: 11 }} stroke="#64748b" label={{ value: '₹k', angle: -90, position: 'insideLeft' }} />
+                  <XAxis dataKey="name" tick={{ fontSize: 7 }} stroke="#64748b" angle={-30} textAnchor="end" height={48} />
+                  <YAxis tick={{ fontSize: 9 }} stroke="#64748b" label={{ value: '₹k', angle: -90, position: 'insideLeft' }} />
                   <Tooltip formatter={(v: unknown) => [`₹${Number(v)}k`, 'Simulated']} />
                   <Bar dataKey="revenue" fill="#22c55e" radius={[4, 4, 0, 0]} name="Revenue (₹k)" />
                 </BarChart>
@@ -834,7 +836,7 @@ export default function ReportsPage() {
             title="OPD queue — token status"
             actions={reportChartToolbar(REPORT_CHART_IDS.opdTokenPie)}
           >
-          <div className="report-chart-host h-72">
+          <div className="report-chart-host h-56 sm:h-72">
             {opdStatusPie.length === 0 ? (
               pieFallback
             ) : (
@@ -873,7 +875,7 @@ export default function ReportsPage() {
             title="Beds — status mix"
             actions={reportChartToolbar(REPORT_CHART_IDS.bedStatusPie)}
           >
-          <div className="report-chart-host h-72">
+          <div className="report-chart-host h-56 sm:h-72">
             {beds.length === 0 ? (
               pieFallback
             ) : (
@@ -914,11 +916,11 @@ export default function ReportsPage() {
             title="Operational volume (snapshot)"
             actions={reportChartToolbar(REPORT_CHART_IDS.volumeSnap)}
           >
-          <div className="report-chart-host h-72">
+          <div className="report-chart-host h-56 sm:h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={volumeBarData} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
-                <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="#64748b" interval={0} angle={-15} textAnchor="end" height={52} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} stroke="#64748b" />
+              <BarChart data={volumeBarData} margin={{ top: 4, right: 8, left: 0, bottom: 8 }}>
+                <XAxis dataKey="name" tick={{ fontSize: 8 }} stroke="#64748b" interval={0} angle={-20} textAnchor="end" height={48} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 9 }} stroke="#64748b" />
                 <Tooltip />
                 <Bar dataKey="value" fill="#8b5cf6" radius={[4, 4, 0, 0]} name="Count" />
               </BarChart>
@@ -932,14 +934,14 @@ export default function ReportsPage() {
             title="Appointments — by status"
             actions={reportChartToolbar(REPORT_CHART_IDS.apptStatusBar)}
           >
-          <div className="report-chart-host h-72">
+          <div className="report-chart-host h-56 sm:h-72">
             {appointmentsByStatus.length === 0 ? (
               pieFallback
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={appointmentsByStatus} layout="vertical" margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
-                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} stroke="#64748b" />
-                  <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 11 }} stroke="#64748b" />
+                <BarChart data={appointmentsByStatus} layout="vertical" margin={{ top: 4, right: 8, left: 4, bottom: 4 }}>
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 9 }} stroke="#64748b" />
+                  <YAxis type="category" dataKey="name" width={70} tick={{ fontSize: 8 }} stroke="#64748b" />
                   <Tooltip />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]} name="Count">
                     {appointmentsByStatus.map((e) => (
@@ -960,14 +962,14 @@ export default function ReportsPage() {
           title="Beds by ward (stacked)"
           actions={reportChartToolbar(REPORT_CHART_IDS.bedWardStack)}
         >
-        <div className="report-chart-host h-80">
+        <div className="report-chart-host h-56 sm:h-80">
           {wardStackData.length === 0 ? (
             pieFallback
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={wardStackData} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
-                <XAxis dataKey="ward" tick={{ fontSize: 11 }} stroke="#64748b" interval={0} angle={-12} textAnchor="end" height={64} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#64748b" />
+              <BarChart data={wardStackData} margin={{ top: 4, right: 8, left: 0, bottom: 8 }}>
+                <XAxis dataKey="ward" tick={{ fontSize: 8 }} stroke="#64748b" interval={0} angle={-25} textAnchor="end" height={56} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 9 }} stroke="#64748b" />
                 <Tooltip />
                 <Legend />
                 <Bar dataKey="Available" stackId="a" fill={BED_STATUS_COLORS.Available} radius={[0, 0, 0, 0]} />

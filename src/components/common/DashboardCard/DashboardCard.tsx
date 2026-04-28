@@ -17,12 +17,12 @@ export default function DashboardCard({ title, actions, children, className = ''
     >
       {/* Optional title band standardizes section headings across dashboards. */}
       {title && (
-        <div className="px-5 py-3.5 border-b border-slate-100/90 dark:border-slate-800/90 bg-slate-50/80 dark:bg-slate-900/60 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight flex-1 min-w-0">{title}</h2>
-          {actions ? <div className="flex items-center gap-2 shrink-0">{actions}</div> : null}
+        <div className="px-3 sm:px-5 py-2.5 sm:py-3.5 border-b border-slate-100/90 dark:border-slate-800/90 bg-slate-50/80 dark:bg-slate-900/60 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+          <h2 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white tracking-tight flex-1 min-w-0">{title}</h2>
+          {actions ? <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">{actions}</div> : null}
         </div>
       )}
-      <div className="p-5">{children}</div>
+      <div className="p-3 sm:p-5">{children}</div>
     </div>
   )
 }

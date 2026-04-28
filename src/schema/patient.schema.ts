@@ -17,6 +17,12 @@ export const step1Schema = z.object({
     .min(1, 'Date of birth is required')
     .refine((s) => /^\d{4}-\d{2}-\d{2}$/.test(s) && s <= isoDateLocalToday(), {
       message: 'Date of birth cannot be in the future',
+    })
+    .refine((s) => {
+      const year = parseInt(s.split('-')[0], 10)
+      return year >= 1900
+    }, {
+      message: 'Year must be 1900 or later',
     }),
   gender: z.enum(['male', 'female', 'other'], { message: 'Select gender' }),
   bloodGroup: z.string().min(1, 'Blood group is required'),
